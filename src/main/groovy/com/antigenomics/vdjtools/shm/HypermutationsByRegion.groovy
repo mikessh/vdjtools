@@ -1,4 +1,4 @@
-package com.antigenomics.vdjtools.hypermutations
+package com.antigenomics.vdjtools.shm
 
 import com.antigenomics.vdjtools.RegionRanges
 import com.antigenomics.vdjtools.Util
