@@ -27,13 +27,15 @@ class ImgtToMigecParser {
                            failedJReferencePoint = new ArrayList<>(),
                            otherSegment = new ArrayList<>()
 
+    final Map<String, Map<String, boolean[]>> segmentPresence = new HashMap<>()
+
     ImgtToMigecParser(boolean onlyFunctional, boolean onlyMajorAllele) {
         this.onlyFunctional = onlyFunctional
         this.onlyMajorAllele = onlyMajorAllele
     }
 
-    static String getGene(String id) {
-        id.substring(0, 4)
+    static String getGene(ImgtRecord imgtRecord) {
+        imgtRecord.fullId.substring(0, 3)
     }
 
     static String sequenceNoGaps(ImgtRecord record) {
@@ -65,13 +67,23 @@ class ImgtToMigecParser {
         matcher.find() ? matcher.start() - 1 : -1
     }
 
-    MigecSegmentRecord createRecord(ImgtRecord imgtRecord, String segment, int referencePoint) {
-        new MigecSegmentRecord(imgtRecord.species, getGene(imgtRecord.fullId),
+    MigecSegmentRecord createRecord(ImgtRecord imgtRecord, String gene, String segment, int referencePoint) {
+        new MigecSegmentRecord(imgtRecord.species, gene,
                 segment, imgtRecord.fullId, sequenceNoGaps(imgtRecord),
                 referencePoint)
     }
 
     MigecSegmentRecord parseRecord(ImgtRecord imgtRecord) {
+        def gene = getGene(imgtRecord)
+
+        def geneSegmentPresenceMap = segmentPresence[imgtRecord.species]
+        if (!geneSegmentPresenceMap)
+            segmentPresence.put(imgtRecord.species, geneSegmentPresenceMap = new HashMap<String, boolean[]>())
+
+        def segmentPresenceArr = geneSegmentPresenceMap[gene]
+        if (!segmentPresenceArr)
+            geneSegmentPresenceMap.put(gene, segmentPresenceArr = new boolean[3])
+
         if ((!onlyFunctional || functional(imgtRecord)) &&
                 (!onlyMajorAllele || majorAllele(imgtRecord))) {
             switch (imgtRecord.type) {
@@ -81,19 +93,33 @@ class ImgtToMigecParser {
                         failedVReferencePoint.add(imgtRecord)
                         return null
                     }
-                    return createRecord(imgtRecord, "Variable", vReferencePoint)
+                    segmentPresenceArr[0] = true
+                    return createRecord(imgtRecord, gene, "Variable", vReferencePoint)
                 case "D-REGION":
-                    return createRecord(imgtRecord, "Diversity", -1)
+                    segmentPresenceArr[1] = true
+                    return createRecord(imgtRecord, gene, "Diversity", -1)
                 case "J-REGION":
                     int jReferencePoint = getJReferencePoint(imgtRecord)
                     if (jReferencePoint < 0) {
                         failedJReferencePoint.add(imgtRecord)
                         return null
                     }
-                    return createRecord(imgtRecord, "Joining", jReferencePoint)
+                    segmentPresenceArr[2] = true
+                    return createRecord(imgtRecord, gene, "Joining", jReferencePoint)
             }
         }
         otherSegment.add(imgtRecord)
         null
+    }
+
+    static final String HEADER = "#SPECIES\tGENE\tV\tD\tJ\tVJ"
+
+    @Override
+    String toString() {
+        segmentPresence.entrySet().collect { bySpecies ->
+            bySpecies.value.entrySet().collect { byGene ->
+                [bySpecies.key, byGene.key, byGene.value.collect { it ? 1 : 0 }, byGene.value[0] && byGene.value[2] ? 1 : 0].flatten().join("\t")
+            }.join("\n")
+        }.join("\n")
     }
 }

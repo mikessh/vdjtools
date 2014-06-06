@@ -19,7 +19,7 @@ package com.antigenomics.vdjtools.imgt
 
 import com.antigenomics.vdjtools.io.FastaReader
 
-def cli = new CliBuilder(usage: 'ImgtParser [options] input_imgt_genedb output_file')
+def cli = new CliBuilder(usage: 'ImgtParser [options] input_imgt_genedb output_file_prefix')
 cli.b(longOpt: 'report-bad', 'reports \"bad\" IMGT records, i.e. those that are not V/D/J segment or ' +
         'V and J segments that do not have a reference point (conserved Cys or Phy/Trp)')
 cli.n(longOpt: 'non-func', 'include non-functional alleles (ORF and Pseudogene) in output')
@@ -40,7 +40,7 @@ if (opt.h) {
 }
 
 
-def imgtInputFileName = opt.arguments()[0], outputFileName = opt.arguments()[1]
+def imgtInputFileName = opt.arguments()[0], outputFilePrefix = opt.arguments()[1]
 
 if (!new File(imgtInputFileName).exists()) {
     println "[ERROR] Input file not exists"
@@ -50,7 +50,7 @@ if (!new File(imgtInputFileName).exists()) {
 def reader = new FastaReader(imgtInputFileName)
 def imgtParser = new ImgtToMigecParser(!opt.n, !opt.m)
 
-def outputFile = new File(outputFileName)
+def outputFile = new File(outputFilePrefix + ".txt")
 if (outputFile.absoluteFile.parentFile)
     outputFile.absoluteFile.parentFile.mkdirs()
 
@@ -66,19 +66,23 @@ outputFile.withPrintWriter { pw ->
 }
 
 if (opt.b) {
-    new File(outputFileName + ".novrefpoint").withPrintWriter { pw ->
+    new File(outputFilePrefix + ".novrefpoint").withPrintWriter { pw ->
         imgtParser.failedVReferencePoint.each {
             pw.println(it)
         }
     }
-    new File(outputFileName + ".nojrefpoint").withPrintWriter { pw ->
+    new File(outputFilePrefix + ".nojrefpoint").withPrintWriter { pw ->
         imgtParser.failedJReferencePoint.each {
             pw.println(it)
         }
     }
-    new File(outputFileName + ".othersegm").withPrintWriter { pw ->
+    new File(outputFilePrefix + ".othersegm").withPrintWriter { pw ->
         imgtParser.otherSegment.each {
             pw.println(it)
         }
     }
+}
+new File(outputFilePrefix + ".metadata").withPrintWriter { pw ->
+    pw.println(ImgtToMigecParser.HEADER)
+    pw.println(imgtParser.toString())
 }
