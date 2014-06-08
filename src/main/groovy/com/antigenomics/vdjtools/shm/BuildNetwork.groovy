@@ -38,22 +38,36 @@ String inputFileName1 = opt.arguments()[0], inputFileName2 = opt.arguments()[1],
     }
 }
 
-def NODE_HEADER = "key\tdisplay_name\tcount\tv_segment\td_segment\tj_segment\t" +
+def NODE_HEADER = "key\tdisplay_name\tcount\t" +
         "cdr1nt\tcdr2nt\tcdr3nt\t" +
         "cdr1aa\tcdr2aa\tcdr3aa\t" +
-        "inFrame\tnoStop\tcomplete\t" +
+        "v_segment\td_segment\tj_segment\t" +
         "cdr1q\tcdr2q\tcdr3q\t" +
-        "mutations"
+        "mutations\t" +
+        "inFrame\tnoStop\tcomplete"
+// todo implement inframe, etc in IgBlastWrapper
 
-def EDGE_HEADER = "key\tlevel\tnt_shm\taa_shm\tcdr_id\tsilent"
+def EDGE_HEADER = "key\tlevel\tcount\tnt_shm\taa_shm\tcdr_id\tsilent"
 
 def l0Clonotypes = new HashSet<String>()
 
+// 0    1   2   3                                               4   5   6               7           8           9
+//17	.	.	TGTGTGAGACATAAACCTATGGTCCAGGGCGGCGTCGACGTCTGG	.	.	CVRHKPMVQGGVDVW	IGHV4-39*01	IGHD5-5*01	IGHJ6*01
+
+def l0Key = { List<String> splitLine ->
+    [splitLine[7..9], splitLine[3]].flatten().join("_")
+}
+def l1Key = { List<String> splitLine ->
+    [splitLine[7..9], splitLine[1..3]].flatten().join("_")
+}
+def l2Key = { List<String> splitLine ->
+    [splitLine[7..9], splitLine[1..3], splitLine[-1]].flatten().join("_")
+}
+
 new File(inputFileName1).splitEachLine("\t") { splitLine ->
     if (!splitLine[0].startsWith("#")) {
-        def nodeKey = splitLine[1..4].join("_")
-        nodeDataMap.put(nodeKey, splitLine[4] + "\t" + splitLine[0..3].join("\t") + "\t" + (".\t" * 4) +
-                splitLine[4..8].join("\t") + "\t" + (".\t" * 2) + splitLine[9..10].join("\t"))
+        def nodeKey = l0Key(splitLine)
+        nodeDataMap.put(nodeKey, splitLine[3] + "\t" + splitLine.join("\t"))
         l0Clonotypes.add(nodeKey)
     }
 }
@@ -62,8 +76,9 @@ def level01Map = new HashMap<String, List>()
 
 new File(inputFileName2).splitEachLine("\t") { splitLine ->
     if (!splitLine[0].startsWith("#")) {
-        def nodeKey = splitLine[1..6].join("_"), upperLevelKey = splitLine[1..4].join("_")
-        nodeDataMap.put(nodeKey, splitLine[5..6].join("-") + "\t" + splitLine.join("\t"))
+        def nodeKey = l1Key(splitLine),
+            upperLevelKey = l0Key(splitLine)
+        nodeDataMap.put(nodeKey, splitLine[1..3].join("-") + "\t" + splitLine.join("\t"))
 
         def otherLevel1Nodes = level01Map[upperLevelKey]
         if (!otherLevel1Nodes)
@@ -76,18 +91,20 @@ def level12Map = new HashMap<String, List>()
 
 new File(inputFileName3).splitEachLine("\t") { splitLine ->
     if (!splitLine[0].startsWith("#")) {
-        def nodeKey = splitLine[[(4..6), -1].flatten()].join("_"), upperLevelKey = splitLine[1..6].join("_")
-        nodeDataMap.put(nodeKey, "\t" + splitLine.join("\t"))
+        if (splitLine[-1] != ".") {
+            def nodeKey = l2Key(splitLine), upperLevelKey = l1Key(splitLine)
+            nodeDataMap.put(nodeKey, "\t" + splitLine.join("\t"))
 
-        def otherLevel2Nodes = level12Map[upperLevelKey]
-        if (!otherLevel2Nodes)
-            level12Map.put(upperLevelKey, otherLevel2Nodes = new ArrayList())
-        otherLevel2Nodes.add([nodeKey, new HashSet(splitLine[-1].split("\\|").collect())])
+            def otherLevel2Nodes = level12Map[upperLevelKey]
+            if (!otherLevel2Nodes)
+                level12Map.put(upperLevelKey, otherLevel2Nodes = new ArrayList())
+            otherLevel2Nodes.add([nodeKey, new HashSet(splitLine[-1].split("\\|").collect())])
+        }
     }
 }
 
 def isSilent = { String shmString ->
-    def fromToAA = shmString.split(",")[1].split(":")[1].split(">")
+    def fromToAA = shmString.split(",")[2].split(":")[1].split(">")
     fromToAA[0] == fromToAA[1]
 }
 
@@ -111,7 +128,10 @@ level12Map.each {
 
             // give all unique hypermutations their edges
             shms.each {
-                edgeDataMap.put("$upperLevelKey (pp) $nodeId", "L2\t" + it.replace(",", "\t") + "\t" + isSilent(it))
+                edgeDataMap.put("$upperLevelKey (pp) $nodeId", "L2\t" +
+                        it.replace(",", "\t") +
+                        (it.contains("CDR") ? "" : "\t.") + "\t" +
+                        isSilent(it))
             }
         }
     }
@@ -126,7 +146,8 @@ level01Map.each {
         }
     else
         it.value.each { nodeKey ->
-            if (level12Map[nodeKey].size() > 1) // report if there are more than on L2 associated
+            if (level12Map.containsKey(nodeKey) &&  // check for no hypermutations case
+                    level12Map[nodeKey].size() > 1) // report if there are more than on L2 associated
                 edgeDataMap.put("$upperLevelKey (pp) $nodeKey", "L1")
         }
 }
@@ -158,7 +179,8 @@ l0Clonotypes.each { thisNodeKey ->
                             silent = thisAA == otherAA
 
                         edgeDataMap.put("$thisNodeKey (pp) $otherNodeKey".toString(),
-                                "L0\t$i:$oldNt>$newNt\t$codonPos:$thisAA>$otherAA\tCDR3\t$silent")
+                                // todo: + cdr3 start
+                                "L0\t.\t$i:$oldNt>$newNt\t$codonPos:$thisAA>$otherAA\tCDR3\t$silent")
                         anyShms = true
                     }
                 }
@@ -187,6 +209,7 @@ new File("$outputDir/edges.txt").withPrintWriter { pw ->
 }
 
 new File("$outputDir/net.txt").withPrintWriter { pw ->
+    pw.println("source\ttarget")
     noShmL0Nodes.each {
         pw.println("$it\t")
     }
