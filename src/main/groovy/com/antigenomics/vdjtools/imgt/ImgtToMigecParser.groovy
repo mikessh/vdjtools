@@ -1,8 +1,3 @@
-package com.antigenomics.vdjtools.imgt
-
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
 
@@ -18,6 +13,12 @@ import java.util.regex.Pattern
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+
+package com.antigenomics.vdjtools.imgt
+
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 class ImgtToMigecParser {
     final static int IMGT_V_REF = 312
     final static String CysRegex = /TG[TC]/, PheTrpRegex = /(?:TGG|TT[TC])(?:GG[ATGC]|GC[ATGC])...GG[ATGC]/

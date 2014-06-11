@@ -1,6 +1,6 @@
 package com.antigenomics.vdjtools
 
-import com.antigenomics.vdjtools.shm.HypermutationsByRegion
+import com.antigenomics.vdjtools.table.HypermutationsByRegion
 
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)

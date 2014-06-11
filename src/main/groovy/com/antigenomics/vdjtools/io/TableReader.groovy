@@ -1,5 +1,3 @@
-package com.antigenomics.vdjtools.io
-
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
 
@@ -15,6 +13,8 @@ package com.antigenomics.vdjtools.io
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+
+package com.antigenomics.vdjtools.io
 
 class TableReader {
 }

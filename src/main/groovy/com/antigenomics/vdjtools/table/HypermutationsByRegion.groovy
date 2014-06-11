@@ -1,8 +1,3 @@
-package com.antigenomics.vdjtools.shm
-
-import com.antigenomics.vdjtools.RegionRanges
-import com.antigenomics.vdjtools.Util
-
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
 
@@ -18,6 +13,12 @@ import com.antigenomics.vdjtools.Util
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+
+package com.antigenomics.vdjtools.table
+
+import com.antigenomics.vdjtools.RegionRanges
+import com.antigenomics.vdjtools.Util
+
 class HypermutationsByRegion {
     final String species
     final Map<String, RegionRanges> regionsBySegment = new HashMap<>()
