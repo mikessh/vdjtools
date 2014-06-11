@@ -26,7 +26,7 @@ class HypermutationsByRegion {
     final Map<String, int[]> countersBySegment = new HashMap<>()
 
     final static String SEP = "\\|",
-                        PATTERN = /([0-9]+),([0-9]+):([ATGC])>([ATGC]),([0-9]+):(${Util.AA_LIST})>(${Util.AA_LIST})/
+                        PATTERN = /([0-9]+),(.+),([0-9]+),(.+):([ATGC])>([ATGC]),([0-9]+):(${Util.AA_LIST})>(${Util.AA_LIST})/
 
     HypermutationsByRegion(String species, String dataPath) {
         this.species = species
@@ -69,6 +69,8 @@ class HypermutationsByRegion {
             }
         }
     }
+
+    def regions = []
 
     static final String HEADER = "Counter\t" +
             (0..<RegionRanges.N_REGIONS).collect { "Reads" }.join('\t') + '\t' +
