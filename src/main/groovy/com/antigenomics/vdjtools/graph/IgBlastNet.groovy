@@ -30,7 +30,7 @@ cli._(longOpt: "allele-spectra", argName: "int", "Spectratype threshold, used to
         "for it to be considered as allele. [default=$SPEC_THRESHOLD]")
 def opt = cli.parse(args)
 
-if (opt.h || opt == null || opt.arguments().size() < 3) {
+if (opt.h || opt == null || opt.arguments().size() < 2) {
     cli.usage()
     System.exit(-1)
 }
@@ -40,8 +40,8 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 def freqThreshold = (opt.'allele-freq' ?: FREQ_THRESHOLD).toDouble(),
     spectraThreshold = (opt.'allele-spectra' ?: SPEC_THRESHOLD).toInteger()
 
-String inputFileNameL2 = opt.arguments()[1],
-       outputDir = opt.arguments()[2]
+String inputFileNameL2 = opt.arguments()[0],
+       outputDir = opt.arguments()[1]
 
 if (!new File(inputFileNameL2).exists()) {
     println "[ERROR] Input file does not exist: $inputFileNameL2"
@@ -71,27 +71,36 @@ println "[${new Date()} $scriptName] Loading L2 clonotypes"
 new File(inputFileNameL2).eachLine { line ->
     if (!line.startsWith("#")) {
         def clonotype = new ClonotypeParsedData(line)
-        clonotypeMap.put(clonotype.key, clonotype)
 
-        freqByV.put(clonotype.v, (freqByV[clonotype.v] ?: 0) + clonotype.freq)
+        if (clonotypeMap.containsKey(clonotype.key)) {
+            println "[WARNING] Duplicate clonotype (identical CDR3 + mutations) found: " +
+                    "${clonotype.displayName}. Further considering only the one with highest count."
 
-        def freqByMut = freqByMutByV[clonotype.v]
+            clonotypeMap[clonotype.key].count += clonotype.count
+            clonotypeMap[clonotype.key].freq += clonotype.freq
+        } else {
+            clonotypeMap.put(clonotype.key, clonotype)
 
-        if (freqByMut == null)
-            freqByMutByV.put(clonotype.v, freqByMut = new HashMap<MutationParseData, MutCounter>())
+            freqByV.put(clonotype.v, (freqByV[clonotype.v] ?: 0) + clonotype.freq)
 
-        clonotype.mutations.each { mpd ->
-            def mc = freqByMut[mpd]
-            if (mc == null)
-                freqByMut.put(mpd, mc = new MutCounter())
-            mc.freq += clonotype.freq
-            mc.cdr3Len.add(clonotype.cdr3nt.length())
+            def freqByMut = freqByMutByV[clonotype.v]
+
+            if (freqByMut == null)
+                freqByMutByV.put(clonotype.v, freqByMut = new HashMap<MutationParseData, MutCounter>())
+
+            clonotype.mutations.each { mpd ->
+                def mc = freqByMut[mpd]
+                if (mc == null)
+                    freqByMut.put(mpd, mc = new MutCounter())
+                mc.freq += clonotype.freq
+                mc.cdr3Len.add(clonotype.cdr3nt.length())
+            }
+
+            def clonotypeList = byCdr3Map[clonotype.cdr3nt]
+            if (clonotypeList == null)
+                byCdr3Map.put(clonotype.cdr3nt, clonotypeList = new ArrayList<ClonotypeParsedData>())
+            clonotypeList.add(clonotype)
         }
-
-        def clonotypeList = byCdr3Map[clonotype.cdr3nt]
-        if (clonotypeList == null)
-            byCdr3Map.put(clonotype.cdr3nt, clonotypeList = new ArrayList<ClonotypeParsedData>())
-        clonotypeList.add(clonotype)
     }
 }
 
@@ -120,6 +129,7 @@ clonotypeMap.values().each { clonotype ->
 //
 
 def cl2clShmMap = new HashMap<String, Map<String, List<MutationParseData>>>()
+def weightMap = new HashMap<String, Integer>()
 
 def putShm = { String key1, String key2, MutationParseData shm ->
     def clShmMap = cl2clShmMap[key2]
@@ -130,18 +140,31 @@ def putShm = { String key1, String key2, MutationParseData shm ->
     if (shmList == null)
         clShmMap.put(key1, shmList = new LinkedList<MutationParseData>())
     shmList.add(shm)
+
+    def key = key1 + "\t" + key2
+    weightMap.put(key, (weightMap[key] ?: 0) + 1)
+    key = key2 + "\t" + key1
+    weightMap.put(key, (weightMap[key] ?: 0) + 1)
 }
 
 class Checker {
+    def searchedNodes = new HashSet<String>()
+
     // Recursively scan graph
-    static boolean checkNodes(HashMap<String, List<String>> graph, String clonotype1, String clonotype2) {
-        def subNetwork = graph[clonotype1]
-        subNetwork.each {
-            if (it == clonotype2)
-                return true
-            else if (checkNodes(graph, it, clonotype2))
-                return true
+    boolean checkNodes(HashMap<String, List<String>> graph,
+                       String start, String clonotype2) {
+        searchedNodes.add(start)
+        def subNetwork = graph[start]
+
+        for (String subNode : subNetwork) {
+            if (!searchedNodes.contains(subNode)) {
+                if (subNode == clonotype2)
+                    return true
+                else if (checkNodes(graph, subNode, clonotype2))
+                    return true
+            }
         }
+
         return false
     }
 }
@@ -157,25 +180,10 @@ byCdr3Map.values().each { clonotypeList ->
               newConnectivityMap = new HashMap<String, List<String>>()
 
     def addClonotypePair = { String key1, String key2 ->
-        def conList = newConnectivityMap[key2]
-        if (conList == null)
-            newConnectivityMap.put(key2, conList = new LinkedList<String>())
-        conList.add(key1)
-        conList = newConnectivityMap[key1]
+        def conList = newConnectivityMap[key1]
         if (conList == null)
             newConnectivityMap.put(key1, conList = new LinkedList<String>())
         conList.add(key2)
-    }
-
-    def checkAndAddShm = { ClonotypeParsedData clonotype1, ClonotypeParsedData clonotype2, MutationParseData shm ->
-        def key1 = clonotype1.key, key2 = clonotype2.key
-        // check if not connected yet
-        if (!Checker.checkNodes(connectivityMap, key1, key2)) {
-            putShm(key1, key2, shm)
-
-            // update connectivity map
-            addClonotypePair(key1, key2)
-        }
     }
 
     // Pre-compute lists of intersecting SHMs
@@ -203,32 +211,49 @@ byCdr3Map.values().each { clonotypeList ->
             def clonotype1 = clonotypeList[i]
             for (int j = i + 1; j < clonotypeList.size(); j++) {
                 def clonotype2 = clonotypeList[j]
+
                 def shms1 = clonotype1.shms, shms2 = clonotype2.shms
                 def shmCount1 = shms1.size(),
                     shmCount2 = shms2.size()
                 def shmIntersection = shmIntersections[i][j]
                 def shmDelta1 = shmCount1 - shmIntersection.size(),
                     shmDelta2 = shmCount2 - shmIntersection.size()
+
+                def key1 = clonotype1.key, key2 = clonotype2.key
+
                 if (Math.abs(shmDelta1) + Math.abs(shmDelta2) == level) {
-                    shms1.each { shm ->
-                        if (!shmIntersection.contains(shm))
-                            checkAndAddShm(clonotype1, clonotype2, shm)
+                    boolean connected = false
+
+                    def checker = new Checker()
+
+                    if (!checker.checkNodes(connectivityMap, key1, key2)) {
+                        connected = true
+                        shms1.each { shm ->
+                            if (!shmIntersection.contains(shm))
+                                putShm(key1, key2, shm)
+                        }
+                        shms2.each { shm ->
+                            if (!shmIntersection.contains(shm))
+                                putShm(key2, key1, shm)
+                        }
                     }
-                    shms2.each { shm ->
-                        if (!shmIntersection.contains(shm))
-                            checkAndAddShm(clonotype2, clonotype1, shm)
+
+                    // update connectivity map
+                    if (connected) {
+                        addClonotypePair(key1, key2)
+                        addClonotypePair(key2, key1)
                     }
                 }
             }
         }
-    }
 
-    // Merge connectivity map
-    newConnectivityMap.each {
-        def conList = connectivityMap[it.key]
-        if (conList == null)
-            connectivityMap.put(it.key, conList = new LinkedList<String>())
-        conList.addAll(it.value)
+        // Merge connectivity map
+        newConnectivityMap.each {
+            def conList = connectivityMap[it.key]
+            if (conList == null)
+                connectivityMap.put(it.key, conList = new LinkedList<String>())
+            conList.addAll(it.value)
+        }
     }
 }
 
@@ -239,6 +264,8 @@ byCdr3Map.values().each { clonotypeList ->
 def cl2clCdr3Map = new HashMap<String, String>()
 
 println "[${new Date()} $scriptName] Creating SHM links for CDR3"
+
+def linkedByCdr3 = new HashSet<String>()
 
 clonotypeMap.values().each {
     def thisSeq = it.cdr3nt
@@ -252,7 +279,9 @@ clonotypeMap.values().each {
                 ntChars[i] = newNt
                 def otherSeq = new String(ntChars)
                 if (byCdr3Map.containsKey(otherSeq)) {
-                    if (!cl2clCdr3Map.containsKey(otherSeq + " (CDR3) " + thisSeq)) {
+                    if (!linkedByCdr3.contains(otherSeq + "\t" + thisSeq)) {
+                        linkedByCdr3.add(thisSeq + "\t" + otherSeq)
+
                         int codonStart = i - i % 3
                         if (thisSeq.length() >= codonStart + 3) {
                             String thisCodon = thisSeq.substring(codonStart, codonStart + 3),
@@ -260,11 +289,16 @@ clonotypeMap.values().each {
 
                             def thisAA = Util.codon2aa(thisCodon), otherAA = Util.codon2aa(otherCodon),
                                 silent = thisAA == otherAA
-                            cl2clCdr3Map.put(thisSeq + " (CDR3) " + otherSeq,
-                                    // display name
-                                    "${silent ? "S" : "CDR3:$thisAA<>$otherAA"}\t" +
-                                            // tostring
-                                            "$i:$oldNt<>$newNt\t${(int) (i / 3)}:$thisAA>$otherAA\tCDR3\t$silent")
+
+                            byCdr3Map[thisSeq].each { from ->
+                                byCdr3Map[otherSeq].each { to ->
+                                    cl2clCdr3Map.put(from.key + " (CDR3) " + to.key,
+                                            // display name
+                                            "${silent ? "S" : "CDR3:$thisAA<>$otherAA"}\t" +
+                                                    // tostring
+                                                    "$i:$oldNt<>$newNt\t${(int) (i / 3)}:$thisAA>$otherAA\tCDR3\t$silent")
+                                }
+                            }
                         }
                     }
                 }
@@ -290,18 +324,21 @@ new File("$outputDir/nodes.txt").withPrintWriter { pw ->
 }
 
 new File("$outputDir/edges.txt").withPrintWriter { pw ->
-    pw.println("key\t" + MutationParseData.EDGE_HEADER)
+    pw.println("key\tweight\t" + MutationParseData.EDGE_HEADER)
     cl2clShmMap.each { from ->
         def fromKey = from.key
         from.value.each { to ->
             def toKey = to.key
+
+            double weight = 1.0 / weightMap[toKey + "\t" + fromKey]
+
             to.value.each { shm ->
-                pw.println(fromKey + " (" + shm.key + ") " + toKey + "\t" + shm)
+                pw.println(fromKey + " (" + shm.key + ") " + toKey + "\t" + weight + "\t" + shm)
             }
         }
     }
     cl2clCdr3Map.each {
-        pw.println("$it.key\t$it.value")
+        pw.println("$it.key\t1.0\t$it.value")
     }
 }
 

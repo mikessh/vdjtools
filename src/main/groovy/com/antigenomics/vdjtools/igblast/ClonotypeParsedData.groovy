@@ -22,8 +22,8 @@ class ClonotypeParsedData {
               alleles = new HashSet<MutationParseData>(),
               shms = new HashSet<MutationParseData>()
 
-    final int count
-    final double freq
+    int count
+    double freq
 
     final String v, d, j
     final String cdr1nt, cdr2nt, cdr3nt, cdr1aa, cdr2aa, cdr3aa, key
@@ -56,6 +56,11 @@ class ClonotypeParsedData {
 
         mutations = splitString[19] == "." ? new HashSet<MutationParseData>() :
                 new HashSet<MutationParseData>(splitString[19].split("\\|").collect { new MutationParseData(it) })
+
+        if (mutations.any { it.isStop } && noStop) {
+            println "[WARNING] Found stop codon in SHMs for a clonotype with no-stop CDR3 sequence. Forcing 'noStop' to false"
+            noStop = false
+        }
 
         key = [cdr3nt, mutations.collect { MutationParseData mpd -> "$mpd.ntPos:$mpd.fromNT>$mpd.toNT" }.join("|")].join("_")
     }

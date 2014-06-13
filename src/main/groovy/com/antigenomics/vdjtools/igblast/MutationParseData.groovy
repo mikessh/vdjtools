@@ -20,7 +20,7 @@ class MutationParseData {
     final String key, aaString, region
     final ntPos, aaPos
     final char fromAA, toAA, fromNT, toNT
-    final boolean isSilent
+    final boolean isSilent, isStop
     final int nReads, nEvents
     final double fReads, fEvents
 
@@ -45,6 +45,7 @@ class MutationParseData {
         fromAA = splitAAString[1]
         toAA = splitAAString[2]
         isSilent = fromAA == toAA
+        isStop = toAA == "*"
 
         region = splitString[3]
     }
