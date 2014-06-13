@@ -18,16 +18,18 @@ package com.antigenomics.vdjtools.igblast
 
 class ClonotypeParsedData {
 
-    final Set mutations,
-              alleles = new HashSet<MutationParseData>(),
-              shms = new HashSet<MutationParseData>()
+    final Set<MutationParseData> mutations = new HashSet<MutationParseData>(),
+                                 alleles = new HashSet<MutationParseData>(),
+                                 shms = new HashSet<MutationParseData>()
 
     int count
     double freq
 
     final String v, d, j
     final String cdr1nt, cdr2nt, cdr3nt, cdr1aa, cdr2aa, cdr3aa, key
-    final boolean inFrame, noStop, isComplete
+    final boolean inFrame, isComplete
+
+    boolean noStop
 
     /*
     0	1	2	3
@@ -54,8 +56,8 @@ class ClonotypeParsedData {
         (inFrame, noStop, isComplete) = splitString[10..12].collect { it.toBoolean() }
         (v, d, j) = splitString[13..15]
 
-        mutations = splitString[19] == "." ? new HashSet<MutationParseData>() :
-                new HashSet<MutationParseData>(splitString[19].split("\\|").collect { new MutationParseData(it) })
+        if (splitString[19] != ".")
+            mutations.addAll(splitString[19].split("\\|").collect { new MutationParseData(it) })
 
         if (mutations.any { it.isStop } && noStop) {
             println "[WARNING] Found stop codon in SHMs for a clonotype with no-stop CDR3 sequence. Forcing 'noStop' to false"

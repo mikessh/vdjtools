@@ -118,4 +118,48 @@ class Util {
                     return '?' // incomplete
         }
     }
+
+    static String regionId2Name(int regionId) {
+        switch (regionId) {
+            case 0:
+                return "FW1"
+            case 1:
+                return "CDR1"
+            case 2:
+                return "FW2"
+            case 3:
+                return "CDR2"
+            case 4:
+                return "FW3"
+            case 5:
+                return "CDR3"
+            default:
+                return "N/A"
+        }
+    }
+
+    static int regionName2Id(String regionName) {
+        switch (regionName) {
+            case "FW1":
+                return 0
+            case "CDR1":
+                return 1
+            case "FW2":
+                return 2
+            case "CDR2":
+                return 3
+            case "FW3":
+                return 4
+            case "CDR3":
+                return 5
+            default:
+                return -1
+        }
+    }
+
+    static final int N_REGIONS = 6
+
+    static InputStreamReader loadRes(String resName) {
+        new InputStreamReader(Util.class.classLoader.getResourceAsStream(resName))
+    }
 }

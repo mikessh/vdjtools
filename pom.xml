@@ -19,7 +19,7 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>*.*</include>
+                    <include>regions.*.txt</include>
                 </includes>
             </resource>
         </resources>
