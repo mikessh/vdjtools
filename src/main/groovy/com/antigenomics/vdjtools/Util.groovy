@@ -159,7 +159,7 @@ class Util {
 
     static final int N_REGIONS = 6
 
-    static InputStreamReader loadRes(String resName) {
-        new InputStreamReader(Util.class.classLoader.getResourceAsStream(resName))
+    static InputStreamReader resourceStreamReader(String resourceName) {
+        new InputStreamReader(Util.class.classLoader.getResourceAsStream(resourceName))
     }
 }

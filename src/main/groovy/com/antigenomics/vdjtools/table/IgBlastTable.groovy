@@ -50,7 +50,7 @@ String inputFileNameL2 = opt.arguments()[0],
 //IGHV1-18*01	1	75	76	99	100	150	151	174	175	288	VH	0
 final Map<String, List<Integer>> regionSizesBySegment = new HashMap<>()
 
-Util.loadRes("regions.${species}.txt").splitEachLine("\t") { List<String> splitLine ->
+Util.resourceStreamReader("regions.${species}.txt").splitEachLine("\t") { List<String> splitLine ->
     regionSizesBySegment.put(splitLine[0],
             [splitLine[2].toInteger() - splitLine[1].toInteger() + 1,
              splitLine[4].toInteger() - splitLine[3].toInteger() + 1,
@@ -63,15 +63,11 @@ println "[${new Date()} $scriptName] Looking at variable segments.."
 
 int N_REGIONS = Util.N_REGIONS
 final String HEADER = "Counter\t" +
-        (0..<N_REGIONS).collect { "Count" }.join('\t') + '\t' +
-        (0..<N_REGIONS).collect { "Count" }.join('\t') + '\t' +
         (0..<N_REGIONS).collect { "Frequency" }.join('\t') + '\t' +
         (0..<N_REGIONS).collect { "Frequency" }.join('\t') + '\t' +
         (0..<N_REGIONS).collect { "Clonotypes" }.join('\t') + '\t' +
         (0..<N_REGIONS).collect { "Clonotypes" }.join('\t') +
         "\nType\t" +
-        (0..<N_REGIONS).collect { "Replacement" }.join('\t') + '\t' +
-        (0..<N_REGIONS).collect { "Silent" }.join('\t') + '\t' +
         (0..<N_REGIONS).collect { "Replacement" }.join('\t') + '\t' +
         (0..<N_REGIONS).collect { "Silent" }.join('\t') + '\t' +
         (0..<N_REGIONS).collect { "Replacement" }.join('\t') + '\t' +

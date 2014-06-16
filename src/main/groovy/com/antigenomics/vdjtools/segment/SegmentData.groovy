@@ -1,4 +1,4 @@
-package com.antigenomics.vdjtools.io
+package com.antigenomics.vdjtools.segment
 
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
@@ -15,12 +15,19 @@ package com.antigenomics.vdjtools.io
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-class FastaRecord {
-    final String header
-    final String sequence
 
-    FastaRecord(String header, String sequence) {
-        this.header = header
-        this.sequence = sequence
+class SegmentData {
+    final String segmentName
+    final String segmentSequence
+    final List<Range> regionMarkup
+
+    SegmentData(String segmentName, String segmentSequence, List<Range> regionMarkup) {
+        this.segmentName = segmentName
+        this.segmentSequence = segmentSequence
+        this.regionMarkup = regionMarkup
+    }
+
+    int deduceRegion(int pos) {
+        regionMarkup.findIndexOf { it.contains(pos)}
     }
 }

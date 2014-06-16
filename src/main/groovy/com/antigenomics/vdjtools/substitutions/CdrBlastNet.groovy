@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools.graph
+package com.antigenomics.vdjtools.substitutions
 
 import groovyx.gpars.GParsPool
 

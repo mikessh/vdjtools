@@ -1,3 +1,5 @@
+package com.antigenomics.vdjtools.segment
+
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
 
@@ -13,8 +15,15 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+class Range {
+    final int from, to
 
-package com.antigenomics.vdjtools.io
+    Range(int from, int to) {
+        this.from = from
+        this.to = to
+    }
 
-class TableReader {
+    boolean contains(int x) {
+        x >= from && x < to
+    }
 }

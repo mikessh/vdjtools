@@ -1,5 +1,7 @@
 package com.antigenomics.vdjtools.igblast
 
+import com.antigenomics.vdjtools.Mutation
+
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
 
@@ -16,10 +18,10 @@ package com.antigenomics.vdjtools.igblast
  limitations under the License.
  */
 
-class MutationParseData {
-    final String key, aaString, region
-    final ntPos, aaPos
-    final char fromAA, toAA, fromNT, toNT
+class MutationParseData implements Mutation{
+    final String key, ntString, aaString, region
+    final int ntPos, aaPos
+    final char fromAa, toAa, fromNt, toNt
     final boolean isSilent, isStop
     final int nReads, nEvents
     final double fReads, fEvents
@@ -28,26 +30,28 @@ class MutationParseData {
         def splitString = mutationString.split(",")
 
         def splitCountString = splitString[0].split(":")
+
         nReads = splitCountString[0].toInteger()
         fReads = splitCountString[1].toDouble()
         nEvents = splitCountString[2].toInteger()
         fEvents = splitCountString[3].toDouble()
 
-        key = splitString[1]
-        def splitNTString = key.split("[:>]")
+        ntString = splitString[1]
+        def splitNTString = ntString.split("[:>]")
         ntPos = splitNTString[0].toInteger()
-        fromNT = splitNTString[1]
-        toNT = splitNTString[2]
+        fromNt = splitNTString[1]
+        toNt = splitNTString[2]
 
         aaString = splitString[2]
         def splitAAString = aaString.split("[:>]")
         aaPos = splitAAString[0].toInteger()
-        fromAA = splitAAString[1]
-        toAA = splitAAString[2]
-        isSilent = fromAA == toAA
-        isStop = toAA == "*"
+        fromAa = splitAAString[1]
+        toAa = splitAAString[2]
+        isSilent = fromAa == toAa
+        isStop = toAa == "*"
 
         region = splitString[3]
+        key = region + ":" + ntString
     }
 
     boolean equals(o) {
@@ -73,7 +77,7 @@ class MutationParseData {
             "nt_shm\taa_shm\tregion\tsilent"
 
     String getDisplayName() {
-        isSilent ? "S" : (region + ":" + fromAA + ">" + toAA)
+        isSilent ? "S" : (region + ":" + fromAa + ">" + toAa)
     }
 
     @Override

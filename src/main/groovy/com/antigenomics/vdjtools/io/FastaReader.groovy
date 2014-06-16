@@ -1,3 +1,4 @@
+package com.antigenomics.vdjtools.io
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
 
@@ -13,15 +14,16 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
-package com.antigenomics.vdjtools.io
-
-class FastaReader {
-    final Reader reader
+class FastaReader implements Iterable<FastaRecord> {
+    final BufferedReader reader
     String header = ""
 
     FastaReader(String fileName) {
-        reader = new FileReader(fileName)
+        this(new FileReader(fileName))
+    }
+
+    FastaReader(InputStreamReader input) {
+        reader = new BufferedReader(input)
     }
 
     FastaRecord next() {
@@ -47,5 +49,9 @@ class FastaReader {
             } else // sequence line
                 seq += line
         }
+    }
+
+    Iterator iterator() {
+        return [ hasNext: { header == null}, next: { next() } ] as Iterator
     }
 }

@@ -1,4 +1,4 @@
-package com.antigenomics.vdjtools.io
+package com.antigenomics.vdjtools.segment
 
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
@@ -15,12 +15,9 @@ package com.antigenomics.vdjtools.io
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-class FastaRecord {
-    final String header
-    final String sequence
-
-    FastaRecord(String header, String sequence) {
-        this.header = header
-        this.sequence = sequence
-    }
+class RegionData {
+    final String regionName, regionSeq
+    final int regionId
+    final SegmentData segmentData
+    final int regionLength
 }

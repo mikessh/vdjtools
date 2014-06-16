@@ -16,7 +16,9 @@
 
 package com.antigenomics.vdjtools.igblast
 
-class ClonotypeParsedData {
+import com.antigenomics.vdjtools.Clonotype
+
+class ClonotypeParsedData implements Clonotype {
 
     final Set<MutationParseData> mutations = new HashSet<MutationParseData>(),
                                  alleles = new HashSet<MutationParseData>(),
@@ -27,9 +29,8 @@ class ClonotypeParsedData {
 
     final String v, d, j
     final String cdr1nt, cdr2nt, cdr3nt, cdr1aa, cdr2aa, cdr3aa, key
-    final boolean inFrame, isComplete
 
-    boolean noStop
+    final boolean inFrame, isComplete, noStop
 
     /*
     0	1	2	3
@@ -53,18 +54,17 @@ class ClonotypeParsedData {
         freq = splitString[3].toDouble()
 
         (cdr1nt, cdr2nt, cdr3nt, cdr1aa, cdr2aa, cdr3aa) = splitString[4..9]
-        (inFrame, noStop, isComplete) = splitString[10..12].collect { it.toBoolean() }
+
         (v, d, j) = splitString[13..15]
 
+        (inFrame, noStop, isComplete) = splitString[10..12].collect { it.toBoolean() }
+
         if (splitString[19] != ".")
-            mutations.addAll(splitString[19].split("\\|").collect { new MutationParseData(it) })
+            mutations.addAll(splitString[19].split("\\|").collect {
+                new MutationParseData(it)
+            })
 
-        if (mutations.any { it.isStop } && noStop) {
-            println "[WARNING] Found stop codon in SHMs for a clonotype with no-stop CDR3 sequence. Forcing 'noStop' to false"
-            noStop = false
-        }
-
-        key = [cdr3nt, mutations.collect { MutationParseData mpd -> "$mpd.ntPos:$mpd.fromNT>$mpd.toNT" }.join("|")].join("_")
+        key = [cdr3nt, mutations.collect { MutationParseData mpd -> "$mpd.ntPos:$mpd.fromNt>$mpd.toNt" }.join("|")].join("_")
     }
 
     //

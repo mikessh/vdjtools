@@ -1,4 +1,4 @@
-package com.antigenomics.vdjtools.io
+package com.antigenomics.vdjtools.segment
 
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
@@ -15,12 +15,14 @@ package com.antigenomics.vdjtools.io
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-class FastaRecord {
-    final String header
-    final String sequence
+class FrequencyCounter {
+    int clonotypes = 0
+    double freq = 0
 
-    FastaRecord(String header, String sequence) {
-        this.header = header
-        this.sequence = sequence
+    final static String HEADER = "clonotypes\tfreq"
+
+    @Override
+    String toString() {
+        "$clonotypes\t$freq"
     }
 }

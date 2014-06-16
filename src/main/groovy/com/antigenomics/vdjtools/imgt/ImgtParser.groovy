@@ -56,8 +56,7 @@ if (outputFile.absoluteFile.parentFile)
 
 outputFile.withPrintWriter { pw ->
     pw.println(MigecSegmentRecord.HEADER)
-    def fastaRecord
-    while ((fastaRecord = reader.next()) != null) {
+    reader.each { fastaRecord ->
         def imgtRecord = new ImgtRecord(fastaRecord)
         def migecRecord = imgtParser.parseRecord(imgtRecord)
         if (migecRecord)

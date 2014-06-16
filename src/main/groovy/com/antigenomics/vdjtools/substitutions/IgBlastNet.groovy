@@ -14,18 +14,20 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools.graph
+package com.antigenomics.vdjtools.substitutions
 
+import com.antigenomics.vdjtools.SummaryMap
 import com.antigenomics.vdjtools.Util
 import com.antigenomics.vdjtools.igblast.ClonotypeParsedData
 import com.antigenomics.vdjtools.igblast.MutationParseData
 
-def FREQ_THRESHOLD = "0.40", SPEC_THRESHOLD = "3"
+def FREQ_THRESHOLD = "0.4", SPEC_THRESHOLD = "3", V_FREQ_THRESHOLD = 0.01
 def cli = new CliBuilder(usage: "IgBlastNet [options] igblast_output_level2 output_prefix")
 cli.h("display help message")
 cli.S(longOpt: "species", argName: "string",
         "Species for which partitioning info on IG regions (FWs and CDRs) will be loaded. " +
                 "Possible values: human [default], mouse, rabbit and rat.")
+cli.d("Deduce CDR3 SHM direction [experimental]")
 cli._(longOpt: "allele-freq", argName: "[0, 1]", "Frequency threshold, used together with spectratype threshold. " +
         "Mutations with higher frequency are considered as allele candidates. [default=$FREQ_THRESHOLD]")
 cli._(longOpt: "allele-spectra", argName: "int", "Spectratype threshold, used together with frequency threshold. " +
@@ -42,7 +44,8 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 def species = (opt.S ?: "human").toLowerCase(),
     freqThreshold = (opt.'allele-freq' ?: FREQ_THRESHOLD).toDouble(),
-    spectraThreshold = (opt.'allele-spectra' ?: SPEC_THRESHOLD).toInteger()
+    spectraThreshold = (opt.'allele-spectra' ?: SPEC_THRESHOLD).toInteger(),
+    deduceDirection = opt.d
 
 String inputFileNameL2 = opt.arguments()[0],
        outputPrefix = opt.arguments()[1]
@@ -55,13 +58,14 @@ if (!new File(inputFileNameL2).exists()) {
 // Allele statistics
 //
 
-class MutCounter {
+class AlleleCounter {
     double freq = 0
     final Set<Integer> cdr3Len = new HashSet<>()
 }
 
 def freqByV = new HashMap<String, Double>(),
-    freqByMutByV = new HashMap<String, Map<MutationParseData, MutCounter>>()
+    clonotypesByV = new HashMap<String, Integer>(),
+    freqByMutByV = new HashMap<String, Map<MutationParseData, AlleleCounter>>()
 
 //
 // Read and parse clonotypes
@@ -86,17 +90,18 @@ new File(inputFileNameL2).eachLine { line ->
             clonotypeMap.put(clonotype.key, clonotype)
 
             freqByV.put(clonotype.v, (freqByV[clonotype.v] ?: 0) + clonotype.freq)
+            clonotypesByV.put(clonotype.v, (clonotypesByV[clonotype.v] ?: 0) + 1)
 
             def freqByMut = freqByMutByV[clonotype.v]
 
             if (freqByMut == null)
-                freqByMutByV.put(clonotype.v, freqByMut = new HashMap<MutationParseData, MutCounter>())
+                freqByMutByV.put(clonotype.v, freqByMut = new HashMap<MutationParseData, AlleleCounter>())
 
             clonotype.mutations.each { mpd ->
                 def mc = freqByMut[mpd]
                 if (mc == null)
-                    freqByMut.put(mpd, mc = new MutCounter())
-                mc.freq += clonotype.freq
+                    freqByMut.put(mpd, mc = new AlleleCounter())
+                mc.freq = mc.freq + clonotype.freq
                 mc.cdr3Len.add(clonotype.cdr3nt.length())
             }
 
@@ -120,7 +125,9 @@ clonotypeMap.values().each { clonotype ->
 
     clonotype.mutations.each { mpd ->
         def mutCounter = freqByMut[mpd]
-        if (mutCounter.freq / vFreq < freqThreshold ||
+
+        if (vFreq > V_FREQ_THRESHOLD ||
+                mutCounter.freq / vFreq < freqThreshold ||
                 mutCounter.cdr3Len.size() < spectraThreshold)
             clonotype.shms.add(mpd)
         else
@@ -150,7 +157,6 @@ def putShm = { String key1, String key2, MutationParseData shm ->
     shmList.add(shm)
 
     // Compute incoming degrees
-    inDegreeMap.put(key2, (inDegreeMap[key2] ?: 0))
     inDegreeMap.put(key1, (inDegreeMap[key1] ?: 0) + 1)
 
     // Weight (for visualization, undirected)
@@ -190,7 +196,7 @@ println "[${new Date()} $scriptName] Creating SHM links for FW1-FW3"
 byCdr3Map.values().each { clonotypeList ->
     int maxLevel = 0
 
-    clonotypeList.each { maxLevel = Math.max(maxLevel, it.shms.size()) }
+    clonotypeList.each { maxLevel = Math.max(maxLevel, 2 * it.shms.size()) }
 
     final def connectivityMap = new HashMap<String, List<String>>(),
               newConnectivityMap = new HashMap<String, List<String>>()
@@ -285,64 +291,77 @@ def linkedByCdr3 = new HashSet<String>()
 
 clonotypeMap.values().each {
     def thisSeq = it.cdr3nt
-    def ntChars = thisSeq.toCharArray()
+    char[] thisNts = thisSeq.toCharArray()
 
-    for (int i = 0; i < ntChars.length; i++) {
-        oldNt = ntChars[i]
+    for (int i = 0; i < thisNts.length; i++) {
+        def fromNt = thisNts[i]
         // hash-based 1-loop single-mm search
-        Util.NTS.each { char newNt ->
-            if (newNt != oldNt) {
-                ntChars[i] = newNt
-                def otherSeq = new String(ntChars)
-                if (byCdr3Map.containsKey(otherSeq)) {
-                    if (!linkedByCdr3.contains(otherSeq + "\t" + thisSeq)) {
-                        // Make sure there are no duplicates
-                        linkedByCdr3.add(thisSeq + "\t" + otherSeq)
+        Util.NTS.each { char toNt ->
+            if (toNt != fromNt) {
+                thisNts[i] = toNt
 
-                        int codonStart = i - i % 3
-                        if (thisSeq.length() >= codonStart + 3) {
-                            String fromCodon = thisSeq.substring(codonStart, codonStart + 3),
-                                   toCodon = otherSeq.substring(codonStart, codonStart + 3)
+                def otherSeq = new String(thisNts)
 
-                            def fromAA = Util.codon2aa(fromCodon), toAA = Util.codon2aa(toCodon),
-                                silent = fromAA == toAA
+                if (byCdr3Map.containsKey(otherSeq) && !linkedByCdr3.contains(thisSeq + "\t" + otherSeq)) {
+                    // Make sure there are no duplicates
+                    linkedByCdr3.add(otherSeq + "\t" + thisSeq)
 
-                            def toClonotypes = byCdr3Map[thisSeq], fromClonotypes = byCdr3Map[otherSeq]
+                    int codonStart = i - i % 3
 
-                            // Decide which clonotypes to connect
-                            // - select the one with lowest in-degree
-                            def fromClonotype = toClonotypes.min { inDegreeMap[it.key] },
-                                toClonotype = fromClonotypes.min { inDegreeMap[it.key] }
+                    if (thisSeq.length() >= codonStart + 3) {
+                        String fromCodon = thisSeq.substring(codonStart, codonStart + 3),
+                               toCodon = otherSeq.substring(codonStart, codonStart + 3)
 
-                            // Decide the ancestry of this SHM
-                            // - the first factor is number of clonotypes,
-                            // - the second one is number of SHMs
-                            int toMutationsTotal = toClonotypes.sum { clonotypeMap[it.key].mutations.size() },
-                                fromMutationsTotal = fromClonotypes.sum { clonotypeMap[it.key].mutations.size() }
-                            if (toClonotypes.size() < fromClonotypes.size() ||
-                                    toMutationsTotal < fromMutationsTotal) {
-                                (oldNt, newNt) = [newNt, oldNt]
-                                (fromAA, toAA) = [toAA, fromAA]
-                                (fromClonotype, toClonotype) = [toClonotype, fromClonotype]
-                            }
+                        def fromAA = Util.codon2aa(fromCodon), toAA = Util.codon2aa(toCodon),
+                            silent = fromAA == toAA
 
-                            if (toClonotypes.size() == fromClonotypes.size() &&
-                                    toMutationsTotal == fromMutationsTotal)
-                            // Tie situation - no way to guess parent
-                                cl2clCdr3Map.put(fromClonotype.key + " (CDR3) " + toClonotype.key,
-                                        // display name
-                                        "${silent ? "S" : "CDR3:$fromAA<>$toAA"}\t" +
-                                                // tostring
-                                                "$i:$oldNt<>$newNt\t${(int) (i / 3)}:$fromAA<>$toAA\tCDR3\t$silent\ttrue")
-                            else
-                                cl2clCdr3Map.put(fromClonotype.key + " (CDR3) " + toClonotype.key,
-                                        "${silent ? "S" : "CDR3:$fromAA>$toAA"}\t" +
-                                                "$i:$oldNt>$newNt\t${(int) (i / 3)}:$fromAA>$toAA\tCDR3\t$silent")
+                        def fromClonotypes = byCdr3Map[thisSeq], toClonotypes = byCdr3Map[otherSeq]
+
+                        // Connect clonotypes with highest SHM overlap
+                        def (fromClonotype, toClonotype) = [fromClonotypes, toClonotypes].combinations().max {
+                            it[0].shms.size() > it[1].shms.size() ?
+                                    it[0].shms.intersect(it[1].shms).size() :
+                                    it[1].shms.intersect(it[0].shms).size()
                         }
+
+                        // Try to deduce SHM direction
+                        int fromMutationSum = 0, toMutationSum = 0
+                        if (deduceDirection) {
+                            fromMutationSum = fromClonotypes.sum {
+                                inDegreeMap[it.key] ?: 0
+                            } + fromClonotype.shms.size()
+                            toMutationSum = toClonotypes.sum {
+                                inDegreeMap[it.key] ?: 0
+                            } + toClonotype.shms.size()
+                        }
+
+                        boolean flipped = false
+                        if (toMutationSum < fromMutationSum) {
+                            // flip
+                            (fromNt, toNt) = [toNt, fromNt]
+                            (fromAA, toAA) = [toAA, fromAA]
+                            (fromClonotype, toClonotype) = [toClonotype, fromClonotype]
+                            flipped = true
+                        }
+
+
+                        def edgeString // display_name + to_string
+                        if (toMutationSum == fromMutationSum)
+                        // Tie situation - no way to guess parent
+                            edgeString = "${silent ? "S" : "CDR3:$fromAA<>$toAA"}\t" +
+                                    "$i:$fromNt<>$toNt\t${(int) (i / 3)}:$fromAA<>$toAA\tCDR3\t$silent\ttrue"
+                        else
+                            edgeString = "${silent ? "S" : "CDR3:$fromAA>$toAA"}\t" +
+                                    "$i:$fromNt>$toNt\t${(int) (i / 3)}:$fromAA>$toAA\tCDR3\t$silent\tfalse"
+
+                        cl2clCdr3Map.put(fromClonotype.key + " (CDR3) " + toClonotype.key, edgeString)
+
+                        if (flipped)
+                            fromNt = toNt // restore
                     }
                 }
             }
-            ntChars[i] = oldNt
+            thisNts[i] = fromNt
         }
     }
 }
@@ -352,11 +371,11 @@ clonotypeMap.values().each {
 //
 
 final Map<String, List<Integer>> regionSizesBySegment = new HashMap<>()
-final Map<String, Integer> ambigousRegionCounters = new HashMap<>()
+final Map<String, Integer> ambiguosRegionCounters = new HashMap<>()
 
 println "[${new Date()} $scriptName] Loading some segment data that we'll need further"
 
-Util.loadRes("regions.${species}.txt").splitEachLine("\t") { List<String> splitLine ->
+Util.resourceStreamReader("regions.${species}.txt").splitEachLine("\t") { List<String> splitLine ->
     def regionSizes = new IntRange(1, 10).step(2).collect {
         splitLine[it + 1].toInteger() -
                 splitLine[it].toInteger() + 1
@@ -370,24 +389,24 @@ Util.loadRes("regions.${species}.txt").splitEachLine("\t") { List<String> splitL
 
     // Those will be used to fill region sizes for segments with missing data
 
-    if (!ambigousRegionCounters.containsKey(gene)) {
-        ambigousRegionCounters.put(gene, 0)
+    if (!ambiguosRegionCounters.containsKey(gene)) {
+        ambiguosRegionCounters.put(gene, 0)
         regionSizesBySegment.put(gene, (1..5).collect { 0 })
     }
 
-    if (!ambigousRegionCounters.containsKey(chain)) {
-        ambigousRegionCounters.put(chain, 0)
+    if (!ambiguosRegionCounters.containsKey(chain)) {
+        ambiguosRegionCounters.put(chain, 0)
         regionSizesBySegment.put(chain, (1..5).collect { 0 })
     }
 
-    ambigousRegionCounters.put(gene, ambigousRegionCounters[gene] + 1)
-    ambigousRegionCounters.put(chain, ambigousRegionCounters[chain] + 1)
+    ambiguosRegionCounters.put(gene, ambiguosRegionCounters[gene] + 1)
+    ambiguosRegionCounters.put(chain, ambiguosRegionCounters[chain] + 1)
 
     regionSizesBySegment[gene] = [regionSizesBySegment[gene], regionSizes].transpose()*.sum()
     regionSizesBySegment[chain] = [regionSizesBySegment[chain], regionSizes].transpose()*.sum()
 }
 
-ambigousRegionCounters.each {
+ambiguosRegionCounters.each {
     regionSizesBySegment[it.key] = regionSizesBySegment[it.key]*.intdiv(it.value)
 }
 
@@ -415,10 +434,75 @@ if (of.parentFile != null)
 
 // Mutation lists
 
-def LIST_HEADER = "#count\tfreq\tv_segment" + MutationParseData.EDGE_HEADER + "\tundirected\tregion_length"
+def LIST_HEADER = "#count\tfreq\tv_segment\t" + MutationParseData.EDGE_HEADER +
+        "\tundirected\tregion_length\tv_freq\tv_clonotypes"
+
+def summaryMap = new SummaryMap(2, LIST_HEADER)
+clonotypeMap.values().each { clonotype ->
+    clonotype.alleles.each { allele ->
+        summaryMap.put(
+                [clonotype.v, allele, "false",
+                 getRegionSize(clonotype.v, allele.region),
+                 freqByV[clonotype.v], clonotypesByV[clonotype.v]].join("\t"),
+                [1.0, clonotype.freq])
+    }
+}
+summaryMap.writeToFile(outputPrefix + ".alleles.txt")
+
+summaryMap = new SummaryMap(2, LIST_HEADER)
+clonotypeMap.values().each { clonotype ->
+    clonotype.shms.each { shm ->
+        summaryMap.put(
+                [clonotype.v, shm, "false",
+                 getRegionSize(clonotype.v, shm.region),
+                 freqByV[clonotype.v], clonotypesByV[clonotype.v]].join("\t"),
+                [1.0, clonotype.freq])
+    }
+}
+summaryMap.writeToFile(outputPrefix + ".shms_all.txt")
+
+summaryMap = new SummaryMap(2, LIST_HEADER)
+cl2clShmMap.values().each {
+    it.each { to ->
+        def toKey = to.key, toClonotype = clonotypeMap[toKey]
+
+        to.value.each { shm ->
+            summaryMap.put(
+                    [toClonotype.v, shm, "false",
+                     getRegionSize(toClonotype.v, shm.region),
+                     freqByV[toClonotype.v], clonotypesByV[toClonotype.v]].join("\t"),
+                    [1.0, toClonotype.freq])
+        }
+    }
+}
+summaryMap.writeToFile(outputPrefix + ".shms_emerged.txt")
+
+summaryMap = new SummaryMap(2, LIST_HEADER)
+cl2clCdr3Map.each {
+    def splitKey = it.key.split(" \\(CDR3\\) ")
+    def fromClonotype = clonotypeMap[splitKey[0]],
+        toClonotype = clonotypeMap[splitKey[1]]
+
+    def undirected = it.value.split("\t")[-1] == false
+    summaryMap.put(
+            [toClonotype.v, it.value, toClonotype.cdr3nt.length(),
+             freqByV[toClonotype.v], clonotypesByV[toClonotype.v]].join("\t"),
+            [1.0, undirected ? (toClonotype.freq + fromClonotype.freq) / 2 : toClonotype.freq])
+}
+summaryMap.writeToFile(outputPrefix + ".cdr3.txt")
+
+new File(outputPrefix + ".vfreq.txt").withPrintWriter { pw ->
+    pw.println("segment\tfrequency\tclonotypes")
+    freqByV.each {
+        pw.println(it.key + "\t" + it.value + "\t" + clonotypesByV[it.key])
+    }
+}
+
+/*
 
 new File(outputPrefix + ".alleles.txt").withPrintWriter { pw ->
     pw.println(LIST_HEADER)
+
     clonotypeMap.values().each { clonotype ->
         clonotype.alleles.each { allele ->
             pw.println(clonotype.count + "\t" + clonotype.freq + "\t" + clonotype.v + "\t" +
@@ -428,7 +512,7 @@ new File(outputPrefix + ".alleles.txt").withPrintWriter { pw ->
     }
 }
 
-new File(outputPrefix + ".germline_total.txt").withPrintWriter { pw ->
+new File(outputPrefix + ".germline.txt").withPrintWriter { pw ->
     pw.println(LIST_HEADER)
     clonotypeMap.values().each { clonotype ->
         clonotype.shms.each { shm ->
@@ -439,7 +523,7 @@ new File(outputPrefix + ".germline_total.txt").withPrintWriter { pw ->
     }
 }
 
-new File(outputPrefix + ".germline_directed.txt").withPrintWriter { pw ->
+new File(outputPrefix + ".germline_transitional.txt").withPrintWriter { pw ->
     pw.println(LIST_HEADER)
     cl2clShmMap.values().each {
         it.each { to ->
@@ -454,31 +538,19 @@ new File(outputPrefix + ".germline_directed.txt").withPrintWriter { pw ->
     }
 }
 
-new File(outputPrefix + ".cdr3_total.txt").withPrintWriter { pw1 ->
-    pw1.println(LIST_HEADER)
-    new File(outputPrefix + ".cdr3_directed.txt").withPrintWriter { pw2 ->
-        pw2.println(LIST_HEADER)
-        cl2clCdr3Map.each {
-            def splitKey = it.key.split(" \\(CDR3\\) ")
-            def fromClonotype = clonotypeMap[splitKey[0]],
-                toClonotype = clonotypeMap[splitKey[1]]
-            def unDirected = it.key.split("\t")[-1] == "true"
+new File(outputPrefix + ".cdr3.txt").withPrintWriter { pw ->
+    pw.println(LIST_HEADER)
+    cl2clCdr3Map.each {
+        def splitKey = it.key.split(" \\(CDR3\\) ")
+        def fromClonotype = clonotypeMap[splitKey[0]],
+            toClonotype = clonotypeMap[splitKey[1]]
 
-            if (unDirected) {
-                pw1.println((fromClonotype.count + toClonotype.count) / 2 + "\t" +
-                        (fromClonotype.freq + toClonotype.freq) / 2 + "\t" + toClonotype.v + "\t" +
-                        it.value + "\t" +
-                        fromClonotype.cdr3nt.length())
-            } else {
-                def line = toClonotype.count + "\t" + toClonotype.freq + "\t" + toClonotype.v + "\t" +
-                        it.value + "\tfalse\t" +
-                        fromClonotype.cdr3nt.length()
-                pw1.println(line)
-                pw2.println(line)
-            }
-        }
+        pw.println((fromClonotype.count + toClonotype.count) / 2 + "\t" +
+                (fromClonotype.freq + toClonotype.freq) / 2 + "\t" + toClonotype.v + "\t" +
+                it.value + "\t" +
+                fromClonotype.cdr3nt.length())
     }
-}
+}    */
 
 // Cytoscape files
 
@@ -499,7 +571,7 @@ new File(outputPrefix + ".edges.txt").withPrintWriter { pw ->
             double weight = 1.0 / edgeWeightMap[toKey + "\t" + fromKey]
 
             to.value.each { shm ->
-                pw.println(fromKey + " (" + shm.key + ") " + toKey + "\t" + weight + "\t" + shm)
+                pw.println(fromKey + " (" + shm.key + ") " + toKey + "\t" + weight + "\t" + shm + "\tfalse")
             }
         }
     }

@@ -1,4 +1,6 @@
-package com.antigenomics.vdjtools.io
+package com.antigenomics.vdjtools.substitutions
+
+import com.antigenomics.vdjtools.segment.RegionData
 
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
@@ -15,12 +17,11 @@ package com.antigenomics.vdjtools.io
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-class FastaRecord {
-    final String header
-    final String sequence
-
-    FastaRecord(String header, String sequence) {
-        this.header = header
-        this.sequence = sequence
-    }
+class Substitution {
+    final String key, ntString, aaString
+    final RegionData regionData
+    final boolean directed
+    final ntPos, aaPos
+    final char fromAA, toAA, fromNT, toNT
+    final boolean isSilent, isStop
 }
