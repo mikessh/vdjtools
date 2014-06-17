@@ -52,7 +52,7 @@ class Mutation {
                 directed, parent)
     }
 
-    static Mutation germlineMutation(String mutationString, Clonotype parent) {
+    static Mutation parseIgBlastMutation(String mutationString, Clonotype parent) {
         def splitString = mutationString.split(",")
 
         def ntString = splitString[1]
@@ -90,6 +90,12 @@ class Mutation {
 
     double getFreq() {
         directed ? parent.freq : altFreq
+    }
+
+    String getMotif(int lSize, int rSize) {
+        int from = ntPos - lSize, to = ntPos + rSize + 1
+        region == "CDR3" ? parent.getSubSequence(from, to) :
+                parent.getVSegmentData().getSubSequence(from, to)
     }
 
     //

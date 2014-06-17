@@ -49,9 +49,11 @@ class FastaReader implements Iterable<FastaRecord> {
             } else // sequence line
                 seq += line
         }
+
+
     }
 
     Iterator iterator() {
-        return [ hasNext: { header == null}, next: { next() } ] as Iterator
+        return [ hasNext: { header != null}, next: { next() } ] as Iterator
     }
 }

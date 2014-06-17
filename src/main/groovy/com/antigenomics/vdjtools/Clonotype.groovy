@@ -16,8 +16,11 @@
 
 package com.antigenomics.vdjtools
 
-class Clonotype {
+import com.antigenomics.vdjtools.segment.SegmentData
+import com.antigenomics.vdjtools.segment.VSegmentTable
 
+class Clonotype {
+    VSegmentTable parentVSegmentTable = null
     final Set<Mutation> mutations = new HashSet<Mutation>(),
                         alleles = new HashSet<Mutation>(),
                         shms = new HashSet<Mutation>()
@@ -59,7 +62,7 @@ class Clonotype {
 
         if (splitString[19] != ".")
             mutations.addAll(splitString[19].split("\\|").collect { String mutString ->
-                Mutation.germlineMutation(mutString, this)
+                Mutation.parseIgBlastMutation(mutString, this)
             })
 
         key = [cdr3nt, mutations.collect { Mutation mpd -> "$mpd.ntPos:$mpd.fromNt>$mpd.toNt" }.join("|")].join("_")
@@ -67,6 +70,10 @@ class Clonotype {
 
     String getSubSequence(int from, int to) {
         Util.getSubSequence(cdr3nt, from, to)
+    }
+
+    SegmentData getVSegmentData() {
+        parentVSegmentTable.getSegmentData(v)
     }
 
     //

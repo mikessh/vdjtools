@@ -23,7 +23,7 @@ import com.antigenomics.vdjtools.segment.SegmentUtil
 import com.antigenomics.vdjtools.segment.VSegmentTable
 
 def FREQ_THRESHOLD = "0.4", SPEC_THRESHOLD = "3", V_FREQ_THRESHOLD = 0.01
-def cli = new CliBuilder(usage: "IgBlastNet [options] igblast_output_level2 output_prefix")
+def cli = new CliBuilder(usage: "IgBlastStat [options] igblast_output_level2 output_prefix")
 cli.h("display help message")
 cli.S(longOpt: "species", argName: "string",
         "Species for which partitioning info on IG regions (FWs and CDRs) will be loaded. " +
@@ -293,19 +293,23 @@ if (of.parentFile != null)
 
 // Mutation lists
 
-def allelesRsTable = new RSTable(true, vSegmentTable)
-allelesRsTable.addAll(clonotypeMap.clonotypes.collect { it.alleles }.flatten())
-
-def shmRsTable = new RSTable(true, vSegmentTable)
-shmRsTable.addAll(clonotypeMap.clonotypes.collect { it.shms }.flatten())
-
-def emergedShmRsTable = new RSTable(true, vSegmentTable)
-emergedShmRsTable.addAll(
-        [
+def alleles = clonotypeMap.clonotypes.collect { it.alleles }.flatten(),
+    shms = clonotypeMap.clonotypes.collect { it.shms }.flatten(),
+    shmsEmerged = [
             cl2clShmMap.values().collect { it.values() },
             cl2clCdr3Map.values().collect { it.values() }
-        ].flatten()
-)
+    ].flatten()
+
+// RS table
+
+def allelesRsTable = new RSTable(true, vSegmentTable)
+allelesRsTable.addAll(alleles)
+
+def shmRsTable = new RSTable(true, vSegmentTable)
+shmRsTable.addAll(shms)
+
+def emergedShmRsTable = new RSTable(true, vSegmentTable)
+emergedShmRsTable.addAll(shmsEmerged)
 
 new File(outputPrefix + ".mutations.rs.txt").withPrintWriter { pw ->
     pw.println("#silent:replacement\t" + SegmentUtil.HEADER)
@@ -319,6 +323,21 @@ new File(outputPrefix + ".mutations.cov.txt").withPrintWriter { pw ->
     pw.println("alleles\t" + allelesRsTable.summaryCoverage.collect().join("\t"))
     pw.println("shms\t" + shmRsTable.summaryCoverage.collect().join("\t"))
     pw.println("shms_emerged\t" + emergedShmRsTable.summaryCoverage.collect().join("\t"))
+}
+
+// Mutation motifs
+def allelesPwm = new MotifPwm(), shmPwm = new MotifPwm(), emergedShmPwm = new MotifPwm()
+allelesPwm.addAll(alleles)
+shmPwm.addAll(shms)
+emergedShmPwm.addAll(shmsEmerged)
+
+new File(outputPrefix + ".mutations.pwm.txt").withPrintWriter { pw ->
+    pw.println("#alleles")
+    pw.println(allelesPwm)
+    pw.println("\n#shms")
+    pw.println(shmPwm)
+    pw.println("\n#emerged_shms")
+    pw.println(emergedShmPwm)
 }
 
 // Cytoscape files

@@ -21,7 +21,7 @@ import groovyx.gpars.GParsPool
 import java.util.concurrent.atomic.AtomicLong
 
 def T = "10000"
-def cli = new CliBuilder(usage: 'CdrBlastNet CdrBlast_output output_dir/')
+def cli = new CliBuilder(usage: 'CdrBlastStat CdrBlast_output output_dir/')
 cli.p(args: 1, 'Number of threads. Default: all available processors.')
 cli.t(args: 1, "Clonotype size ratio threshold to record a hypermutation. Default: $T.")
 def opt = cli.parse(args)

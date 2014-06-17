@@ -33,6 +33,14 @@ class VSegmentTable {
             def segmentName = splitLine[0]
             def sequence = segmentToSequenceMap[segmentName]
 
+            // todo: check missing
+
+            //if (sequence == null) {
+            //    println "MISS '" + segmentName + "'"
+            //
+            //    sequence = "N" * 900
+            //}
+
             def segmentData = new SegmentData(segmentName, sequence,
                     new IntRange(1, 10).step(2).collect { int i ->
                         new Range(splitLine[i].toInteger() - 1, // 1-based
@@ -51,11 +59,15 @@ class VSegmentTable {
     }
 
     String getSubSequence(String vSegment, int from, int to) {
-        Util.getSubSequence(segmentByName[vSegment].sequence, from, to)
+        segmentByName[vSegment].getSubSequence(from, to)
     }
 
     FrequencyCounter getFrequency(String vSegment) {
         countersByName[vSegment]
+    }
+
+    SegmentData getSegmentData(String vSegment) {
+        segmentByName[vSegment]
     }
 
     int getRegionSize(String vSegment, int regionId) {
@@ -67,6 +79,7 @@ class VSegmentTable {
         if (counter != null) {
             counter.freq += clonotype.freq
             counter.clonotypes++
+            clonotype.parentVSegmentTable = this
             return true
         }
         return false
@@ -75,6 +88,7 @@ class VSegmentTable {
     @Override
     String toString() {
         "#segment\t$FrequencyCounter.HEADER\n" + segmentByName.keySet().collect {
-            "${segmentByName[it]}\t${countersByName[it]}" }.join("\n")
+            "${segmentByName[it]}\t${countersByName[it]}"
+        }.join("\n")
     }
 }

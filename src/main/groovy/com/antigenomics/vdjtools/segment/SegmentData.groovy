@@ -1,5 +1,7 @@
 package com.antigenomics.vdjtools.segment
 
+import com.antigenomics.vdjtools.Util
+
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
 
@@ -29,5 +31,9 @@ class SegmentData {
 
     int deduceRegion(int pos) {
         regionMarkup.findIndexOf { it.contains(pos)}
+    }
+
+    String getSubSequence(int from, int to) {
+        Util.getSubSequence(sequence, from, to)
     }
 }

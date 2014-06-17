@@ -1,9 +1,3 @@
-package com.antigenomics.vdjtools.substitutions
-
-import com.antigenomics.vdjtools.Mutation
-import com.antigenomics.vdjtools.segment.SegmentUtil
-import com.antigenomics.vdjtools.segment.VSegmentTable
-
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
 
@@ -19,6 +13,13 @@ import com.antigenomics.vdjtools.segment.VSegmentTable
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+
+package com.antigenomics.vdjtools.substitutions
+
+import com.antigenomics.vdjtools.Mutation
+import com.antigenomics.vdjtools.segment.SegmentUtil
+import com.antigenomics.vdjtools.segment.VSegmentTable
+
 class RSTable {
     final boolean normalize
     final VSegmentTable vSegmentTable
@@ -31,7 +32,7 @@ class RSTable {
         vSegmentTable.segmentNames.each {
             summaryTableBySegment.put(it, new double[2][2][N])
         }
-        summaryTableBySegment.put("All", allSegmentsTable)
+        //summaryTableBySegment.put("All", allSegmentsTable)
     }
 
     void addAll(Collection<Mutation> mutations) {
@@ -61,7 +62,7 @@ class RSTable {
     }
 
     double[] getSummaryRs() {
-        (0..<N).collect { allSegmentsTable[0][1][it] / allSegmentsTable[0][0][it] }.collect { it.isNaN() ? 0 : it}
+        (0..<N).collect { allSegmentsTable[0][1][it] / allSegmentsTable[0][0][it] }.collect { it.isNaN() ? 0 : it }
     }
 
     double[] getSummaryCoverage() {
@@ -81,4 +82,11 @@ class RSTable {
             (0..<N).collect { "Silent" }.join('\t') +
             "\nRegion\t" +
             (1..4).collect { (0..<N).collect { SegmentUtil.regionId2Name(it) }.join("\t") }.join('\t')
+
+    @Override
+    String toString() {
+        [HEADER,
+         summaryTableBySegment.collect { it.key + "\t" + it.value.collect().flatten().join("\t") },
+         "All\t" + allSegmentsTable.collect().flatten().join("\t")].join("\n")
+    }
 }

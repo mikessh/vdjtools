@@ -1,7 +1,4 @@
 package com.antigenomics.vdjtools
-
-import java.util.regex.Matcher
-
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
 
@@ -21,6 +18,36 @@ class Util {
     static final String AA_LIST = "[FLSYCWPHQRIMTNKVADEGX\\*\\?]"
 
     static final char[] NTS = ['A', 'T', 'G', 'C']
+
+    static final int nt2code(char nt) {
+        switch (nt) {
+            case 'A':
+                return 0
+            case 'T':
+                return 1
+            case 'G':
+                return 2
+            case 'C':
+                return 3
+            default:
+                return -1
+        }
+    }
+
+    static final char code2nt(int code) {
+        switch (code) {
+            case 0:
+                return 'A'
+            case 1:
+                return 'T'
+            case 2:
+                return 'G'
+            case 3:
+                return 'C'
+            default:
+                return 'N'
+        }
+    }
 
     static char codon2aa(String codon) {
         String codonUpper = codon.toUpperCase()
@@ -108,7 +135,7 @@ class Util {
             from = 0
         }
         if (to > sequence.length()) {
-            right = "N" * (sequence.length() - to)
+            right = "N" * (to - sequence.length())
             to = sequence.length()
         }
 

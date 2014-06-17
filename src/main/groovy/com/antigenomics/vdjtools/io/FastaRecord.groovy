@@ -20,7 +20,7 @@ class FastaRecord {
     final String sequence
 
     FastaRecord(String header, String sequence) {
-        this.header = header
+        this.header = header[1..-1]
         this.sequence = sequence
     }
 }
