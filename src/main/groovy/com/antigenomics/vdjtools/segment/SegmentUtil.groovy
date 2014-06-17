@@ -55,4 +55,6 @@ class SegmentUtil {
     }
 
     static final int N_REGIONS = 6
+
+    static final String HEADER = (0..<N_REGIONS).collect { regionId2Name(it) }.join("\t")
 }

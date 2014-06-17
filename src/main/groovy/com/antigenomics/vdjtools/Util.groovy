@@ -22,29 +22,7 @@ class Util {
 
     static final char[] NTS = ['A', 'T', 'G', 'C']
 
-    static List<String> groomMatch(Matcher matcher) {
-        matcher.size() > 0 ? matcher[0][1..-1] : null//[]
-    }
-
-    static String getDataPath(String dataPath) {
-        if (!dataPath) {
-            def SCRIPT_SOURCE = new File(getClass().protectionDomain.codeSource.location.path)
-            dataPath = SCRIPT_SOURCE.parent.replaceAll("%20", " ")
-
-            if (SCRIPT_SOURCE.absolutePath.endsWith(".groovy")) // trim /src for script
-                dataPath = dataPath.replaceAll(/(?:src\/){1}.+/, "")
-        } else {
-            def scriptParentDir = new File(dataPath)
-            if (!scriptParentDir.exists()) {
-                println "Bad path to data bundle"
-                System.exit(-1)
-            }
-            dataPath = scriptParentDir.absolutePath
-        }
-        dataPath
-    }
-
-    static String codon2aa(String codon) {
+    static char codon2aa(String codon) {
         String codonUpper = codon.toUpperCase()
         switch (codonUpper) {
             case 'TTT': return 'F'
@@ -119,47 +97,21 @@ class Util {
         }
     }
 
-    static String regionId2Name(int regionId) {
-        switch (regionId) {
-            case 0:
-                return "FW1"
-            case 1:
-                return "CDR1"
-            case 2:
-                return "FW2"
-            case 3:
-                return "CDR2"
-            case 4:
-                return "FW3"
-            case 5:
-                return "CDR3"
-            default:
-                return "N/A"
-        }
-    }
-
-    static int regionName2Id(String regionName) {
-        switch (regionName) {
-            case "FW1":
-                return 0
-            case "CDR1":
-                return 1
-            case "FW2":
-                return 2
-            case "CDR2":
-                return 3
-            case "FW3":
-                return 4
-            case "CDR3":
-                return 5
-            default:
-                return -1
-        }
-    }
-
-    static final int N_REGIONS = 6
-
     static InputStreamReader resourceStreamReader(String resourceName) {
         new InputStreamReader(Util.class.classLoader.getResourceAsStream(resourceName))
+    }
+
+    static String getSubSequence(String sequence, int from, int to) {
+        String left = "", right = ""
+        if (from < 0) {
+            left = "N" * (-from)
+            from = 0
+        }
+        if (to > sequence.length()) {
+            right = "N" * (sequence.length() - to)
+            to = sequence.length()
+        }
+
+        left + sequence.substring(from, to) + right
     }
 }

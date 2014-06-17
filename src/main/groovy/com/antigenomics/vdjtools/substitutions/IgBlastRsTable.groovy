@@ -1,6 +1,7 @@
 package com.antigenomics.vdjtools.substitutions
 
 import com.antigenomics.vdjtools.Util
+import com.antigenomics.vdjtools.segment.SegmentUtil
 
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
@@ -32,7 +33,7 @@ boolean noNorm = opt.'no-norm'
 String inputFileName = opt.arguments()[0],
        outputFileName = opt.arguments()[1]
 
-int N_REGIONS = Util.N_REGIONS
+int N_REGIONS = SegmentUtil.N_REGIONS
 final String HEADER = "Counter\t" +
         (0..<N_REGIONS).collect { "Frequency" }.join('\t') + '\t' +
         (0..<N_REGIONS).collect { "Frequency" }.join('\t') + '\t' +
@@ -44,7 +45,7 @@ final String HEADER = "Counter\t" +
         (0..<N_REGIONS).collect { "Replacement" }.join('\t') + '\t' +
         (0..<N_REGIONS).collect { "Silent" }.join('\t') +
         "\nRegion\t" +
-        (1..4).collect { (0..<N_REGIONS).collect { Util.regionId2Name(it) }.join("\t") }.join('\t')
+        (1..4).collect { (0..<N_REGIONS).collect { SegmentUtil.regionId2Name(it) }.join("\t") }.join('\t')
 
 final Map<String, double[][][]> summaryTableBySegment = new HashMap<>()
 def allTable =  new double[2][2][N_REGIONS]
@@ -64,7 +65,7 @@ new File(inputFileName).splitEachLine("\t") { splitLine ->
 
 
 
-        def regionId = Util.regionName2Id(region)
+        def regionId = SegmentUtil.regionName2Id(region)
         def table = summaryTableBySegment[vSegment]
         if (table == null)
         summaryTableBySegment.put(vSegment, table = new double[2][2][N_REGIONS])

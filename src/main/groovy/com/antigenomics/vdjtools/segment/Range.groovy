@@ -26,4 +26,8 @@ class Range {
     boolean contains(int x) {
         x >= from && x < to
     }
+
+    int size() {
+        to - from
+    }
 }

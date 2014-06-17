@@ -2,8 +2,6 @@ package com.antigenomics.vdjtools.substitutions
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Mutation
-import com.antigenomics.vdjtools.igblast.ClonotypeParsedData
-import com.antigenomics.vdjtools.igblast.MutationParseData
 import com.antigenomics.vdjtools.segment.VSegmentTable
 
 /**
@@ -22,21 +20,21 @@ import com.antigenomics.vdjtools.segment.VSegmentTable
  limitations under the License.
  */
 class ClonotypeMap {
-    final Map<String, ClonotypeParsedData> innerMap = new HashMap()
-    final Map<String, List<ClonotypeParsedData>> byCdr3Map = new HashMap()
-    final Map<String, Map<MutationParseData, AlleleCounter>> freqByMutByV = new HashMap()
-    final VSegmentTable vSegmentTable
+    private final Map<String, Clonotype> innerMap = new HashMap()
+    private final Map<String, List<Clonotype>> byCdr3Map = new HashMap()
+    private final Map<String, Map<Mutation, AlleleCounter>> freqByMutByV = new HashMap()
+    private final VSegmentTable vSegmentTable
 
-    public ClonotypeMap(String species, String fileName) {
-        vSegmentTable = new VSegmentTable(species)
+    public ClonotypeMap(VSegmentTable vSegmentTable, String fileName) {
+        this.vSegmentTable = vSegmentTable
 
         new File(fileName).eachLine { line ->
             if (!line.startsWith("#")) {
-                def clonotype = new ClonotypeParsedData(line)
+                def clonotype = new Clonotype(line)
 
                 if (innerMap.containsKey(clonotype.key)) {
                     println "[WARNING] Duplicate clonotype (identical CDR3 + mutations) found: " +
-                            "${clonotype.displayName}. Further considering only the one with highest count."
+                            "${clonotype.displayName}. Appending count and skipping."
 
                     innerMap[clonotype.key].count += clonotype.count
                     innerMap[clonotype.key].freq += clonotype.freq
@@ -49,36 +47,49 @@ class ClonotypeMap {
                         def freqByMut = freqByMutByV[clonotype.v]
 
                         if (freqByMut == null)
-                            freqByMutByV.put(clonotype.v, freqByMut = new HashMap<MutationParseData, AlleleCounter>())
+                            freqByMutByV.put(clonotype.v, freqByMut = new HashMap<Mutation, AlleleCounter>())
 
-                        clonotype.mutations.each { MutationParseData mpd ->
+                        clonotype.mutations.each { Mutation mpd ->
                             def mc = freqByMut[mpd]
                             if (mc == null)
                                 freqByMut.put(mpd, mc = new AlleleCounter())
-                            mc.freq = mc.freq + clonotype.freq
+                            mc.freq += clonotype.freq
                             mc.cdr3Len.add(clonotype.cdr3nt.length())
                         }
 
                         def clonotypeList = byCdr3Map[clonotype.cdr3nt]
                         if (clonotypeList == null)
-                            byCdr3Map.put(clonotype.cdr3nt, clonotypeList = new ArrayList<ClonotypeParsedData>())
+                            byCdr3Map.put(clonotype.cdr3nt, clonotypeList = new ArrayList<Clonotype>())
                         clonotypeList.add(clonotype)
                     } else {
-                        println "[WARNING] Unrecognized V found: ${clonotype.displayName}. Skipping"
+                        println "[WARNING] Unrecognized V $clonotype.v found in $clonotype.displayName. Skipping"
                     }
                 }
             }
         }
     }
 
-    Collection<ClonotypeParsedData> getClonotypes() {
+    Collection<Clonotype> getClonotypes() {
         innerMap.values()
+    }
+
+    Collection<List<Clonotype>> getClonotypesByCdr3() {
+        byCdr3Map.values()
+    }
+
+    List<Clonotype> getByCdr3(String cdr3nt) {
+        byCdr3Map[cdr3nt]
+    }
+
+    Clonotype getByKey(String key) {
+        innerMap[key]
     }
 
     void deduceAlleles(double freqThreshold, double vFreqThreshold, int spectraThreshold) {
         clonotypes.each { clonotype ->
-            def vFreq = vSegmentTable.getFrequency(clonotype).freq,
-                freqByMut = freqByMutByV[clonotype.v]
+            String vSegment = clonotype.v
+            def vFreq = vSegmentTable.getFrequency(vSegment).freq,
+                freqByMut = freqByMutByV[vSegment]
 
             clonotype.mutations.each { mpd ->
                 def mutCounter = freqByMut[mpd]

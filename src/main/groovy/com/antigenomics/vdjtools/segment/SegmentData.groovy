@@ -18,12 +18,12 @@ package com.antigenomics.vdjtools.segment
 
 class SegmentData {
     final String segmentName
-    final String segmentSequence
+    final String sequence
     final List<Range> regionMarkup
 
-    SegmentData(String segmentName, String segmentSequence, List<Range> regionMarkup) {
+    SegmentData(String segmentName, String sequence, List<Range> regionMarkup) {
         this.segmentName = segmentName
-        this.segmentSequence = segmentSequence
+        this.sequence = sequence
         this.regionMarkup = regionMarkup
     }
 

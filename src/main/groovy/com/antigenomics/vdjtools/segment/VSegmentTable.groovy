@@ -24,17 +24,17 @@ class VSegmentTable {
     final Map<String, SegmentData> segmentByName = new HashMap<>()
 
     VSegmentTable(String species) {
-        def segmentReader = new FastaReader(Util.resourceStreamReader("${species}_V.fa"))
+        def segmentReader = new FastaReader(Util.resourceStreamReader("segments/${species}_V.fa"))
         def segmentToSequenceMap = segmentReader.collectEntries {
             [(it.header): it.sequence]
         }
 
-        Util.resourceStreamReader("${species}_regions.txt").splitEachLine("\t") { List<String> splitLine ->
+        Util.resourceStreamReader("segments/${species}_regions.txt").splitEachLine("\t") { List<String> splitLine ->
             def segmentName = splitLine[0]
             def sequence = segmentToSequenceMap[segmentName]
 
             def segmentData = new SegmentData(segmentName, sequence,
-                    IntRange(1, 10).step(2).collect { int i ->
+                    new IntRange(1, 10).step(2).collect { int i ->
                         new Range(splitLine[i].toInteger() - 1, // 1-based
                                 splitLine[i + 1].toInteger()    // non-inclusive
                         )
@@ -46,8 +46,20 @@ class VSegmentTable {
         }
     }
 
-    FrequencyCounter getFrequency(Clonotype clonotype) {
-        countersByName[clonotype.v]
+    Collection<String> getSegmentNames() {
+        segmentByName.entrySet()
+    }
+
+    String getSubSequence(String vSegment, int from, int to) {
+        Util.getSubSequence(segmentByName[vSegment].sequence, from, to)
+    }
+
+    FrequencyCounter getFrequency(String vSegment) {
+        countersByName[vSegment]
+    }
+
+    int getRegionSize(String vSegment, int regionId) {
+        segmentByName[vSegment].regionMarkup[regionId].size()
     }
 
     boolean append(Clonotype clonotype) {
