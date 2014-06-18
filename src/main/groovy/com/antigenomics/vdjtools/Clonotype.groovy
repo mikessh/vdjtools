@@ -84,13 +84,18 @@ class Clonotype {
         "V" + v[2] + v[4..-4] + ":" + cdr3aa + ":S" + shms.size()
     }
 
-    final static NODE_HEADER =
+    final static String HEADER =
             "display_name\tcount\tfreq\t" +
                     "cdr1nt\tcdr2nt\tcdr3nt\t" +
                     "cdr1aa\tcdr2aa\tcdr3aa\t" +
                     "inFrame\tnoStop\tisComplete\t" +
                     "V\tD\tJ\t" +
-                    "shms\talleles"
+                    "shms\talleles",
+            NODE_HEADER = "key\t" + HEADER
+
+    String nodeString() {
+        key + "\t" + toString()
+    }
 
     @Override
     String toString() {

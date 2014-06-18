@@ -16,14 +16,12 @@
 
 package com.antigenomics.vdjtools.substitutions
 
-import com.antigenomics.vdjtools.Clonotype
-import com.antigenomics.vdjtools.Mutation
-import com.antigenomics.vdjtools.MutationGraph
-import com.antigenomics.vdjtools.Util
+import com.antigenomics.vdjtools.*
+import groovyx.gpars.GParsPool
 
 class Cdr3GraphBuilder {
+    private static final int THREADS = Runtime.runtime.availableProcessors()
     def spectratype = new HashMap<String, Map<String, List<Clonotype>>>()
-    def graph = new MutationGraph()
 
     public Cdr3GraphBuilder(ClonotypeMap clonotypeMap) {
         clonotypeMap.clonotypes.each { clonotype ->
@@ -38,37 +36,42 @@ class Cdr3GraphBuilder {
         }
     }
 
-    void buildGraph() {
-        spectratype.values().each { spectraPeak ->
-            def subGraph = new ArrayList<String>()
-            def cloneLists = spectraPeak.values()
-            for (int i = 0; i < cloneLists.size(); i++) {
-                def clonesA = cloneLists[i]
-                for (int j = i + 1; j < cloneLists.size(); j++) {
-                    def clonesB = cloneLists[j]
-                    // select which clonotypes to connect based on SHM intersection
-                    Clonotype cloneA, cloneB
-                    (cloneA, cloneB) = [clonesA, clonesB].combinations().max {
-                        Clonotype cl1 = it[0], cl2 = it[1]
+    MutationGraph buildGraph() {
+        def graph = new MutationGraph()
 
-                        cl1.shms.size() > cl2.shms.size() ?
-                                cl1.shms.intersect(cl2.shms).size() :
-                                cl2.shms.intersect(cl1.shms).size()
-                    }.collect()
-                    def mutations = extractMutations(cloneA, cloneB)
-                    if (mutations != null) {
-                        subGraph.add(cloneA.key)
-                        subGraph.add(cloneB.key)
-                        graph.addEdge(cloneA.key, cloneB.key, extractMutations(cloneB, cloneA))
+        GParsPool.withPool THREADS, {
+            spectratype.values().eachParallel { spectraPeak ->
+                def edges = new LinkedList<Edge>()
+                def cloneLists = spectraPeak.values()
+                for (int i = 0; i < cloneLists.size(); i++) {
+                    def clonesA = cloneLists[i]
+                    for (int j = i + 1; j < cloneLists.size(); j++) {
+                        def clonesB = cloneLists[j]
+                        // select which clonotypes to connect based on SHM intersection
+                        Clonotype cloneA, cloneB
+                        (cloneA, cloneB) = [clonesA, clonesB].combinations().max {
+                            Clonotype cl1 = it[0], cl2 = it[1]
+
+                            cl1.shms.size() > cl2.shms.size() ?
+                                    cl1.shms.intersect(cl2.shms).size() :
+                                    cl2.shms.intersect(cl1.shms).size()
+                        }.collect()
+                        def mutations = extractMutations(cloneA, cloneB)
+                        if (mutations != null)
+                            edges.add(new Edge(cloneA.key, cloneB.key, extractMutations(cloneB, cloneA)))
                     }
                 }
+                graph.addAll(edges)
             }
-            graph.addSubGraph(subGraph)
         }
+
+        graph.removeRedundancy()
+
+        graph
     }
 
-    private static Set<Mutation> extractMutations(Clonotype clone1, Clonotype clone2) {
-        def mutations = new HashSet<Mutation>()
+    private static Collection<Mutation> extractMutations(Clonotype clone1, Clonotype clone2) {
+        def mutations = new LinkedList<Mutation>()
         int len = clone1.cdr3nt.length(), depth = scanDept(len)
 
         def mutationPositions = new LinkedList<Integer>()
@@ -96,6 +99,6 @@ class Cdr3GraphBuilder {
     }
 
     static int scanDept(int len) {
-        return 5
+        0.2 * len
     }
 }

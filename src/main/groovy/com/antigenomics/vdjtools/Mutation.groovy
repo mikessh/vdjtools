@@ -123,7 +123,7 @@ class Mutation {
     // Display
     //
 
-    final static String EDGE_HEADER = "display_name\t" +
+    final static String HEADER = "display_name\t" +
             "nt_shm\taa_shm\tregion\tsilent\tdirected"
 
     String getDisplayName() {

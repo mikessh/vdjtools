@@ -1,6 +1,7 @@
 package com.antigenomics.vdjtools.substitutions
 
 import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.Edge
 import com.antigenomics.vdjtools.MutationGraph
 
 /**
@@ -19,7 +20,6 @@ import com.antigenomics.vdjtools.MutationGraph
  limitations under the License.
  */
 class ShmGraphBuilder {
-    def graph = new MutationGraph()
     def spectratype = new HashMap<String, List<Clonotype>>()
 
     public ShmGraphBuilder(ClonotypeMap clonotypeMap) {
@@ -32,8 +32,10 @@ class ShmGraphBuilder {
         }
     }
 
-    void buildGraph() {
+    MutationGraph buildGraph() {
+        def graph = new MutationGraph()
         spectratype.values().each { family ->
+            def edges = new LinkedList<Edge>()
             family.each { cloneA ->
                 family.each { cloneB ->
                     if (cloneA != cloneB) {
@@ -48,14 +50,18 @@ class ShmGraphBuilder {
                             }
 
                         if (shmsAB.size() > 0)
-                            graph.addEdge(cloneA.key, cloneB.key, shmsAB)
+                            edges.add(new Edge(cloneA.key, cloneB.key, shmsAB))
 
                         if (shmsBA.size() > 0)
-                            graph.addEdge(cloneB.key, cloneA.key, shmsBA)
+                            edges.add(new Edge(cloneB.key, cloneA.key, shmsBA))
                     }
                 }
             }
-            graph.addSubGraph(family.collect { it.key })
+            graph.addAll(edges)
         }
+
+        graph.removeRedundancy()
+
+        graph
     }
 }

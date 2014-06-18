@@ -19,10 +19,10 @@ package com.antigenomics.vdjtools
 import com.antigenomics.vdjtools.substitutions.ConnectivityCheck
 
 class MutationGraph {
-    private class EdgeInfo {
+    private class MutationsSet {
         final Collection<Mutation> mutations
 
-        EdgeInfo(Collection<Mutation> mutations) {
+        MutationsSet(Collection<Mutation> mutations) {
             this.mutations = mutations
         }
 
@@ -33,19 +33,25 @@ class MutationGraph {
         }
     }
 
-    private final Map<String, Map<String, EdgeInfo>> innerMap = new HashMap<>()
+    private final Map<String, Map<String, MutationsSet>> innerMap = new HashMap<>()
     private final Map<String, Integer> degreeMap = new HashMap<>()
-    private final List<List<String>> subGraphs = new LinkedList<>()
+    private final List<List<String>> subGraphs = Collections.synchronizedList(new LinkedList<>())
+    final Set<Mutation> filteredShms = new HashSet<>()
 
-    void addSubGraph(List<String> subGraph) {
-        subGraphs.add(subGraph)
+    void addAll(Collection<Edge> edges) {
+        synchronized (innerMap) {
+            edges.each {
+                addEdge(it.from, it.to, it.mutations)
+            }
+            subGraphs.add([edges.collect { it.from }, edges.collect { it.to }].flatten())
+        }
     }
 
-    void addEdge(String from, String to, Collection<Mutation> mutations) {
+    private void addEdge(String from, String to, Collection<Mutation> mutations) {
         def existingEdges = innerMap[from]
         if (existingEdges == null)
-            innerMap.put(from, existingEdges = new HashMap<String, EdgeInfo>())
-        existingEdges.put(to, new EdgeInfo(mutations))
+            innerMap.put(from, existingEdges = new HashMap<String, MutationsSet>())
+        existingEdges.put(to, new MutationsSet(mutations))
         degreeMap.put(from, (degreeMap[from] ?: 0) + mutations.size())
         degreeMap.put(to, (degreeMap[to] ?: 0) + mutations.size())
     }
@@ -79,7 +85,7 @@ class MutationGraph {
                         def to = subGraph[j]
                         def edgeInfo = innerMap[from][to]
 
-                        if (edgeInfo.size() == level) {
+                        if (edgeInfo != null && edgeInfo.size() == level) {
                             boolean connected = false
 
                             def connectivityCheck = new ConnectivityCheck()
@@ -108,9 +114,20 @@ class MutationGraph {
                 }
             }
         }
+
+        filteredShms.addAll(innerMap.values().collect {
+            it.values().findAll { !it.redundant }.collect { it.mutations }
+        }.flatten())
     }
 
-    Collection<String> edgeStrings() {
-        innerMap.collect { from -> from.value.collect { to -> ["$from (${to.value}) $to.key\t$to.value"].flatten() } }
+    Collection<EdgeInfo> collectEdges() {
+        innerMap.collect { Map.Entry<String, Map<String, MutationsSet>> from ->
+            from.value.findAll { to -> !to.value.redundant }.collect {
+                Map.Entry<String, MutationsSet> to ->
+                    to.value.mutations.each { mutation ->
+                        new EdgeInfo(from.key, to.key, mutation, to.value.size())
+                    }
+            }
+        }.flatten()
     }
 }

@@ -85,7 +85,7 @@ class ClonotypeMap {
         innerMap[key]
     }
 
-    void deduceAlleles(double freqThreshold, double vFreqThreshold, int spectraThreshold) {
+    void deduceAlleles(double freqThreshold, int spectraThreshold) {
         clonotypes.each { clonotype ->
             String vSegment = clonotype.v
             def vFreq = vSegmentTable.getFrequency(vSegment).freq,
@@ -94,8 +94,7 @@ class ClonotypeMap {
             clonotype.mutations.each { mpd ->
                 def mutCounter = freqByMut[mpd]
 
-                if (vFreq < vFreqThreshold ||
-                        mutCounter.freq / vFreq < freqThreshold ||
+                if (mutCounter.freq / vFreq < freqThreshold ||
                         mutCounter.cdr3Len.size() < spectraThreshold)
                     clonotype.shms.add(mpd)
                 else
