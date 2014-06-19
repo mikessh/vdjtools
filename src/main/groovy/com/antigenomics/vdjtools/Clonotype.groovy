@@ -29,7 +29,13 @@ class Clonotype {
     double freq
 
     final String v, d, j
-    final String cdr1nt, cdr2nt, cdr3nt, cdr1aa, cdr2aa, cdr3aa, key
+    final String cdr1nt, cdr2nt, cdr3nt, cdr1aa, cdr2aa, cdr3aa
+
+    private String key
+
+    String getKey() {
+        return key
+    }
 
     final boolean inFrame, isComplete, noStop
 
@@ -48,24 +54,62 @@ class Clonotype {
 	mutations
      */
 
-    Clonotype(String clonotypeString) {
+    private Clonotype(int count, double freq,
+                      String v, String d, String j,
+                      String cdr1nt, String cdr2nt, String cdr3nt,
+                      String cdr1aa, String cdr2aa, String cdr3aa,
+                      boolean inFrame, boolean isComplete, boolean noStop) {
+        this.count = count
+        this.freq = freq
+        this.v = v
+        this.d = d
+        this.j = j
+        this.cdr1nt = cdr1nt
+        this.cdr2nt = cdr2nt
+        this.cdr3nt = cdr3nt
+        this.cdr1aa = cdr1aa
+        this.cdr2aa = cdr2aa
+        this.cdr3aa = cdr3aa
+        this.key = key
+        this.inFrame = inFrame
+        this.isComplete = isComplete
+        this.noStop = noStop
+    }
+
+    static Clonotype parseIgBlastClonotype(String clonotypeString) {
         def splitString = clonotypeString.split("\t")
 
-        count = splitString[2].toInteger()
-        freq = splitString[3].toDouble()
+        def count = splitString[2].toInteger()
+        def freq = splitString[3].toDouble()
 
+        String cdr1nt, cdr2nt, cdr3nt, cdr1aa, cdr2aa, cdr3aa
         (cdr1nt, cdr2nt, cdr3nt, cdr1aa, cdr2aa, cdr3aa) = splitString[4..9]
 
+        String v, d, j
         (v, d, j) = splitString[13..15]
 
+        boolean inFrame, noStop, isComplete
         (inFrame, noStop, isComplete) = splitString[10..12].collect { it.toBoolean() }
 
+        def clonotype = new Clonotype(count, freq,
+                v, d, j,
+                cdr1nt, cdr2nt, cdr3nt,
+                cdr1aa, cdr2aa, cdr3aa,
+                inFrame, noStop, isComplete)
+
         if (splitString[19] != ".")
-            mutations.addAll(splitString[19].split("\\|").collect { String mutString ->
-                Mutation.parseIgBlastMutation(mutString, this)
+            clonotype.mutations.addAll(splitString[19].split("\\|").collect { String mutString ->
+                Mutation.parseIgBlastMutation(mutString, clonotype)
             })
 
-        key = [cdr3nt, mutations.collect { Mutation mpd -> "$mpd.ntPos:$mpd.fromNt>$mpd.toNt" }.join("|")].join("_")
+        def key = [cdr3nt,
+                   clonotype.mutations.collect {
+                       Mutation mpd -> "$mpd.ntPos:$mpd.fromNt>$mpd.toNt"
+                   }.join("|")].join("_")
+
+        clonotype.key = key
+
+        clonotype
     }
 
     String getSubSequence(int from, int to) {
@@ -91,7 +135,7 @@ class Clonotype {
                     "inFrame\tnoStop\tisComplete\t" +
                     "V\tD\tJ\t" +
                     "shms\talleles",
-            NODE_HEADER = "key\t" + HEADER
+                        NODE_HEADER = "key\t" + HEADER
 
     String nodeString() {
         key + "\t" + toString()

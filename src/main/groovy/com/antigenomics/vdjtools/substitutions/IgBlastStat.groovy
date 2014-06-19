@@ -60,7 +60,14 @@ def vSegmentTable = new VSegmentTable(species)
 
 println "[${new Date()} $scriptName] Loading L2 clonotypes"
 
-def clonotypeMap = new ClonotypeMap(vSegmentTable, inputFileNameL2)
+def clonotypes = new LinkedList<Clonotype>()
+new File(inputFileNameL2).eachLine { line ->
+    if (!line.startsWith("#")) {
+        clonotypes.add(Clonotype.parseIgBlastClonotype(line))
+    }
+}
+
+def clonotypeMap = new ClonotypeMap(vSegmentTable, clonotypes)
 
 println "[${new Date()} $scriptName] Deducing alleles"
 

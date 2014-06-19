@@ -25,45 +25,41 @@ class ClonotypeMap {
     private final Map<String, Map<Mutation, AlleleCounter>> freqByMutByV = new HashMap()
     private final VSegmentTable vSegmentTable
 
-    public ClonotypeMap(VSegmentTable vSegmentTable, String fileName) {
+    public ClonotypeMap(VSegmentTable vSegmentTable, Collection<Clonotype> clonotypes) {
         this.vSegmentTable = vSegmentTable
 
-        new File(fileName).eachLine { line ->
-            if (!line.startsWith("#")) {
-                def clonotype = new Clonotype(line)
+        clonotypes.each { clonotype ->
+            if (innerMap.containsKey(clonotype.key)) {
+                println "[WARNING] Duplicate clonotype (identical CDR3 + mutations) found: " +
+                        "${clonotype.displayName}. Appending count and skipping."
 
-                if (innerMap.containsKey(clonotype.key)) {
-                    println "[WARNING] Duplicate clonotype (identical CDR3 + mutations) found: " +
-                            "${clonotype.displayName}. Appending count and skipping."
+                innerMap[clonotype.key].count += clonotype.count
+                innerMap[clonotype.key].freq += clonotype.freq
+            } else {
+                boolean goodV = vSegmentTable.append(clonotype)
 
-                    innerMap[clonotype.key].count += clonotype.count
-                    innerMap[clonotype.key].freq += clonotype.freq
-                } else {
-                    boolean goodV = vSegmentTable.append(clonotype)
+                if (goodV) {
+                    innerMap.put(clonotype.key, clonotype)
 
-                    if (goodV) {
-                        innerMap.put(clonotype.key, clonotype)
+                    def freqByMut = freqByMutByV[clonotype.v]
 
-                        def freqByMut = freqByMutByV[clonotype.v]
+                    if (freqByMut == null)
+                        freqByMutByV.put(clonotype.v, freqByMut = new HashMap<Mutation, AlleleCounter>())
 
-                        if (freqByMut == null)
-                            freqByMutByV.put(clonotype.v, freqByMut = new HashMap<Mutation, AlleleCounter>())
-
-                        clonotype.mutations.each { Mutation mpd ->
-                            def mc = freqByMut[mpd]
-                            if (mc == null)
-                                freqByMut.put(mpd, mc = new AlleleCounter())
-                            mc.freq += clonotype.freq
-                            mc.cdr3Len.add(clonotype.cdr3nt.length())
-                        }
-
-                        def clonotypeList = byCdr3Map[clonotype.cdr3nt]
-                        if (clonotypeList == null)
-                            byCdr3Map.put(clonotype.cdr3nt, clonotypeList = new ArrayList<Clonotype>())
-                        clonotypeList.add(clonotype)
-                    } else {
-                        println "[WARNING] Unrecognized V $clonotype.v found in $clonotype.displayName. Skipping"
+                    clonotype.mutations.each { Mutation mpd ->
+                        def mc = freqByMut[mpd]
+                        if (mc == null)
+                            freqByMut.put(mpd, mc = new AlleleCounter())
+                        mc.freq += clonotype.freq
+                        mc.cdr3Len.add(clonotype.cdr3nt.length())
                     }
+
+                    def clonotypeList = byCdr3Map[clonotype.cdr3nt]
+                    if (clonotypeList == null)
+                        byCdr3Map.put(clonotype.cdr3nt, clonotypeList = new ArrayList<Clonotype>())
+                    clonotypeList.add(clonotype)
+                } else {
+                    println "[WARNING] Unrecognized V $clonotype.v found in $clonotype.displayName. Skipping"
                 }
             }
         }

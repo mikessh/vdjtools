@@ -43,7 +43,8 @@ class MutationGraph {
             edges.each {
                 addEdge(it.from, it.to, it.mutations)
             }
-            subGraphs.add([edges.collect { it.from }, edges.collect { it.to }].flatten())
+            //subGraphs.add([edges.collect { it.from }, edges.collect { it.to }].flatten())
+            subGraphs.add(edges.collect { it.from })
         }
     }
 
