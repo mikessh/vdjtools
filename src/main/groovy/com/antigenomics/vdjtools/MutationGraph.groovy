@@ -92,18 +92,14 @@ class MutationGraph {
                         def edgeInfo = innerMap[from][to]
 
                         if (edgeInfo != null && edgeInfo.size() == level) {
-                            boolean connected = false
-
                             def connectivityCheck = new ConnectivityCheck()
 
                             if (connectivityCheck.checkNodes(connectivityMap, from, to)) {
                                 edgeInfo.redundant = true
                                 degreeMap.put(from, degreeMap[from] - edgeInfo.size())
                                 degreeMap.put(to, degreeMap[to] - edgeInfo.size())
-                            }
-
-                            // update connectivity map
-                            if (connected) {
+                            } else {
+                                // update connectivity map
                                 addPair(from, to)
                                 addPair(to, from)
                             }
