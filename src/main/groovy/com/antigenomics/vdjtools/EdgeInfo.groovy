@@ -32,7 +32,7 @@ class EdgeInfo {
                         NET_HEADER = "from\tshm\tto"
 
     String edgeString() {
-        key + "\t" + weight + "\t" + mutation.toString()
+        key + "\t" + weight + "\t" + mutation
     }
 
     String netString() {

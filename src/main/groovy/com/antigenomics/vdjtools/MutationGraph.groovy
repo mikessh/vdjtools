@@ -31,6 +31,11 @@ class MutationGraph {
         int size() {
             mutations.size()
         }
+
+        @Override
+        String toString() {
+            mutations.join("|")
+        }
     }
 
     private final Map<String, Map<String, MutationsSet>> innerMap = new HashMap<>()
@@ -116,6 +121,8 @@ class MutationGraph {
             }
         }
 
+        //println innerMap
+
         filteredShms.addAll(innerMap.values().collect {
             it.values().findAll { !it.redundant }.collect { it.mutations }
         }.flatten())
@@ -125,7 +132,7 @@ class MutationGraph {
         innerMap.collect { Map.Entry<String, Map<String, MutationsSet>> from ->
             from.value.findAll { to -> !to.value.redundant }.collect {
                 Map.Entry<String, MutationsSet> to ->
-                    to.value.mutations.each { mutation ->
+                    to.value.mutations.collect { mutation ->
                         new EdgeInfo(from.key, to.key, mutation, to.value.size())
                     }
             }

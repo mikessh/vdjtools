@@ -58,7 +58,7 @@ class Cdr3GraphBuilder {
                         }.collect()
                         def mutations = extractMutations(cloneA, cloneB)
                         if (mutations != null)
-                            edges.add(new Edge(cloneA.key, cloneB.key, extractMutations(cloneB, cloneA)))
+                            edges.add(new Edge(cloneA.key, cloneB.key, mutations))
                     }
                 }
                 graph.addAll(edges)
@@ -85,7 +85,7 @@ class Cdr3GraphBuilder {
 
         mutationPositions.each { int pos ->
             int codonStart = pos - pos % 3
-            if (len < codonStart + 3) {
+            if (len > codonStart + 3) {
                 String fromCodon = clone1.cdr3nt.substring(codonStart, codonStart + 3),
                        toCodon = clone2.cdr3nt.substring(codonStart, codonStart + 3)
 
@@ -96,6 +96,8 @@ class Cdr3GraphBuilder {
                         (int) (pos / 3), fromAA, toAA, false, clone1))
             }
         }
+
+        mutations
     }
 
     static int scanDept(int len) {

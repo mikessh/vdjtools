@@ -36,7 +36,7 @@ class RSTable {
     }
 
     void addAll(Collection<Mutation> mutations) {
-        mutations.each { mutation ->
+        mutations.each { Mutation mutation ->
             def regionId = SegmentUtil.regionName2Id(mutation.region), vSegment = mutation.v
             def vFrequency = vSegmentTable.getFrequency(vSegment)
             def silent = mutation.isSilent ? 1 : 0

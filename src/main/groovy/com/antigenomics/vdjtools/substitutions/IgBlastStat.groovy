@@ -89,17 +89,14 @@ println "[${new Date()} $scriptName] Creating SHM links for CDR3"
 
 def cdr3Graph = new Cdr3GraphBuilder(clonotypeMap).buildGraph()
 
-//
-// Write output
-//
-
-println "[${new Date()} $scriptName] Writing output"
 
 def of = new File(outputPrefix).absoluteFile
 if (of.parentFile != null)
     of.parentFile.mkdirs()
 
-// Mutation lists
+//
+// Generate tables
+//
 
 def alleles = clonotypeMap.clonotypes.collect { it.alleles }.flatten(),
     shms = clonotypeMap.clonotypes.collect { it.shms }.flatten(),
@@ -110,6 +107,8 @@ def alleles = clonotypeMap.clonotypes.collect { it.alleles }.flatten(),
 
 // RS table
 
+println "[${new Date()} $scriptName] Calculating Silent:Replacement tables"
+
 def allelesRsTable = new RSTable(true, vSegmentTable)
 allelesRsTable.addAll(alleles)
 
@@ -118,6 +117,21 @@ shmRsTable.addAll(shms)
 
 def emergedShmRsTable = new RSTable(true, vSegmentTable)
 emergedShmRsTable.addAll(shmsEmerged)
+
+// Mutation motifs
+
+println "[${new Date()} $scriptName] Calculating SHM hotspot motifs"
+
+def allelesPwm = new MotifPwm(), shmPwm = new MotifPwm(), emergedShmPwm = new MotifPwm()
+allelesPwm.addAll(alleles)
+shmPwm.addAll(shms)
+emergedShmPwm.addAll(shmsEmerged)
+
+//
+// Write output
+//
+
+println "[${new Date()} $scriptName] Writing output"
 
 new File(outputPrefix + ".mutations.rs.txt").withPrintWriter { pw ->
     pw.println("#silent:replacement\t" + SegmentUtil.HEADER)
@@ -132,12 +146,6 @@ new File(outputPrefix + ".mutations.cov.txt").withPrintWriter { pw ->
     pw.println("shms\t" + shmRsTable.summaryCoverage.collect().join("\t"))
     pw.println("shms_emerged\t" + emergedShmRsTable.summaryCoverage.collect().join("\t"))
 }
-
-// Mutation motifs
-def allelesPwm = new MotifPwm(), shmPwm = new MotifPwm(), emergedShmPwm = new MotifPwm()
-allelesPwm.addAll(alleles)
-shmPwm.addAll(shms)
-emergedShmPwm.addAll(shmsEmerged)
 
 new File(outputPrefix + ".mutations.pwm.txt").withPrintWriter { pw ->
     pw.println("#alleles")

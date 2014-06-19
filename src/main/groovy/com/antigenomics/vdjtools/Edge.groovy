@@ -24,4 +24,9 @@ class Edge {
         this.from = from
         this.to = to
     }
+
+    @Override
+    String toString() {
+        from + ">" + to + "[" + mutations.join("|") + "]"
+    }
 }
