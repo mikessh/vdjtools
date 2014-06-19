@@ -1,3 +1,3 @@
 # VDJ tools
 
-![alt tag](https://github.com/mikessh/vdjtools/raw/master/examples/igblastnet-example.pdf)
+![alt tag](https://raw.githubusercontent.com/mikessh/vdjtools/master/examples/igblastnet-example.png)
