@@ -15,6 +15,8 @@ package com.antigenomics.vdjtools
  limitations under the License.
  */
 class Util {
+    static final int THREADS = Runtime.runtime.availableProcessors()
+
     static final String AA_LIST = "[FLSYCWPHQRIMTNKVADEGX\\*\\?]"
 
     static final char[] NTS = ['A', 'T', 'G', 'C']

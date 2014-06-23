@@ -17,121 +17,88 @@
 package com.antigenomics.vdjtools
 
 import com.antigenomics.vdjtools.substitutions.ConnectivityCheck
+import groovyx.gpars.GParsPool
+
+import java.util.concurrent.atomic.AtomicInteger
 
 class MutationGraph {
-    private class MutationsSet {
-        final Collection<Mutation> mutations
+    private class SubGraph {
+        final int maxLevel
+        final ConnectivityCheck connectivityCheck
+        final Map<Integer, List<EdgeBundle>> edgeBundlesByLevel = new HashMap<>()
+        final Map<String, Integer> degreeMap = new HashMap<>()
 
-        MutationsSet(Collection<Mutation> mutations) {
-            this.mutations = mutations
-        }
+        SubGraph(Collection<EdgeBundle> edges) {
+            connectivityCheck = new ConnectivityCheck([edges.collect { it.from },
+                                                       edges.collect { it.to }].flatten())
 
-        boolean redundant = false
+            int maxLevel = 0
 
-        int size() {
-            mutations.size()
-        }
-
-        @Override
-        String toString() {
-            mutations.join("|")
-        }
-    }
-
-    private final Map<String, Map<String, MutationsSet>> innerMap = new HashMap<>()
-    private final Map<String, Integer> degreeMap = new HashMap<>()
-    private final List<List<String>> subGraphs = Collections.synchronizedList(new LinkedList<>())
-    final Set<Mutation> filteredShms = new HashSet<>()
-
-    void addAll(Collection<Edge> edges) {
-        synchronized (innerMap) {
             edges.each {
-                addEdge(it.from, it.to, it.mutations)
+                def from = it.from, to = it.to, lvl = it.size()
+                degreeMap.put(from, (degreeMap[from] ?: 0) + lvl)
+                degreeMap.put(to, (degreeMap[to] ?: 0) + lvl)
+                def edgeList = edgeBundlesByLevel[lvl]
+                if (edgeList == null)
+                    edgeBundlesByLevel.put(lvl, edgeList = new LinkedList<EdgeBundle>())
+                edgeList.add(it)
+                maxLevel = Math.max(maxLevel, lvl)
             }
-            //subGraphs.add([edges.collect { it.from }, edges.collect { it.to }].flatten())
-            subGraphs.add(edges.collect { it.from })
+            this.maxLevel = maxLevel
+        }
+
+        void markRedundant() {
+            // Iteratively scan for differences by 1,2,.. mutations
+            // Check connectivity graph at previous iteration to see if we're not creating cycles
+            (1..maxLevel).each { lvl ->
+                def edgeList = edgeBundlesByLevel[lvl]
+
+                if (edgeList) {
+                    edgeList.each { EdgeBundle edgeBundle ->
+                        if (connectivityCheck.connected(edgeBundle.from, edgeBundle.to)) {
+                            edgeBundle.redundant.compareAndSet(false, true)
+                            degreeMap.put(edgeBundle.from, degreeMap[edgeBundle.from] - lvl)
+                            degreeMap.put(edgeBundle.to, degreeMap[edgeBundle.to] - lvl)
+                        } else
+                            connectivityCheck.connect(edgeBundle.from, edgeBundle.to)
+                    }
+                }
+            }
         }
     }
 
-    private void addEdge(String from, String to, Collection<Mutation> mutations) {
-        def existingEdges = innerMap[from]
-        if (existingEdges == null)
-            innerMap.put(from, existingEdges = new HashMap<String, MutationsSet>())
-        existingEdges.put(to, new MutationsSet(mutations))
-        degreeMap.put(from, (degreeMap[from] ?: 0) + mutations.size())
-        degreeMap.put(to, (degreeMap[to] ?: 0) + mutations.size())
+    private final List<SubGraph> subGraphs = Collections.synchronizedList(new LinkedList<>())
+    final Set<Mutation> filteredShms = new HashSet<>()
+    final Collection<Edge> edges = new LinkedList<>()
+
+    void addAll(Collection<EdgeBundle> edges) {
+        subGraphs.add(new SubGraph(edges))
     }
 
     void removeRedundancy() {
-        subGraphs.each { subGraph ->
-            int n = subGraph.size(), maxLevel = 0
-
-            subGraph.each { from ->
-                innerMap[from].values().each {
-                    maxLevel = Math.max(maxLevel, 2 * it.size())
-                }
-            }
-
-            final def connectivityMap = new HashMap<String, List<String>>(),
-                      newConnectivityMap = new HashMap<String, List<String>>()
-
-            def addPair = { String from, String to ->
-                def conList = newConnectivityMap[from]
-                if (conList == null)
-                    newConnectivityMap.put(from, conList = new LinkedList<String>())
-                conList.add(to)
-            }
-
-            // Iteratively scan for differences by 1,2,.. mutations
-            // Check connectivity graph at previous iteration to see if we're not creating cycles
-            for (int level = 1; level < maxLevel; level++) {
-                for (int i = 0; i < n; i++) {
-                    def from = subGraph[i]
-                    for (int j = i + 1; j < n; j++) {
-                        def to = subGraph[j]
-                        def edgeInfo = innerMap[from][to]
-
-                        if (edgeInfo != null && edgeInfo.size() == level) {
-                            def connectivityCheck = new ConnectivityCheck()
-
-                            if (connectivityCheck.checkNodes(connectivityMap, from, to)) {
-                                edgeInfo.redundant = true
-                                degreeMap.put(from, degreeMap[from] - edgeInfo.size())
-                                degreeMap.put(to, degreeMap[to] - edgeInfo.size())
-                            } else {
-                                // update connectivity map
-                                addPair(from, to)
-                                addPair(to, from)
-                            }
-                        }
-                    }
-                }
-
-                // Merge connectivity map
-                newConnectivityMap.each {
-                    def conList = connectivityMap[it.key]
-                    if (conList == null)
-                        connectivityMap.put(it.key, conList = new LinkedList<String>())
-                    conList.addAll(it.value)
-                }
+        // Mark redundant edge bundles
+        println "[${new Date()} GRAPH] Marking redundant edges for graph with ${subGraphs.size()} subgraphs"
+        def counter = new AtomicInteger()
+        GParsPool.withPool Util.THREADS, {
+            subGraphs.eachParallel { SubGraph subGraph ->
+                subGraph.markRedundant()
+                println "[${new Date()} GRAPH] ${counter.incrementAndGet()} of ${subGraphs.size()} subgraphs processed"
             }
         }
 
-        //println innerMap
-
-        filteredShms.addAll(innerMap.values().collect {
-            it.values().findAll { !it.redundant }.collect { it.mutations }
-        }.flatten())
-    }
-
-    Collection<EdgeInfo> collectEdges() {
-        innerMap.collect { Map.Entry<String, Map<String, MutationsSet>> from ->
-            from.value.findAll { to -> !to.value.redundant }.collect {
-                Map.Entry<String, MutationsSet> to ->
-                    to.value.mutations.collect { mutation ->
-                        new EdgeInfo(from.key, to.key, mutation, to.value.size())
+        // Extract unique SHMs and edges for graph
+        println "[${new Date()} GRAPH] Extracting non-redundant edges"
+        subGraphs.each { SubGraph subGraph ->
+            subGraph.edgeBundlesByLevel.values().each { edgeBundles ->
+                edgeBundles.each { EdgeBundle edgeBundle ->
+                    if (!edgeBundle.redundant.get()) {
+                        edgeBundle.mutationSet.mutations.each { Mutation mutation ->
+                            filteredShms.add(mutation)
+                            edges.add(new Edge(edgeBundle.from, edgeBundle.to, mutation, edgeBundle.size()))
+                        }
                     }
+                }
             }
-        }.flatten()
+        }
     }
 }

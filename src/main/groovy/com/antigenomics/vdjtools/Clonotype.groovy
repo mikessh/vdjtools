@@ -29,7 +29,8 @@ class Clonotype {
     double freq
 
     final String v, d, j
-    final String cdr1nt, cdr2nt, cdr3nt, cdr1aa, cdr2aa, cdr3aa
+    final String cdr1nt, cdr2nt, cdr3nt,
+            cdr1aa, cdr2aa, cdr3aa
 
     private String key
 

@@ -20,7 +20,6 @@ import com.antigenomics.vdjtools.*
 import groovyx.gpars.GParsPool
 
 class Cdr3GraphBuilder {
-    private static final int THREADS = Runtime.runtime.availableProcessors()
     def spectratype = new HashMap<String, Map<String, List<Clonotype>>>()
 
     public Cdr3GraphBuilder(ClonotypeMap clonotypeMap) {
@@ -39,9 +38,11 @@ class Cdr3GraphBuilder {
     MutationGraph buildGraph() {
         def graph = new MutationGraph()
 
-        GParsPool.withPool THREADS, {
+        println "[${new Date()} INFO] Building graph"
+
+        GParsPool.withPool Util.THREADS, {
             spectratype.values().eachParallel { spectraPeak ->
-                def edges = new LinkedList<Edge>()
+                def edges = new LinkedList<EdgeBundle>()
                 def cloneLists = spectraPeak.values()
                 for (int i = 0; i < cloneLists.size(); i++) {
                     def clonesA = cloneLists[i]
@@ -58,12 +59,14 @@ class Cdr3GraphBuilder {
                         }.collect()
                         def mutations = extractMutations(cloneA, cloneB)
                         if (mutations != null)
-                            edges.add(new Edge(cloneA.key, cloneB.key, mutations))
+                            edges.add(new EdgeBundle(cloneA.key, cloneB.key, mutations))
                     }
                 }
                 graph.addAll(edges)
             }
         }
+
+        println "[${new Date()} INFO] Removing redundancy"
 
         graph.removeRedundancy()
 

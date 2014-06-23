@@ -1,5 +1,7 @@
 package com.antigenomics.vdjtools.substitutions
 
+import com.antigenomics.vdjtools.LinkedListExt
+
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
 
@@ -20,23 +22,51 @@ package com.antigenomics.vdjtools.substitutions
  * A simple algorithm to check if two nodes are connected in graph
  */
 class ConnectivityCheck {
-    def searchedNodes = new HashSet<String>()
+    private final Map<String, Node> nodes = new HashMap<>()
 
-    // Recursively scan graph
-    boolean checkNodes(HashMap<String, List<String>> graph,
-                       String start, String end) {
-        searchedNodes.add(start)
-        def subNetwork = graph[start]
+    ConnectivityCheck(Collection<String> nodes) {
+        nodes.each {
+            this.nodes.put(it, new Node())
+        }
+    }
 
-        for (String subNode : subNetwork) {
-            if (!searchedNodes.contains(subNode)) {
-                if (subNode == end)
-                    return true
-                else if (checkNodes(graph, subNode, end))
-                    return true
-            }
+    void connect(String node1, String node2) {
+        nodes[node1].connect(nodes[node2])
+    }
+
+    boolean connected(String node1, String node2) {
+        nodes[node1].parent == nodes[node2].parent
+    }
+
+    private class Node {
+        ConnectedComponent parent
+
+        Node() {
+            this.parent = new ConnectedComponent(this)
         }
 
-        return false
+        void connect(Node other) {
+            if (this.parent.size() > other.parent.size())
+                this.parent.merge(other.parent)
+            else
+                other.parent.merge(this.parent)
+        }
+    }
+
+    private class ConnectedComponent {
+        final LinkedListExt<Node> nodes = new LinkedListExt<>()
+
+        ConnectedComponent(Node node) {
+            nodes.add(node)
+        }
+
+        void merge(ConnectedComponent other) {
+            this.nodes.concatenate(other.nodes)
+            other.nodes.each { it.parent = this }
+        }
+
+        int size() {
+            nodes.size()
+        }
     }
 }

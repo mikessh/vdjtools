@@ -17,7 +17,7 @@
 package com.antigenomics.vdjtools.substitutions
 
 import com.antigenomics.vdjtools.Clonotype
-import com.antigenomics.vdjtools.EdgeInfo
+import com.antigenomics.vdjtools.Edge
 import com.antigenomics.vdjtools.segment.SegmentUtil
 import com.antigenomics.vdjtools.segment.VSegmentTable
 
@@ -77,7 +77,7 @@ clonotypeMap.deduceAlleles(freqThreshold, spectraThreshold)
 // Iterate through clonotypes with same CDR3nt and build hypermutation links
 //
 
-println "[${new Date()} $scriptName] Creating SHM links for germline"
+println "[${new Date()} $scriptName] Calculating SHM edges for germline"
 
 def shmGraph = new ShmGraphBuilder(clonotypeMap).buildGraph()
 
@@ -85,7 +85,7 @@ def shmGraph = new ShmGraphBuilder(clonotypeMap).buildGraph()
 // CDR3 hypermutations
 //
 
-println "[${new Date()} $scriptName] Creating SHM links for CDR3"
+println "[${new Date()} $scriptName] Calculating SHM edges for CDR3"
 
 def cdr3Graph = new Cdr3GraphBuilder(clonotypeMap).buildGraph()
 
@@ -166,25 +166,25 @@ new File(outputPrefix + ".nodes.txt").withPrintWriter { pw ->
 }
 
 new File(outputPrefix + ".edges.txt").withPrintWriter { pw ->
-    pw.println(EdgeInfo.EDGE_HEADER)
+    pw.println(Edge.EDGE_HEADER)
 
-    shmGraph.collectEdges().each {
+    shmGraph.edges.each {
         pw.println(it.edgeString())
     }
 
-    cdr3Graph.collectEdges().each {
+    cdr3Graph.edges.each {
         pw.println(it.edgeString())
     }
 }
 
 new File(outputPrefix + ".net.txt").withPrintWriter { pw ->
-    pw.println(EdgeInfo.NET_HEADER)
+    pw.println(Edge.NET_HEADER)
 
-    shmGraph.collectEdges().each {
+    shmGraph.edges.each {
         pw.println(it.netString())
     }
 
-    cdr3Graph.collectEdges().each {
+    cdr3Graph.edges.each {
         pw.println(it.netString())
     }
 }

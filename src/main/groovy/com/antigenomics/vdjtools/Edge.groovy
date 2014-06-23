@@ -16,17 +16,26 @@ package com.antigenomics.vdjtools
  limitations under the License.
  */
 class Edge {
-    final Collection<Mutation> mutations
-    final String from, to
+    final String keyFrom, keyTo, key
+    final Mutation mutation
+    final int weight
 
-    Edge(String from, String to, Collection<Mutation> mutations) {
-        this.mutations = mutations
-        this.from = from
-        this.to = to
+    Edge(String keyFrom, String keyTo, Mutation mutation, int weight) {
+        this.keyFrom = keyFrom
+        this.keyTo = keyTo
+        this.mutation = mutation
+        this.weight = weight
+        this.key = keyFrom + " (" + mutation.key + ") " + keyTo
     }
 
-    @Override
-    String toString() {
-        from + ">" + to + "[" + mutations.join("|") + "]"
+    final static String EDGE_HEADER = "key\tweight\t" + Mutation.HEADER,
+                        NET_HEADER = "from\tshm\tto"
+
+    String edgeString() {
+        key + "\t" + weight + "\t" + mutation
+    }
+
+    String netString() {
+        keyFrom + "\t" + mutation.key + "\t" + keyTo
     }
 }

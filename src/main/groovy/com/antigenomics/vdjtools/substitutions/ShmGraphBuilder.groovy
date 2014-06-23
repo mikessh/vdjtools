@@ -1,8 +1,7 @@
 package com.antigenomics.vdjtools.substitutions
 
-import com.antigenomics.vdjtools.Clonotype
-import com.antigenomics.vdjtools.Edge
-import com.antigenomics.vdjtools.MutationGraph
+import com.antigenomics.vdjtools.*
+import groovyx.gpars.GParsPool
 
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
@@ -34,31 +33,39 @@ class ShmGraphBuilder {
 
     MutationGraph buildGraph() {
         def graph = new MutationGraph()
-        spectratype.values().each { family ->
-            def edges = new LinkedList<Edge>()
-            family.each { cloneA ->
-                family.each { cloneB ->
-                    if (cloneA != cloneB) {
-                        def shmIntersection = cloneA.shms.size() > cloneB.shms.size() ?
-                                cloneA.shms.intersect(cloneB.shms) : cloneB.shms.intersect(cloneA.shms)
 
-                        def shmsBA = cloneA.shms.findAll { !shmIntersection.contains(it) }.collect {
-                            it.reassignParent(cloneB)
-                        },
-                            shmsAB = cloneA.shms.findAll { !shmIntersection.contains(it) }.collect {
-                                it.reassignParent(cloneA)
+        println "[${new Date()} INFO] Building graph"
+
+        GParsPool.withPool Util.THREADS, {
+            spectratype.values().eachParallel { family ->
+                def edges = new LinkedList<EdgeBundle>()
+                family.each { Clonotype cloneA ->
+                    family.each { Clonotype cloneB ->
+                        if (cloneA != cloneB) {
+                            def shmIntersection = cloneA.shms.size() > cloneB.shms.size() ?
+                                    cloneA.shms.intersect(cloneB.shms) : cloneB.shms.intersect(cloneA.shms)
+
+                            def shmsBA = cloneA.shms.findAll { !shmIntersection.contains(it) }.collect { Mutation shm ->
+                                shm.reassignParent(cloneB)
                             }
 
-                        if (shmsAB.size() > 0)
-                            edges.add(new Edge(cloneA.key, cloneB.key, shmsAB))
+                            def shmsAB = cloneA.shms.findAll { !shmIntersection.contains(it) }.collect { Mutation shm ->
+                                shm.reassignParent(cloneA)
+                            }
 
-                        if (shmsBA.size() > 0)
-                            edges.add(new Edge(cloneB.key, cloneA.key, shmsBA))
+                            if (shmsAB.size() > 0)
+                                edges.add(new EdgeBundle(cloneA.key, cloneB.key, shmsAB))
+
+                            if (shmsBA.size() > 0)
+                                edges.add(new EdgeBundle(cloneB.key, cloneA.key, shmsBA))
+                        }
                     }
                 }
+                graph.addAll(edges)
             }
-            graph.addAll(edges)
         }
+
+        println "[${new Date()} INFO] Removing redundancy"
 
         graph.removeRedundancy()
 
