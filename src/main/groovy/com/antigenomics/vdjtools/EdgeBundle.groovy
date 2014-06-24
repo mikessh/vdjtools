@@ -21,16 +21,22 @@ import java.util.concurrent.atomic.AtomicBoolean
 class EdgeBundle {
     final MutationSet mutationSet
     final String from, to
+    final int regionSize
     final AtomicBoolean redundant = new AtomicBoolean(false)
 
-    EdgeBundle(String from, String to, Collection<Mutation> mutations) {
+    EdgeBundle(String from, String to, Collection<Mutation> mutations, int regionSize) {
         this.mutationSet = new MutationSet(mutations)
         this.from = from
         this.to = to
+        this.regionSize = regionSize
     }
 
     int size() {
         mutationSet.size()
+    }
+
+    double ratio() {
+        mutationSet.size() / (double)regionSize
     }
 
     @Override

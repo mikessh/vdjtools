@@ -33,6 +33,10 @@ class SegmentData {
         regionMarkup.findIndexOf { it.contains(pos)}
     }
 
+    int size() {
+        sequence.length()
+    }
+
     String getSubSequence(int from, int to) {
         Util.getSubSequence(sequence, from, to)
     }

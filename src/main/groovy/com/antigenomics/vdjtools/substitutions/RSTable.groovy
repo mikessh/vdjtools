@@ -49,9 +49,12 @@ class RSTable {
             def regionSize = regionId < 5 ?
                     vSegmentTable.getRegionSize(vSegment, regionId) : mutation.parent.cdr3nt.size()
 
+            count /= regionSize
+            freq /= regionSize
+
             if (normalize) {
-                count /= (vFrequency.clonotypes * regionSize)
-                freq /= (vFrequency.freq * regionSize)
+                count /= vFrequency.clonotypes
+                freq /= vFrequency.freq
             }
 
             table[0][silent][regionId] += count
@@ -61,12 +64,20 @@ class RSTable {
         }
     }
 
-    double[] getSummaryRs() {
-        (0..<N).collect { allSegmentsTable[0][1][it] / allSegmentsTable[0][0][it] }.collect { it.isNaN() ? 0 : it }
+    double[] rsSummary() {
+        (0..<N).collect { allSegmentsTable[0][0][it] / allSegmentsTable[0][1][it] }//.collect { it.isNaN() ? 0 : it }
     }
 
-    double[] getSummaryCoverage() {
+    double[] covSummary() {
         (0..<N).collect { allSegmentsTable[0][1][it] + allSegmentsTable[0][0][it] }
+    }
+
+    double[] silentSummary() {
+        (0..<N).collect { allSegmentsTable[0][1][it] }
+    }
+
+    double[] replacementSummary() {
+        (0..<N).collect { allSegmentsTable[0][0][it] }
     }
 
     final static int N = SegmentUtil.N_REGIONS

@@ -19,8 +19,6 @@ package com.antigenomics.vdjtools
 import com.antigenomics.vdjtools.substitutions.ConnectivityCheck
 import groovyx.gpars.GParsPool
 
-import java.util.concurrent.atomic.AtomicInteger
-
 class MutationGraph {
     private class SubGraph {
         final int maxLevel
@@ -77,18 +75,19 @@ class MutationGraph {
 
     void removeRedundancy() {
         // Mark redundant edge bundles
-        println "[${new Date()} GRAPH] Marking redundant edges for graph with ${subGraphs.size()} subgraphs"
-        def counter = new AtomicInteger()
+        //println "[${new Date()} GRAPH] Marking redundant edges for graph with ${subGraphs.size()} subgraphs"
+        //def counter = new AtomicInteger()
         GParsPool.withPool Util.THREADS, {
             subGraphs.eachParallel { SubGraph subGraph ->
                 subGraph.markRedundant()
-                println "[${new Date()} GRAPH] ${counter.incrementAndGet()} of ${subGraphs.size()} subgraphs processed"
+                //println "[${new Date()} GRAPH] ${counter.incrementAndGet()} of ${subGraphs.size()} subgraphs processed"
             }
         }
 
         // Extract unique SHMs and edges for graph
-        println "[${new Date()} GRAPH] Extracting non-redundant edges"
+        //println "[${new Date()} GRAPH] Extracting non-redundant edges"
         subGraphs.each { SubGraph subGraph ->
+            def filteredNodes = new HashSet<String>()
             subGraph.edgeBundlesByLevel.values().each { edgeBundles ->
                 edgeBundles.each { EdgeBundle edgeBundle ->
                     if (!edgeBundle.redundant.get()) {
@@ -100,5 +99,24 @@ class MutationGraph {
                 }
             }
         }
+    }
+
+    Collection<Set<String>> getFilteredSubgraphs(double ratioThreshold) {
+        final Collection<Set<String>> filteredSubGraphs = new LinkedList<>()
+        subGraphs.each { SubGraph subGraph ->
+            def filteredNodes = new HashSet<String>()
+            subGraph.edgeBundlesByLevel.values().each { edgeBundles ->
+                edgeBundles.each { EdgeBundle edgeBundle ->
+                    if (!edgeBundle.redundant.get() && edgeBundle.ratio() <= ratioThreshold) {
+                        edgeBundle.mutationSet.mutations.each { Mutation mutation ->
+                            filteredNodes.add(edgeBundle.from)
+                            filteredNodes.add(edgeBundle.to)
+                        }
+                    }
+                }
+            }
+            filteredSubGraphs.add(filteredNodes)
+        }
+        filteredSubGraphs
     }
 }

@@ -20,9 +20,11 @@ import com.antigenomics.vdjtools.*
 import groovyx.gpars.GParsPool
 
 class Cdr3GraphBuilder {
-    def spectratype = new HashMap<String, Map<String, List<Clonotype>>>()
+    final spectratype = new HashMap<String, Map<String, List<Clonotype>>>()
+    final double mutationRatioThreshold
 
-    public Cdr3GraphBuilder(ClonotypeMap clonotypeMap) {
+    public Cdr3GraphBuilder(ClonotypeMap clonotypeMap, double mutationRatioThreshold) {
+        this.mutationRatioThreshold = mutationRatioThreshold
         clonotypeMap.clonotypes.each { clonotype ->
             def key = clonotype.v + "\t" + clonotype.cdr3nt.length()
             def clonotypesByCdr3 = spectratype[key]
@@ -38,7 +40,7 @@ class Cdr3GraphBuilder {
     MutationGraph buildGraph() {
         def graph = new MutationGraph()
 
-        println "[${new Date()} INFO] Building graph"
+        //println "[${new Date()} INFO] Building graph"
 
         GParsPool.withPool Util.THREADS, {
             spectratype.values().eachParallel { spectraPeak ->
@@ -59,23 +61,23 @@ class Cdr3GraphBuilder {
                         }.collect()
                         def mutations = extractMutations(cloneA, cloneB)
                         if (mutations != null)
-                            edges.add(new EdgeBundle(cloneA.key, cloneB.key, mutations))
+                            edges.add(new EdgeBundle(cloneA.key, cloneB.key, mutations, cloneA.cdr3nt.length()))
                     }
                 }
                 graph.addAll(edges)
             }
         }
 
-        println "[${new Date()} INFO] Removing redundancy"
+        //println "[${new Date()} INFO] Removing redundancy"
 
         graph.removeRedundancy()
 
         graph
     }
 
-    private static Collection<Mutation> extractMutations(Clonotype clone1, Clonotype clone2) {
+    private Collection<Mutation> extractMutations(Clonotype clone1, Clonotype clone2) {
         def mutations = new LinkedList<Mutation>()
-        int len = clone1.cdr3nt.length(), depth = scanDept(len)
+        int len = clone1.cdr3nt.length(), depth = mutationDepth(len)
 
         def mutationPositions = new LinkedList<Integer>()
         for (int i = 0; i < len; i++) {
@@ -103,7 +105,7 @@ class Cdr3GraphBuilder {
         mutations
     }
 
-    static int scanDept(int len) {
-        0.2 * len
+    private int mutationDepth(int len) {
+        mutationRatioThreshold * len
     }
 }

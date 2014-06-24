@@ -43,7 +43,8 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 def species = (opt.S ?: "human").toLowerCase(),
     freqThreshold = (opt.'allele-freq' ?: FREQ_THRESHOLD).toDouble(),
-    spectraThreshold = (opt.'allele-spectra' ?: SPEC_THRESHOLD).toInteger()
+    spectraThreshold = (opt.'allele-spectra' ?: SPEC_THRESHOLD).toInteger(),
+    mutRatioThresholdCdr = 0.2, mutRatioThresholdShm = 0.1
 
 String inputFileNameL2 = opt.arguments()[0],
        outputPrefix = opt.arguments()[1]
@@ -74,25 +75,20 @@ println "[${new Date()} $scriptName] Deducing alleles"
 clonotypeMap.deduceAlleles(freqThreshold, spectraThreshold)
 
 //
-// Iterate through clonotypes with same CDR3nt and build hypermutation links
-//
-
-println "[${new Date()} $scriptName] Calculating SHM edges for germline"
-
-def shmGraph = new ShmGraphBuilder(clonotypeMap).buildGraph()
-
-//
 // CDR3 hypermutations
 //
 
 println "[${new Date()} $scriptName] Calculating SHM edges for CDR3"
 
-def cdr3Graph = new Cdr3GraphBuilder(clonotypeMap).buildGraph()
+def cdr3Graph = new Cdr3GraphBuilder(clonotypeMap, mutRatioThresholdCdr).buildGraph()
 
+//
+// Iterate through clonotypes with same CDR3nt and build hypermutation links
+//
 
-def of = new File(outputPrefix).absoluteFile
-if (of.parentFile != null)
-    of.parentFile.mkdirs()
+println "[${new Date()} $scriptName] Calculating SHM edges for germline"
+
+def shmGraph = new ShmGraphBuilder(cdr3Graph, clonotypeMap, mutRatioThresholdShm).buildGraph()
 
 //
 // Generate tables
@@ -107,15 +103,17 @@ def alleles = clonotypeMap.clonotypes.collect { it.alleles }.flatten(),
 
 // RS table
 
-println "[${new Date()} $scriptName] Calculating Silent:Replacement tables"
+println "[${new Date()} $scriptName] Calculating Replacement:Silent tables"
 
-def allelesRsTable = new RSTable(true, vSegmentTable)
+def normByV = true
+
+def allelesRsTable = new RSTable(normByV, vSegmentTable)
 allelesRsTable.addAll(alleles)
 
-def shmRsTable = new RSTable(true, vSegmentTable)
+def shmRsTable = new RSTable(normByV, vSegmentTable)
 shmRsTable.addAll(shms)
 
-def emergedShmRsTable = new RSTable(true, vSegmentTable)
+def emergedShmRsTable = new RSTable(normByV, vSegmentTable)
 emergedShmRsTable.addAll(shmsEmerged)
 
 // Mutation motifs
@@ -133,18 +131,36 @@ emergedShmPwm.addAll(shmsEmerged)
 
 println "[${new Date()} $scriptName] Writing output"
 
+def of = new File(outputPrefix).absoluteFile
+if (of.parentFile != null)
+    of.parentFile.mkdirs()
+
 new File(outputPrefix + ".mutations.rs.txt").withPrintWriter { pw ->
-    pw.println("#silent:replacement\t" + SegmentUtil.HEADER)
-    pw.println("alleles\t" + allelesRsTable.summaryRs.collect().join("\t"))
-    pw.println("shms\t" + shmRsTable.summaryRs.collect().join("\t"))
-    pw.println("shms_emerged\t" + emergedShmRsTable.summaryRs.collect().join("\t"))
+    pw.println("#replacement:silent\t" + SegmentUtil.HEADER)
+    pw.println("alleles\t" + allelesRsTable.rsSummary().collect().join("\t"))
+    pw.println("shms\t" + shmRsTable.rsSummary().collect().join("\t"))
+    pw.println("shms_emerged\t" + emergedShmRsTable.rsSummary().collect().join("\t"))
 }
 
 new File(outputPrefix + ".mutations.cov.txt").withPrintWriter { pw ->
     pw.println("#coverage\t" + SegmentUtil.HEADER)
-    pw.println("alleles\t" + allelesRsTable.summaryCoverage.collect().join("\t"))
-    pw.println("shms\t" + shmRsTable.summaryCoverage.collect().join("\t"))
-    pw.println("shms_emerged\t" + emergedShmRsTable.summaryCoverage.collect().join("\t"))
+    pw.println("alleles\t" + allelesRsTable.covSummary().collect().join("\t"))
+    pw.println("shms\t" + shmRsTable.covSummary().collect().join("\t"))
+    pw.println("shms_emerged\t" + emergedShmRsTable.covSummary().collect().join("\t"))
+}
+
+new File(outputPrefix + ".mutations.r.txt").withPrintWriter { pw ->
+    pw.println("#replacement\t" + SegmentUtil.HEADER)
+    pw.println("alleles\t" + allelesRsTable.replacementSummary().collect().join("\t"))
+    pw.println("shms\t" + shmRsTable.replacementSummary().collect().join("\t"))
+    pw.println("shms_emerged\t" + emergedShmRsTable.replacementSummary().collect().join("\t"))
+}
+
+new File(outputPrefix + ".mutations.s.txt").withPrintWriter { pw ->
+    pw.println("#silent\t" + SegmentUtil.HEADER)
+    pw.println("alleles\t" + allelesRsTable.silentSummary().collect().join("\t"))
+    pw.println("shms\t" + shmRsTable.silentSummary().collect().join("\t"))
+    pw.println("shms_emerged\t" + emergedShmRsTable.silentSummary().collect().join("\t"))
 }
 
 new File(outputPrefix + ".mutations.pwm.txt").withPrintWriter { pw ->
