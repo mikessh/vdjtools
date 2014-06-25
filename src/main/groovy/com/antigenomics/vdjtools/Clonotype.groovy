@@ -30,7 +30,7 @@ class Clonotype {
 
     final String v, d, j
     final String cdr1nt, cdr2nt, cdr3nt,
-            cdr1aa, cdr2aa, cdr3aa
+                 cdr1aa, cdr2aa, cdr3aa
 
     private String key
 
@@ -39,21 +39,6 @@ class Clonotype {
     }
 
     final boolean inFrame, isComplete, noStop
-
-    /*
-    0	1	2	3
-    #reads_count	reads_percent	events_count	events_percent
-    4	5	6	7	8	9
-	cdr1nt	cdr2nt	cdr3nt	cdr1aa	cdr2aa	cdr3aa
-	10	11	12
-	inFrame	noStop	complete
-	13	14	15
-	vSegment	dSegment	jSegment
-	16	17	18
-	cdr1q	cdr2q	cdr3q
-	19
-	mutations
-     */
 
     private Clonotype(int count, double freq,
                       String v, String d, String j,
@@ -77,7 +62,49 @@ class Clonotype {
         this.noStop = noStop
     }
 
+    static Clonotype parseMiTcrClonotype(String clonotypeString) {
+        def splitString = clonotypeString.split("\t")
+
+        def count = splitString[0].toInteger()
+        def freq = splitString[1].toDouble()
+
+        String cdr1nt = null, cdr2nt = null, cdr3nt, cdr1aa = null, cdr2aa = null, cdr3aa
+        cdr3nt = splitString[2]
+        cdr3aa = splitString[5]
+
+        String v, d, j
+        (v, d, j) = splitString[[7, 9, 11]].collect { it.split(",")[0] + "*01" }
+
+        boolean inFrame = !cdr3aa.contains("~"), noStop = !cdr3aa.contains("*"), isComplete = true
+
+        def clonotype = new Clonotype(count, freq,
+                v, d, j,
+                cdr1nt, cdr2nt, cdr3nt,
+                cdr1aa, cdr2aa, cdr3aa,
+                inFrame, noStop, isComplete)
+
+        clonotype.key = [v, cdr3nt].join("_")
+
+        clonotype
+    }
+
     static Clonotype parseIgBlastClonotype(String clonotypeString) {
+        /*
+        0	1	2	3
+        #reads_count	reads_percent	events_count	events_percent
+        4	5	6	7	8	9
+        cdr1nt	cdr2nt	cdr3nt	cdr1aa	cdr2aa	cdr3aa
+        10	11	12
+        inFrame	noStop	complete
+        13	14	15
+        vSegment	dSegment	jSegment
+        16	17	18
+        cdr1q	cdr2q	cdr3q
+        19
+        mutations
+         */
+
+
         def splitString = clonotypeString.split("\t")
 
         def count = splitString[2].toInteger()
@@ -103,7 +130,7 @@ class Clonotype {
                 Mutation.parseIgBlastMutation(mutString, clonotype)
             })
 
-        def key = [cdr3nt,
+        def key = [v, cdr3nt,
                    clonotype.mutations.collect {
                        Mutation mpd -> "$mpd.ntPos:$mpd.fromNt>$mpd.toNt"
                    }.join("|")].join("_")
