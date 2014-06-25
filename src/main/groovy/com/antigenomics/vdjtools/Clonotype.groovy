@@ -62,6 +62,16 @@ class Clonotype {
         this.noStop = noStop
     }
 
+    static Clonotype parseClonotype(String clonotypeString, Software software) {
+        switch (software) {
+            case Software.MiTcr:
+                return parseMiTcrClonotype(clonotypeString)
+            case Software.IgBlast:
+                return parseIgBlastClonotype(clonotypeString)
+        }
+        throw new UnsupportedOperationException("Don't know how to parse $software data")
+    }
+
     static Clonotype parseMiTcrClonotype(String clonotypeString) {
         def splitString = clonotypeString.split("\t")
 

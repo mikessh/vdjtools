@@ -44,7 +44,7 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 def species = (opt.S ?: "human").toLowerCase(),
     freqThreshold = (opt.'allele-freq' ?: FREQ_THRESHOLD).toDouble(),
     spectraThreshold = (opt.'allele-spectra' ?: SPEC_THRESHOLD).toInteger(),
-    mutRatioThresholdCdr = 0.2, mutRatioThresholdShm = 0.1
+    mutRatioThresholdCdr = 0.2, mutRatioThresholdShm = 0.1, maxConsequentMutations = 2
 
 String inputFileNameL2 = opt.arguments()[0],
        outputPrefix = opt.arguments()[1]
@@ -80,7 +80,7 @@ clonotypeMap.deduceAlleles(freqThreshold, spectraThreshold)
 
 println "[${new Date()} $scriptName] Calculating SHM edges for CDR3"
 
-def cdr3Graph = new Cdr3GraphBuilder(clonotypeMap, mutRatioThresholdCdr).buildGraph()
+def cdr3Graph = new Cdr3GraphBuilder(clonotypeMap, mutRatioThresholdCdr, maxConsequentMutations).buildGraph()
 
 //
 // Iterate through clonotypes with same CDR3nt and build hypermutation links
@@ -120,10 +120,11 @@ emergedShmRsTable.addAll(shmsEmerged)
 
 println "[${new Date()} $scriptName] Calculating SHM hotspot motifs"
 
-def allelesPwm = new MotifPwm(), shmPwm = new MotifPwm(), emergedShmPwm = new MotifPwm()
+def allelesPwm = new MotifPwm(), shmPwm = new MotifPwm(), emergedShmPwm = new MotifPwm(), cdr3ShmPwm = new MotifPwm()
 allelesPwm.addAll(alleles)
 shmPwm.addAll(shms)
 emergedShmPwm.addAll(shmsEmerged)
+cdr3ShmPwm.addAll(cdr3Graph.filteredShms)
 
 //
 // Write output
@@ -170,6 +171,8 @@ new File(outputPrefix + ".mutations.pwm.txt").withPrintWriter { pw ->
     pw.println(shmPwm)
     pw.println("\n#emerged_shms")
     pw.println(emergedShmPwm)
+    pw.println("\n#cdr3_shms")
+    pw.println(cdr3ShmPwm)
 }
 
 // Cytoscape files

@@ -22,9 +22,11 @@ import groovyx.gpars.GParsPool
 class Cdr3GraphBuilder {
     final spectratype = new HashMap<String, Map<String, List<Clonotype>>>()
     final double mutationRatioThreshold
+    final int maxConsequentMutations
 
-    public Cdr3GraphBuilder(ClonotypeMap clonotypeMap, double mutationRatioThreshold) {
+    public Cdr3GraphBuilder(ClonotypeMap clonotypeMap, double mutationRatioThreshold, int maxConsequentMutations) {
         this.mutationRatioThreshold = mutationRatioThreshold
+        this.maxConsequentMutations = maxConsequentMutations
         clonotypeMap.clonotypes.each { clonotype ->
             def key = clonotype.v + "\t" + clonotype.cdr3nt.length()
             def clonotypesByCdr3 = spectratype[key]
@@ -80,12 +82,17 @@ class Cdr3GraphBuilder {
         int len = clone1.cdr3nt.length(), depth = mutationDepth(len)
 
         def mutationPositions = new LinkedList<Integer>()
+
+        int nConsequntMutations = 0
+
         for (int i = 0; i < len; i++) {
             if (clone1.cdr3nt.charAt(i) != clone2.cdr3nt.charAt(i)) {
                 mutationPositions.add(i)
-                if (mutationPositions.size() > depth)
+                if (mutationPositions.size() > depth ||
+                        ++nConsequntMutations > maxConsequentMutations)
                     return null
-            }
+            } else
+                nConsequntMutations = 0
         }
 
         mutationPositions.each { int pos ->
