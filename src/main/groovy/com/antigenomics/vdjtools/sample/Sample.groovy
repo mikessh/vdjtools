@@ -26,4 +26,9 @@ class Sample {
         this.metadata = metadata
         this.clonotypes = clonotypes
     }
+
+    @Override
+    String toString(){
+        metadata.toString()
+    }
 }

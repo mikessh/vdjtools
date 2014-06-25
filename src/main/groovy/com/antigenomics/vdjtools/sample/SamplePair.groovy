@@ -14,26 +14,18 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools.intersection
+package com.antigenomics.vdjtools.sample
 
-class IntersectionResult {
-    final int clones1, clones2, clones12
-    final double freq1, freq2, freq12
+class SamplePair {
+    final Sample sample1, sample2
 
-    IntersectionResult(int clones1, int clones2, int clones12,
-                     double freq1, double freq2, double freq12) {
-        this.clones1 = clones1
-        this.clones2 = clones2
-        this.clones12 = clones12
-        this.freq1 = freq1
-        this.freq2 = freq2
-        this.freq12 = freq12
+    SamplePair(Sample sample1, Sample sample2) {
+        this.sample1 = sample1
+        this.sample2 = sample2
     }
-
-    final static String HEADER = "clones1\tclones2\tclones12\tfreq1\tfreq2\tfreq12"
 
     @Override
     String toString() {
-        [clones1, clones2, clones12, freq1, freq2, freq12].join("\t")
+        sample1.toString() + "\t" + sample2.toString()
     }
 }

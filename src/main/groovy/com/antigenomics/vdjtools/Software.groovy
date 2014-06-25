@@ -33,6 +33,9 @@ enum Software {
 
     static Software byName(String name) {
         name = name.toLowerCase()
-        values().find { it.name == name }
+        def software = values().find { it.name == name }
+        if (!software)
+            throw new IllegalArgumentException("Unknown software $name")
+        software
     }
 }

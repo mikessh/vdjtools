@@ -17,15 +17,15 @@
 package com.antigenomics.vdjtools.sample
 
 class SampleMetadata {
-    final String fileName, sampleId
+    final String sampleId
     final List<String> entries
 
-    SampleMetadata(String fileName, String sampleId, List<String> entries) {
-        this.fileName = fileName
+    SampleMetadata(String sampleId, List<String> entries) {
         this.sampleId = sampleId
         this.entries = entries
     }
 
+    @Override
     boolean equals(o) {
         if (this.is(o)) return true
         if (getClass() != o.class) return false
@@ -37,7 +37,13 @@ class SampleMetadata {
         return true
     }
 
+    @Override
     int hashCode() {
         return sampleId.hashCode()
+    }
+
+    @Override
+    String toString() {
+        [sampleId, entries].flatten().join("\t")
     }
 }

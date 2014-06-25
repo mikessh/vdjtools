@@ -35,13 +35,15 @@ class SampleCollection {
                 String fileName = splitLine[0], sampleId = splitLine[1]
                 def entries = splitLine[2..-1]
 
+                if (entries.size() != metadataHeader.size())
+                    throw new Exception("Different number of entries in metadata header and sample $sampleId")
+
                 def sample = sampleMap[sampleId]
                 if (!sample)
                     sampleMap.put(sampleId,
-                            new Sample(new SampleMetadata(fileName, sampleId, entries),
+                            new Sample(new SampleMetadata(sampleId, entries),
                                     loadData(fileName)))
                 else {
-                    sample.metadata.entries.addAll(entries)
                     sample.clonotypes.addAll(loadData(fileName))
                 }
             }
@@ -61,5 +63,13 @@ class SampleCollection {
             }
         }
         clonotypes
+    }
+
+    Collection<SamplePair> listPairs() {
+        def samplePairs = new LinkedList()
+        for (int i = 0; i < sampleMap.values().size(); i++)
+            for (int j = i + 1; j < sampleMap.values().size(); j++)
+                samplePairs.add(new SamplePair(sampleMap.values()[i], sampleMap.values()[j]))
+        samplePairs
     }
 }
