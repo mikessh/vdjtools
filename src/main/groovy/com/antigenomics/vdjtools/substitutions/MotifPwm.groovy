@@ -21,31 +21,39 @@ import com.antigenomics.vdjtools.Util
 
 class MotifPwm {
     final int leftSize, rightSize
-    final double[][] pwmC, pwmF
+    final double[][] pwmRC, pwm
+    int total = 0, rgyw = 0
 
     MotifPwm() {
-        this(3, 3)
+        this(2, 2)
     }
 
     MotifPwm(int leftSize, int rightSize) {
         this.leftSize = leftSize
         this.rightSize = rightSize
-        pwmC = new double[4][leftSize + rightSize + 1]
-        pwmF = new double[4][leftSize + rightSize + 1]
+        pwmRC = new double[4][leftSize + rightSize + 1]
+        pwm = new double[4][leftSize + rightSize + 1]
     }
 
     void add(Mutation mutation) {
-        String motif = mutation.getMotif(leftSize, rightSize)
+        String motif = mutation.getMotif(leftSize, rightSize),
+               motifRC = Util.rc(motif)
+        updatePwm(pwm, motif)
+        updatePwm(pwmRC, motifRC)
+        total++
+        if ((motif + " " + motifRC) =~ /[AG]G[TC][AT]/)
+            rgyw++
+    }
+
+    private static void updatePwm(double[][] pwm, String motif) {
         motif.toCharArray().eachWithIndex { char nt, int j ->
             int code = Util.nt2code(nt)
             if (code < 0) {
                 (0..3).each { int i ->
-                    pwmC[i][j] += 0.25
-                    pwmF[i][j] += 0.25 * mutation.freq
+                    pwm[i][j] += 0.25
                 }
             } else {
-                pwmC[code][j] += 1.0
-                pwmF[code][j] += mutation.freq
+                pwm[code][j] += 1.0
             }
         }
     }
@@ -57,6 +65,9 @@ class MotifPwm {
     @Override
     String toString() {
         "NT\t" + (-leftSize..rightSize).join("\t") + "\n" +
-                (0..3).collect { "${Util.code2nt(it)}\t" + pwmC[it].collect().join("\t") }.join("\n")
+                (0..3).collect { "${Util.code2nt(it)}\t" + pwm[it].collect().join("\t") }.join("\n") + "\n" +
+        "NT_RC\t" + (-leftSize..rightSize).join("\t") + "\n" +
+                (0..3).collect { "${Util.code2nt(it)}\t" + pwmRC[it].collect().join("\t") }.join("\n") + "\n" +
+                "Total\t$total\nRGYW\t$rgyw"
     }
 }

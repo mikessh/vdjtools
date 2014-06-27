@@ -22,13 +22,19 @@ import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.SamplePair
 import groovyx.gpars.GParsPool
 
+import java.util.concurrent.atomic.AtomicInteger
+
 def cli = new CliBuilder(usage: "BulkIntersection [options] sample_metadata_file output_prefix")
 cli.h("display help message")
-cli.S(longOpt: "software", argName: "string", required: true,
+cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
+
 def opt = cli.parse(args)
 
-if (opt.h || opt == null || opt.arguments().size() < 2) {
+if (opt == null)
+    System.exit(-1)
+
+if (opt.h || opt.arguments().size() < 2) {
     cli.usage()
     System.exit(-1)
 }
@@ -43,7 +49,9 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 println "[${new Date()} $scriptName] Reading samples"
 
-def sampleCollection = new SampleCollection(inputFileName, software)
+def sampleCollection = new SampleCollection(inputFileName, software, false)
+
+println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
 //
 // Do intersection in parallel
@@ -52,14 +60,20 @@ def sampleCollection = new SampleCollection(inputFileName, software)
 IntersectionType.values().each { IntersectionType intersectionType ->
     println "[${new Date()} $scriptName] Intersecting by $intersectionType"
     def pairs = sampleCollection.listPairs(), results
+    def counter = new AtomicInteger()
     GParsPool.withPool Util.THREADS, {
         results = pairs.collectParallel { SamplePair pair ->
             def intersection = new PairedIntersection(pair.sample1.clonotypes, pair.sample2.clonotypes,
                     intersectionType)
-            [pair, intersection.intersect()]
+            def result = intersection.intersect()
+            println "[${new Date()} $scriptName] " +
+                    "Intersected ${counter.incrementAndGet()} of ${pairs.size()} so far\n" +
+                    "Last result\n${IntersectionResult.HEADER}\n$result"
+            [pair, result]
         }
     }
 
+    println "[${new Date()} $scriptName] Writing results"
     new File(outputFileName + "_" + intersectionType.shortName + ".txt").withPrintWriter { pw ->
         pw.println("#" +
                 [sampleCollection.metadataHeader.collect { "1_$it" },

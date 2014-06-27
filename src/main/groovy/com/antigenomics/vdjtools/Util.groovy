@@ -51,6 +51,49 @@ class Util {
         }
     }
 
+    static final char rcNt(char nt) {
+        switch (nt) {
+            case 'A':
+                return 'T'
+            case 'G':
+                return 'C'
+            case 'T':
+                return 'A'
+            case 'C':
+                return 'G'
+            default:
+                return 'N'
+        }
+    }
+
+
+    static String rc(String seq) {
+        def chars = seq.reverse().toCharArray()
+        for (int i = 0; i < chars.length; i++) {
+            if (chars[i] == (char) 'A')
+                chars[i] = (char) 'T'
+            else if (chars[i] == (char) 'T')
+                chars[i] = (char) 'A'
+            else if (chars[i] == (char) 'G')
+                chars[i] = (char) 'C'
+            else if (chars[i] == (char) 'C')
+                chars[i] = (char) 'G'
+            else if (chars[i] == (char) 'N')
+                chars[i] = (char) 'N'
+            else if (chars[i] == (char) 'a')
+                chars[i] = (char) 't'
+            else if (chars[i] == (char) 't')
+                chars[i] = (char) 'a'
+            else if (chars[i] == (char) 'g')
+                chars[i] = (char) 'c'
+            else if (chars[i] == (char) 'c')
+                chars[i] = (char) 'g'
+            else
+                chars[i] = (char) 'N'
+        }
+        return new String(chars)
+    }
+
     static char codon2aa(String codon) {
         String codonUpper = codon.toUpperCase()
         switch (codonUpper) {

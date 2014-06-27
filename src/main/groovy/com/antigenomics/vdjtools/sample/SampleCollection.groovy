@@ -20,12 +20,16 @@ import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Software
 
 class SampleCollection {
-    final Map<String, Sample> sampleMap = new HashMap<>()
+    private final Map<String, Sample> sampleMap = new HashMap<>()
     final List<String> metadataHeader = new ArrayList<>()
-    final Software software
+    private final Software software
+    private final boolean strict
 
-    SampleCollection(String sampleMetadataFileName, Software software) {
+    SampleCollection(String sampleMetadataFileName, Software software, boolean strict) {
         this.software = software
+        this.strict = strict
+
+        def nSamples = 0, nClonotypes = 0
         new File(sampleMetadataFileName).withReader { reader ->
             metadataHeader.addAll(reader.readLine().split("\t")[2..-1])
 
@@ -38,29 +42,51 @@ class SampleCollection {
                 if (entries.size() != metadataHeader.size())
                     throw new Exception("Different number of entries in metadata header and sample $sampleId")
 
+                def clonotypes = loadData(fileName)
+
                 def sample = sampleMap[sampleId]
                 if (!sample)
                     sampleMap.put(sampleId,
                             new Sample(new SampleMetadata(sampleId, entries),
-                                    loadData(fileName)))
+                                    clonotypes))
                 else {
-                    sample.clonotypes.addAll(loadData(fileName))
+                    sample.clonotypes.addAll(clonotypes)
                 }
+
+                nSamples++
+                nClonotypes += clonotypes.size()
+
+                def factor = 1024 * 1024 * 1024
+
+                int maxMemory = Runtime.runtime.maxMemory() / factor,
+                    allocatedMemory = Runtime.runtime.totalMemory() / factor,
+                    freeMemory = Runtime.runtime.freeMemory() / factor
+
+                println "[${new Date()} SampleCollection] Loaded $nSamples samples and $nClonotypes clonotypes so far. " +
+                        "Memory usage: $allocatedMemory of ${maxMemory + freeMemory} GB"
             }
         }
     }
 
-    List<Clonotype> loadData(String fileName) {
+    private List<Clonotype> loadData(String fileName) {
         def clonotypes = new ArrayList()
-        new File(fileName).withReader { reader ->
-            for (int i = 0; i < software.headerLineCount; i++)
-                reader.readLine()
+        def inputFile = new File(fileName)
+        if (inputFile.exists()) {
+            inputFile.withReader { reader ->
+                for (int i = 0; i < software.headerLineCount; i++)
+                    reader.readLine()
 
-            def line
-            while ((line = reader.readLine()) != null) {
-                if (!software.comment || !line.startsWith(software.comment))
-                    clonotypes.add(Clonotype.parseClonotype(line, software))
+                def line
+                while ((line = reader.readLine()) != null) {
+                    if (!software.comment || !line.startsWith(software.comment))
+                        clonotypes.add(Clonotype.parseClonotype(line, software))
+                }
             }
+        } else {
+            if (strict)
+                throw new FileNotFoundException(fileName)
+            else
+                println "[${new Date()} WARNING] File $fileName not found, skipping"
         }
         clonotypes
     }
@@ -71,5 +97,9 @@ class SampleCollection {
             for (int j = i + 1; j < sampleMap.values().size(); j++)
                 samplePairs.add(new SamplePair(sampleMap.values()[i], sampleMap.values()[j]))
         samplePairs
+    }
+
+    int size() {
+        sampleMap.size()
     }
 }

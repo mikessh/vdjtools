@@ -44,7 +44,7 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 def species = (opt.S ?: "human").toLowerCase(),
     freqThreshold = (opt.'allele-freq' ?: FREQ_THRESHOLD).toDouble(),
     spectraThreshold = (opt.'allele-spectra' ?: SPEC_THRESHOLD).toInteger(),
-    mutRatioThresholdCdr = 0.2, mutRatioThresholdShm = 0.1, maxConsequentMutations = 2
+    mutRatioThresholdCdr = 0.1, mutRatioThresholdShm = 0.1, maxConsequentMutations = 1
 
 String inputFileNameL2 = opt.arguments()[0],
        outputPrefix = opt.arguments()[1]
