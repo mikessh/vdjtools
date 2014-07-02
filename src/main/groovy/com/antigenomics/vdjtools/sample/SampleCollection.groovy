@@ -19,15 +19,18 @@ package com.antigenomics.vdjtools.sample
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Software
 
-class SampleCollection {
+class SampleCollection implements Iterable<Sample> {
     private final Map<String, Sample> sampleMap = new HashMap<>()
+    private final Map<String, List<String>> filesBySample = new HashMap<>()
+    private final HashSet<String> loadedSamples = new HashSet<>()
     final List<String> metadataHeader = new ArrayList<>()
     private final Software software
-    private final boolean strict
+    private final boolean strict, lazy
 
-    SampleCollection(String sampleMetadataFileName, Software software, boolean strict) {
+    SampleCollection(String sampleMetadataFileName, Software software, boolean strict, boolean lazy) {
         this.software = software
         this.strict = strict
+        this.lazy = lazy
 
         def nSamples = 0, nClonotypes = 0
         new File(sampleMetadataFileName).withReader { reader ->
@@ -42,61 +45,108 @@ class SampleCollection {
                 if (entries.size() != metadataHeader.size())
                     throw new Exception("Different number of entries in metadata header and sample $sampleId")
 
-                def clonotypes = loadData(fileName)
+                def inputFile = new File(fileName)
 
-                def sample = sampleMap[sampleId]
-                if (!sample)
-                    sampleMap.put(sampleId,
-                            new Sample(new SampleMetadata(sampleId, entries),
-                                    clonotypes))
-                else {
-                    sample.clonotypes.addAll(clonotypes)
-                }
+                if (inputFile.exists()) {
+                    def clonotypes = new ArrayList<Clonotype>()
 
-                nSamples++
-                nClonotypes += clonotypes.size()
+                    if (lazy) {
+                        def fileList = filesBySample[sampleId]
+                        if (!fileList)
+                            filesBySample.put(sampleId, fileList = new LinkedList<String>())
+                        fileList.add(fileName)
+                    } else {
+                        clonotypes = loadData(fileName)
+                    }
 
-                def factor = 1024 * 1024 * 1024
+                    def sample = sampleMap[sampleId]
+                    if (!sample) {
+                        sampleMap.put(sampleId,
+                                new Sample(new SampleMetadata(sampleId, entries),
+                                        clonotypes))
+                    } else {
+                        sample.clonotypes.addAll(clonotypes)
+                    }
 
-                int maxMemory = Runtime.runtime.maxMemory() / factor,
-                    allocatedMemory = Runtime.runtime.totalMemory() / factor,
-                    freeMemory = Runtime.runtime.freeMemory() / factor
+                    nSamples++
 
-                println "[${new Date()} SampleCollection] Loaded $nSamples samples and $nClonotypes clonotypes so far. " +
-                        "Memory usage: $allocatedMemory of ${maxMemory + freeMemory} GB"
+                    if (lazy) {
+                        println "[${new Date()} SampleCollection] Loaded metadata for $nSamples samples"
+                    } else {
+                        nClonotypes += clonotypes.size()
+
+                        def factor = 1024 * 1024 * 1024
+
+                        int maxMemory = Runtime.runtime.maxMemory() / factor,
+                            allocatedMemory = Runtime.runtime.totalMemory() / factor,
+                            freeMemory = Runtime.runtime.freeMemory() / factor
+
+                        println "[${new Date()} SampleCollection] Loaded $nSamples samples and $nClonotypes clonotypes so far. " +
+                                "Memory usage: $allocatedMemory of ${maxMemory + freeMemory} GB"
+                    }
+                } else if (strict) {
+                    throw new FileNotFoundException(fileName)
+                } else
+                    println "[${new Date()} SampleCollection] WARNING: File $fileName not found, skipping"
             }
+        }
+
+        if (metadataHeader[0].startsWith("#"))
+            metadataHeader[0] = metadataHeader[0][1..-1]
+        metadataHeader.add(0, "#sample_id")
+    }
+
+    private void loadSample(String sampleId) {
+        if (lazy && !loadedSamples.contains(sampleId)) {
+            println "[${new Date()} SampleCollection] Loading sample $sampleId"
+            def sample = sampleMap[sampleId]
+            filesBySample[sampleId].each { fileName ->
+                sample.clonotypes.addAll(loadData(fileName))
+            }
+            loadedSamples.add(sampleId)
         }
     }
 
     private List<Clonotype> loadData(String fileName) {
         def clonotypes = new ArrayList()
         def inputFile = new File(fileName)
-        if (inputFile.exists()) {
-            inputFile.withReader { reader ->
-                for (int i = 0; i < software.headerLineCount; i++)
-                    reader.readLine()
+        inputFile.withReader { reader ->
+            for (int i = 0; i < software.headerLineCount; i++)
+                reader.readLine()
 
-                def line
-                while ((line = reader.readLine()) != null) {
-                    if (!software.comment || !line.startsWith(software.comment))
-                        clonotypes.add(Clonotype.parseClonotype(line, software))
-                }
+            def line
+            while ((line = reader.readLine()) != null) {
+                if (!software.comment || !line.startsWith(software.comment))
+                    clonotypes.add(Clonotype.parseClonotype(line, software))
             }
-        } else {
-            if (strict)
-                throw new FileNotFoundException(fileName)
-            else
-                println "[${new Date()} WARNING] File $fileName not found, skipping"
         }
         clonotypes
     }
 
     Collection<SamplePair> listPairs() {
         def samplePairs = new LinkedList()
+
+        // Lazy load all samples
+        sampleMap.keySet().each { loadSample(it) }
+
         for (int i = 0; i < sampleMap.values().size(); i++)
             for (int j = i + 1; j < sampleMap.values().size(); j++)
                 samplePairs.add(new SamplePair(sampleMap.values()[i], sampleMap.values()[j]))
+
         samplePairs
+    }
+
+    Iterator iterator() {
+        def iter = sampleMap.entrySet().iterator()
+        return [
+                hasNext: {
+                    iter.hasNext()
+                },
+                next   : {
+                    def entry = iter.next()
+                    loadSample(entry.key)
+                    return entry.value
+                }] as Iterator
     }
 
     int size() {

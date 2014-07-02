@@ -49,7 +49,7 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 println "[${new Date()} $scriptName] Reading samples"
 
-def sampleCollection = new SampleCollection(inputFileName, software, false)
+def sampleCollection = new SampleCollection(inputFileName, software, false, false)
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 

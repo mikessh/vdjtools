@@ -19,7 +19,7 @@ package com.antigenomics.vdjtools
 import com.antigenomics.vdjtools.segment.SegmentData
 import com.antigenomics.vdjtools.segment.VSegmentTable
 
-class Clonotype {
+class Clonotype implements Countable {
     VSegmentTable parentVSegmentTable = null
     final Set<Mutation> mutations = new HashSet<Mutation>(),
                         alleles = new HashSet<Mutation>(),
@@ -39,6 +39,14 @@ class Clonotype {
     }
 
     final boolean inFrame, isComplete, noStop
+
+    Clonotype changeCount(int newCount, long total) {
+        new Clonotype(newCount, newCount / (double) total,
+                v, d, j,
+                cdr1nt, cdr2nt, cdr3nt,
+                cdr1aa, cdr2aa, cdr3aa,
+                inFrame, isComplete, noStop)
+    }
 
     private Clonotype(int count, double freq,
                       String v, String d, String j,

@@ -21,14 +21,28 @@ import com.antigenomics.vdjtools.Clonotype
 class Sample {
     final SampleMetadata metadata
     final List<Clonotype> clonotypes
+    private Long cells = null
+    private Integer diversityAA = null
 
     Sample(SampleMetadata metadata, List<Clonotype> clonotypes) {
         this.metadata = metadata
         this.clonotypes = clonotypes
     }
 
+    int getDiversity() {
+        clonotypes.size()
+    }
+
+    int getDiversityAA() {
+        diversityAA ?: (diversityAA = new HashSet<String>(clonotypes.collect { it.cdr3aa }).size())
+    }
+
+    long getCells() {
+        cells ?: (cells = (long) clonotypes.sum { it.count })
+    }
+
     @Override
-    String toString(){
+    String toString() {
         metadata.toString()
     }
 }
