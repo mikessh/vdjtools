@@ -18,6 +18,7 @@ package com.antigenomics.vdjtools.sample
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.Util
 
 class SampleCollection implements Iterable<Sample> {
     private final Map<String, Sample> sampleMap = new HashMap<>()
@@ -70,19 +71,11 @@ class SampleCollection implements Iterable<Sample> {
 
                     nSamples++
 
-                    if (lazy) {
-                        println "[${new Date()} SampleCollection] Loaded metadata for $nSamples samples"
-                    } else {
+                    if (!lazy) {
                         nClonotypes += clonotypes.size()
 
-                        def factor = 1024 * 1024 * 1024
-
-                        int maxMemory = Runtime.runtime.maxMemory() / factor,
-                            allocatedMemory = Runtime.runtime.totalMemory() / factor,
-                            freeMemory = Runtime.runtime.freeMemory() / factor
-
-                        println "[${new Date()} SampleCollection] Loaded $nSamples samples and $nClonotypes clonotypes so far. " +
-                                "Memory usage: $allocatedMemory of ${maxMemory + freeMemory} GB"
+                        println "[${new Date()} SampleCollection] Loaded $nSamples samples and " +
+                                "$nClonotypes clonotypes so far. " + Util.memoryFootprint()
                     }
                 } else if (strict) {
                     throw new FileNotFoundException(fileName)
@@ -96,15 +89,28 @@ class SampleCollection implements Iterable<Sample> {
         metadataHeader.add(0, "#sample_id")
     }
 
-    private void loadSample(String sampleId) {
+    private Sample loadSample(String sampleId, boolean store) {
+        Sample sample
+
         if (lazy && !loadedSamples.contains(sampleId)) {
             println "[${new Date()} SampleCollection] Loading sample $sampleId"
-            def sample = sampleMap[sampleId]
+
+            sample = new Sample(sampleMap[sampleId].metadata, new LinkedList<Clonotype>())
+
             filesBySample[sampleId].each { fileName ->
                 sample.clonotypes.addAll(loadData(fileName))
             }
-            loadedSamples.add(sampleId)
-        }
+
+            println "[${new Date()} SampleCollection] Sample loaded. " + Util.memoryFootprint()
+
+            if (store) {
+                loadedSamples.add(sampleId)
+                sampleMap.put(sampleId, sample)
+            }
+        } else
+            sample = sampleMap[sampleId]
+
+        sample
     }
 
     private List<Clonotype> loadData(String fileName) {
@@ -127,7 +133,7 @@ class SampleCollection implements Iterable<Sample> {
         def samplePairs = new LinkedList()
 
         // Lazy load all samples
-        sampleMap.keySet().each { loadSample(it) }
+        sampleMap.keySet().each { loadSample(it, true) }
 
         for (int i = 0; i < sampleMap.values().size(); i++)
             for (int j = i + 1; j < sampleMap.values().size(); j++)
@@ -144,8 +150,7 @@ class SampleCollection implements Iterable<Sample> {
                 },
                 next   : {
                     def entry = iter.next()
-                    loadSample(entry.key)
-                    return entry.value
+                    loadSample(entry.key, false)
                 }] as Iterator
     }
 

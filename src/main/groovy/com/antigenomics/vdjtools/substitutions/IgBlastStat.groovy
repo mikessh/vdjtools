@@ -59,7 +59,7 @@ def vSegmentTable = new VSegmentTable(species)
 // Read and parse clonotypes
 //
 
-println "[${new Date()} $scriptName] Loading L2 clonotypes"
+println "[${new Date()} $scriptName] Loading L2 clonotypes from $inputFileNameL2"
 
 def clonotypes = new LinkedList<Clonotype>()
 new File(inputFileNameL2).eachLine { line ->

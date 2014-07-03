@@ -21,6 +21,16 @@ class Util {
 
     static final char[] NTS = ['A', 'T', 'G', 'C']
 
+    static String memoryFootprint() {
+        final factor = 1024 * 1024 * 1024
+
+        int maxMemory = Runtime.runtime.maxMemory() / factor,
+            allocatedMemory = Runtime.runtime.totalMemory() / factor,
+            freeMemory = Runtime.runtime.freeMemory() / factor
+
+        "Memory usage: $allocatedMemory of ${maxMemory + freeMemory} GB"
+    }
+
     static final int nt2code(char nt) {
         switch (nt) {
             case 'A':

@@ -17,13 +17,10 @@
 package com.antigenomics.vdjtools.diversity
 
 import com.antigenomics.vdjtools.Software
-import com.antigenomics.vdjtools.Util
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
-import groovyx.gpars.GParsPool
 
 import java.util.concurrent.atomic.AtomicInteger
-
 
 def N_DEFAULT = "300000"
 def cli = new CliBuilder(usage: "BulkIntersection [options] sample_metadata_file output_name")
@@ -66,38 +63,42 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
 new File(outputFileName).withPrintWriter { pw ->
     def header = sampleCollection.metadataHeader.join("\t") + "\t" +
-            "cells\tclones_nt\tclones_aa" +
+            "cells\t" +
+            "clones_nt\tclones_aa\t" +
             "cndiv_nt_m\tcndiv_nt_std\t" +
             "efron_nt_m\tefron_nt_std\t" +
-            "chao_nt_m\tchao_nt_std" +
+            "chao_nt_m\tchao_nt_std\t" +
             "cndiv_aa_m\tcndiv_aa_std\t" +
             "efron_aa_m\tefron_aa_std\t" +
             "chao_aa_m\tchao_aa_std"
 
     pw.println(header)
 
-    def results = new LinkedList<>()
+    //def results = new LinkedList<>()
 
     def sampleCounter = new AtomicInteger()
 
-    GParsPool.withPool Util.THREADS, {
-        results = sampleCollection.collectParallel { Sample sample ->
-            def diversityEstimator = new DiversityEstimator(sample)
-            def cnDivNT = diversityEstimator.countNormalizedSampleDiversity(effectiveSampleSize, nResamples, false),
-                efronDivNT = diversityEstimator.efronThisted(efronDepth, efronCvThreshold, false),
-                chaoDivNT = diversityEstimator.chao1(false),
-                cnDivAA = diversityEstimator.countNormalizedSampleDiversity(effectiveSampleSize, nResamples, true),
-                efronDivAA = diversityEstimator.efronThisted(efronDepth, efronCvThreshold, true),
-                chaoDivAA = diversityEstimator.chao1(true)
+    //GParsPool.withPool Util.THREADS, {
+    //results = sampleCollection.collectParallel { Sample sample ->
+    sampleCollection.each { Sample sample ->
+        def diversityEstimator = new DiversityEstimator(sample)
+        def cnDivNT = diversityEstimator.countNormalizedSampleDiversity(effectiveSampleSize, nResamples, false),
+            efronDivNT = diversityEstimator.efronThisted(efronDepth, efronCvThreshold, false),
+            chaoDivNT = diversityEstimator.chao1(false),
+            cnDivAA = diversityEstimator.countNormalizedSampleDiversity(effectiveSampleSize, nResamples, true),
+            efronDivAA = diversityEstimator.efronThisted(efronDepth, efronCvThreshold, true),
+            chaoDivAA = diversityEstimator.chao1(true)
 
-            println "[${new Date()} $scriptName] ${sampleCounter.incrementAndGet()} samples processed"
+        println "[${new Date()} $scriptName] ${sampleCounter.incrementAndGet()} samples processed"
 
-            [sample.metadata, sample.cells, sample.clonotypes,
-             cnDivNT, efronDivNT, chaoDivNT,
-             cnDivAA, efronDivAA, chaoDivAA].join("\t")
-        }
+        pw.println([sample.metadata,
+                    sample.cells,
+                    sample.diversity, sample.diversityAA,
+                    cnDivNT, efronDivNT, chaoDivNT,
+                    cnDivAA, efronDivAA, chaoDivAA].join("\t"))
     }
+    //}
 
-    results.each { pw.println(it) }
+    //results.each { pw.println(it) }
 }
 

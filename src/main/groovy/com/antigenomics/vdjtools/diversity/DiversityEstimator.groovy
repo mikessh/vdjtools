@@ -38,9 +38,9 @@ class DiversityEstimator {
     Diversity countNormalizedSampleDiversity(int sampleSize, int nResamples, boolean byAminoAcid) {
         downSampler = downSampler ?: new DownSampler(sample)
 
-        if (sampleSize >= sample.clonotypes.size())
-            return new Diversity((long) ((sampleSize * (byAminoAcid ? sample.diversityAA : sample.diversity)) /
-                    sample.cells), 0, sampleSize, false)
+        if (sampleSize >= sample.cells)
+            return new Diversity((long) ((sampleSize * (byAminoAcid ? sample.diversityAA : sample.diversity) /
+                    (double) sample.cells)), 0, sampleSize, false)
 
         def diversityValues = new double[nResamples]
         for (int i = 0; i < nResamples; i++) {
@@ -50,7 +50,9 @@ class DiversityEstimator {
 
         def descrStats = new DescriptiveStatistics(diversityValues)
 
-        new Diversity((long) descrStats.mean, (long) descrStats.standardDeviation, sampleSize, false)
+        def diversity = new Diversity((long) descrStats.mean, (long) descrStats.standardDeviation, sampleSize, false)
+
+        diversity
     }
 
     Diversity efronThisted(int maxDepth, double cvThreshold, boolean byAminoAcid) {
@@ -119,7 +121,7 @@ class DiversityEstimator {
             }
         }
 
-        int getAt(int count) {
+        int getAt(long count) {
             frequencyMap[count] ?: 0
         }
     }
