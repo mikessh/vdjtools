@@ -39,8 +39,9 @@ class DiversityEstimator {
         downSampler = downSampler ?: new DownSampler(sample)
 
         if (sampleSize >= sample.cells)
-            return new Diversity((long) ((sampleSize * (byAminoAcid ? sample.diversityAA : sample.diversity) /
-                    (double) sample.cells)), 0, sampleSize, false)
+            return new Diversity((long) (((double) sampleSize *
+                    (double) (byAminoAcid ? sample.diversityAA : sample.diversity) / (double) sample.cells)),
+                    0, sampleSize, false)
 
         def diversityValues = new double[nResamples]
         for (int i = 0; i < nResamples; i++) {
@@ -50,9 +51,7 @@ class DiversityEstimator {
 
         def descrStats = new DescriptiveStatistics(diversityValues)
 
-        def diversity = new Diversity((long) descrStats.mean, (long) descrStats.standardDeviation, sampleSize, false)
-
-        diversity
+        return new Diversity((long) descrStats.mean, (long) descrStats.standardDeviation, sampleSize, false)
     }
 
     Diversity efronThisted(int maxDepth, double cvThreshold, boolean byAminoAcid) {
@@ -66,7 +65,7 @@ class DiversityEstimator {
                 nx[y - 1] = frequencyTable[y]
 
                 // Calculate Euler coefficients
-                for (int x = 1; x <= depth; x++) {
+                for (int x = 1; x <= y; x++) {
                     def coef = CombinatoricsUtils.binomialCoefficientDouble((int) (y - 1), (int) (x - 1))
                     if (x % 2 == 1)
                         h[x - 1] += coef
@@ -78,7 +77,7 @@ class DiversityEstimator {
             // Extrapolate count
             S = sample.diversity + (double) (0..<depth).sum { int i -> h[i] * nx[i] }
             D = Math.sqrt((double) (0..<depth).sum { int i -> h[i] * h[i] * nx[i] })
-            CV = S / D
+            CV = D / S
 
             // Go to maximum count depth, but balance that STD doesn't get too high
             if (CV >= cvThreshold)
