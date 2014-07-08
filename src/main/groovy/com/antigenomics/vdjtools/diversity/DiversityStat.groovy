@@ -20,13 +20,14 @@ import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 
-def N_DEFAULT = "300000", R_STEP_DEFAULT = "100000", R_MAX_DEFAULT = "5000000"
+def N_DEFAULT = "300000", R_STEP_DEFAULT = "250000", R_MAX_DEFAULT = "10000000"
 def cli = new CliBuilder(usage: "DiversityStat [options] sample_metadata_file output_prefix")
 cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.n(longOpt: "num-cells", argName: "integer", args: 1,
         "Number of cells to take for normalized sample diversity estimate. [default = $N_DEFAULT]")
+cli.r("Perform rarefaction analysis.")
 cli._(longOpt: "r-step", argName: "integer", args: 1,
         "Rarefaction curve step. [default = $R_STEP_DEFAULT]")
 cli._(longOpt: "r-max", argName: "integer", args: 1,
@@ -44,11 +45,14 @@ if (opt.h || opt.arguments().size() < 2) {
 
 def software = Software.byName(opt.S), effectiveSampleSize = (opt.n ?: N_DEFAULT).toInteger(),
     rStep = (opt."r-step" ?: R_STEP_DEFAULT).toInteger(), rMax = (opt."r-max" ?: R_MAX_DEFAULT).toInteger(),
+    doRarefaction = opt.r,
     inputFileName = opt.arguments()[0], outputFileName = opt.arguments()[1]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 def nResamples = 3, efronDepth = 20, efronCvThreshold = 0.05
+
+def R_EMPTY = ""
 
 //
 // Lazy load all samples
@@ -81,54 +85,59 @@ new File(outputFileName + ".diversity.txt").withPrintWriter { pwDiv ->
     for (int i = 0; i <= rMax; i += rStep)
         rSteps.add(i)
 
-    new File(outputFileName + ".rarefaction.txt").withPrintWriter { pwR ->
-        def headerR = [sampleCollection.metadataHeader, rSteps, rSteps].flatten().join("\t")
+    def headerR = [sampleCollection.metadataHeader, "cells", "sample_diversity", rSteps].flatten().join("\t")
 
-        pwR.println(headerR)
+    new File(outputFileName + ".rarefaction_nt.txt").withPrintWriter { pwRNT ->
+        pwRNT.println(headerR)
 
-        int sampleCounter = 0
+        new File(outputFileName + ".rarefaction_aa.txt").withPrintWriter { pwRAA ->
+            pwRAA.println(headerR)
 
-        sampleCollection.each { Sample sample ->
-            def diversityEstimator = new DiversityEstimator(sample)
+            int sampleCounter = 0
 
-            // Rarefaction
+            sampleCollection.each { Sample sample ->
+                def diversityEstimator = new DiversityEstimator(sample)
 
-            println "[${new Date()} $scriptName] Bulding rarefaction curve"
+                // Rarefaction
 
-            def rNT = [], rAA = []
-            rSteps.each { int i ->
-                if (i > sample.cells) {
-                    rNT.add("NA")
-                    rAA.add("NA")
-                } else {
-                    def ds = diversityEstimator.downSampler.reSample(i)
-                    rNT.add(ds.diversityCDR3NT)
-                    rAA.add(ds.diversityCDR3AA)
+                if (doRarefaction) {
+                    println "[${new Date()} $scriptName] Bulding rarefaction curve"
+
+                    def rNT = [], rAA = []
+                    rSteps.each { int i ->
+                        if (i > sample.cells) {
+                            rNT.add(R_EMPTY)
+                            rAA.add(R_EMPTY)
+                        } else {
+                            def ds = diversityEstimator.downSampler.reSample(i)
+                            rNT.add(ds.diversityCDR3NT)
+                            rAA.add(ds.diversityCDR3AA)
+                        }
+                    }
+
+                    pwRNT.println([sample.metadata, sample.cells, sample.diversityCDR3NT, rNT].flatten().join("\t"))
+                    pwRAA.println([sample.metadata, sample.cells, sample.diversityCDR3AA, rAA].flatten().join("\t"))
                 }
+
+                // Diversity estimates
+
+                println "[${new Date()} $scriptName] Computing diversity estimates"
+
+                def cnDivNT = diversityEstimator.countNormalizedSampleDiversity(effectiveSampleSize, nResamples, false),
+                    efronDivNT = diversityEstimator.efronThisted(efronDepth, efronCvThreshold, false),
+                    chaoDivNT = diversityEstimator.chao1(false),
+                    cnDivAA = diversityEstimator.countNormalizedSampleDiversity(effectiveSampleSize, nResamples, true),
+                    efronDivAA = diversityEstimator.efronThisted(efronDepth, efronCvThreshold, true),
+                    chaoDivAA = diversityEstimator.chao1(true)
+
+                pwDiv.println([sample.metadata,
+                               sample.cells,
+                               sample.diversityCDR3NT, sample.diversityCDR3AA,
+                               cnDivNT, efronDivNT, chaoDivNT,
+                               cnDivAA, efronDivAA, chaoDivAA].join("\t"))
+
+                println "[${new Date()} $scriptName] ${++sampleCounter} samples processed"
             }
-
-            pwR.println([sample.metadata, rNT, rAA].flatten().join("\t"))
-
-
-            // Diversity estimates
-
-            println "[${new Date()} $scriptName] Computing diversity estimates"
-
-            def cnDivNT = diversityEstimator.countNormalizedSampleDiversity(effectiveSampleSize, nResamples, false),
-                efronDivNT = diversityEstimator.efronThisted(efronDepth, efronCvThreshold, false),
-                chaoDivNT = diversityEstimator.chao1(false),
-                cnDivAA = diversityEstimator.countNormalizedSampleDiversity(effectiveSampleSize, nResamples, true),
-                efronDivAA = diversityEstimator.efronThisted(efronDepth, efronCvThreshold, true),
-                chaoDivAA = diversityEstimator.chao1(true)
-
-            pwDiv.println([sample.metadata,
-                           sample.cells,
-                           sample.diversityCDR3NT, sample.diversityCDR3AA,
-                           cnDivNT, efronDivNT, chaoDivNT,
-                           cnDivAA, efronDivAA, chaoDivAA].join("\t"))
-
-            println "[${new Date()} $scriptName] ${++sampleCounter} samples processed"
         }
     }
 }
-
