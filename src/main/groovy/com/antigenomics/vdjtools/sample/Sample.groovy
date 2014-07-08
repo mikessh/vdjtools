@@ -22,7 +22,7 @@ class Sample {
     final SampleMetadata metadata
     final List<Clonotype> clonotypes
     private Long cells = null
-    private Integer diversityAA = null
+    private Integer diversityCDR3NT = null, diversityCDR3AA = null
 
     Sample(SampleMetadata metadata, List<Clonotype> clonotypes) {
         this.metadata = metadata
@@ -33,8 +33,12 @@ class Sample {
         clonotypes.size()
     }
 
-    int getDiversityAA() {
-        diversityAA ?: (diversityAA = new HashSet<String>(clonotypes.collect { it.cdr3aa }).size())
+    int getDiversityCDR3NT() {
+        diversityCDR3NT ?: (diversityCDR3NT = new HashSet<String>(clonotypes.collect { it.cdr3nt }).size())
+    }
+
+    int getDiversityCDR3AA() {
+        diversityCDR3AA ?: (diversityCDR3AA = new HashSet<String>(clonotypes.collect { it.cdr3aa }).size())
     }
 
     long getCells() {

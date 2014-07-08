@@ -27,26 +27,29 @@ class DiversityEstimator {
     private FrequencyTable frequencyTable = null
     private DownSampler downSampler = null
 
+
+    DownSampler getDownSampler() {
+        downSampler ?: (downSampler = new DownSampler(sample))
+    }
+
     DiversityEstimator(Sample sample) {
         this.sample = sample
     }
 
     Diversity sampleDiversity() {
-        new Diversity(sample.diversity, 0, sample.cells, false)
+        new Diversity(sample.diversityCDR3NT, 0, sample.cells, false)
     }
 
     Diversity countNormalizedSampleDiversity(int sampleSize, int nResamples, boolean byAminoAcid) {
-        downSampler = downSampler ?: new DownSampler(sample)
-
         if (sampleSize >= sample.cells)
             return new Diversity((long) (((double) sampleSize *
-                    (double) (byAminoAcid ? sample.diversityAA : sample.diversity) / (double) sample.cells)),
+                    (double) (byAminoAcid ? sample.diversityCDR3AA : sample.diversityCDR3NT) / (double) sample.cells)),
                     0, sampleSize, false)
 
         def diversityValues = new double[nResamples]
         for (int i = 0; i < nResamples; i++) {
-            def newSample = downSampler.reSample(sampleSize)
-            diversityValues[i] = byAminoAcid ? newSample.diversityAA : newSample.diversity
+            def newSample = getDownSampler().reSample(sampleSize)
+            diversityValues[i] = byAminoAcid ? newSample.diversityCDR3AA : newSample.diversityCDR3NT
         }
 
         def descrStats = new DescriptiveStatistics(diversityValues)
@@ -75,7 +78,7 @@ class DiversityEstimator {
             }
 
             // Extrapolate count
-            S = sample.diversity + (double) (0..<depth).sum { int i -> h[i] * nx[i] }
+            S = sample.diversityCDR3NT + (double) (0..<depth).sum { int i -> h[i] * nx[i] }
             D = Math.sqrt((double) (0..<depth).sum { int i -> h[i] * h[i] * nx[i] })
             CV = D / S
 
@@ -91,7 +94,7 @@ class DiversityEstimator {
         this.frequencyTable = frequencyTable ?: new FrequencyTable(sample, byAminoAcid)
         double F1 = frequencyTable[1], F2 = frequencyTable[2], RF = F1 / F2 / 2
 
-        new Diversity((long) (sample.diversity + F1 * RF),
+        new Diversity((long) (sample.diversityCDR3NT + F1 * RF),
                 (long) (F2 * (Math.pow(RF / 2, 4) + Math.pow(2 * RF, 3) + RF * RF)),
                 sample.cells, true)
     }

@@ -101,7 +101,7 @@ class SampleCollection implements Iterable<Sample> {
                 sample.clonotypes.addAll(loadData(fileName))
             }
 
-            println "[${new Date()} SampleCollection] Sample loaded, ${sample.clonotypes.size()} clonotypes" + Util.memoryFootprint()
+            println "[${new Date()} SampleCollection] Sample loaded, ${sample.clonotypes.size()} clonotypes. " + Util.memoryFootprint()
 
             if (store) {
                 loadedSamples.add(sampleId)
