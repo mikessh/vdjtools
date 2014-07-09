@@ -24,8 +24,17 @@ import org.apache.commons.math3.util.CombinatoricsUtils
 
 class DiversityEstimator {
     final Sample sample
-    private FrequencyTable frequencyTable = null
+    private FrequencyTable frequencyTableNT = null, frequencyTableAA = null
     private DownSampler downSampler = null
+
+    private FrequencyTable getFrequencyTable(boolean byAminoAcid) {
+        if (byAminoAcid) {
+            return frequencyTableAA ?: (frequencyTableAA = new FrequencyTable(sample, true))
+        }
+        else {
+            return frequencyTableNT ?: (frequencyTableNT = new FrequencyTable(sample, false))
+        }
+    }
 
 
     DownSampler getDownSampler() {
@@ -58,7 +67,7 @@ class DiversityEstimator {
     }
 
     Diversity efronThisted(int maxDepth, double cvThreshold, boolean byAminoAcid) {
-        this.frequencyTable = frequencyTable ?: new FrequencyTable(sample, byAminoAcid)
+        def frequencyTable = getFrequencyTable(byAminoAcid)
 
         double S = -1, D = -1, CV = -1
 
@@ -91,7 +100,8 @@ class DiversityEstimator {
     }
 
     Diversity chao1(boolean byAminoAcid) {
-        this.frequencyTable = frequencyTable ?: new FrequencyTable(sample, byAminoAcid)
+        def frequencyTable = getFrequencyTable(byAminoAcid)
+
         double F1 = frequencyTable[1], F2 = frequencyTable[2], RF = F1 / F2 / 2
 
         new Diversity((long) (sample.diversityCDR3NT + F1 * RF),
