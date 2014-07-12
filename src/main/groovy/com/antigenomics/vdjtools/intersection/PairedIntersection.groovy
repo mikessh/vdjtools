@@ -29,7 +29,7 @@ class PairedIntersection {
         this.sample2 = sample2.collect { new ClonotypeWrapper(it, intersectionType) }
     }
 
-    IntersectionResult intersect() {
+    IntersectionResult intersect(boolean store) {
         def intersection = new HashMap<ClonotypeWrapper, ClonotypeWrapper>()
 
         boolean flip = sample1.size() < sample2.size()
@@ -46,6 +46,8 @@ class PairedIntersection {
             freq1 += it.clonotype.freq
         }
 
+        final List<Clonotype> clonotypes1 = new LinkedList<>(), clonotypes2 = new LinkedList<>()
+
         _sample2.each {
             def other = intersection[it]
 
@@ -54,11 +56,20 @@ class PairedIntersection {
             if (other != null) {
                 intersectedClones++
                 intersectedFreq += Math.sqrt(it.clonotype.freq * other.clonotype.freq)
+
+                if (store) {
+                    clonotypes1.add(other.clonotype)
+                    clonotypes2.add(it.clonotype)
+                }
             }
         }
 
-        flip ? new IntersectionResult(clones2, clones1, intersectedClones, freq2, freq1, intersectedFreq) :
-                new IntersectionResult(clones1, clones2, intersectedClones, freq1, freq2, intersectedFreq)
+        flip ? new IntersectionResult(clones2, clones1, intersectedClones,
+                freq2, freq1, intersectedFreq,
+                clonotypes2, clonotypes1) :
+                new IntersectionResult(clones1, clones2, intersectedClones,
+                        freq1, freq2, intersectedFreq,
+                        clonotypes1, clonotypes2)
     }
 
     private class ClonotypeWrapper {

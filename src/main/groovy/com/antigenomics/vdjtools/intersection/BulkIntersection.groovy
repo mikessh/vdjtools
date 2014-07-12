@@ -65,7 +65,7 @@ IntersectionType.values().each { IntersectionType intersectionType ->
         results = pairs.collectParallel { SamplePair pair ->
             def intersection = new PairedIntersection(pair.sample1.clonotypes, pair.sample2.clonotypes,
                     intersectionType)
-            def result = intersection.intersect()
+            def result = intersection.intersect(false)
             println "[${new Date()} $scriptName] " +
                     "Intersected ${counter.incrementAndGet()} of ${pairs.size()} so far\n" +
                     "Last result\n${IntersectionResult.HEADER}\n$result"
