@@ -19,8 +19,9 @@ package com.antigenomics.vdjtools.intersection
 import com.antigenomics.vdjtools.Clonotype
 
 class PairedIntersection {
-    final IntersectionType intersectionType
     private final Collection<ClonotypeWrapper> sample1, sample2
+
+    final IntersectionType intersectionType
 
     PairedIntersection(Collection<Clonotype> sample1, Collection<Clonotype> sample2,
                        IntersectionType intersectionType) {
@@ -38,15 +39,16 @@ class PairedIntersection {
 
         (_sample1, _sample2) = flip ? [sample2, sample1] : [sample1, sample2]
 
-        double freq1 = 0, freq2 = 0, intersectedFreq = 0
-        int clones1 = _sample1.size(), clones2 = _sample2.size(), intersectedClones = 0
+        double freq1 = 0, freq2 = 0, freq12 = 0, freq21 = 0
+        int clones1 = _sample1.size(), clones2 = _sample2.size(), clones12 = 0
 
         _sample1.each {
             intersection.put(it, it)
             freq1 += it.clonotype.freq
         }
 
-        final List<Clonotype> clonotypes1 = new LinkedList<>(), clonotypes2 = new LinkedList<>()
+        final List<Clonotype> clonotypes1 = new ArrayList<>(),
+                clonotypes2 = new ArrayList<>()
 
         _sample2.each {
             def other = intersection[it]
@@ -54,8 +56,9 @@ class PairedIntersection {
             freq2 += it.clonotype.freq
 
             if (other != null) {
-                intersectedClones++
-                intersectedFreq += Math.sqrt(it.clonotype.freq * other.clonotype.freq)
+                clones12++
+                freq12 += it.clonotype.freq
+                freq21 += other.clonotype.freq
 
                 if (store) {
                     clonotypes1.add(other.clonotype)
@@ -64,11 +67,11 @@ class PairedIntersection {
             }
         }
 
-        flip ? new IntersectionResult(clones2, clones1, intersectedClones,
-                freq2, freq1, intersectedFreq,
+        flip ? new IntersectionResult(clones2, clones1, clones12,
+                freq2, freq1, freq21, freq12,
                 clonotypes2, clonotypes1) :
-                new IntersectionResult(clones1, clones2, intersectedClones,
-                        freq1, freq2, intersectedFreq,
+                new IntersectionResult(clones1, clones2, clones12,
+                        freq1, freq2, freq12, freq21,
                         clonotypes1, clonotypes2)
     }
 
@@ -92,6 +95,11 @@ class PairedIntersection {
                     if (clonotype.cdr3nt != clonotypeWrapper.clonotype.cdr3nt)
                         return false
                     break
+                case IntersectionType.NucleotideV:
+                    if (clonotype.cdr3nt != clonotypeWrapper.clonotype.cdr3nt ||
+                            clonotype.v != clonotypeWrapper.clonotype.v)
+                        return false
+                    break
                 case IntersectionType.AminoAcid:
                     if (clonotype.cdr3aa != clonotypeWrapper.clonotype.cdr3aa)
                         return false
@@ -107,8 +115,11 @@ class PairedIntersection {
         }
 
         int hashCode() {
-            intersectionType == IntersectionType.Nucleotide ?
-                    clonotype.cdr3nt.hashCode() : clonotype.cdr3aa.hashCode()
+            if (intersectionType == IntersectionType.NucleotideV)
+                return clonotype.cdr3nt.hashCode() + 31 * clonotype.v.hashCode()
+            else
+                return intersectionType == IntersectionType.Nucleotide ?
+                        clonotype.cdr3nt.hashCode() : clonotype.cdr3aa.hashCode()
         }
     }
 }

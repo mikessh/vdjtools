@@ -17,29 +17,40 @@
 package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.ClonotypeUtil
 
 class IntersectionResult {
     final int uniq1, uniq2, uniq12
-    final Collection<Clonotype> clonotypes1, clonotypes2
-    final double freq1, freq2, freq12
+    final List<Clonotype> clonotypes12, clonotypes21
+    final double freq1, freq2, freq12, freq21
+    private Double r = null
 
     IntersectionResult(int uniq1, int uniq2, int uniq12,
-                       double freq1, double freq2, double freq12,
-                       Collection<Clonotype> clonotypes1, Collection<Clonotype> clonotypes2) {
+                       double freq1, double freq2, double freq12, double freq21,
+                       List<Clonotype> clonotypes12, List<Clonotype> clonotypes21) {
         this.uniq1 = uniq1
         this.uniq2 = uniq2
         this.uniq12 = uniq12
         this.freq1 = freq1
         this.freq2 = freq2
         this.freq12 = freq12
-        this.clonotypes1 = clonotypes1
-        this.clonotypes2 = clonotypes2
+        this.freq21 = freq21
+        this.clonotypes12 = clonotypes12
+        this.clonotypes21 = clonotypes21
     }
 
-    final static String HEADER = "uniq1\tuniq2\tuniq12\tfreq1\tfreq2\tfreq12"
+    double getCorrelation() {
+        r ?: (r = ClonotypeUtil.correlation(clonotypes12, clonotypes21))
+    }
+
+    double getMeanFrequency() {
+        Math.sqrt(freq21 * freq12)
+    }
+
+    final static String HEADER = "uniq1\tuniq2\tuniq12\tfreq1\tfreq2\tfreq12\tfreq21\tR"
 
     @Override
     String toString() {
-        [uniq1, uniq2, uniq12, freq1, freq2, freq12].join("\t")
+        [uniq1, uniq2, uniq12, freq1, freq2, freq12, freq21].join("\t")
     }
 }

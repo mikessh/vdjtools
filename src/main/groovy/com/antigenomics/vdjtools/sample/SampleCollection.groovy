@@ -17,6 +17,7 @@
 package com.antigenomics.vdjtools.sample
 
 import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.ClonotypeUtil
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.Util
 
@@ -24,9 +25,9 @@ class SampleCollection implements Iterable<Sample> {
     private final Map<String, Sample> sampleMap = new HashMap<>()
     private final Map<String, List<String>> filesBySample = new HashMap<>()
     private final HashSet<String> loadedSamples = new HashSet<>()
-    final List<String> metadataHeader = new ArrayList<>()
     private final Software software
     private final boolean strict, lazy
+    final List<String> metadataHeader = new ArrayList<>()
 
     SampleCollection(String sampleMetadataFileName, Software software, boolean strict, boolean lazy) {
         this.software = software
@@ -34,6 +35,7 @@ class SampleCollection implements Iterable<Sample> {
         this.lazy = lazy
 
         def nSamples = 0, nClonotypes = 0
+
         new File(sampleMetadataFileName).withReader { reader ->
             metadataHeader.addAll(reader.readLine().split("\t")[2..-1])
 
@@ -57,7 +59,7 @@ class SampleCollection implements Iterable<Sample> {
                             filesBySample.put(sampleId, fileList = new LinkedList<String>())
                         fileList.add(fileName)
                     } else {
-                        clonotypes = loadData(fileName)
+                        clonotypes = ClonotypeUtil.loadClonotypes(fileName, software)
                     }
 
                     def sample = sampleMap[sampleId]
@@ -98,10 +100,11 @@ class SampleCollection implements Iterable<Sample> {
             sample = new Sample(sampleMap[sampleId].metadata, new LinkedList<Clonotype>())
 
             filesBySample[sampleId].each { fileName ->
-                sample.clonotypes.addAll(loadData(fileName))
+                sample.clonotypes.addAll(ClonotypeUtil.loadClonotypes(fileName, software))
             }
 
-            println "[${new Date()} SampleCollection] Sample loaded, ${sample.clonotypes.size()} clonotypes. " + Util.memoryFootprint()
+            println "[${new Date()} SampleCollection] Sample loaded, ${sample.clonotypes.size()} clonotypes. " +
+                    Util.memoryFootprint()
 
             if (store) {
                 loadedSamples.add(sampleId)
@@ -111,22 +114,6 @@ class SampleCollection implements Iterable<Sample> {
             sample = sampleMap[sampleId]
 
         sample
-    }
-
-    private List<Clonotype> loadData(String fileName) {
-        def clonotypes = new ArrayList()
-        def inputFile = new File(fileName)
-        inputFile.withReader { reader ->
-            for (int i = 0; i < software.headerLineCount; i++)
-                reader.readLine()
-
-            def line
-            while ((line = reader.readLine()) != null) {
-                if (!software.comment || !line.startsWith(software.comment))
-                    clonotypes.add(Clonotype.parseClonotype(line, software))
-            }
-        }
-        clonotypes
     }
 
     Collection<SamplePair> listPairs() {
