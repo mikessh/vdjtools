@@ -14,8 +14,12 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools
+package com.antigenomics.vdjtools.graph
 
+import com.antigenomics.vdjtools.CommonUtil
+import com.antigenomics.vdjtools.Mutation
+import com.antigenomics.vdjtools.graph.Edge
+import com.antigenomics.vdjtools.graph.EdgeBundle
 import com.antigenomics.vdjtools.substitutions.ConnectivityCheck
 import groovyx.gpars.GParsPool
 
@@ -77,7 +81,7 @@ class MutationGraph {
         // Mark redundant edge bundles
         //println "[${new Date()} GRAPH] Marking redundant edges for graph with ${subGraphs.size()} subgraphs"
         //def counter = new AtomicInteger()
-        GParsPool.withPool Util.THREADS, {
+        GParsPool.withPool CommonUtil.THREADS, {
             subGraphs.eachParallel { SubGraph subGraph ->
                 subGraph.markRedundant()
                 //println "[${new Date()} GRAPH] ${counter.incrementAndGet()} of ${subGraphs.size()} subgraphs processed"

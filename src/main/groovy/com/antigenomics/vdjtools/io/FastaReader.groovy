@@ -53,6 +53,7 @@ class FastaReader implements Iterable<FastaRecord> {
 
     }
 
+    @Override
     Iterator iterator() {
         return [ hasNext: { header != null}, next: { next() } ] as Iterator
     }

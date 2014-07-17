@@ -1,4 +1,6 @@
-package com.antigenomics.vdjtools
+package com.antigenomics.vdjtools.graph
+
+import com.antigenomics.vdjtools.Mutation
 
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)

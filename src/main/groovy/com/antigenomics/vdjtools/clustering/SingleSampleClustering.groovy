@@ -14,25 +14,14 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools
+package com.antigenomics.vdjtools.clustering
 
-class MutationSet {
-    final Collection<Mutation> mutations
+import com.antigenomics.vdjtools.sample.Sample
 
-    MutationSet(Collection<Mutation> mutations) {
-        this.mutations = mutations
-    }
+interface SingleSampleClustering {
+    Sample getParentSample()
 
-    MutationSet() {
-        this.mutations = new HashSet<>()
-    }
+    List<ClonotypeCluster> getClusters()
 
-    int size() {
-        mutations.size()
-    }
-
-    @Override
-    String toString() {
-        mutations.join("|")
-    }
+    int getNumberOfClusters()
 }

@@ -1,7 +1,7 @@
 package com.antigenomics.vdjtools.segment
 
 import com.antigenomics.vdjtools.Clonotype
-import com.antigenomics.vdjtools.Util
+import com.antigenomics.vdjtools.CommonUtil
 import com.antigenomics.vdjtools.io.FastaReader
 
 /**
@@ -24,12 +24,12 @@ class VSegmentTable {
     final Map<String, SegmentData> segmentByName = new HashMap<>()
 
     VSegmentTable(String species) {
-        def segmentReader = new FastaReader(Util.resourceStreamReader("segments/${species}_V.fa"))
+        def segmentReader = new FastaReader(CommonUtil.resourceStreamReader("segments/${species}_V.fa"))
         def segmentToSequenceMap = segmentReader.collectEntries {
             [(it.header): it.sequence]
         }
 
-        Util.resourceStreamReader("segments/${species}_regions.txt").splitEachLine("\t") { List<String> splitLine ->
+        CommonUtil.resourceStreamReader("segments/${species}_regions.txt").splitEachLine("\t") { List<String> splitLine ->
             def segmentName = splitLine[0]
             def sequence = segmentToSequenceMap[segmentName]
 

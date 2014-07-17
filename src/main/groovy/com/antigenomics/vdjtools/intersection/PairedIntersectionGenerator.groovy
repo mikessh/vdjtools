@@ -17,62 +17,81 @@
 package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.sample.SamplePair
 
-class PairedIntersection {
-    private final Collection<ClonotypeWrapper> sample1, sample2
+class PairedIntersectionGenerator {
+    private final Collection<ClonotypeWrapper> wrappedSample1, wrappedSample2
+    private final Sample sample1, sample2
 
     final IntersectionType intersectionType
 
-    PairedIntersection(Collection<Clonotype> sample1, Collection<Clonotype> sample2,
-                       IntersectionType intersectionType) {
-        this.intersectionType = intersectionType
-        this.sample1 = sample1.collect { new ClonotypeWrapper(it, intersectionType) }
-        this.sample2 = sample2.collect { new ClonotypeWrapper(it, intersectionType) }
+    PairedIntersectionGenerator(SamplePair samplePair,
+                                IntersectionType intersectionType) {
+        this(samplePair.sample1, samplePair.sample2, intersectionType)
     }
 
-    IntersectionResult intersect(boolean store) {
+    PairedIntersectionGenerator(Sample sample1, Sample sample2,
+                                IntersectionType intersectionType) {
+        this.intersectionType = intersectionType
+        this.sample1 = sample1
+        this.sample2 = sample2
+        this.wrappedSample1 = sample1.clonotypes.collect { new ClonotypeWrapper(it, intersectionType) }
+        this.wrappedSample2 = sample2.clonotypes.collect { new ClonotypeWrapper(it, intersectionType) }
+    }
+
+    PairedIntersectionResult intersect(boolean store) {
         def intersection = new HashMap<ClonotypeWrapper, ClonotypeWrapper>()
 
-        boolean flip = sample1.size() < sample2.size()
+        // flip is just for speedup
+        boolean flip = wrappedSample1.size() < wrappedSample2.size()
 
         Collection<ClonotypeWrapper> _sample1, _sample2
 
-        (_sample1, _sample2) = flip ? [sample2, sample1] : [sample1, sample2]
+        (_sample1, _sample2) = flip ? [wrappedSample2, wrappedSample1] : [wrappedSample1, wrappedSample2]
 
-        double freq1 = 0, freq2 = 0, freq12 = 0, freq21 = 0
-        int clones1 = _sample1.size(), clones2 = _sample2.size(), clones12 = 0
+        double freq12 = 0, freq21 = 0
+        int count12 = 0, count21 = 0, clones12 = 0
 
         _sample1.each {
             intersection.put(it, it)
-            freq1 += it.clonotype.freq
         }
 
-        final List<Clonotype> clonotypes1 = new ArrayList<>(),
-                clonotypes2 = new ArrayList<>()
+        final List<Clonotype> clonotypes12 = new ArrayList<>(),
+                              clonotypes21 = new ArrayList<>()
 
         _sample2.each {
             def other = intersection[it]
 
-            freq2 += it.clonotype.freq
-
             if (other != null) {
                 clones12++
+
+                count12 += it.clonotype.count
                 freq12 += it.clonotype.freq
+
+                count21 += other.clonotype.count
                 freq21 += other.clonotype.freq
 
                 if (store) {
-                    clonotypes1.add(other.clonotype)
-                    clonotypes2.add(it.clonotype)
+                    clonotypes12.add(other.clonotype)
+                    clonotypes21.add(it.clonotype)
                 }
             }
         }
 
-        flip ? new IntersectionResult(clones2, clones1, clones12,
-                freq2, freq1, freq21, freq12,
-                clonotypes2, clonotypes1) :
-                new IntersectionResult(clones1, clones2, clones12,
-                        freq1, freq2, freq12, freq21,
-                        clonotypes1, clonotypes2)
+        flip ? new PairedIntersectionResult(
+                sample1, sample2,
+                clones12,
+                count21, count12,
+                freq21, freq12,
+                clonotypes21, clonotypes12)
+                :
+                new PairedIntersectionResult(
+                        sample1, sample2,
+                        clones12,
+                        count12, count21,
+                        freq12, freq21,
+                        clonotypes12, clonotypes21)
     }
 
     private class ClonotypeWrapper {

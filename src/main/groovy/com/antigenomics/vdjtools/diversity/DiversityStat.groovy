@@ -105,7 +105,7 @@ new File(outputFileName + ".diversity.txt").withPrintWriter { pwDiv ->
 
                     def rNT = [], rAA = []
                     rSteps.each { int i ->
-                        if (i > sample.cells) {
+                        if (i > sample.count) {
                             rNT.add(R_EMPTY)
                             rAA.add(R_EMPTY)
                         } else {
@@ -115,8 +115,8 @@ new File(outputFileName + ".diversity.txt").withPrintWriter { pwDiv ->
                         }
                     }
 
-                    pwRNT.println([sample.metadata, sample.cells, sample.diversityCDR3NT, rNT].flatten().join("\t"))
-                    pwRAA.println([sample.metadata, sample.cells, sample.diversityCDR3AA, rAA].flatten().join("\t"))
+                    pwRNT.println([sample.metadata, sample.count, sample.diversityCDR3NT, rNT].flatten().join("\t"))
+                    pwRAA.println([sample.metadata, sample.count, sample.diversityCDR3AA, rAA].flatten().join("\t"))
                 }
 
                 // Diversity estimates
@@ -131,7 +131,7 @@ new File(outputFileName + ".diversity.txt").withPrintWriter { pwDiv ->
                     chaoDivAA = diversityEstimator.chao1(true)
 
                 pwDiv.println([sample.metadata,
-                               sample.cells,
+                               sample.count,
                                sample.diversityCDR3NT, sample.diversityCDR3AA,
                                cnDivNT, efronDivNT, chaoDivNT,
                                cnDivAA, efronDivAA, chaoDivAA].join("\t"))

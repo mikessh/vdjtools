@@ -17,7 +17,7 @@
 package com.antigenomics.vdjtools.substitutions
 
 import com.antigenomics.vdjtools.Clonotype
-import com.antigenomics.vdjtools.Edge
+import com.antigenomics.vdjtools.graph.Edge
 import com.antigenomics.vdjtools.segment.SegmentUtil
 import com.antigenomics.vdjtools.segment.VSegmentTable
 

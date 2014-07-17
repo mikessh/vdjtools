@@ -14,18 +14,22 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools.spectratype
+package com.antigenomics.vdjtools.clustering.spectratype
 
-import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.clustering.ClonotypeCluster
+import com.antigenomics.vdjtools.clustering.SingleSampleClustering
+import com.antigenomics.vdjtools.sample.Sample
 
-class Spectratype {
+class Spectratype implements SingleSampleClustering {
     private final Map<String, SpectratypePeak> peaks = new HashMap<>()
-    private List<SpectratypePeak> sortedPeaks = null
+    final Sample parentSample
     int clones = 0
     double freq = 0
 
-    Spectratype(Collection<Clonotype> clonotypes) {
-        clonotypes.each { clonotype ->
+    Spectratype(Sample parentSample) {
+        this.parentSample = parentSample
+
+        parentSample.clonotypes.each { clonotype ->
             def tempPeak = new SpectratypePeak(clonotype)
 
             def peak = peaks[tempPeak.signature]
@@ -41,16 +45,28 @@ class Spectratype {
         }
     }
 
-    List<SpectratypePeak> getSortedPeaks() {
-        sortedPeaks ?: (sortedPeaks = peaks.sort { it.key }.collect { it.value })
-    }
+    //private List<SpectratypePeak> sortedPeaks = null
 
-    int getNumberOfPeaks() {
-        peaks.size()
-    }
+    //List<SpectratypePeak> getSortedPeaks() {
+    //    sortedPeaks ?: (sortedPeaks = peaks.sort { it.key }.collect { it.value })
+    //}
+
+    //int getNumberOfPeaks() {
+    //    peaks.size()
+    //}
 
     @Override
     String toString() {
-        "#" + SpectratypePeak.HEADER + "\n" + sortedPeaks.join("\n")
+        "#" + SpectratypePeak.HEADER + "\n" + clusters.join("\n")
+    }
+
+    @Override
+    List<ClonotypeCluster> getClusters() {
+        peaks.values()
+    }
+
+    @Override
+    int getNumberOfClusters() {
+        peaks.size()
     }
 }

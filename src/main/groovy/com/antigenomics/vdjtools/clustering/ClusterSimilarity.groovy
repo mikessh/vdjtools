@@ -14,25 +14,9 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools
+package com.antigenomics.vdjtools.clustering
 
-class MutationSet {
-    final Collection<Mutation> mutations
+class ClusterSimilarity {
+    final double corr
 
-    MutationSet(Collection<Mutation> mutations) {
-        this.mutations = mutations
-    }
-
-    MutationSet() {
-        this.mutations = new HashSet<>()
-    }
-
-    int size() {
-        mutations.size()
-    }
-
-    @Override
-    String toString() {
-        mutations.join("|")
-    }
 }

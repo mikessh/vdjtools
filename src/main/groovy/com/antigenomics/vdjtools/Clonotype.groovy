@@ -159,7 +159,7 @@ class Clonotype implements Countable {
     }
 
     String getSubSequence(int from, int to) {
-        Util.getSubSequence(cdr3nt, from, to)
+        CommonUtil.getSubSequence(cdr3nt, from, to)
     }
 
     SegmentData getVSegmentData() {
@@ -180,8 +180,8 @@ class Clonotype implements Countable {
                     "cdr1aa\tcdr2aa\tcdr3aa\t" +
                     "inFrame\tnoStop\tisComplete\t" +
                     "V\tD\tJ\t" +
-                    "shms\talleles",
-                        NODE_HEADER = "key\t" + HEADER
+                    "shms\talleles"
+    final static String NODE_HEADER = "key\t" + HEADER
 
     String nodeString() {
         key + "\t" + toString()
@@ -195,5 +195,19 @@ class Clonotype implements Countable {
          inFrame, noStop, isComplete,
          v, d, j,
          shms.collect { it.key }.join("|"), alleles.collect { it.key }.join("|")].join("\t")
+    }
+
+    //
+    // Table output
+    //
+
+    final static String HEADER_SHORT = "cdr3nt\tcdr3aa\t" +
+            "inFrame\tnoStop\tisComplete\t" +
+            "V\tD\tJ"
+
+    String toShortString() {
+        [cdr3nt, cdr3aa,
+         inFrame, noStop, isComplete,
+         v, d, j].join("\t")
     }
 }

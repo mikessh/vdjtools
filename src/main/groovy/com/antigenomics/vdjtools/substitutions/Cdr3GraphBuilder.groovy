@@ -17,6 +17,8 @@
 package com.antigenomics.vdjtools.substitutions
 
 import com.antigenomics.vdjtools.*
+import com.antigenomics.vdjtools.graph.EdgeBundle
+import com.antigenomics.vdjtools.graph.MutationGraph
 import groovyx.gpars.GParsPool
 
 class Cdr3GraphBuilder {
@@ -44,7 +46,7 @@ class Cdr3GraphBuilder {
 
         //println "[${new Date()} INFO] Building graph"
 
-        GParsPool.withPool Util.THREADS, {
+        GParsPool.withPool CommonUtil.THREADS, {
             spectratype.values().eachParallel { spectraPeak ->
                 def edges = new LinkedList<EdgeBundle>()
                 def cloneLists = spectraPeak.values()
@@ -101,7 +103,7 @@ class Cdr3GraphBuilder {
                 String fromCodon = clone1.cdr3nt.substring(codonStart, codonStart + 3),
                        toCodon = clone2.cdr3nt.substring(codonStart, codonStart + 3)
 
-                char fromAA = Util.codon2aa(fromCodon), toAA = Util.codon2aa(toCodon)
+                char fromAA = CommonUtil.codon2aa(fromCodon), toAA = CommonUtil.codon2aa(toCodon)
 
                 mutations.add(Mutation.cdr3Mutation(pos,
                         clone1.cdr3nt.charAt(pos), clone2.cdr3nt.charAt(pos),

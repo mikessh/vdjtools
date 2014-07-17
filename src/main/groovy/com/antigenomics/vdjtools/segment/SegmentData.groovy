@@ -1,6 +1,6 @@
 package com.antigenomics.vdjtools.segment
 
-import com.antigenomics.vdjtools.Util
+import com.antigenomics.vdjtools.CommonUtil
 
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
@@ -38,6 +38,6 @@ class SegmentData {
     }
 
     String getSubSequence(int from, int to) {
-        Util.getSubSequence(sequence, from, to)
+        CommonUtil.getSubSequence(sequence, from, to)
     }
 }

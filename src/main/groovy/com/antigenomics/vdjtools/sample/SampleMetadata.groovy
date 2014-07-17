@@ -25,6 +25,11 @@ class SampleMetadata {
         this.entries = entries
     }
 
+    SampleMetadata(String sampleId) {
+        this.sampleId = sampleId
+        this.entries = new ArrayList<>()
+    }
+
     @Override
     boolean equals(o) {
         if (this.is(o)) return true

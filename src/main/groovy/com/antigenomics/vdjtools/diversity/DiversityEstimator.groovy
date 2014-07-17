@@ -46,13 +46,13 @@ class DiversityEstimator {
     }
 
     Diversity sampleDiversity() {
-        new Diversity(sample.diversityCDR3NT, 0, sample.cells, false)
+        new Diversity(sample.diversityCDR3NT, 0, sample.count, false)
     }
 
     Diversity countNormalizedSampleDiversity(int sampleSize, int nResamples, boolean byAminoAcid) {
-        if (sampleSize >= sample.cells)
+        if (sampleSize >= sample.count)
             return new Diversity((long) (((double) sampleSize *
-                    (double) (byAminoAcid ? sample.diversityCDR3AA : sample.diversityCDR3NT) / (double) sample.cells)),
+                    (double) (byAminoAcid ? sample.diversityCDR3AA : sample.diversityCDR3NT) / (double) sample.count)),
                     0, sampleSize, false)
 
         def diversityValues = new double[nResamples]
@@ -96,7 +96,7 @@ class DiversityEstimator {
                 break
         }
 
-        new Diversity((long) S, (long) D, sample.cells, true)
+        new Diversity((long) S, (long) D, sample.count, true)
     }
 
     Diversity chao1(boolean byAminoAcid) {
@@ -106,7 +106,7 @@ class DiversityEstimator {
 
         new Diversity((long) (sample.diversityCDR3NT + F1 * RF),
                 (long) (F2 * (Math.pow(RF / 2, 4) + Math.pow(2 * RF, 3) + RF * RF)),
-                sample.cells, true)
+                sample.count, true)
     }
 
     private class FrequencyTable {

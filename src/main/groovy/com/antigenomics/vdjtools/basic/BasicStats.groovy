@@ -50,7 +50,7 @@ class BasicStats {
     }
 
     long getCells() {
-        sample.cells
+        sample.count
     }
 
     int getDiversity() {

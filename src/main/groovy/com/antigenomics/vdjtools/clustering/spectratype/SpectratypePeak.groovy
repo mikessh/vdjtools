@@ -14,11 +14,12 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools.spectratype
+package com.antigenomics.vdjtools.clustering.spectratype
 
 import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.clustering.ClonotypeCluster
 
-class SpectratypePeak {
+class SpectratypePeak extends ClonotypeCluster {
     final String v, signature
     final int cdr3length
     final List<Clonotype> clonotypes = new ArrayList<>()
@@ -35,23 +36,6 @@ class SpectratypePeak {
         clones++
         freq += clonotype.freq
         clonotypes.add(clonotype)
-    }
-
-    @Override
-    boolean equals(o) {
-        if (this.is(o)) return true
-        if (getClass() != o.class) return false
-
-        SpectratypePeak that = (SpectratypePeak) o
-
-        if (signature != that.signature) return false
-
-        true
-    }
-
-    @Override
-    int hashCode() {
-        signature.hashCode()
     }
 
     final static String HEADER = "v\tlen\tuniq\tfreq"

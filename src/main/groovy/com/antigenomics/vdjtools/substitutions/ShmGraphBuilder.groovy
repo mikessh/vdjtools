@@ -17,6 +17,8 @@
 package com.antigenomics.vdjtools.substitutions
 
 import com.antigenomics.vdjtools.*
+import com.antigenomics.vdjtools.graph.EdgeBundle
+import com.antigenomics.vdjtools.graph.MutationGraph
 import groovyx.gpars.GParsPool
 
 class ShmGraphBuilder {
@@ -42,7 +44,7 @@ class ShmGraphBuilder {
 
         //println "[${new Date()} INFO] Building graph"
 
-        GParsPool.withPool Util.THREADS, {
+        GParsPool.withPool CommonUtil.THREADS, {
             spectratype.eachParallel { family ->
                 def edges = new LinkedList<EdgeBundle>()
                 family.each { Clonotype cloneA ->

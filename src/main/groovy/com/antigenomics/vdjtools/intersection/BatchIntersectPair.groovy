@@ -16,15 +16,15 @@
 
 package com.antigenomics.vdjtools.intersection
 
+import com.antigenomics.vdjtools.CommonUtil
 import com.antigenomics.vdjtools.Software
-import com.antigenomics.vdjtools.Util
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.SamplePair
 import groovyx.gpars.GParsPool
 
 import java.util.concurrent.atomic.AtomicInteger
 
-def cli = new CliBuilder(usage: "BulkIntersection [options] sample_metadata_file output_prefix")
+def cli = new CliBuilder(usage: "BatchIntersectPair [options] sample_metadata_file output_prefix")
 cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
@@ -44,7 +44,7 @@ def software = Software.byName(opt.S), inputFileName = opt.arguments()[0], outpu
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 //
-// Bulk load all samples
+// Batch load all samples
 //
 
 println "[${new Date()} $scriptName] Reading samples"
@@ -61,14 +61,13 @@ IntersectionType.values().each { IntersectionType intersectionType ->
     println "[${new Date()} $scriptName] Intersecting by $intersectionType"
     def pairs = sampleCollection.listPairs(), results
     def counter = new AtomicInteger()
-    GParsPool.withPool Util.THREADS, {
+    GParsPool.withPool CommonUtil.THREADS, {
         results = pairs.collectParallel { SamplePair pair ->
-            def intersection = new PairedIntersection(pair.sample1.clonotypes, pair.sample2.clonotypes,
-                    intersectionType)
+            def intersection = new PairedIntersectionGenerator(pair, intersectionType)
             def result = intersection.intersect(false)
             println "[${new Date()} $scriptName] " +
                     "Intersected ${counter.incrementAndGet()} of ${pairs.size()} so far\n" +
-                    "Last result\n${IntersectionResult.HEADER}\n$result"
+                    "Last result\n${PairedIntersectionResult.HEADER}\n$result"
             [pair, result]
         }
     }
@@ -78,10 +77,10 @@ IntersectionType.values().each { IntersectionType intersectionType ->
         pw.println("#" +
                 [sampleCollection.metadataHeader.collect { "1_$it" },
                  sampleCollection.metadataHeader.collect { "2_$it" },
-                 IntersectionResult.HEADER].flatten().join("\t"))
+                 PairedIntersectionResult.HEADER].flatten().join("\t"))
         results.each {
             SamplePair samplePair = it[0]
-            IntersectionResult intersectionResult = it[1]
+            PairedIntersectionResult intersectionResult = it[1]
             pw.println(samplePair.toString() + "\t" + intersectionResult.toString())
         }
     }

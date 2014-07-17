@@ -16,23 +16,10 @@
 
 package com.antigenomics.vdjtools
 
-class MutationSet {
-    final Collection<Mutation> mutations
+class PrintUtil {
+    static final String CLONOTYPE_HEADER = "cdr3aa\tcdr3nt\tv\td\tj"
 
-    MutationSet(Collection<Mutation> mutations) {
-        this.mutations = mutations
-    }
-
-    MutationSet() {
-        this.mutations = new HashSet<>()
-    }
-
-    int size() {
-        mutations.size()
-    }
-
-    @Override
-    String toString() {
-        mutations.join("|")
+    static String processClonotype(Clonotype clonotype) {
+        [clonotype.cdr3aa, clonotype.cdr3nt, clonotype.v, clonotype.d, clonotype.j].join("\t")
     }
 }

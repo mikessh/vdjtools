@@ -17,7 +17,7 @@
 package com.antigenomics.vdjtools.substitutions
 
 import com.antigenomics.vdjtools.Mutation
-import com.antigenomics.vdjtools.Util
+import com.antigenomics.vdjtools.CommonUtil
 
 class MotifPwm {
     final int leftSize, rightSize
@@ -37,7 +37,7 @@ class MotifPwm {
 
     void add(Mutation mutation) {
         String motif = mutation.getMotif(leftSize, rightSize),
-               motifRC = Util.rc(motif)
+               motifRC = CommonUtil.rc(motif)
         updatePwm(pwm, motif)
         updatePwm(pwmRC, motifRC)
         total++
@@ -47,7 +47,7 @@ class MotifPwm {
 
     private static void updatePwm(double[][] pwm, String motif) {
         motif.toCharArray().eachWithIndex { char nt, int j ->
-            int code = Util.nt2code(nt)
+            int code = CommonUtil.nt2code(nt)
             if (code < 0) {
                 (0..3).each { int i ->
                     pwm[i][j] += 0.25
@@ -65,9 +65,9 @@ class MotifPwm {
     @Override
     String toString() {
         "NT\t" + (-leftSize..rightSize).join("\t") + "\n" +
-                (0..3).collect { "${Util.code2nt(it)}\t" + pwm[it].collect().join("\t") }.join("\n") + "\n" +
+                (0..3).collect { "${CommonUtil.code2nt(it)}\t" + pwm[it].collect().join("\t") }.join("\n") + "\n" +
         "NT_RC\t" + (-leftSize..rightSize).join("\t") + "\n" +
-                (0..3).collect { "${Util.code2nt(it)}\t" + pwmRC[it].collect().join("\t") }.join("\n") + "\n" +
+                (0..3).collect { "${CommonUtil.code2nt(it)}\t" + pwmRC[it].collect().join("\t") }.join("\n") + "\n" +
                 "Total\t$total\nRGYW\t$rgyw"
     }
 }

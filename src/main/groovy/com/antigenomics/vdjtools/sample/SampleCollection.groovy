@@ -17,9 +17,8 @@
 package com.antigenomics.vdjtools.sample
 
 import com.antigenomics.vdjtools.Clonotype
-import com.antigenomics.vdjtools.ClonotypeUtil
 import com.antigenomics.vdjtools.Software
-import com.antigenomics.vdjtools.Util
+import com.antigenomics.vdjtools.CommonUtil
 
 class SampleCollection implements Iterable<Sample> {
     private final Map<String, Sample> sampleMap = new HashMap<>()
@@ -59,14 +58,13 @@ class SampleCollection implements Iterable<Sample> {
                             filesBySample.put(sampleId, fileList = new LinkedList<String>())
                         fileList.add(fileName)
                     } else {
-                        clonotypes = ClonotypeUtil.loadClonotypes(fileName, software)
+                        clonotypes = SampleUtil.loadClonotypes(fileName, software)
                     }
 
                     def sample = sampleMap[sampleId]
                     if (!sample) {
                         sampleMap.put(sampleId,
-                                new Sample(new SampleMetadata(sampleId, entries),
-                                        clonotypes))
+                                new Sample(new SampleMetadata(sampleId, entries), clonotypes))
                     } else {
                         sample.clonotypes.addAll(clonotypes)
                     }
@@ -77,7 +75,7 @@ class SampleCollection implements Iterable<Sample> {
                         nClonotypes += clonotypes.size()
 
                         println "[${new Date()} SampleCollection] Loaded $nSamples samples and " +
-                                "$nClonotypes clonotypes so far. " + Util.memoryFootprint()
+                                "$nClonotypes clonotypes so far. " + CommonUtil.memoryFootprint()
                     }
                 } else if (strict) {
                     throw new FileNotFoundException(fileName)
@@ -100,11 +98,11 @@ class SampleCollection implements Iterable<Sample> {
             sample = new Sample(sampleMap[sampleId].metadata, new LinkedList<Clonotype>())
 
             filesBySample[sampleId].each { fileName ->
-                sample.clonotypes.addAll(ClonotypeUtil.loadClonotypes(fileName, software))
+                sample.clonotypes.addAll(SampleUtil.loadClonotypes(fileName, software))
             }
 
             println "[${new Date()} SampleCollection] Sample loaded, ${sample.clonotypes.size()} clonotypes. " +
-                    Util.memoryFootprint()
+                    CommonUtil.memoryFootprint()
 
             if (store) {
                 loadedSamples.add(sampleId)

@@ -1,4 +1,3 @@
-package com.antigenomics.vdjtools
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
 
@@ -14,7 +13,10 @@ package com.antigenomics.vdjtools
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-class Util {
+
+package com.antigenomics.vdjtools
+
+class CommonUtil {
     static final int THREADS = Runtime.runtime.availableProcessors()
 
     static final String AA_LIST = "[FLSYCWPHQRIMTNKVADEGX\\*\\?]"
@@ -180,7 +182,7 @@ class Util {
     }
 
     static InputStreamReader resourceStreamReader(String resourceName) {
-        new InputStreamReader(Util.class.classLoader.getResourceAsStream(resourceName))
+        new InputStreamReader(CommonUtil.class.classLoader.getResourceAsStream(resourceName))
     }
 
     static String getSubSequence(String sequence, int from, int to) {
@@ -195,5 +197,35 @@ class Util {
         }
 
         left + sequence.substring(from, to) + right
+    }
+
+    static void executeR(String scriptName, String[] params) {
+        // Create a temp file to store the script
+        def scriptRes = resourceStreamReader("rscripts/$scriptName")
+        scriptName = UUID.randomUUID().toString() + "_" + scriptName
+
+        def scriptFile = new File(scriptName)
+
+        scriptFile.withPrintWriter { pw ->
+            scriptRes.readLines().each {
+                pw.println(it)
+            }
+        }
+
+        scriptFile.deleteOnExit()
+
+        // Run script
+        def proc = ["Rscript", scriptName, params].flatten().execute()
+
+        proc.in.eachLine {
+            println(it)
+        }
+
+        proc.out.close()
+        proc.waitFor()
+
+        if (proc.exitValue()) {
+            println "[ERROR] ${proc.getErrorStream()}"
+        }
     }
 }

@@ -14,25 +14,17 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools
 
-class MutationSet {
-    final Collection<Mutation> mutations
+package com.antigenomics.vdjtools.clustering.spectratype
 
-    MutationSet(Collection<Mutation> mutations) {
-        this.mutations = mutations
-    }
+import com.antigenomics.vdjtools.clustering.ClusteringFactory
+import com.antigenomics.vdjtools.clustering.SingleSampleClustering
+import com.antigenomics.vdjtools.sample.Sample
 
-    MutationSet() {
-        this.mutations = new HashSet<>()
-    }
-
-    int size() {
-        mutations.size()
-    }
+class SpectratypeFactory implements ClusteringFactory {
 
     @Override
-    String toString() {
-        mutations.join("|")
+    SingleSampleClustering create(Sample sample) {
+        new Spectratype(sample)
     }
 }

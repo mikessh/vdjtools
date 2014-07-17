@@ -33,7 +33,7 @@ class DownSampler {
 
     Sample reSample(int count) {
         def sampledClonotypes
-        if (count >= sample.cells) {
+        if (count >= sample.count) {
             sampledClonotypes = new LinkedList<Clonotype>(sample.clonotypes)
         } else {
             Collections.shuffle(flattenedClonotypes)

@@ -14,25 +14,29 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools
+package com.antigenomics.vdjtools.clustering
 
-class MutationSet {
-    final Collection<Mutation> mutations
+import com.antigenomics.vdjtools.Clonotype
 
-    MutationSet(Collection<Mutation> mutations) {
-        this.mutations = mutations
-    }
+abstract class ClonotypeCluster {
+    abstract List<Clonotype> getClonotypes()
 
-    MutationSet() {
-        this.mutations = new HashSet<>()
-    }
+    abstract String getSignature()
 
-    int size() {
-        mutations.size()
+    @Override
+    boolean equals(o) {
+        if (this.is(o)) return true
+        if (getClass() != o.class) return false
+
+        ClonotypeCluster that = (ClonotypeCluster) o
+
+        if (signature != that.signature) return false
+
+        return true
     }
 
     @Override
-    String toString() {
-        mutations.join("|")
+    int hashCode() {
+        return signature.hashCode()
     }
 }

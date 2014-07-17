@@ -14,7 +14,10 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools
+package com.antigenomics.vdjtools.graph
+
+import com.antigenomics.vdjtools.Mutation
+import com.antigenomics.vdjtools.MutationSet
 
 import java.util.concurrent.atomic.AtomicBoolean
 

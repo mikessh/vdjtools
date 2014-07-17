@@ -14,11 +14,16 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools
+package com.antigenomics.vdjtools.sample
 
+import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.sample.SampleMetadata
+import org.apache.commons.io.FilenameUtils
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
 
-class ClonotypeUtil {
+class SampleUtil {
     static List<Clonotype> loadClonotypes(String fileName, Software software) {
         def clonotypes = new ArrayList()
         def inputFile = new File(fileName)
@@ -33,6 +38,11 @@ class ClonotypeUtil {
             }
         }
         clonotypes
+    }
+
+    static Sample loadSample(String fileName, Software software) {
+        new Sample(new SampleMetadata(FilenameUtils.getBaseName(fileName)),
+                loadClonotypes(fileName, software))
     }
 
     static double correlation(List<Clonotype> clonotypes1, List<Clonotype> clonotypes2) {
