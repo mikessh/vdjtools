@@ -22,23 +22,23 @@ import com.antigenomics.vdjtools.sample.SampleUtil
 import com.antigenomics.vdjtools.timecourse.DynamicClonotype
 import com.antigenomics.vdjtools.timecourse.TimeCourse
 
-class PairedIntersectionResult {
+class PairedIntersection {
     final Sample sample1, sample2
 
-    final int clones12, count12, count21
+    final int uniq12, count12, count21
     final double freq12, freq21
 
     private final List<Clonotype> clonotypes12, clonotypes21
     private Double r = null
 
-    PairedIntersectionResult(Sample sample1, Sample sample2,
-                             int clones12,
+    PairedIntersection(Sample sample1, Sample sample2,
+                             int uniq12,
                              int count12, int count21,
                              double freq12, double freq21,
                              List<Clonotype> clonotypes12, List<Clonotype> clonotypes21) {
         this.sample1 = sample1
         this.sample2 = sample2
-        this.clones12 = clones12
+        this.uniq12 = uniq12
         this.count12 = count12
         this.count21 = count21
         this.freq12 = freq12
@@ -58,13 +58,20 @@ class PairedIntersectionResult {
 
     TimeCourse asTimeCourse() {
         def dynamicClontypes = new ArrayList<DynamicClonotype>()
-        for (int i = 0; i < clones12; i++)
+        for (int i = 0; i < uniq12; i++)
             dynamicClontypes.add(new DynamicClonotype([clonotypes12[i], clonotypes21[i]] as Clonotype[]))
         def samples = [sample1, sample2] as Sample[]
         new TimeCourse(samples, dynamicClontypes)
     }
 
-    //
+    List<Clonotype> getClonotypes12() {
+        return clonotypes12
+    }
+
+    List<Clonotype> getClonotypes21() {
+        return clonotypes21
+    }
+//
     // Print
     //
 
@@ -75,7 +82,7 @@ class PairedIntersectionResult {
 
     @Override
     String toString() {
-        [sample1.diversity, sample2.diversity, clones12,
+        [sample1.diversity, sample2.diversity, uniq12,
          sample1.count, sample2.count, count12, count21,
          sample1.freq, sample2.freq, freq12, freq21,
          getCorrelation()].join("\t")

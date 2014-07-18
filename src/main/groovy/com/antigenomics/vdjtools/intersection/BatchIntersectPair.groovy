@@ -67,7 +67,7 @@ IntersectionType.values().each { IntersectionType intersectionType ->
             def result = intersection.intersect(false)
             println "[${new Date()} $scriptName] " +
                     "Intersected ${counter.incrementAndGet()} of ${pairs.size()} so far\n" +
-                    "Last result\n${PairedIntersectionResult.HEADER}\n$result"
+                    "Last result\n${PairedIntersection.HEADER}\n$result"
             [pair, result]
         }
     }
@@ -77,10 +77,10 @@ IntersectionType.values().each { IntersectionType intersectionType ->
         pw.println("#" +
                 [sampleCollection.metadataHeader.collect { "1_$it" },
                  sampleCollection.metadataHeader.collect { "2_$it" },
-                 PairedIntersectionResult.HEADER].flatten().join("\t"))
+                 PairedIntersection.HEADER].flatten().join("\t"))
         results.each {
             SamplePair samplePair = it[0]
-            PairedIntersectionResult intersectionResult = it[1]
+            PairedIntersection intersectionResult = it[1]
             pw.println(samplePair.toString() + "\t" + intersectionResult.toString())
         }
     }

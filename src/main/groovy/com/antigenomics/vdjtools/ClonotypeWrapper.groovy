@@ -14,17 +14,8 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools.intersection
+package com.antigenomics.vdjtools
 
-import com.antigenomics.vdjtools.Clonotype
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
-
-enum IntersectionType {
-    NucleotideV("ntV"), Nucleotide("nt"), AminoAcid("aa"), AminoAcidNonNucleotide("aa!nt")
-
-    final String shortName
-
-    IntersectionType(String shortName) {
-        this.shortName = shortName
-    }
+public interface ClonotypeWrapper {
+    Clonotype getClonotype()
 }

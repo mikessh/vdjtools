@@ -72,7 +72,7 @@ println "[${new Date()} $scriptName] Writing output"
 new File(outputFilePrefix + "_summary.txt").withPrintWriter { pw ->
     // summary statistics: intersection size (count, freq and unique clonotypes)
     // count correlation within intersected set
-    pw.println(PairedIntersectionResult.HEADER)
+    pw.println(PairedIntersection.HEADER)
     pw.println(intersectionResult)
 }
 

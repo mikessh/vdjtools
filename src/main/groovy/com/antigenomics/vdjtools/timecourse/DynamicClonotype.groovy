@@ -94,4 +94,6 @@ class DynamicClonotype {
     String toString() {
         PRINT_FIELDS.collect { getRepresentative()."$it" }.join("\t")
     }
+
+
 }
