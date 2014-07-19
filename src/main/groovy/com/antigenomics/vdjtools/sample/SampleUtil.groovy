@@ -18,8 +18,6 @@ package com.antigenomics.vdjtools.sample
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Software
-import com.antigenomics.vdjtools.sample.Sample
-import com.antigenomics.vdjtools.sample.SampleMetadata
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
 
@@ -43,6 +41,11 @@ class SampleUtil {
     static Sample loadSample(String fileName, Software software) {
         new Sample(new SampleMetadata(FilenameUtils.getBaseName(fileName)),
                 loadClonotypes(fileName, software))
+    }
+
+    static void calculateFreqs(Sample sample) {
+        double total = (double) sample.sum { it.count }
+        sample.each { it.freq = it.count / total }
     }
 
     static double correlation(List<Clonotype> clonotypes1, List<Clonotype> clonotypes2) {

@@ -60,9 +60,9 @@ def samples = sampleFileNames.collect { SampleUtil.loadSample(it, software) } as
 
 println "[${new Date()} $scriptName] Intersecting"
 
-def intersection = new SequentialIntersection(samples, IntersectionType.NucleotideV)
+def sequentialIntersection = new SequentialIntersection(samples, IntersectionType.NucleotideV)
 
-def timeCourse = intersection.asTimeCourse()
+def timeCourse = sequentialIntersection.asTimeCourse()
 
 //
 // Generate and write output
@@ -92,38 +92,9 @@ if (opt.c) {
     }
 }
 
-def log = { double x ->
-    Math.log10(x + 1e-7)
-}
-
 if (opt.p) {
-    def xyFile = new File(outputFilePrefix + "_xy.txt")
-    xyFile.withPrintWriter { pw ->
-        pw.println("x\ty")
-        timeCourse.each { pw.println(it.frequencies.collect { log(it) }.join("\t")) }
-    }
-    xyFile.deleteOnExit()
-
-    def xxFile = new File(outputFilePrefix + "_xx.txt")
-    xxFile.withPrintWriter { pw ->
-        pw.println("xx")
-        sample1.each { pw.println(log(it.freq)) }
-    }
-    xxFile.deleteOnExit()
-
-    def yyFile = new File(outputFilePrefix + "_yy.txt")
-    yyFile.withPrintWriter { pw ->
-        pw.println("yy")
-        sample2.each { pw.println(log(it.freq)) }
-    }
-    yyFile.deleteOnExit()
-
-    CommonUtil.executeR("scatter_m.r", sample1.metadata.sampleId, sample2.metadata.sampleId,
-            outputFilePrefix + "_xy.txt", outputFilePrefix + "_xx.txt", outputFilePrefix + "_yy.txt",
-            outputFilePrefix + "_scatter.pdf")
 
     if (opt.c) {
-        CommonUtil.executeR("area_pair.r", sample1.metadata.sampleId, sample2.metadata.sampleId,
-                outputFilePrefix + "_table_collapsed.txt", outputFilePrefix + "_difference.pdf")
+        // TODO: stacked area plot
     }
 }

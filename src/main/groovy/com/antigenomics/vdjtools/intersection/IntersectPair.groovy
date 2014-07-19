@@ -16,6 +16,7 @@
 
 package com.antigenomics.vdjtools.intersection
 
+import com.antigenomics.vdjtools.CommonUtil
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleUtil
 
@@ -60,9 +61,9 @@ def sample1 = SampleUtil.loadSample(sample1FileName, software),
 
 println "[${new Date()} $scriptName] Intersecting"
 
-def intersection = new PairedIntersectionGenerator(sample1, sample2, IntersectionType.NucleotideV)
+def pairedIntersection = new PairedIntersectionGenerator(sample1, sample2, IntersectionType.NucleotideV).intersect(true)
 
-def intersectionResult = intersection.intersect(true)
+def timeCourse = pairedIntersection.asTimeCourse()
 
 //
 // Generate and write output
@@ -74,10 +75,8 @@ new File(outputFilePrefix + "_summary.txt").withPrintWriter { pw ->
     // summary statistics: intersection size (count, freq and unique clonotypes)
     // count correlation within intersected set
     pw.println(PairedIntersection.HEADER)
-    pw.println(intersectionResult)
+    pw.println(pairedIntersection)
 }
-
-def timeCourse = intersectionResult.asTimeCourse()
 
 new File(outputFilePrefix + "_table.txt").withPrintWriter { pw ->
     // all clonotypes in intersection
@@ -94,9 +93,38 @@ if (opt.c) {
     }
 }
 
+def log = { double x ->
+    Math.log10(x + 1e-7)
+}
+
 if (opt.p) {
+    def xyFile = new File(outputFilePrefix + "_xy.txt")
+    xyFile.withPrintWriter { pw ->
+        pw.println("x\ty")
+        timeCourse.each { pw.println(it.frequencies.collect { log(it) }.join("\t")) }
+    }
+    xyFile.deleteOnExit()
+
+    def xxFile = new File(outputFilePrefix + "_xx.txt")
+    xxFile.withPrintWriter { pw ->
+        pw.println("xx")
+        sample1.each { pw.println(log(it.freq)) }
+    }
+    xxFile.deleteOnExit()
+
+    def yyFile = new File(outputFilePrefix + "_yy.txt")
+    yyFile.withPrintWriter { pw ->
+        pw.println("yy")
+        sample2.each { pw.println(log(it.freq)) }
+    }
+    yyFile.deleteOnExit()
+
+    CommonUtil.executeR("scatter_m.r", sample1.metadata.sampleId, sample2.metadata.sampleId,
+            outputFilePrefix + "_xy.txt", outputFilePrefix + "_xx.txt", outputFilePrefix + "_yy.txt",
+            outputFilePrefix + "_scatter.pdf")
 
     if (opt.c) {
-        // TODO: stacked area plot
+        CommonUtil.executeR("area_pair.r", sample1.metadata.sampleId, sample2.metadata.sampleId,
+                outputFilePrefix + "_table_collapsed.txt", outputFilePrefix + "_difference.pdf")
     }
 }
