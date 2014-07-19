@@ -21,6 +21,8 @@ import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.timecourse.DynamicClonotype
 import com.antigenomics.vdjtools.timecourse.TimeCourse
 
+// todo: summary
+
 class SequentialIntersection {
     private final Sample[] samples
     private final PairedIntersection[] pairedIntersections
@@ -55,5 +57,12 @@ class SequentialIntersection {
         }
 
         new TimeCourse(samples, clonotypeMap.values().collect { new DynamicClonotype(it) })
+    }
+
+    static final String HEADER = ""
+
+    @Override
+    String toString() {
+
     }
 }

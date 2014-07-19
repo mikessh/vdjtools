@@ -13,13 +13,14 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
 package com.antigenomics.vdjtools.intersection
 
+import com.antigenomics.vdjtools.CommonUtil
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleUtil
 
-def cli = new CliBuilder(usage: "IntersectPair [options] sample1 sample2 output_prefix")
+def cli = new CliBuilder(usage: "IntersectSequence [options] sample1 sample2 sample3 ... output_prefix")
 cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
@@ -34,14 +35,14 @@ def opt = cli.parse(args)
 if (opt == null)
     System.exit(-1)
 
-if (opt.h || opt.arguments().size() < 3) {
+if (opt.h || opt.arguments().size() < 4) {
     cli.usage()
     System.exit(-1)
 }
 
 def software = Software.byName(opt.S),
-    sample1FileName = opt.arguments()[0], sample2FileName = opt.arguments()[1],
-    outputFilePrefix = opt.arguments()[2]
+    sampleFileNames = opt.arguments()[0..-2],
+    outputFilePrefix = opt.arguments()[-1]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -51,18 +52,17 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 println "[${new Date()} $scriptName] Reading samples"
 
-def sample1 = SampleUtil.loadSample(sample1FileName, software),
-    sample2 = SampleUtil.loadSample(sample2FileName, software)
+def samples = sampleFileNames.collect { SampleUtil.loadSample(it, software) } as Sample[]
 
 //
-// Perform an intersection by CDR3NT & V segment
+// Perform a sequential intersection by CDR3NT & V segment
 //
 
 println "[${new Date()} $scriptName] Intersecting"
 
-def intersection = new PairedIntersectionGenerator(sample1, sample2, IntersectionType.NucleotideV)
+def intersection = new SequentialIntersection(samples, IntersectionType.NucleotideV)
 
-def intersectionResult = intersection.intersect(true)
+def timeCourse = intersection.asTimeCourse()
 
 //
 // Generate and write output
@@ -73,11 +73,9 @@ println "[${new Date()} $scriptName] Writing output"
 new File(outputFilePrefix + "_summary.txt").withPrintWriter { pw ->
     // summary statistics: intersection size (count, freq and unique clonotypes)
     // count correlation within intersected set
-    pw.println(PairedIntersection.HEADER)
-    pw.println(intersectionResult)
+    pw.println(SequentialIntersection.HEADER)
+    pw.println(sequentialIntersection)
 }
-
-def timeCourse = intersectionResult.asTimeCourse()
 
 new File(outputFilePrefix + "_table.txt").withPrintWriter { pw ->
     // all clonotypes in intersection
@@ -94,9 +92,38 @@ if (opt.c) {
     }
 }
 
+def log = { double x ->
+    Math.log10(x + 1e-7)
+}
+
 if (opt.p) {
+    def xyFile = new File(outputFilePrefix + "_xy.txt")
+    xyFile.withPrintWriter { pw ->
+        pw.println("x\ty")
+        timeCourse.each { pw.println(it.frequencies.collect { log(it) }.join("\t")) }
+    }
+    xyFile.deleteOnExit()
+
+    def xxFile = new File(outputFilePrefix + "_xx.txt")
+    xxFile.withPrintWriter { pw ->
+        pw.println("xx")
+        sample1.each { pw.println(log(it.freq)) }
+    }
+    xxFile.deleteOnExit()
+
+    def yyFile = new File(outputFilePrefix + "_yy.txt")
+    yyFile.withPrintWriter { pw ->
+        pw.println("yy")
+        sample2.each { pw.println(log(it.freq)) }
+    }
+    yyFile.deleteOnExit()
+
+    CommonUtil.executeR("scatter_m.r", sample1.metadata.sampleId, sample2.metadata.sampleId,
+            outputFilePrefix + "_xy.txt", outputFilePrefix + "_xx.txt", outputFilePrefix + "_yy.txt",
+            outputFilePrefix + "_scatter.pdf")
 
     if (opt.c) {
-        // TODO: stacked area plot
+        CommonUtil.executeR("area_pair.r", sample1.metadata.sampleId, sample2.metadata.sampleId,
+                outputFilePrefix + "_table_collapsed.txt", outputFilePrefix + "_difference.pdf")
     }
 }
