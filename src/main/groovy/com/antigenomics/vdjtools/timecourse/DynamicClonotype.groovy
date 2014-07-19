@@ -17,16 +17,17 @@
 package com.antigenomics.vdjtools.timecourse
 
 import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.ClonotypeWrapper
 import com.antigenomics.vdjtools.MutationSet
 
 /**
  * A class representing a trace of a certain clonotype in multiple samples
  */
-class DynamicClonotype {
+class DynamicClonotype implements ClonotypeWrapper {
     static final double JITTER = 1e-7
     private final Clonotype[] instances
     private double[] frequencies = null
-    private Clonotype representative = null
+    private Clonotype clonotype = null
 
     /**
      * Creates a dynamic clonotype from an array of clonotype instances,
@@ -41,9 +42,9 @@ class DynamicClonotype {
      * Gets a representative clonotype, based on max frequency
      * @return representative clonotype
      */
-    Clonotype getRepresentative() {
+    Clonotype getClonotype() {
         // lazy get
-        representative ?: (representative = instances.max { frequency(it) })
+        clonotype ?: (clonotype = instances.max { frequency(it) })
     }
 
     /**
@@ -92,8 +93,6 @@ class DynamicClonotype {
 
     @Override
     String toString() {
-        PRINT_FIELDS.collect { getRepresentative()."$it" }.join("\t")
+        PRINT_FIELDS.collect { getClonotype()."$it" }.join("\t")
     }
-
-
 }

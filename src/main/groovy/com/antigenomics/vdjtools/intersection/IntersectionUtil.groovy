@@ -55,8 +55,8 @@ class IntersectionUtil {
     }
 
     PairedIntersection generatePairedIntersection(Sample sample1, Sample sample2, boolean storeIntersectedList) {
-        def wrappedSample1 = sample1.clonotypes.collect { new Wrapper(it) },
-            wrappedSample2 = sample2.clonotypes.collect { new Wrapper(it) }
+        def wrappedSample1 = sample1.clonotypes.collect { new ClonotypeHashWrapper(it) },
+            wrappedSample2 = sample2.clonotypes.collect { new ClonotypeHashWrapper(it) }
 
         def intersection = new HashMap<ClonotypeWrapper, ClonotypeWrapper>()
 
@@ -111,21 +111,27 @@ class IntersectionUtil {
                         clonotypes12, clonotypes21)
     }
 
-    private ClonotypeWrapper wrap(Clonotype clonotype) {
-        new Wrapper(clonotype)
+    /**
+     * Wraps the clonotype to override its equals and hashCode methods
+     * according to policy specified by intersectionType
+     * @param clonotype clonotype to wrap
+     * @return wrapped clonotype
+     */
+    public ClonotypeWrapper wrap(Clonotype clonotype) {
+        new ClonotypeHashWrapper(clonotype)
     }
 
-    private class Wrapper implements ClonotypeWrapper {
+    private class ClonotypeHashWrapper implements ClonotypeWrapper {
         final Clonotype clonotype
 
-        Wrapper(Clonotype clonotype) {
+        ClonotypeHashWrapper(Clonotype clonotype) {
             this.clonotype = clonotype
         }
 
         boolean equals(o) {
             if (this.is(o)) return true
 
-            Wrapper clonotypeWrapper = (Wrapper) o
+            ClonotypeHashWrapper clonotypeWrapper = (ClonotypeHashWrapper) o
 
             switch (intersectionType) {
                 case IntersectionType.Nucleotide:
