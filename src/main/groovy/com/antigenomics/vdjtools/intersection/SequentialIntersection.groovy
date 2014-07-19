@@ -35,8 +35,8 @@ class SequentialIntersection {
         this.samples = samples
         this.intersectionUtil = new IntersectionUtil(intersectionType)
 
-        pairedIntersections = (0..(samples.length - 2)).collect { int i ->
-            new PairedIntersectionGenerator(samples[i], samples[i + 1], intersectionType).intersect(true)
+        this.pairedIntersections = (0..(samples.length - 2)).collect { int i ->
+            intersectionUtil.generatePairedIntersection(samples[i], samples[i + 1])
         } as PairedIntersection[]
     }
 
@@ -59,10 +59,10 @@ class SequentialIntersection {
         new TimeCourse(samples, clonotypeMap.values().collect { new DynamicClonotype(it) })
     }
 
-    static final String HEADER = ""
+    static final String HEADER = PairedIntersection.HEADER
 
     @Override
     String toString() {
-
+        pairedIntersections.join("\n")
     }
 }

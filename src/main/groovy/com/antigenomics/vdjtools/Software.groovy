@@ -19,7 +19,8 @@ package com.antigenomics.vdjtools
 enum Software {
     MiTcr("mitcr", "\t", null, 2),
     IgBlast("igblast", "\t", "#", 0),
-    CdrBlast("cdrblast", "\t", "#", 0)
+    CdrBlast("cdrblast", "\t", "#", 0),
+    Simple("simple", "\t", "#", 0)
 
     final String name, delimiter, comment
     final int headerLineCount

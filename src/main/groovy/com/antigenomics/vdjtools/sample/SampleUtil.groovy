@@ -43,11 +43,6 @@ class SampleUtil {
                 loadClonotypes(fileName, software))
     }
 
-    static void calculateFreqs(Sample sample) {
-        double total = (double) sample.sum { it.count }
-        sample.each { it.freq = it.count / total }
-    }
-
     static double correlation(List<Clonotype> clonotypes1, List<Clonotype> clonotypes2) {
         if (clonotypes1.size() != clonotypes2.size())
             throw new IllegalArgumentException("Clonotype set sizes should match")

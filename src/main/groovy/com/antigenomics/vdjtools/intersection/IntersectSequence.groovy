@@ -15,7 +15,6 @@
  */
 package com.antigenomics.vdjtools.intersection
 
-import com.antigenomics.vdjtools.CommonUtil
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleUtil
@@ -50,7 +49,7 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 // Load samples
 //
 
-println "[${new Date()} $scriptName] Reading samples"
+println "[${new Date()} $scriptName] Reading samples ${sampleFileNames[0..-2].join(", ")} and ${sampleFileNames[-1]}"
 
 def samples = sampleFileNames.collect { SampleUtil.loadSample(it, software) } as Sample[]
 
@@ -73,7 +72,7 @@ println "[${new Date()} $scriptName] Writing output"
 new File(outputFilePrefix + "_summary.txt").withPrintWriter { pw ->
     // summary statistics: intersection size (count, freq and unique clonotypes)
     // count correlation within intersected set
-    pw.println(SequentialIntersection.HEADER)
+    pw.println("#" + SequentialIntersection.HEADER)
     pw.println(sequentialIntersection)
 }
 

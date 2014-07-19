@@ -59,16 +59,16 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
 IntersectionType.values().each { IntersectionType intersectionType ->
     println "[${new Date()} $scriptName] Intersecting by $intersectionType"
+    def intersectionUtil = new IntersectionUtil(intersectionType)
     def pairs = sampleCollection.listPairs(), results
     def counter = new AtomicInteger()
     GParsPool.withPool CommonUtil.THREADS, {
         results = pairs.collectParallel { SamplePair pair ->
-            def intersection = new PairedIntersectionGenerator(pair, intersectionType)
-            def result = intersection.intersect(false)
+            def pairedIntersection = intersectionUtil.generatePairedIntersection(pair, false)
             println "[${new Date()} $scriptName] " +
                     "Intersected ${counter.incrementAndGet()} of ${pairs.size()} so far\n" +
-                    "Last result\n${PairedIntersection.HEADER}\n$result"
-            [pair, result]
+                    "Last result\n${PairedIntersection.HEADER}\n$pairedIntersection"
+            [pair, pairedIntersection]
         }
     }
 
@@ -80,8 +80,8 @@ IntersectionType.values().each { IntersectionType intersectionType ->
                  PairedIntersection.HEADER].flatten().join("\t"))
         results.each {
             SamplePair samplePair = it[0]
-            PairedIntersection intersectionResult = it[1]
-            pw.println(samplePair.toString() + "\t" + intersectionResult.toString())
+            PairedIntersection pairedIntersection = it[1]
+            pw.println(samplePair.toString() + "\t" + pairedIntersection.toString())
         }
     }
 }

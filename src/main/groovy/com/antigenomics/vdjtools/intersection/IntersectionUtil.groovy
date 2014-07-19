@@ -18,6 +18,8 @@ package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.ClonotypeWrapper
+import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.sample.SamplePair
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 class IntersectionUtil {
@@ -40,11 +42,80 @@ class IntersectionUtil {
         }
     }
 
-    ClonotypeWrapper wrap(Clonotype clonotype) {
+    PairedIntersection generatePairedIntersection(SamplePair samplePair) {
+        generatePairedIntersection(samplePair, true)
+    }
+
+    PairedIntersection generatePairedIntersection(SamplePair samplePair, boolean storeIntersectedList) {
+        generatePairedIntersection(samplePair.sample1, samplePair.sample2, storeIntersectedList)
+    }
+
+    PairedIntersection generatePairedIntersection(Sample sample1, Sample sample2) {
+        generatePairedIntersection(sample1, sample2, true)
+    }
+
+    PairedIntersection generatePairedIntersection(Sample sample1, Sample sample2, boolean storeIntersectedList) {
+        def wrappedSample1 = sample1.clonotypes.collect { new Wrapper(it) },
+            wrappedSample2 = sample2.clonotypes.collect { new Wrapper(it) }
+
+        def intersection = new HashMap<ClonotypeWrapper, ClonotypeWrapper>()
+
+        // flip is just for speedup
+        boolean flip = wrappedSample1.size() < wrappedSample2.size()
+
+        Collection<ClonotypeWrapper> _sample1, _sample2
+
+        (_sample1, _sample2) = flip ? [wrappedSample2, wrappedSample1] : [wrappedSample1, wrappedSample2]
+
+        double freq12 = 0, freq21 = 0
+        int count12 = 0, count21 = 0, clones12 = 0
+
+        _sample1.each {
+            intersection.put(it, it)
+        }
+
+        final List<Clonotype> clonotypes12 = new ArrayList<>(),
+                              clonotypes21 = new ArrayList<>()
+
+        _sample2.each {
+            def other = intersection[it]
+
+            if (other != null) {
+                clones12++
+
+                count12 += it.clonotype.count
+                freq12 += it.clonotype.freq
+
+                count21 += other.clonotype.count
+                freq21 += other.clonotype.freq
+
+                if (storeIntersectedList) {
+                    clonotypes12.add(other.clonotype)
+                    clonotypes21.add(it.clonotype)
+                }
+            }
+        }
+
+        flip ? new PairedIntersection(
+                sample1, sample2,
+                clones12,
+                count21, count12,
+                freq21, freq12,
+                clonotypes21, clonotypes12)
+                :
+                new PairedIntersection(
+                        sample1, sample2,
+                        clones12,
+                        count12, count21,
+                        freq12, freq21,
+                        clonotypes12, clonotypes21)
+    }
+
+    private ClonotypeWrapper wrap(Clonotype clonotype) {
         new Wrapper(clonotype)
     }
 
-    private class Wrapper implements ClonotypeWrapper{
+    private class Wrapper implements ClonotypeWrapper {
         final Clonotype clonotype
 
         Wrapper(Clonotype clonotype) {

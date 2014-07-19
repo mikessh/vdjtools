@@ -50,7 +50,7 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 // Load samples
 //
 
-println "[${new Date()} $scriptName] Reading samples"
+println "[${new Date()} $scriptName] Reading samples $sample1FileName and $sample2FileName"
 
 def sample1 = SampleUtil.loadSample(sample1FileName, software),
     sample2 = SampleUtil.loadSample(sample2FileName, software)
@@ -61,7 +61,9 @@ def sample1 = SampleUtil.loadSample(sample1FileName, software),
 
 println "[${new Date()} $scriptName] Intersecting"
 
-def pairedIntersection = new PairedIntersectionGenerator(sample1, sample2, IntersectionType.NucleotideV).intersect(true)
+def intersectionUtil = new IntersectionUtil( IntersectionType.NucleotideV)
+
+def pairedIntersection = intersectionUtil.generatePairedIntersection(sample1, sample2)
 
 def timeCourse = pairedIntersection.asTimeCourse()
 
@@ -74,7 +76,7 @@ println "[${new Date()} $scriptName] Writing output"
 new File(outputFilePrefix + "_summary.txt").withPrintWriter { pw ->
     // summary statistics: intersection size (count, freq and unique clonotypes)
     // count correlation within intersected set
-    pw.println(PairedIntersection.HEADER)
+    pw.println("#" + PairedIntersection.HEADER)
     pw.println(pairedIntersection)
 }
 

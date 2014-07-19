@@ -35,7 +35,7 @@ class Clonotype implements Countable {
     private String key
 
     String getKey() {
-        return key
+        key
     }
 
     final boolean inFrame, isComplete, noStop
@@ -80,6 +80,33 @@ class Clonotype implements Countable {
         throw new UnsupportedOperationException("Don't know how to parse $software data")
     }
 
+    static Clonotype parseSimpleClonotype(String clonotypeString) {
+        def splitString = clonotypeString.split("\t")
+
+        def count = splitString[0].toInteger()
+        def freq = splitString[1].toDouble()
+
+        String cdr1nt = null, cdr2nt = null, cdr3nt, cdr1aa = null, cdr2aa = null, cdr3aa
+        cdr3nt = splitString[2]
+        cdr3aa = splitString[3]
+
+        String v, d, j
+        (v, d, j) = splitString[[4, 5, 6]].collect { it.split(",")[0] + "*01" }
+
+        boolean inFrame = !(cdr3aa.contains("~") || cdr3aa.contains("?")),
+                noStop = !cdr3aa.contains("*"), isComplete = true
+
+        def clonotype = new Clonotype(count, freq,
+                v, d, j,
+                cdr1nt, cdr2nt, cdr3nt,
+                cdr1aa, cdr2aa, cdr3aa,
+                inFrame, noStop, isComplete)
+
+        clonotype.key = [v, cdr3nt].join("_")
+
+        clonotype
+    }
+
     static Clonotype parseMiTcrClonotype(String clonotypeString) {
         def splitString = clonotypeString.split("\t")
 
@@ -121,7 +148,6 @@ class Clonotype implements Countable {
         19
         mutations
          */
-
 
         def splitString = clonotypeString.split("\t")
 
