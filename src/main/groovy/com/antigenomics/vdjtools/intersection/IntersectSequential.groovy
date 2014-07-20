@@ -15,16 +15,20 @@
  */
 package com.antigenomics.vdjtools.intersection
 
+import com.antigenomics.vdjtools.CommonUtil
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleUtil
 
-def cli = new CliBuilder(usage: "IntersectSequence [options] sample1 sample2 sample3 ... output_prefix")
+def cli = new CliBuilder(usage: "IntersectSequential [options] sample1 sample2 sample3 ... output_prefix")
 cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.c(longOpt: "collapse", argName: "int", args: 1,
         "Generate a collapsed overlap table for visualization purposes with a specified number of top clones.")
+cli.m(longOpt: "metadata", argName: "string", args: 1, "Name of tab-delimited metadata file. " +
+        "First column should contain sample names, " +
+        "second column should contain time course name/units in header and time point values as rows")
 cli.p(longOpt: "plot", "Generate a scatterplot to characterize overlapping clonotypes. " +
         "Also generate abundance difference plot if -c option is specified. " +
         "(R installation with ggplot2, grid and gridExtra packages required).")
@@ -43,7 +47,37 @@ def software = Software.byName(opt.S),
     sampleFileNames = opt.arguments()[0..-2],
     outputFilePrefix = opt.arguments()[-1]
 
+if (sampleFileNames.unique().size() != sampleFileNames.size())
+    println "[ERROR] Duplicate samples not allowed"
+
 def scriptName = getClass().canonicalName.split("\\.")[-1]
+
+def label = "sample"
+Map<String, Double> timePointsMap
+if (opt.m) {
+    timePointsMap = new HashMap<>()
+    new File(opt.m.toString()).withReader { reader ->
+        label = reader.readLine().split("\t")[1]
+        def line
+        while ((line = reader.readLine()) != null) {
+            def splitLine = line.split("\t")
+            timePointsMap.put(sampleFileNames.find { it.contains(splitLine[0]) }, splitLine[1].toDouble())
+        }
+    }
+    if (timePointsMap.size() != sampleFileNames.size()) {
+        println "[ERROR] Time points provided (${timePointsMap.values()}) " +
+                "don't match the number of samples (n=${sampleFileNames.size()})"
+    }
+} else {
+    timePointsMap = (0..<sampleFileNames.size()).collectEntries { [(sampleFileNames[it]): it] }
+}
+
+// Sort samples according to time
+
+timePointsMap = timePointsMap.sort { it.value }
+
+sampleFileNames = timePointsMap.collect { it.key }
+def timePoints = timePointsMap.collect { it.value }
 
 //
 // Load samples
@@ -92,8 +126,11 @@ if (opt.c) {
 }
 
 if (opt.p) {
+    // Todo: MDS plot with line or smth else here
 
     if (opt.c) {
-        // TODO: stacked area plot
+        // println timePoints.join(";")
+        CommonUtil.executeR("stack.r", label, timePoints.join(";"),
+                outputFilePrefix + "_table_collapsed.txt", outputFilePrefix + "_stackplot.pdf")
     }
 }

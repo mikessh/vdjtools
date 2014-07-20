@@ -84,9 +84,9 @@ class SampleCollection implements Iterable<Sample> {
             }
         }
 
-        if (metadataHeader[0].startsWith("#"))
-            metadataHeader[0] = metadataHeader[0][1..-1]
-        metadataHeader.add(0, "#sample_id")
+        //if (metadataHeader[0].startsWith("#"))
+        //    metadataHeader[0] = metadataHeader[0][1..-1]
+        //metadataHeader.add(0, "#sample_id")
     }
 
     private Sample loadSample(String sampleId, boolean store) {

@@ -68,20 +68,20 @@ IntersectionType.values().each { IntersectionType intersectionType ->
             println "[${new Date()} $scriptName] " +
                     "Intersected ${counter.incrementAndGet()} of ${pairs.size()} so far\n" +
                     "Last result\n${PairedIntersection.HEADER}\n$pairedIntersection"
-            [pair, pairedIntersection]
+            pairedIntersection
         }
     }
 
     println "[${new Date()} $scriptName] Writing results"
     new File(outputFileName + "_" + intersectionType.shortName + ".txt").withPrintWriter { pw ->
         pw.println("#" +
-                [sampleCollection.metadataHeader.collect { "1_$it" },
-                 sampleCollection.metadataHeader.collect { "2_$it" },
-                 PairedIntersection.HEADER].flatten().join("\t"))
-        results.each {
-            SamplePair samplePair = it[0]
-            PairedIntersection pairedIntersection = it[1]
-            pw.println(samplePair.toString() + "\t" + pairedIntersection.toString())
+                [PairedIntersection.HEADER,
+                 sampleCollection.metadataHeader.collect { "1_$it" },
+                 sampleCollection.metadataHeader.collect { "2_$it" }  ].flatten().join("\t"))
+        results.each { PairedIntersection pairedIntersection ->
+            pw.println(pairedIntersection.toString() + "\t" +
+                    pairedIntersection.sample1.metadata.toString() + "\t" +
+                    pairedIntersection.sample2.metadata.toString())
         }
     }
 }

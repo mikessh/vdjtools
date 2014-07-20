@@ -55,10 +55,10 @@ class Sample implements Iterable<Clonotype> {
         freq ?: (freq = (double) clonotypes.sum { it.freq })
     }
 
-    @Override
-    String toString() {
-        metadata.toString()
-    }
+    //@Override
+    //String toString() {
+    //    metadata.toString()
+    //}
 
     @Override
     boolean equals(o) {

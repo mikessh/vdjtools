@@ -199,7 +199,7 @@ class CommonUtil {
         left + sequence.substring(from, to) + right
     }
 
-    static void executeR(String scriptName, String[] params) {
+    static void executeR(String scriptName, String... params) {
         // Create a temp file to store the script
         def scriptRes = resourceStreamReader("rscripts/$scriptName")
         scriptName = UUID.randomUUID().toString() + "_" + scriptName

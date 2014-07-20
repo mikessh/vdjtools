@@ -24,8 +24,13 @@ class SamplePair {
         this.sample2 = sample2
     }
 
-    @Override
-    String toString() {
-        sample1.toString() + "\t" + sample2.toString()
+    Sample getAt(int index) {
+        switch (index) {
+            case 0:
+                return sample1
+            case 1:
+                return sample2
+        }
+        throw new IllegalArgumentException("Index must be either 0 or 1")
     }
 }

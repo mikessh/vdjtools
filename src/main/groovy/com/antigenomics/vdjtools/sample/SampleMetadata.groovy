@@ -49,6 +49,7 @@ class SampleMetadata {
 
     @Override
     String toString() {
-        [sampleId, entries].flatten().join("\t")
+        //[sampleId, entries].flatten().join("\t")
+        entries.join("\t")
     }
 }

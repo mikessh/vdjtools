@@ -18,6 +18,7 @@ package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.sample.SamplePair
 import com.antigenomics.vdjtools.sample.SampleUtil
 import com.antigenomics.vdjtools.timecourse.DynamicClonotype
 import com.antigenomics.vdjtools.timecourse.TimeCourse
@@ -32,10 +33,10 @@ class PairedIntersection {
     private Double r = null
 
     PairedIntersection(Sample sample1, Sample sample2,
-                             int uniq12,
-                             int count12, int count21,
-                             double freq12, double freq21,
-                             List<Clonotype> clonotypes12, List<Clonotype> clonotypes21) {
+                       int uniq12,
+                       int count12, int count21,
+                       double freq12, double freq21,
+                       List<Clonotype> clonotypes12, List<Clonotype> clonotypes21) {
         this.sample1 = sample1
         this.sample2 = sample2
         this.uniq12 = uniq12
@@ -76,14 +77,16 @@ class PairedIntersection {
     // Print
     //
 
-    final static String HEADER = "clones1\tclones2\tclones12\t" +
+    final static String HEADER = "sample1_id\tsample2_id\t" +
+            "clones1\tclones2\tclones12\t" +
             "count1\tcount2\tcount12\tcount21\t" +
             "freq1\tfreq2\tfreq12\tfreq21\t" +
             "R"
 
     @Override
     String toString() {
-        [sample1.diversity, sample2.diversity, uniq12,
+        [sample1.metadata.sampleId, sample2.metadata.sampleId,
+         sample1.diversity, sample2.diversity, uniq12,
          sample1.count, sample2.count, count12, count21,
          sample1.freq, sample2.freq, freq12, freq21,
          getCorrelation()].join("\t")

@@ -71,11 +71,17 @@ class Clonotype implements Countable {
     }
 
     static Clonotype parseClonotype(String clonotypeString, Software software) {
-        switch (software) {
-            case Software.MiTcr:
-                return parseMiTcrClonotype(clonotypeString)
-            case Software.IgBlast:
-                return parseIgBlastClonotype(clonotypeString)
+        try {
+            switch (software) {
+                case Software.MiTcr:
+                    return parseMiTcrClonotype(clonotypeString)
+                case Software.IgBlast:
+                    return parseIgBlastClonotype(clonotypeString)
+                case Software.Simple:
+                    return parseSimpleClonotype(clonotypeString)
+            }
+        } catch (Exception e) {
+            throw new Exception("Error parsing clonotype from $clonotypeString")
         }
         throw new UnsupportedOperationException("Don't know how to parse $software data")
     }
@@ -91,7 +97,7 @@ class Clonotype implements Countable {
         cdr3aa = splitString[3]
 
         String v, d, j
-        (v, d, j) = splitString[[4, 5, 6]].collect { it.split(",")[0] + "*01" }
+        (v, d, j) = splitString[4..-1].collect { it.split(",")[0] + "*01" }
 
         boolean inFrame = !(cdr3aa.contains("~") || cdr3aa.contains("?")),
                 noStop = !cdr3aa.contains("*"), isComplete = true
