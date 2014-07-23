@@ -17,7 +17,8 @@
 package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.CommonUtil
-import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.RUtil
+import com.antigenomics.vdjtools.system.Software
 import com.antigenomics.vdjtools.sample.SampleUtil
 
 def cli = new CliBuilder(usage: "IntersectPair [options] sample1 sample2 output_prefix")
@@ -121,12 +122,12 @@ if (opt.p) {
     }
     yyFile.deleteOnExit()
 
-    CommonUtil.executeR("scatter_m.r", sample1.metadata.sampleId, sample2.metadata.sampleId,
+    RUtil.execute("intersect_pair_scatter.r", sample1.metadata.sampleId, sample2.metadata.sampleId,
             outputFilePrefix + "_xy.txt", outputFilePrefix + "_xx.txt", outputFilePrefix + "_yy.txt",
             outputFilePrefix + "_scatter.pdf")
 
     if (opt.c) {
-        CommonUtil.executeR("area_pair.r", sample1.metadata.sampleId, sample2.metadata.sampleId,
+        RUtil.execute("intersect_pair_area.r", sample1.metadata.sampleId, sample2.metadata.sampleId,
                 outputFilePrefix + "_table_collapsed.txt", outputFilePrefix + "_difference.pdf")
     }
 }

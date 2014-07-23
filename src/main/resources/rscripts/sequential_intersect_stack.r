@@ -60,13 +60,13 @@ plot.stacked <- function(
  
 	if(order.method == "max") {
 		ord <- order(apply(y, 2, which.max))
-		y <- y[, ord]
+		#y <- y[, ord]
 		col <- col[ord]
 	}
  
 	if(order.method == "first") {
 		ord <- order(apply(y, 2, function(r) min(which(r>0))))
-		y <- y[, ord]
+		#y <- y[, ord]
 		col <- col[ord]
 	}
  
@@ -79,17 +79,17 @@ plot.stacked <- function(
 	}
  
 	if(is.null(ylim)) ylim <- range(sapply(polys, function(x) range(x$y, na.rm=TRUE)), na.rm=TRUE)
-	plot(x,y[,1], ylab=ylab, xlab=xlab, ylim=ylim, t="n", ...)
+	plot(x,y[,1], ylab=ylab, xlab=xlab, ylim=ylim, t="n", xaxt = "n", ...)
 	for(i in seq(polys)){
 		polygon(polys[[i]],  col=col[i], lwd=lwd[i], border=NA)
 	}
- 
+    axis(side = 1, at = x)
 }
 
 # draw
 
 pdf(file_out)
 
-plot.stacked(x, y, xlab=label, ylab="abundance")
+plot.stacked(x, y, xlab=label, order.method = "max", ylab="abundance")
 
 dev.off()

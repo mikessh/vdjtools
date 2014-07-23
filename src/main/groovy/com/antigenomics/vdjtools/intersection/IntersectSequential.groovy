@@ -15,10 +15,10 @@
  */
 package com.antigenomics.vdjtools.intersection
 
-import com.antigenomics.vdjtools.CommonUtil
-import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.RUtil
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleUtil
+import com.antigenomics.vdjtools.system.Software
 
 def cli = new CliBuilder(usage: "IntersectSequential [options] sample1 sample2 sample3 ... output_prefix")
 cli.h("display help message")
@@ -95,6 +95,8 @@ println "[${new Date()} $scriptName] Intersecting"
 
 def sequentialIntersection = new SequentialIntersection(samples, IntersectionType.NucleotideV)
 
+sequentialIntersection.buildAllIntersectionsLazy() // required later
+
 def timeCourse = sequentialIntersection.asTimeCourse()
 
 //
@@ -126,11 +128,41 @@ if (opt.c) {
 }
 
 if (opt.p) {
-    // Todo: MDS plot with line or smth else here
+    def inputF = sequentialIntersection.buildIntersectMatrix(IntersectMetric.Frequency),
+        inputD = sequentialIntersection.buildIntersectMatrix(IntersectMetric.Diversity),
+        inputR = sequentialIntersection.buildIntersectMatrix(IntersectMetric.Correlation)
+
+    def procTable = { double[][] table ->
+        def flatTable = table.collect { it.collect() }.flatten().findAll { it > 0 }
+        def min = 0, max = 1
+        if (flatTable.size() > 0) {
+            min = flatTable.min()
+            max = flatTable.max()
+        } else {
+            // should not happen, but who knows
+        }
+
+        table.collect { double[] row ->
+            row.collect {
+                def x = (it - min) / (max - min)
+                x < 0 ? "NA" : x
+            }.join("\t")
+        }.join("\n")
+
+    }
+
+    RUtil.execute("sequential_intersect_heatmap.r",
+            procTable(inputF),
+            procTable(inputD),
+            procTable(inputR),
+            timePoints.join(";"),
+            outputFilePrefix + "_heatmap.pdf")
 
     if (opt.c) {
-        // println timePoints.join(";")
-        CommonUtil.executeR("stack.r", label, timePoints.join(";"),
-                outputFilePrefix + "_table_collapsed.txt", outputFilePrefix + "_stackplot.pdf")
+        RUtil.execute("sequential_intersect_stack.r",
+                label,
+                timePoints.join(";"),
+                outputFilePrefix + "_table_collapsed.txt",
+                outputFilePrefix + "_stackplot.pdf")
     }
 }

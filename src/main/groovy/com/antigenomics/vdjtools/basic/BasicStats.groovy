@@ -54,7 +54,7 @@ class BasicStats {
     }
 
     int getDiversity() {
-        sample.diversity
+        sample.div
     }
 
     int getDiversityCDR3() {

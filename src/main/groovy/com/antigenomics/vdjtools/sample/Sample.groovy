@@ -35,7 +35,7 @@ class Sample implements Iterable<Clonotype> {
         new Sample(metadata, clonotypes.sort { -it.freq }.subList(0, numberOfClonotypes - 1))
     }
 
-    int getDiversity() {
+    int getDiv() {
         clonotypes.size()
     }
 

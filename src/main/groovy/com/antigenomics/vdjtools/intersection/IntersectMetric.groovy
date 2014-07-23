@@ -14,12 +14,18 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools
+package com.antigenomics.vdjtools.intersection
 
-class PrintUtil {
-    static final String CLONOTYPE_HEADER = "cdr3aa\tcdr3nt\tv\td\tj"
+enum IntersectMetric {
+    Correlation("R"), Diversity("D"), Frequency("F")
 
-    static String processClonotype(Clonotype clonotype) {
-        [clonotype.cdr3aa, clonotype.cdr3nt, clonotype.v, clonotype.d, clonotype.j].join("\t")
+    private final String name
+
+    IntersectMetric(String name) {
+        this.name = name
+    }
+
+    double value(PairedIntersection pairedIntersection) {
+        pairedIntersection."norm$name"
     }
 }

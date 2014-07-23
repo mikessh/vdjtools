@@ -18,6 +18,7 @@ package com.antigenomics.vdjtools
 
 import com.antigenomics.vdjtools.segment.SegmentData
 import com.antigenomics.vdjtools.segment.VSegmentTable
+import com.antigenomics.vdjtools.system.Software
 
 class Clonotype implements Countable {
     VSegmentTable parentVSegmentTable = null

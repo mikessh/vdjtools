@@ -198,34 +198,4 @@ class CommonUtil {
 
         left + sequence.substring(from, to) + right
     }
-
-    static void executeR(String scriptName, String... params) {
-        // Create a temp file to store the script
-        def scriptRes = resourceStreamReader("rscripts/$scriptName")
-        scriptName = UUID.randomUUID().toString() + "_" + scriptName
-
-        def scriptFile = new File(scriptName)
-
-        scriptFile.withPrintWriter { pw ->
-            scriptRes.readLines().each {
-                pw.println(it)
-            }
-        }
-
-        scriptFile.deleteOnExit()
-
-        // Run script
-        def proc = ["Rscript", scriptName, params].flatten().execute()
-
-        proc.in.eachLine {
-            println(it)
-        }
-
-        proc.out.close()
-        proc.waitFor()
-
-        if (proc.exitValue()) {
-            println "[ERROR] ${proc.getErrorStream()}"
-        }
-    }
 }

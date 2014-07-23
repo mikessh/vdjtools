@@ -26,7 +26,9 @@ import com.antigenomics.vdjtools.timecourse.TimeCourse
 class SequentialIntersection {
     private final Sample[] samples
     private final PairedIntersection[] pairedIntersections
+    private final PairedIntersection[][] pairedIntersectionsMat
     private final IntersectionUtil intersectionUtil
+    private boolean allIntersectionsBuilt = false
 
     SequentialIntersection(Sample[] samples, IntersectionType intersectionType) {
         if (samples.size() < 3)
@@ -38,6 +40,38 @@ class SequentialIntersection {
         this.pairedIntersections = (0..(samples.length - 2)).collect { int i ->
             intersectionUtil.generatePairedIntersection(samples[i], samples[i + 1])
         } as PairedIntersection[]
+
+        this.pairedIntersectionsMat = new PairedIntersection[samples.size()][samples.size()]
+    }
+
+    double[][] buildIntersectMatrix(IntersectMetric metric) {
+        buildAllIntersectionsLazy()
+
+        def matrix = new double[samples.length][samples.length]
+
+        for (int i = 0; i < samples.length; i++) {
+            matrix[i][i] = -1 // mask
+
+            for (int j = i + 1; j < samples.length; j++) {
+                matrix[i][j] = metric.value(pairedIntersectionsMat[i][j])
+                matrix[j][i] = matrix[i][j]
+            }
+        }
+
+        matrix
+    }
+
+    void buildAllIntersectionsLazy() {
+        if (!allIntersectionsBuilt) {
+            for (int i = 0; i < samples.length - 1; i++) {
+                pairedIntersectionsMat[i][i + 1] = pairedIntersections[i]
+
+                for (int j = i + 2; j < samples.length; j++) {
+                    pairedIntersectionsMat[i][j] = intersectionUtil.generatePairedIntersection(samples[i], samples[j])
+                }
+            }
+            allIntersectionsBuilt = true
+        }
     }
 
     TimeCourse asTimeCourse() {
@@ -60,6 +94,30 @@ class SequentialIntersection {
     }
 
     static final String HEADER = PairedIntersection.HEADER
+
+    /*
+    private double[] cumulative(String prop) {
+        def d = 0
+        def res = [0, pairedIntersections.collect {
+            def dd = 1 - it."$prop"
+            d += dd
+        }].flatten()
+
+        res.collect { it / d } as double[]
+    }
+
+    double[] getCumulativeF() {
+        cumulative("f")
+    }
+
+    double[] getCumulativeD() {
+        cumulative("d")
+    }
+
+    double[] getCumulativeR() {
+        cumulative("r")
+    } */
+
 
     @Override
     String toString() {

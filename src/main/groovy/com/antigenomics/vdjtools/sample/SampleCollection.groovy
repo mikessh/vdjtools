@@ -17,7 +17,7 @@
 package com.antigenomics.vdjtools.sample
 
 import com.antigenomics.vdjtools.Clonotype
-import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.system.Software
 import com.antigenomics.vdjtools.CommonUtil
 
 class SampleCollection implements Iterable<Sample> {

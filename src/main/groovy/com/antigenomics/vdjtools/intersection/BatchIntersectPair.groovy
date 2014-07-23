@@ -17,7 +17,7 @@
 package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.CommonUtil
-import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.system.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.SamplePair
 import groovyx.gpars.GParsPool

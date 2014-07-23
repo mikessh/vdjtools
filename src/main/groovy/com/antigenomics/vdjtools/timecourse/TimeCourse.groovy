@@ -21,6 +21,7 @@ import com.antigenomics.vdjtools.sample.Sample
 class TimeCourse implements Iterable<DynamicClonotype> {
     final Sample[] samples
     private final List<DynamicClonotype> clonotypes
+
     private boolean sorted = false
 
     TimeCourse(Sample[] samples, Collection<DynamicClonotype> clonotypes) {

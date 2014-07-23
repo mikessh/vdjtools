@@ -49,7 +49,7 @@ class DynamicClonotype implements ClonotypeWrapper {
 
     /**
      * Gets the vector of clonotype frequencies.
-     * Missing and zero-frequency clonotypes are replaced by JITTER values.
+     * Missing clonotypes are replaced by 0 values.
      * @return vector of clonotype frequencies
      */
     double[] getFrequencies() {
@@ -75,7 +75,7 @@ class DynamicClonotype implements ClonotypeWrapper {
      */
     double getMeanFrequency() {
         double meanFreq = 1
-        instances.each { meanFreq *= frequency(it) }
+        instances.each { meanFreq *= (frequency(it) + JITTER) }
         Math.pow(meanFreq, 1.0 / instances.size())
     }
 
@@ -84,7 +84,7 @@ class DynamicClonotype implements ClonotypeWrapper {
     }
 
     private static double frequency(Clonotype clonotype) {
-        present(clonotype) ? clonotype.freq : JITTER
+        present(clonotype) ? clonotype.freq : 0
     }
 
     static final List<String> PRINT_FIELDS = ["cdr3aa", "cdr3nt",
