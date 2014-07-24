@@ -86,11 +86,11 @@ class IntersectionUtil {
             if (other != null) {
                 clones12++
 
-                count12 += it.clonotype.count
-                freq12 += it.clonotype.freq
+                count21 += it.clonotype.count
+                freq21 += it.clonotype.freq
 
-                count21 += other.clonotype.count
-                freq21 += other.clonotype.freq
+                count12 += other.clonotype.count
+                freq12 += other.clonotype.freq
 
                 x.add(Math.log10(it.clonotype.freq))
                 y.add(Math.log10(other.clonotype.freq))
