@@ -76,7 +76,7 @@ class PairedIntersection {
      * @return normalized diversity
      */
     double getD() {
-        div12 / Math.sqrt((double)div1 * (double)div2)
+        div12 / Math.sqrt((double) div1 * (double) div2)
     }
 
     double getNormD() {
@@ -131,8 +131,8 @@ class PairedIntersection {
     final static String HEADER = "sample1_id\tsample2_id\t" +
             "div1\tdiv2\tdiv12\t" +
             "count1\tcount2\tcount12\tcount21\t" +
-            "freq1\tfreq2\tfreq12\tfreq21\t" +
-            "R"
+            "freq1\tfreq2\tfreq12\t" +
+            "F\tD\tR"
 
     @Override
     String toString() {
@@ -140,6 +140,6 @@ class PairedIntersection {
          div1, div2, div12,
          count1, count2, count12, count21,
          freq1, freq2, freq12, freq21,
-         getR()].join("\t")
+         getNormF(), getNormD(), getNormR()].join("\t")
     }
 }

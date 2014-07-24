@@ -59,18 +59,10 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
 IntersectionType.values().each { IntersectionType intersectionType ->
     println "[${new Date()} $scriptName] Intersecting by $intersectionType"
-    def intersectionUtil = new IntersectionUtil(intersectionType)
-    def pairs = sampleCollection.listPairs(), results
-    def counter = new AtomicInteger()
-    GParsPool.withPool CommonUtil.THREADS, {
-        results = pairs.collectParallel { SamplePair pair ->
-            def pairedIntersection = intersectionUtil.generatePairedIntersection(pair, false)
-            println "[${new Date()} $scriptName] " +
-                    "Intersected ${counter.incrementAndGet()} of ${pairs.size()} so far\n" +
-                    "Last result\n${PairedIntersection.HEADER}\n$pairedIntersection"
-            pairedIntersection
-        }
-    }
+
+    def pairedIntersectionBatch = new PairedIntersectionBatch(sampleCollection, intersectionType)
+
+    def results = pairedIntersectionBatch.run()
 
     println "[${new Date()} $scriptName] Writing results"
     new File(outputFileName + "_" + intersectionType.shortName + ".txt").withPrintWriter { pw ->
@@ -78,6 +70,7 @@ IntersectionType.values().each { IntersectionType intersectionType ->
                 [PairedIntersection.HEADER,
                  sampleCollection.metadataHeader.collect { "1_$it" },
                  sampleCollection.metadataHeader.collect { "2_$it" }  ].flatten().join("\t"))
+
         results.each { PairedIntersection pairedIntersection ->
             pw.println(pairedIntersection.toString() + "\t" +
                     pairedIntersection.sample1.metadata.toString() + "\t" +
