@@ -20,6 +20,7 @@ import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.ClonotypeWrapper
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SamplePair
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 class IntersectionUtil {
@@ -67,7 +68,7 @@ class IntersectionUtil {
 
         (_sample1, _sample2) = flip ? [wrappedSample2, wrappedSample1] : [wrappedSample1, wrappedSample2]
 
-        double freq12 = 0, freq21 = 0
+        double freq12 = 0, freq21 = 0, r = 0
         int count12 = 0, count21 = 0, clones12 = 0
 
         _sample1.each {
@@ -76,6 +77,8 @@ class IntersectionUtil {
 
         final List<Clonotype> clonotypes12 = new ArrayList<>(),
                               clonotypes21 = new ArrayList<>()
+
+        final List<Double> x = new ArrayList<>(), y = new ArrayList<>()
 
         _sample2.each {
             def other = intersection[it]
@@ -89,6 +92,9 @@ class IntersectionUtil {
                 count21 += other.clonotype.count
                 freq21 += other.clonotype.freq
 
+                x.add(Math.log10(it.clonotype.freq))
+                y.add(Math.log10(other.clonotype.freq))
+
                 if (storeIntersectedList) {
                     clonotypes12.add(other.clonotype)
                     clonotypes21.add(it.clonotype)
@@ -96,18 +102,20 @@ class IntersectionUtil {
             }
         }
 
+        r = x.size() > 2 ? new PearsonsCorrelation().correlation(x as double[], y as double[]) : Double.NaN
+
         flip ? new PairedIntersection(
                 sample1, sample2,
                 clones12,
                 count21, count12,
-                freq21, freq12,
+                freq21, freq12, r,
                 clonotypes21, clonotypes12)
                 :
                 new PairedIntersection(
                         sample1, sample2,
                         clones12,
                         count12, count21,
-                        freq12, freq21,
+                        freq12, freq21, r,
                         clonotypes12, clonotypes21)
     }
 

@@ -18,7 +18,6 @@ package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
-import com.antigenomics.vdjtools.sample.SampleUtil
 import com.antigenomics.vdjtools.timecourse.DynamicClonotype
 import com.antigenomics.vdjtools.timecourse.TimeCourse
 
@@ -29,11 +28,11 @@ class PairedIntersection {
     final double freq12, freq21
 
     private final List<Clonotype> clonotypes12, clonotypes21
-    private Double r = null
+    private final double r
 
     PairedIntersection(Sample sample1, Sample sample2,
                        int div12, int count12, int count21,
-                       double freq12, double freq21,
+                       double freq12, double freq21, double r,
                        List<Clonotype> clonotypes12, List<Clonotype> clonotypes21) {
         this.sample1 = sample1
         this.sample2 = sample2
@@ -42,6 +41,7 @@ class PairedIntersection {
         this.count21 = count21
         this.freq12 = freq12
         this.freq21 = freq21
+        this.r = r
         this.clonotypes12 = clonotypes12
         this.clonotypes21 = clonotypes21
     }
@@ -51,12 +51,13 @@ class PairedIntersection {
      * @return correlation
      */
     double getR() {
+        r
         // lazy compute
-        r ?: (r = SampleUtil.correlation(clonotypes12, clonotypes21))
+        //r ?: (r = SampleUtil.correlation(clonotypes12, clonotypes21))
     }
 
     double getNormR() {
-        (1 + getR()) / 2
+        (1 + r) / 2
     }
 
     /**
@@ -128,10 +129,10 @@ class PairedIntersection {
     // Print
     //
 
-    final static String HEADER = "sample1_id\tsample2_id\t" +
+    final static String HEADER = "1_sample_id\t2_sample_id\t" +
             "div1\tdiv2\tdiv12\t" +
             "count1\tcount2\tcount12\tcount21\t" +
-            "freq1\tfreq2\tfreq12\t" +
+            "freq1\tfreq2\tfreq12\tfreq21\t" +
             "F\tD\tR"
 
     @Override

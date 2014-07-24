@@ -17,8 +17,8 @@
 package com.antigenomics.vdjtools.sample
 
 import com.antigenomics.vdjtools.Clonotype
-import com.antigenomics.vdjtools.system.Software
 import com.antigenomics.vdjtools.CommonUtil
+import com.antigenomics.vdjtools.system.Software
 
 class SampleCollection implements Iterable<Sample> {
     private final Map<String, Sample> sampleMap = new HashMap<>()
@@ -42,7 +42,8 @@ class SampleCollection implements Iterable<Sample> {
             while ((line = reader.readLine()) != null) {
                 splitLine = line.split("\t")
                 String fileName = splitLine[0], sampleId = splitLine[1]
-                def entries = splitLine[2..-1]
+
+                def entries = splitLine.length > 2 ? splitLine[2..-1] : []
 
                 if (entries.size() != metadataHeader.size())
                     throw new Exception("Different number of entries in metadata header and sample $sampleId")

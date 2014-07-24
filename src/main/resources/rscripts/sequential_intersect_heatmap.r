@@ -8,17 +8,17 @@ inputR  <- args[3]
 points  <- args[4]
 file_out  <- args[5]
 
-fileConn<-file("debugF.txt")
-writeLines(inputF, fileConn)
-close(fileConn)
+#fileConn<-file("debugF.txt")
+#writeLines(inputF, fileConn)
+#close(fileConn)
 
-fileConn<-file("debugD.txt")
-writeLines(inputD, fileConn)
-close(fileConn)
+#fileConn<-file("debugD.txt")
+#writeLines(inputD, fileConn)
+#close(fileConn)
 
-fileConn<-file("debugR.txt")
-writeLines(inputR, fileConn)
-close(fileConn)
+#fileConn<-file("debugR.txt")
+#writeLines(inputR, fileConn)
+#close(fileConn)
 
 # preprocess data
 
