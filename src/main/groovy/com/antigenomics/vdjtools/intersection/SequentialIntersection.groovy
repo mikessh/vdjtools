@@ -44,17 +44,48 @@ class SequentialIntersection {
         this.pairedIntersectionsMat = new PairedIntersection[samples.size()][samples.size()]
     }
 
+    /**
+     * Builds a symmetric intersection matrix using provided metric.
+     * Diagonal elements are masked with NaNs.
+     * @param metric metric to characterize the degree of intersection between sample pair
+     * @return symmetric intersection matrix
+     */
     double[][] buildIntersectMatrix(IntersectMetric metric) {
         buildAllIntersectionsLazy()
 
         def matrix = new double[samples.length][samples.length]
 
         for (int i = 0; i < samples.length; i++) {
-            matrix[i][i] = -1 // mask
+            matrix[i][i] = Double.NaN
 
             for (int j = i + 1; j < samples.length; j++) {
                 matrix[i][j] = metric.value(pairedIntersectionsMat[i][j])
                 matrix[j][i] = matrix[i][j]
+            }
+        }
+
+        matrix
+    }
+
+    /**
+     * Builds a non-symmetric intersection frequency matrix,
+     * where (i,j) and (j,i) elements corresponds to frequency of (i,j) overlapping clonotypes
+     * in i-th and j-th samples respectively. Could not formally be used as metric, see
+     * buildIntersectMatrix.
+     * Diagonal elements are masked with NaNs.
+     * @return non-symmetric intersection matrix
+     */
+    double[][] buildIntersectFrequencyMatrix() {
+        buildAllIntersectionsLazy()
+
+        def matrix = new double[samples.length][samples.length]
+
+        for (int i = 0; i < samples.length; i++) {
+            matrix[i][i] = Double.NaN
+
+            for (int j = i + 1; j < samples.length; j++) {
+                matrix[i][j] = pairedIntersectionsMat[i][j].freq12
+                matrix[j][i] = pairedIntersectionsMat[i][j].freq21
             }
         }
 

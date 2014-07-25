@@ -18,29 +18,36 @@ package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.sample.SamplePair
 import com.antigenomics.vdjtools.timecourse.DynamicClonotype
 import com.antigenomics.vdjtools.timecourse.TimeCourse
 
 class PairedIntersection {
-    final Sample sample1, sample2
+    final SamplePair parent
 
     final int div12, count12, count21
-    final double freq12, freq21
+    final double freq12, freq21, freq12e, freq21e, freq12p, freq21p
 
     private final List<Clonotype> clonotypes12, clonotypes21
     private final double r
 
-    PairedIntersection(Sample sample1, Sample sample2,
+    PairedIntersection(SamplePair parent,
                        int div12, int count12, int count21,
-                       double freq12, double freq21, double r,
+                       double freq12, double freq21,
+                       double freq12e, double freq21e,
+                       double freq12p, double freq21p,
+                       double r,
                        List<Clonotype> clonotypes12, List<Clonotype> clonotypes21) {
-        this.sample1 = sample1
-        this.sample2 = sample2
+        this.parent = parent
         this.div12 = div12
         this.count12 = count12
         this.count21 = count21
         this.freq12 = freq12
         this.freq21 = freq21
+        this.freq12e = freq12e
+        this.freq21e = freq21e
+        this.freq12p = freq12p
+        this.freq21p = freq21p
         this.r = r
         this.clonotypes12 = clonotypes12
         this.clonotypes21 = clonotypes21
@@ -101,6 +108,14 @@ class PairedIntersection {
         return clonotypes21
     }
 
+    Sample getSample1() {
+        parent.sample1
+    }
+
+    Sample getSample2() {
+        parent.sample2
+    }
+
     int getDiv1() {
         sample1.div
     }
@@ -133,6 +148,7 @@ class PairedIntersection {
             "div1\tdiv2\tdiv12\t" +
             "count1\tcount2\tcount12\tcount21\t" +
             "freq1\tfreq2\tfreq12\tfreq21\t" +
+            "freq12e\tfreq21e\tfreq12p\tfreq21p\t" +
             "F\tD\tR"
 
     @Override
@@ -141,6 +157,7 @@ class PairedIntersection {
          div1, div2, div12,
          count1, count2, count12, count21,
          freq1, freq2, freq12, freq21,
+         freq12e, freq21e, freq12p, freq21p,
          getNormF(), getNormD(), getNormR()].join("\t")
     }
 }

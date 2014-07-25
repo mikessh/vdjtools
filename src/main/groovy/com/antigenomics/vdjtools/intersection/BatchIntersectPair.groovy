@@ -16,16 +16,15 @@
 
 package com.antigenomics.vdjtools.intersection
 
-import com.antigenomics.vdjtools.CommonUtil
-import com.antigenomics.vdjtools.system.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.sample.SamplePair
-import groovyx.gpars.GParsPool
-
-import java.util.concurrent.atomic.AtomicInteger
+import com.antigenomics.vdjtools.system.Software
 
 def cli = new CliBuilder(usage: "BatchIntersectPair [options] sample_metadata_file output_prefix")
 cli.h("display help message")
+cli.I(longOpt: "intersect-type", argName: "string1,string2,..", args: 1,
+        "Comma-separated list of intersection types to apply. " +
+                "Allowed values: $IntersectionType.allowedNames. " +
+                "Will use '$IntersectionType.AminoAcid.shortName' by default.")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 
@@ -43,6 +42,22 @@ def software = Software.byName(opt.S), inputFileName = opt.arguments()[0], outpu
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
+def intersectionTypes
+
+if (opt.I) {
+    intersectionTypes = (opt.I as String).split(",").collect {
+        def shortName = it.trim()
+        def intersectionType = IntersectionType.byName(shortName)
+        if (!intersectionType) {
+            println "[ERROR] Bad intersection type specified ($shortName). " +
+                    "Allowed values are: $IntersectionType.allowedNames"
+            System.exit(-1)
+        }
+    }
+} else {
+    intersectionTypes = [IntersectionType.AminoAcid]
+}
+
 //
 // Batch load all samples
 //
@@ -57,7 +72,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 // Do intersection in parallel
 //
 
-IntersectionType.values().each { IntersectionType intersectionType ->
+intersectionTypes.each { IntersectionType intersectionType ->
     println "[${new Date()} $scriptName] Intersecting by $intersectionType"
 
     def pairedIntersectionBatch = new PairedIntersectionBatch(sampleCollection, intersectionType)
@@ -69,7 +84,7 @@ IntersectionType.values().each { IntersectionType intersectionType ->
         pw.println("#" +
                 [PairedIntersection.HEADER,
                  sampleCollection.metadataHeader.collect { "1_$it" },
-                 sampleCollection.metadataHeader.collect { "2_$it" }  ].flatten().join("\t"))
+                 sampleCollection.metadataHeader.collect { "2_$it" }].flatten().join("\t"))
 
         results.each { PairedIntersection pairedIntersection ->
             pw.println(pairedIntersection.toString() + "\t" +

@@ -33,7 +33,7 @@ class PairedIntersectionBatch {
     }
 
     List<PairedIntersection> run() {
-        def pairs =  sampleCollection.listPairs()
+        def pairs = sampleCollection.listPairs()
         def counter = new AtomicInteger()
 
         GParsPool.withPool CommonUtil.THREADS, {

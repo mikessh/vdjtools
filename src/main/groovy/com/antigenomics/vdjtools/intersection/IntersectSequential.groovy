@@ -24,6 +24,7 @@ def cli = new CliBuilder(usage: "IntersectSequential [options] sample1 sample2 s
 cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
+cli.a("Will compare all samples (time-consuming) in order to build intersection heatmaps.")
 cli.c(longOpt: "collapse", argName: "int", args: 1,
         "Generate a collapsed overlap table for visualization purposes with a specified number of top clones.")
 cli.m(longOpt: "metadata", argName: "string", args: 1, "Name of tab-delimited metadata file. " +
@@ -43,7 +44,7 @@ if (opt.h || opt.arguments().size() < 4) {
     System.exit(-1)
 }
 
-def software = Software.byName(opt.S),
+def software = Software.byName(opt.S), allSamples = opt.a,
     sampleFileNames = opt.arguments()[0..-2],
     outputFilePrefix = opt.arguments()[-1]
 
@@ -128,12 +129,12 @@ if (opt.c) {
 }
 
 if (opt.p) {
-    def inputF = sequentialIntersection.buildIntersectMatrix(IntersectMetric.Frequency),
+    def inputF = sequentialIntersection.buildIntersectFrequencyMatrix(),
         inputD = sequentialIntersection.buildIntersectMatrix(IntersectMetric.Diversity),
         inputR = sequentialIntersection.buildIntersectMatrix(IntersectMetric.Correlation)
 
     def procTable = { double[][] table ->
-        def flatTable = table.collect { it.collect() }.flatten().findAll { it > 0 }
+        def flatTable = table.collect { it.collect() }.flatten().findAll { !Double.isNaN(it) }
         def min = 0, max = 1
         if (flatTable.size() > 0) {
             min = flatTable.min()
@@ -145,7 +146,7 @@ if (opt.p) {
         table.collect { double[] row ->
             row.collect {
                 def x = (it - min) / (max - min)
-                x < 0 ? "NA" : x
+                Double.isNaN(x) ? "NA" : x
             }.join("\t")
         }.join("\n")
 

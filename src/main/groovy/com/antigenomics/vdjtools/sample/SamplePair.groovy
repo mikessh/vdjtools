@@ -18,10 +18,17 @@ package com.antigenomics.vdjtools.sample
 
 class SamplePair {
     final Sample sample1, sample2
+    final int i, j
 
-    SamplePair(Sample sample1, Sample sample2) {
+    SamplePair(Sample sample1, Sample sample2, int i, int j) {
         this.sample1 = sample1
         this.sample2 = sample2
+        this.i = i
+        this.j = j
+    }
+
+    SamplePair(Sample sample1, Sample sample2) {
+        this(sample1, sample2, 0, 1)
     }
 
     Sample getAt(int index) {

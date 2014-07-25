@@ -13,14 +13,6 @@ lbl_col2_index    = as.integer(args[8])  #12 #
 file_out_hc       = args[9]
 file_out_mds      = args[10]
 
-fileConn<-file("debug_cmd.txt")
-writeLines(c(file_in,
-id_col1_index, id_col2_index,
-measure_col_index,
-factor_col1_index, factor_col2_index,
-lbl_col1_index, lbl_col2_index), fileConn)
-close(fileConn)
-
 color_by_factor <- TRUE
 
 if(factor_col1_index < 1) {
@@ -41,11 +33,6 @@ require(ape); require(reshape); require(MASS)
 tbl  <- read.delim(file_in)
 df   <- data.frame(tbl)
 
-
-fileConn<-file("debug_data_cols.txt")
-writeLines(colnames(df), fileConn)
-close(fileConn)
-
 # Split tables to protect from column overlap
 # Also rename them
 # all this stuff is done as R re-formats column names
@@ -62,17 +49,10 @@ df <- data.frame(
     measure_col = sapply(df[, measure_col_index], as.numeric)
     )
 
-
-fileConn<-file("debug_data_cols_new.txt")
-writeLines(typeof(df["measure_col"]), fileConn)
-close(fileConn)
-
 ## Auxillary table
 
 # trick as we need both columns to get all the data on a factor
 # due to the fact that the output is upper triangle of intersection matrix
-
-write.table(df.aux, file = "debug_aux.txt")
 
 aux        <- unique(df.aux[c("id_col2", "factor_col2", "lbl_col2")])
 names(aux) <- names(df.aux[c("id_col1", "factor_col1", "lbl_col1")])
@@ -106,14 +86,7 @@ df.2 <- df
 df.2[c("id_col1", "id_col2")] <- df.2[c("id_col2", "id_col1")]
 df.sym <- rbind(df, df.2)
 df.m <- cast(df.sym, id_col1 ~ id_col2, mean, value = "measure_col")
-
-write.matrix(df.m, file = "debug_m_dist.txt")
-
 df.d <- dist(df.m)
-
-
-write.matrix(df.d, file = "debug_dist.txt")
-
 
 ## HCL
 

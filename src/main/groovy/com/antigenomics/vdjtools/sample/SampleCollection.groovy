@@ -123,7 +123,7 @@ class SampleCollection implements Iterable<Sample> {
 
         for (int i = 0; i < sampleMap.values().size(); i++)
             for (int j = i + 1; j < sampleMap.values().size(); j++)
-                samplePairs.add(new SamplePair(sampleMap.values()[i], sampleMap.values()[j]))
+                samplePairs.add(new SamplePair(sampleMap.values()[i], sampleMap.values()[j], i, j))
 
         samplePairs
     }

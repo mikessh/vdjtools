@@ -16,9 +16,6 @@
 
 package com.antigenomics.vdjtools.intersection
 
-import com.antigenomics.vdjtools.Clonotype
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
-
 enum IntersectionType {
     NucleotideV("ntV"), Nucleotide("nt"), AminoAcid("aa"), AminoAcidNonNucleotide("aa!nt")
 
@@ -27,4 +24,10 @@ enum IntersectionType {
     IntersectionType(String shortName) {
         this.shortName = shortName
     }
+
+    static IntersectionType byName(String shortName) {
+        values().find { it.shortName == shortName }
+    }
+
+    static String allowedNames = values().collect { it.shortName }.join(",")
 }
