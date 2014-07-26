@@ -68,7 +68,7 @@ class TimeCourse implements Iterable<DynamicClonotype> {
     }
 
     String getHeader() {
-        [DynamicClonotype.PRINT_FIELDS, samples.collect { it.metadata.sampleId }].flatten().join("\t")
+        [DynamicClonotype.PRINT_FIELDS, "peak", samples.collect { it.metadata.sampleId }].flatten().join("\t")
     }
 
     void print(PrintWriter pw, boolean addHeader) {
@@ -78,7 +78,7 @@ class TimeCourse implements Iterable<DynamicClonotype> {
             pw.println(header)
 
         clonotypes.each {
-            pw.println(it.toString() + "\t" + it.frequencies.collect().join("\t"))
+            pw.println(it.toString() + "\t" + it.peak + "\t" + it.frequencies.collect().join("\t"))
         }
     }
 

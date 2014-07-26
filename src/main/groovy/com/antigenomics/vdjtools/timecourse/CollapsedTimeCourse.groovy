@@ -38,11 +38,11 @@ class CollapsedTimeCourse extends TimeCourse {
 
         pw.println(DynamicClonotype.PRINT_FIELDS.collect {
             "Not-shown"
-        }.join("\t") + "\t" + lowerFrequency.collect().join("\t"))
+        }.join("\t") + "\t-1\t" + lowerFrequency.collect().join("\t"))
 
 
         pw.println(DynamicClonotype.PRINT_FIELDS.collect {
             "Non-overlapping"
-        }.join("\t") + "\t" + remainingFrequency.collect().join("\t"))
+        }.join("\t") + "\t-2\t" + remainingFrequency.collect().join("\t"))
     }
 }

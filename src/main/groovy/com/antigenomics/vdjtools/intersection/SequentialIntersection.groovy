@@ -91,7 +91,7 @@ class SequentialIntersection {
 
     @Override
     String toString() {
-        "Samples=" + samples.join(",")
+        "Samples=" + samples.collect { it.metadata.sampleId }.join(",")
     }
 
     void print(PrintWriter pw, boolean includeHeader) {

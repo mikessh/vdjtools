@@ -65,10 +65,10 @@ class PairedIntersectionMatrix {
     }
 
     /**
-     * Builds a non-symmetric intersection frequency matrix,
-     * where (i,j) and (j,i) elements corresponds to frequency of (i,j) overlapping clonotypes
-     * in i-th and j-th samples respectively. Could not formally be used as metric, see
-     * buildIntersectMatrix.
+     * Builds an frequency matrix, where (i,j) and (j,i) elements corresponds to
+     * frequency of (i,j) overlapping clonotypes in i-th and j-th samples respectively.
+     * The resulting matrix is non-symmetric, and thus formally can't be used as metric,
+     * see buildIntersectMatrix.
      * Diagonal elements are masked with NaNs.
      * @return non-symmetric intersection matrix
      */
@@ -79,8 +79,8 @@ class PairedIntersectionMatrix {
             matrix[i][i] = Double.NaN
 
             for (int j = i + 1; j < n; j++) {
-                matrix[i][j] = intersectionMatrix[i][j].freq12
-                matrix[j][i] = intersectionMatrix[i][j].freq21
+                matrix[i][j] = intersectionMatrix[i][j].freq12 // intersectionMatrix[i][j].freq12e
+                matrix[j][i] = intersectionMatrix[i][j].freq21 // intersectionMatrix[i][j].freq21e
             }
         }
 

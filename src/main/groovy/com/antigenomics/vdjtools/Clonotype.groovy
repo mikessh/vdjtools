@@ -98,10 +98,7 @@ class Clonotype implements Countable {
         cdr3aa = splitString[3]
 
         String v, d, j
-        (v, d, j) = splitString[4..-1].collect {
-            def major =it.split(",")[0]
-            major.length() > 0 ? major + "*01" : ""
-        }
+        (v, d, j) = extractVDJ(splitString[4..-1])
 
         boolean inFrame = !(cdr3aa.contains("~") || cdr3aa.contains("?")),
                 noStop = !cdr3aa.contains("*"), isComplete = true
@@ -128,7 +125,7 @@ class Clonotype implements Countable {
         cdr3aa = splitString[5]
 
         String v, d, j
-        (v, d, j) = splitString[[7, 9, 11]].collect { it.split(",")[0] + "*01" }
+        (v, d, j) = extractVDJ(splitString[[7, 9, 11]])
 
         boolean inFrame = !cdr3aa.contains("~"), noStop = !cdr3aa.contains("*"), isComplete = true
 
@@ -141,6 +138,17 @@ class Clonotype implements Countable {
         clonotype.key = [v, cdr3nt].join("_")
 
         clonotype
+    }
+
+    /**
+     * Internal util, extracts most probable allele
+     */
+    private static List<String> extractVDJ(List<String> vdj) {
+        vdj.collect {
+            def major = it.split(",")[0]
+            major.replaceAll("\"", "")  // zap characters introduced by opening file in Excel
+            major.length() > 0 ? major + "*01" : ""
+        }
     }
 
     static Clonotype parseIgBlastClonotype(String clonotypeString) {

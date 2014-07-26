@@ -58,6 +58,22 @@ class DynamicClonotype implements ClonotypeWrapper {
     }
 
     /**
+     * Gets the time point at which the clonotype reaches its maximum frequency
+     * @return sample index
+     */
+    int getPeak() {
+        def max = -1, maxFreq = 0
+        instances.eachWithIndex{ Clonotype it, int ind ->
+            def freq = frequency(it)
+            if (freq > maxFreq) {
+                maxFreq = freq
+                max = ind
+            }
+        }
+        max
+    }
+
+    /**
      * Gets the vector of mutation sets.
      * Missing and zero-frequency clonotypes are replaced by an empty sets.
      * @return vector of mutation sets
