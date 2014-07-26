@@ -17,7 +17,7 @@
 package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.system.Software
+import com.antigenomics.vdjtools.Software
 
 def cli = new CliBuilder(usage: "BatchIntersectPair [options] sample_metadata_file output_prefix")
 cli.h("display help message")
@@ -69,27 +69,19 @@ def sampleCollection = new SampleCollection(inputFileName, software, false, fals
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
 //
-// Do intersection in parallel
+// Perform intersection for all specified intersection types
 //
 
 intersectionTypes.each { IntersectionType intersectionType ->
     println "[${new Date()} $scriptName] Intersecting by $intersectionType"
 
-    def pairedIntersectionBatch = new PairedIntersectionBatch(sampleCollection, intersectionType)
+    def intersectionUtil = new IntersectionUtil(intersectionType)
 
-    def results = pairedIntersectionBatch.run()
+    def pairedIntersectionMatrix = intersectionUtil.intersectWithinCollection(sampleCollection, false, true)
 
     println "[${new Date()} $scriptName] Writing results"
-    new File(outputFileName + "_" + intersectionType.shortName + ".txt").withPrintWriter { pw ->
-        pw.println("#" +
-                [PairedIntersection.HEADER,
-                 sampleCollection.metadataHeader.collect { "1_$it" },
-                 sampleCollection.metadataHeader.collect { "2_$it" }].flatten().join("\t"))
 
-        results.each { PairedIntersection pairedIntersection ->
-            pw.println(pairedIntersection.toString() + "\t" +
-                    pairedIntersection.sample1.metadata.toString() + "\t" +
-                    pairedIntersection.sample2.metadata.toString())
-        }
+    new File(outputFileName + "_" + intersectionType.shortName + ".txt").withPrintWriter { pw ->
+        pairedIntersectionMatrix.print(pw)
     }
 }

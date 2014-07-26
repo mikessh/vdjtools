@@ -16,10 +16,8 @@
 
 package com.antigenomics.vdjtools.graph
 
-import com.antigenomics.vdjtools.CommonUtil
+import com.antigenomics.vdjtools.util.CommonUtil
 import com.antigenomics.vdjtools.Mutation
-import com.antigenomics.vdjtools.graph.Edge
-import com.antigenomics.vdjtools.graph.EdgeBundle
 import com.antigenomics.vdjtools.substitutions.ConnectivityCheck
 import groovyx.gpars.GParsPool
 

@@ -16,7 +16,7 @@
 
 package com.antigenomics.vdjtools.basic
 
-import com.antigenomics.vdjtools.system.Software
+import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 

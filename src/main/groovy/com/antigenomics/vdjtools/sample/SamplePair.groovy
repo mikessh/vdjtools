@@ -38,6 +38,6 @@ class SamplePair {
             case 1:
                 return sample2
         }
-        throw new IllegalArgumentException("Index must be either 0 or 1")
+        throw new IndexOutOfBoundsException()
     }
 }

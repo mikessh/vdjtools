@@ -18,7 +18,7 @@ package com.antigenomics.vdjtools
 
 import com.antigenomics.vdjtools.segment.SegmentData
 import com.antigenomics.vdjtools.segment.VSegmentTable
-import com.antigenomics.vdjtools.system.Software
+import com.antigenomics.vdjtools.util.CommonUtil
 
 class Clonotype implements Countable {
     VSegmentTable parentVSegmentTable = null
@@ -98,7 +98,10 @@ class Clonotype implements Countable {
         cdr3aa = splitString[3]
 
         String v, d, j
-        (v, d, j) = splitString[4..-1].collect { it.split(",")[0] + "*01" }
+        (v, d, j) = splitString[4..-1].collect {
+            def major =it.split(",")[0]
+            major.length() > 0 ? major + "*01" : ""
+        }
 
         boolean inFrame = !(cdr3aa.contains("~") || cdr3aa.contains("?")),
                 noStop = !cdr3aa.contains("*"), isComplete = true

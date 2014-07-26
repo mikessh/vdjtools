@@ -1,6 +1,6 @@
 package com.antigenomics.vdjtools.segment
 
-import com.antigenomics.vdjtools.CommonUtil
+import com.antigenomics.vdjtools.util.CommonUtil
 
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)

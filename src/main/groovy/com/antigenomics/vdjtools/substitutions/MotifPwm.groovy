@@ -17,7 +17,7 @@
 package com.antigenomics.vdjtools.substitutions
 
 import com.antigenomics.vdjtools.Mutation
-import com.antigenomics.vdjtools.CommonUtil
+import com.antigenomics.vdjtools.util.CommonUtil
 
 class MotifPwm {
     final int leftSize, rightSize

@@ -47,14 +47,16 @@ plot.stacked <- function(
 	x, y, 
 	order.method = "as.is",
 	ylab="", xlab="",
-	ylim=NULL,
+	border = NULL, ylim=NULL,
 	...
 ){
     ord <- order(apply(y, 2, function(r) min(which(r>0))))
     y2 <- y[, ord]
     pal <- colorRampPalette(c("blue", "cyan", "yellow", "red"))
     col <- pal(ncol(y2))
- 
+
+    if(is.null(border)) border <- par("fg")
+    border <- as.vector(matrix(border, nrow=ncol(y), ncol=1))
 	col <- as.vector(matrix(col, nrow=ncol(y), ncol=1))
 	lwd <- as.vector(matrix(1, nrow=ncol(y), ncol=1))
  
@@ -62,12 +64,14 @@ plot.stacked <- function(
 		ord <- order(apply(y, 2, which.max))
 		#y <- y[, ord]
 		col <- col[ord]
+		border <- border[ord]
 	}
  
 	if(order.method == "first") {
 		ord <- order(apply(y, 2, function(r) min(which(r>0))))
 		#y <- y[, ord]
 		col <- col[ord]
+		border <- border[ord]
 	}
  
 	top.old <- x*0
@@ -81,7 +85,7 @@ plot.stacked <- function(
 	if(is.null(ylim)) ylim <- range(sapply(polys, function(x) range(x$y, na.rm=TRUE)), na.rm=TRUE)
 	plot(x,y[,1], ylab=ylab, xlab=xlab, ylim=ylim, t="n", xaxt = "n", ...)
 	for(i in seq(polys)){
-		polygon(polys[[i]],  col=col[i], lwd=lwd[i], border=NA)
+		polygon(polys[[i]], border=border[i], col=col[i], lwd=lwd[i], border=NA)
 	}
     axis(side = 1, at = x)
 }
@@ -90,6 +94,6 @@ plot.stacked <- function(
 
 pdf(file_out)
 
-plot.stacked(x, y, xlab=label, order.method = "max", ylab="abundance")
+plot.stacked(x, y, xlab=label, order.method = "max", border = 1, ylab = "abundance")
 
 dev.off()

@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools
+package com.antigenomics.vdjtools.util
 
 class CommonUtil {
     static final int THREADS = Runtime.runtime.availableProcessors()

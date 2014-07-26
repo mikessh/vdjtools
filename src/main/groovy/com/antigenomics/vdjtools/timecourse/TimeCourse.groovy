@@ -30,6 +30,12 @@ class TimeCourse implements Iterable<DynamicClonotype> {
     }
 
     CollapsedTimeCourse collapseBelow(int top) {
+        if (top > clonotypes.size()) {
+            top = clonotypes.size()
+            println "[WARNING] Requested to collapse to top $top clonotypes, " +
+                    "but only ${clonotypes.size()} present, will use all of them"
+        }
+
         lazySort()
 
         final double[] upperFrequency = new double[samples.length],

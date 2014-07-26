@@ -14,26 +14,17 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools.system
+package com.antigenomics.vdjtools.util
 
-import com.antigenomics.vdjtools.CommonUtil
+import com.antigenomics.vdjtools.util.CommonUtil
 
-public enum RScript {
-    PlotTimeSeries("plot_time_series.r")
-
-    final String scriptName
-    // todo: require, args
-
-    RScript(String scriptName) {
-        this.scriptName = scriptName
-    }
-
-    void execute(String... params) {
+class RUtil {
+    static void execute(String scriptName, String... params) {
         // Create a temp file to store the script
         def scriptRes = CommonUtil.resourceStreamReader("rscripts/$scriptName")
-        def scriptName1 = UUID.randomUUID().toString() + "_" + scriptName
+        scriptName = UUID.randomUUID().toString() + "_" + scriptName
 
-        def scriptFile = new File(scriptName1)
+        def scriptFile = new File(scriptName)
 
         scriptFile.withPrintWriter { pw ->
             scriptRes.readLines().each {
@@ -44,7 +35,7 @@ public enum RScript {
         scriptFile.deleteOnExit()
 
         // Run script
-        def proc = ["Rscript", scriptName1, params].flatten().execute()
+        def proc = ["Rscript", scriptName, params].flatten().execute()
 
         proc.in.eachLine {
             println(it)
@@ -57,4 +48,6 @@ public enum RScript {
             println "[ERROR] ${proc.getErrorStream()}"
         }
     }
+
+    final static REQUIRED_PACKAGES = ["ggplot2", "grid", "gridExtra", "reshape"]
 }

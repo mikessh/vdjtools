@@ -1,7 +1,7 @@
 package com.antigenomics.vdjtools.segment
 
 import com.antigenomics.vdjtools.Clonotype
-import com.antigenomics.vdjtools.CommonUtil
+import com.antigenomics.vdjtools.util.CommonUtil
 import com.antigenomics.vdjtools.io.FastaReader
 
 /**

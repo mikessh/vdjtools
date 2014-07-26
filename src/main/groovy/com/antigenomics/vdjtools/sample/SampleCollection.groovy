@@ -17,17 +17,51 @@
 package com.antigenomics.vdjtools.sample
 
 import com.antigenomics.vdjtools.Clonotype
-import com.antigenomics.vdjtools.CommonUtil
-import com.antigenomics.vdjtools.system.Software
+import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.util.CommonUtil
+import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
+/**
+ * Base class to store and handle collections of samples in VDJtools
+ * Provides loading samples and their metadata
+ * The only limitation is that samples should be processed by same software
+ */
 class SampleCollection implements Iterable<Sample> {
     private final Map<String, Sample> sampleMap = new HashMap<>()
+    private final List<String> sampleOrder = new ArrayList<>()
     private final Map<String, List<String>> filesBySample = new HashMap<>()
     private final HashSet<String> loadedSamples = new HashSet<>()
     private final Software software
     private final boolean strict, lazy
     final List<String> metadataHeader = new ArrayList<>()
 
+    /**
+     * Builds a sample collection from a pre-defined list of samples.
+     * Sample order will be preserved.
+     * @param samples list of samples
+     */
+    SampleCollection(List<Sample> samples) {
+        this.software = null
+        this.strict = true
+        this.lazy = false
+        samples.each {
+            def sampleId = it.metadata.sampleId
+            sampleOrder.add(sampleId)
+            sampleMap.put(sampleId, it)
+        }
+    }
+
+    /**
+     * Loads a sample collection using custom metadata file.
+     * File should contain two columns: first with file path and second with sample id
+     * Additional columns will be stored as metadata entries.
+     * First line of file should contain header that includes metadata field names.
+     * Samples will be ordered as they appear in file
+     * @param sampleMetadataFileName metadata file path
+     * @param software software used to get processed samples
+     * @param strict corresponding files should exist for all samples in metadata
+     * @param lazy if true will load samples on-demand. Otherwise pre-loads all samples
+     */
     SampleCollection(String sampleMetadataFileName, Software software, boolean strict, boolean lazy) {
         this.software = software
         this.strict = strict
@@ -64,6 +98,7 @@ class SampleCollection implements Iterable<Sample> {
 
                     def sample = sampleMap[sampleId]
                     if (!sample) {
+                        sampleOrder.add(sampleId)
                         sampleMap.put(sampleId,
                                 new Sample(new SampleMetadata(sampleId, entries), clonotypes))
                     } else {
@@ -90,6 +125,12 @@ class SampleCollection implements Iterable<Sample> {
         //metadataHeader.add(0, "#sample_id")
     }
 
+    /**
+     * Internal util to load sample according to software
+     *
+     * if store is true, will store the sample to sample map
+     * otherwise just returns it
+     */
     private Sample loadSample(String sampleId, boolean store) {
         Sample sample
 
@@ -115,32 +156,101 @@ class SampleCollection implements Iterable<Sample> {
         sample
     }
 
-    Collection<SamplePair> listPairs() {
-        def samplePairs = new LinkedList()
+    /**
+     * Lists all unique sample pairs in a given collection.
+     * Pairs (i, j) are chosen such as j > i, no (i, i) pairs allowed.
+     * @return a list of sample pairs
+     */
+    List<SamplePair> listPairs() {
+        def samplePairs = new ArrayList()
 
         // Lazy load all samples
         sampleMap.keySet().each { loadSample(it, true) }
 
-        for (int i = 0; i < sampleMap.values().size(); i++)
-            for (int j = i + 1; j < sampleMap.values().size(); j++)
-                samplePairs.add(new SamplePair(sampleMap.values()[i], sampleMap.values()[j], i, j))
+        for (int i = 0; i < size(); i++)
+            for (int j = i + 1; j < size(); j++)
+                samplePairs.add(this[i, j])
 
         samplePairs
     }
 
+    /**
+     * Get sample by id
+     * @param sampleId sample id
+     * @return sample
+     */
+    Sample getAt(String sampleId) {
+        sampleMap[sampleId]
+    }
+
+    /**
+     * Get sample by index in accordance with assigned order
+     * @param i sample index
+     * @return sample
+     */
+    Sample getAt(int i) {
+        if (i < 0 || i >= sampleOrder.size())
+            throw new IndexOutOfBoundsException()
+
+        sampleMap[sampleOrder[i]]
+    }
+
+    /**
+     * Gets sample pair by indices
+     * @param i index of first sample in pair
+     * @param j index of second sample in pair
+     * @return sample pair
+     */
+    SamplePair getAt(int i, int j) {
+        new SamplePair(this[i], this[j], i, j)
+    }
+
+    /**
+     * Reorders sample list according to provided order
+     * @param sampleOrder list of sample ids in new order
+     */
+    void reorder(List<String> sampleOrder) {
+        if (sampleOrder.size() != sampleMap.size())
+            throw new IllegalArgumentException("Bad sample order, " +
+                    "number of sample ids and sample collection size don't match")
+
+        sampleOrder.each {
+            if (!sampleMap.containsKey(it))
+                throw new IllegalArgumentException("Bad sample order, unknown sample id $it")
+        }
+
+        sampleOrder.removeAll()
+
+        sampleOrder.addAll(sampleOrder)
+    }
+
+    void reorder(Comparator<SampleMetadata> sampleMetadataComparator) {
+        // todo
+        throw new NotImplementedException()
+    }
+
     Iterator iterator() {
-        def iter = sampleMap.entrySet().iterator()
+        def iter = sampleOrder.iterator()
         return [
                 hasNext: {
                     iter.hasNext()
                 },
                 next   : {
-                    def entry = iter.next()
-                    loadSample(entry.key, false)
+                    def sampleId = iter.next()
+                    loadSample(sampleId, false)
                 }] as Iterator
     }
 
+    /**
+     * Gets the number of samples
+     * @return number of samples
+     */
     int size() {
         sampleMap.size()
+    }
+
+    @Override
+    String toString() {
+        "samples=" + this.collect { it.metadata.sampleId }.join(",") + "\nmetadata=" + metadataHeader.join(",")
     }
 }

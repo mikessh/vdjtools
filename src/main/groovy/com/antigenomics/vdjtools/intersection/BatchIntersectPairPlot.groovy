@@ -1,6 +1,6 @@
 package com.antigenomics.vdjtools.intersection
 
-import com.antigenomics.vdjtools.RUtil
+import com.antigenomics.vdjtools.util.RUtil
 
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)

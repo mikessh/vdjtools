@@ -25,90 +25,54 @@ import com.antigenomics.vdjtools.timecourse.TimeCourse
 
 class SequentialIntersection {
     private final Sample[] samples
-    private final PairedIntersection[] pairedIntersections
-    private final PairedIntersection[][] pairedIntersectionsMat
+    private final PairedIntersection[] intersectionSequence
     private final IntersectionUtil intersectionUtil
-    private boolean allIntersectionsBuilt = false
 
-    SequentialIntersection(Sample[] samples, IntersectionType intersectionType) {
+    /**
+     * Builds a sequential intersection, i.e. a set of paired intersection of i-th and i+1-th samples
+     * @param samples samples to intersect
+     * @param intersectionUtil object used to build intersections
+     */
+    SequentialIntersection(Sample[] samples, IntersectionUtil intersectionUtil) {
         if (samples.size() < 3)
             throw new IllegalArgumentException("More than 2 samples should be provided")
 
         this.samples = samples
-        this.intersectionUtil = new IntersectionUtil(intersectionType)
+        this.intersectionUtil = intersectionUtil
 
-        this.pairedIntersections = (0..(samples.length - 2)).collect { int i ->
+        this.intersectionSequence = (0..(samples.length - 2)).collect { int i ->
             intersectionUtil.generatePairedIntersection(samples[i], samples[i + 1])
         } as PairedIntersection[]
-
-        this.pairedIntersectionsMat = new PairedIntersection[samples.size()][samples.size()]
     }
 
     /**
-     * Builds a symmetric intersection matrix using provided metric.
-     * Diagonal elements are masked with NaNs.
-     * @param metric metric to characterize the degree of intersection between sample pair
-     * @return symmetric intersection matrix
+     * Creates sequential intersection from pairwise intersection matrix by cropping the +1 diagonal
+     * @param pairedIntersectionMatrix base paired intersection matrix
      */
-    double[][] buildIntersectMatrix(IntersectMetric metric) {
-        buildAllIntersectionsLazy()
+    SequentialIntersection(PairedIntersectionMatrix pairedIntersectionMatrix) {
+        int n = pairedIntersectionMatrix.size() - 1
+        this.samples = new Sample[n + 1]
+        this.intersectionSequence = new PairedIntersection[n]
+        this.intersectionUtil = pairedIntersectionMatrix.intersectionUtil
 
-        def matrix = new double[samples.length][samples.length]
-
-        for (int i = 0; i < samples.length; i++) {
-            matrix[i][i] = Double.NaN
-
-            for (int j = i + 1; j < samples.length; j++) {
-                matrix[i][j] = metric.value(pairedIntersectionsMat[i][j])
-                matrix[j][i] = matrix[i][j]
-            }
+        for (int i = 0; i < n; i++) {
+            intersectionSequence[i] = pairedIntersectionMatrix[i, i + 1]
+            samples[i] = intersectionSequence[i].sample1
         }
 
-        matrix
+        // last one
+        samples[n] = intersectionSequence[n - 1].sample2
     }
 
     /**
-     * Builds a non-symmetric intersection frequency matrix,
-     * where (i,j) and (j,i) elements corresponds to frequency of (i,j) overlapping clonotypes
-     * in i-th and j-th samples respectively. Could not formally be used as metric, see
-     * buildIntersectMatrix.
-     * Diagonal elements are masked with NaNs.
-     * @return non-symmetric intersection matrix
+     * Generates a time course for a given sequential intersection.
+     * Only clonotypes met in at least two sequential samples are retained
+     * @return clonotype abundance time course
      */
-    double[][] buildIntersectFrequencyMatrix() {
-        buildAllIntersectionsLazy()
-
-        def matrix = new double[samples.length][samples.length]
-
-        for (int i = 0; i < samples.length; i++) {
-            matrix[i][i] = Double.NaN
-
-            for (int j = i + 1; j < samples.length; j++) {
-                matrix[i][j] = pairedIntersectionsMat[i][j].freq12
-                matrix[j][i] = pairedIntersectionsMat[i][j].freq21
-            }
-        }
-
-        matrix
-    }
-
-    void buildAllIntersectionsLazy() {
-        if (!allIntersectionsBuilt) {
-            for (int i = 0; i < samples.length - 1; i++) {
-                pairedIntersectionsMat[i][i + 1] = pairedIntersections[i]
-
-                for (int j = i + 2; j < samples.length; j++) {
-                    pairedIntersectionsMat[i][j] = intersectionUtil.generatePairedIntersection(samples[i], samples[j])
-                }
-            }
-            allIntersectionsBuilt = true
-        }
-    }
-
     TimeCourse asTimeCourse() {
         def clonotypeMap = new HashMap<String, Clonotype[]>()
 
-        pairedIntersections.eachWithIndex { PairedIntersection intersection, int sampleId ->
+        intersectionSequence.eachWithIndex { PairedIntersection intersection, int sampleIndex ->
             intersection.clonotypes12.eachWithIndex { Clonotype clonotype12, int i ->
                 def clonotype21 = intersection.clonotypes21[i]
 
@@ -116,42 +80,24 @@ class SequentialIntersection {
                 def entry = clonotypeMap[key]
                 if (!entry)
                     clonotypeMap.put(key, entry = new Clonotype[samples.size()])
-                entry[sampleId] = clonotype12
-                entry[sampleId + 1] = clonotype21
+
+                entry[sampleIndex] = clonotype12
+                entry[sampleIndex + 1] = clonotype21
             }
         }
 
         new TimeCourse(samples, clonotypeMap.values().collect { new DynamicClonotype(it) })
     }
 
-    static final String HEADER = PairedIntersection.HEADER
-
-    /*
-    private double[] cumulative(String prop) {
-        def d = 0
-        def res = [0, pairedIntersections.collect {
-            def dd = 1 - it."$prop"
-            d += dd
-        }].flatten()
-
-        res.collect { it / d } as double[]
-    }
-
-    double[] getCumulativeF() {
-        cumulative("f")
-    }
-
-    double[] getCumulativeD() {
-        cumulative("d")
-    }
-
-    double[] getCumulativeR() {
-        cumulative("r")
-    } */
-
-
     @Override
     String toString() {
-        pairedIntersections.join("\n")
+        "Samples=" + samples.join(",")
+    }
+
+    void print(PrintWriter pw, boolean includeHeader) {
+        if (includeHeader)
+            pw.println("#" + PairedIntersection.HEADER)
+
+        pw.println(intersectionSequence.join("\n"))
     }
 }

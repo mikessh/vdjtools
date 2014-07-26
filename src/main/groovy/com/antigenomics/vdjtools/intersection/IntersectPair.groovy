@@ -16,9 +16,8 @@
 
 package com.antigenomics.vdjtools.intersection
 
-import com.antigenomics.vdjtools.CommonUtil
-import com.antigenomics.vdjtools.RUtil
-import com.antigenomics.vdjtools.system.Software
+import com.antigenomics.vdjtools.util.RUtil
+import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleUtil
 
 def cli = new CliBuilder(usage: "IntersectPair [options] sample1 sample2 output_prefix")

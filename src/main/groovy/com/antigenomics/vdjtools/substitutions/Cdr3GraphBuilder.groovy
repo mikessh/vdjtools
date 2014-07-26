@@ -19,6 +19,7 @@ package com.antigenomics.vdjtools.substitutions
 import com.antigenomics.vdjtools.*
 import com.antigenomics.vdjtools.graph.EdgeBundle
 import com.antigenomics.vdjtools.graph.MutationGraph
+import com.antigenomics.vdjtools.util.CommonUtil
 import groovyx.gpars.GParsPool
 
 class Cdr3GraphBuilder {

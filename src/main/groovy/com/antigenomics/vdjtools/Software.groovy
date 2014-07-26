@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools.system
+package com.antigenomics.vdjtools
 
 enum Software {
     MiTcr("mitcr", "\t", null, 2),

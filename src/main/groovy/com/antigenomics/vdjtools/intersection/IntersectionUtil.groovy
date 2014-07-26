@@ -18,10 +18,15 @@ package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.ClonotypeWrapper
+import com.antigenomics.vdjtools.util.CommonUtil
 import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.SamplePair
+import groovyx.gpars.GParsPool
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
+
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * A helper class for performing all sample intersection procedures in VDJtools
@@ -30,6 +35,7 @@ class IntersectionUtil {
     private final int nPerms = 1000
     private final Random rnd = new Random(2106803L)
     private final IntersectionType intersectionType
+    // todo: verbosity
 
     /**
      * Creates a helper class to perform sample intersection
@@ -55,6 +61,36 @@ class IntersectionUtil {
             default:
                 throw new NotImplementedException()
         }
+    }
+
+    /**
+     * Performs a pairwise intersection of sample collection
+     * @param sampleCollection sample intersection to
+     * @param storeIntersectedList if true will store list of intersected clonotypes from both samples (mem-consuming)
+     * @param computeComplexMeasures if true will compute complex measures such as correlation and overlap frequency P-values
+     * @return a list of paired intersections
+     */
+    PairedIntersectionMatrix intersectWithinCollection(SampleCollection sampleCollection,
+                                                       boolean storeIntersectedList,
+                                                       boolean computeComplexMeasures) {
+        def pairs = sampleCollection.listPairs()
+        def counter = new AtomicInteger()
+
+        Collection<PairedIntersection> results = null
+
+        GParsPool.withPool CommonUtil.THREADS, {
+            results = (Collection<PairedIntersection>) pairs.collectParallel { SamplePair pair ->
+                def pairedIntersection = generatePairedIntersection(pair, storeIntersectedList, computeComplexMeasures)
+
+                println "[${new Date()} BatchIntersection] " +
+                        "Intersected ${counter.incrementAndGet()} of ${pairs.size()} so far\n" +
+                        "Last result\n${PairedIntersection.HEADER}\n$pairedIntersection"
+
+                pairedIntersection
+            }
+        }
+
+        new PairedIntersectionMatrix(sampleCollection, results.sort { it.parent.j }.sort { it.parent.i }, this)
     }
 
     /**

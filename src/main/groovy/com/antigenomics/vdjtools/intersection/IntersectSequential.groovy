@@ -15,10 +15,13 @@
  */
 package com.antigenomics.vdjtools.intersection
 
-import com.antigenomics.vdjtools.RUtil
+import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.SampleUtil
-import com.antigenomics.vdjtools.system.Software
+import com.antigenomics.vdjtools.timecourse.TimeCourse
+import com.antigenomics.vdjtools.util.MathUtil
+import com.antigenomics.vdjtools.util.RUtil
 
 def cli = new CliBuilder(usage: "IntersectSequential [options] sample1 sample2 sample3 ... output_prefix")
 cli.h("display help message")
@@ -44,7 +47,7 @@ if (opt.h || opt.arguments().size() < 4) {
     System.exit(-1)
 }
 
-def software = Software.byName(opt.S), allSamples = opt.a,
+def software = Software.byName(opt.S), allSamples = opt.a, collapse = opt.c, plot = opt.p,
     sampleFileNames = opt.arguments()[0..-2],
     outputFilePrefix = opt.arguments()[-1]
 
@@ -86,19 +89,43 @@ def timePoints = timePointsMap.collect { it.value }
 
 println "[${new Date()} $scriptName] Reading samples ${sampleFileNames[0..-2].join(", ")} and ${sampleFileNames[-1]}"
 
-def samples = sampleFileNames.collect { SampleUtil.loadSample(it, software) } as Sample[]
+def samples = sampleFileNames.collect { SampleUtil.loadSample(it, software) }
 
 //
 // Perform a sequential intersection by CDR3NT & V segment
 //
 
-println "[${new Date()} $scriptName] Intersecting"
+println "[${new Date()} $scriptName] Intersecting by CDR3nt + V segment"
 
-def sequentialIntersection = new SequentialIntersection(samples, IntersectionType.NucleotideV)
+def intersectionUtil = new IntersectionUtil(IntersectionType.NucleotideV)
 
-sequentialIntersection.buildAllIntersectionsLazy() // required later
+SequentialIntersection sequentialIntersection
+PairedIntersectionMatrix pairedIntersectionMatrix
 
-def timeCourse = sequentialIntersection.asTimeCourse()
+if (allSamples) {
+    def sampelCollection = new SampleCollection(samples)
+    println sampelCollection
+    pairedIntersectionMatrix = intersectionUtil.intersectWithinCollection(sampelCollection, true, true)
+    sequentialIntersection = new SequentialIntersection(pairedIntersectionMatrix)
+    println sequentialIntersection
+} else {
+    pairedIntersectionMatrix = null
+    sequentialIntersection = new SequentialIntersection(samples as Sample[], intersectionUtil)
+}
+
+//
+// Generate a joint table for all clonotypes sequentially present in >1 samples
+//
+
+println "[${new Date()} $scriptName] Calculating time course"
+
+TimeCourse timeCourse = sequentialIntersection.asTimeCourse(), collapsedTimeCourse
+
+if (collapse) {
+    // top clonotypes in intersection and non-overlapping clonotypes frequency
+    int top = collapse.toInteger()
+    collapsedTimeCourse = timeCourse.collapseBelow(top)
+}
 
 //
 // Generate and write output
@@ -109,8 +136,7 @@ println "[${new Date()} $scriptName] Writing output"
 new File(outputFilePrefix + "_summary.txt").withPrintWriter { pw ->
     // summary statistics: intersection size (count, freq and unique clonotypes)
     // count correlation within intersected set
-    pw.println("#" + SequentialIntersection.HEADER)
-    pw.println(sequentialIntersection)
+    sequentialIntersection.print(pw, true)
 }
 
 new File(outputFilePrefix + "_table.txt").withPrintWriter { pw ->
@@ -118,48 +144,64 @@ new File(outputFilePrefix + "_table.txt").withPrintWriter { pw ->
     timeCourse.print(pw, true)
 }
 
-if (opt.c) {
-    // top clonotypes in intersection and non-overlapping clonotypes frequency
-    int top = (opt.c).toInteger()
-    def collapsedTimeCourse = timeCourse.collapseBelow(top)
-
+if (collapse) {
     new File(outputFilePrefix + "_table_collapsed.txt").withPrintWriter { pw ->
         collapsedTimeCourse.print(pw, true)
     }
 }
 
-if (opt.p) {
-    def inputF = sequentialIntersection.buildIntersectFrequencyMatrix(),
-        inputD = sequentialIntersection.buildIntersectMatrix(IntersectMetric.Diversity),
-        inputR = sequentialIntersection.buildIntersectMatrix(IntersectMetric.Correlation)
+//
+// Plotting via R
+//
 
-    def procTable = { double[][] table ->
-        def flatTable = table.collect { it.collect() }.flatten().findAll { !Double.isNaN(it) }
-        def min = 0, max = 1
-        if (flatTable.size() > 0) {
-            min = flatTable.min()
-            max = flatTable.max()
-        } else {
-            // should not happen, but who knows
+println "[${new Date()} $scriptName] Writing plots"
+
+if (plot) {
+    if (allSamples) {
+        // Generate intersect distance matrices
+
+        def F = pairedIntersectionMatrix.buildFrequencyMatrix(),
+            D = pairedIntersectionMatrix.buildDistanceMatrix(IntersectMetric.Diversity),
+            R = pairedIntersectionMatrix.buildDistanceMatrix(IntersectMetric.Correlation)
+
+        // Normalize matrices by row-col sum
+
+        MathUtil.normalizeDistanceMatrix(F)
+        MathUtil.normalizeDistanceMatrix(D)
+        MathUtil.normalizeDistanceMatrix(R)
+
+        // Replace NaNs, bring to [0,1] scale for further visualization
+
+        def procTable = { double[][] table ->
+            def flatTable = table.collect { it.collect() }.flatten().findAll { !Double.isNaN(it) }
+            def min = 0, max = 1
+            if (flatTable.size() > 0) {
+                min = flatTable.min()
+                max = flatTable.max()
+            } else {
+                // should not happen, but who knows
+            }
+
+            table.collect { double[] row ->
+                row.collect {
+                    def x = (it - min) / (max - min)
+                    Double.isNaN(x) ? "NA" : x
+                }.join("\t")
+            }.join("\n")
+
         }
 
-        table.collect { double[] row ->
-            row.collect {
-                def x = (it - min) / (max - min)
-                Double.isNaN(x) ? "NA" : x
-            }.join("\t")
-        }.join("\n")
-
+        // Plot all the heatmaps
+        RUtil.execute("sequential_intersect_heatmap.r",
+                procTable(F),
+                procTable(D),
+                procTable(R),
+                timePoints.join(";"),
+                outputFilePrefix + "_heatmap.pdf")
     }
 
-    RUtil.execute("sequential_intersect_heatmap.r",
-            procTable(inputF),
-            procTable(inputD),
-            procTable(inputR),
-            timePoints.join(";"),
-            outputFilePrefix + "_heatmap.pdf")
-
-    if (opt.c) {
+    if (collapse) {
+        // Plot a stack plot of top X clonotype abundances
         RUtil.execute("sequential_intersect_stack.r",
                 label,
                 timePoints.join(";"),
