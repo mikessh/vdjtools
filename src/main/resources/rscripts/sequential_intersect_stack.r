@@ -9,6 +9,8 @@ points   <- args[2] #"-48;-0.5;4;10;25;37;72"
 file_in  <- args[3] #"luc_table_collapsed.txt"
 file_out <- args[4] #"out.pdf"
 
+#
+
 # load time points, create some auxillary variables
 x <- apply(as.vector(read.table(text=points, sep=";")), 1, as.numeric)
 xcols <- (ncol(df) - n + 1):ncol(df)

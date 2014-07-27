@@ -2,16 +2,18 @@ args<-commandArgs(TRUE)
 
 # read in
 
-file_in           = args[1]              #"intersection2_aa.txt"
-id_col1_index     = as.integer(args[2])  #1#"X.1_sample_id"
-id_col2_index     = as.integer(args[3])  #9#"X2_sample_id"
-measure_col_index = as.integer(args[4])  #22#"freq12"
-factor_col1_index = as.integer(args[5])  #4#"X1_age"
-factor_col2_index = as.integer(args[6])  #12#"X2_age"
-lbl_col1_index    = as.integer(args[7])  #4  #
-lbl_col2_index    = as.integer(args[8])  #12 #
-file_out_hc       = args[9]
-file_out_mds      = args[10]
+file_in           = args[1] #"mmu_sep13_aa.txt"
+id_col1_index     = as.integer(args[2])  #1
+id_col2_index     = as.integer(args[3])  #2
+measure_col_index = as.integer(args[4])  #18
+factor_col1_index = as.integer(args[5])  #21
+factor_col2_index = as.integer(args[6])  #22
+lbl_col1_index    = as.integer(args[7])  #1#
+lbl_col2_index    = as.integer(args[8])  #2
+factor_name       = args[9] #"Group"
+cont_factor       = args[10] #TRUE
+file_out_hc       = args[11]
+file_out_mds      = args[12]
 
 color_by_factor <- TRUE
 
@@ -19,6 +21,7 @@ if(factor_col1_index < 1) {
    factor_col1_index = id_col1_index
    factor_col2_index = id_col2_index
    color_by_factor   = FALSE
+   cont_factor   = FALSE
 }
 
 if(lbl_col1_index < 1) {
@@ -26,15 +29,23 @@ if(lbl_col1_index < 1) {
    lbl_col2_index = id_col2_index
 }
 
-require(ape); require(reshape); require(MASS)
+require(ape); require(reshape); require(MASS); require(plotrix)#require(SDMTools)
 
 # read data
-
 tbl  <- read.delim(file_in)
 df   <- data.frame(tbl)
 
-# Split tables to protect from column overlap
-# Also rename them
+# convert factor columns depending on if continuous coloring is desired or not
+
+if (cont_factor) {
+    df[, factor_col1_index] <- as.numeric(as.character(df[, factor_col1_index]))
+    df[, factor_col2_index] <- as.numeric(as.character(df[, factor_col2_index]))
+} else {
+    df[, factor_col1_index] <- as.factor(df[, factor_col1_index])
+    df[, factor_col2_index] <- as.factor(df[, factor_col2_index])
+}
+
+# Split tables to protect from column overlap, also rename them
 # all this stuff is done as R re-formats column names
 # e.g. 1_sample_id to X1_sample_id, ...
 
@@ -46,7 +57,7 @@ df.aux <- data.frame(
 
 df <- data.frame(
     id_col1 = df[, id_col1_index], id_col2 = df[, id_col2_index],
-    measure_col = sapply(df[, measure_col_index], as.numeric)
+    measure_col = as.numeric(as.character(df[, measure_col_index]))
     )
 
 ## Auxillary table
@@ -61,21 +72,19 @@ aux        <- unique(rbind(aux, df.aux[c("id_col1", "factor_col1", "lbl_col1")])
 ## Factor & coloring
 
 if (color_by_factor) {
-    # switch to numeric values and sort by factor
-    aux[, "factor_col1"] <- sapply(aux[, "factor_col1"], as.character)
-    aux[, "factor_col1"] <- sapply(aux[, "factor_col1"], as.numeric)
-    aux <- aux[order(aux[, "factor_col1"]), ]
+    if (cont_factor) {
+       # switch to numeric values and sort by factor
+       aux[, "factor_col1"] <- as.numeric(as.character(aux[, "factor_col1"]))
+       aux <- aux[order(aux[, "factor_col1"]), ]
+    }
 
     # design a palette to color by unique factor levels
-
-    pal <- colorRampPalette(c("red", "black", "green"))
+    pal <- colorRampPalette(c("#feb24c", "#31a354", "#2b8cbe"))
     fu <- unique(aux[, "factor_col1"])
     cc <- pal(length(fu))
 
     # for nan
-    if(any(is.na(fu))) {
-        cc[length(fu)] <- "grey"
-    }
+    cc[is.na(fu)] <- "grey"
 }
 
 ## Distance
@@ -92,7 +101,7 @@ df.d <- dist(df.m)
 
 hcl <- hclust(df.d)
 
-## plotting
+## Plotting
 
 # for matching colors and labels
 cc_final <- "black"
@@ -109,10 +118,45 @@ lbl  <- sapply(aux[match(hcl$labels, aux[, "id_col1"]), "lbl_col1"], as.characte
 phylo <- as.phylo(hcl)
 phylo$tip.label <- lbl
 
-# plot
+# draw
 pdf(file_out_hc)
 
+# dendrogram
+if (color_by_factor) {
+   par(fig=c(0.05, 0.75, 0, 1.0), mar = c(0,0,0,0), xpd = NA) # this ensures labels are not cut
+} else {
+   par(fig=c(0.05, 0.95, 0, 1.0), mar = c(0,0,0,0), xpd = NA) # this ensures labels are not cut
+}
+
 plot(phylo, type = "fan", tip.color = cc_final)
+
+# legend
+if (color_by_factor) {
+   par(fig=c(0.85, 0.95, 0, 1.0), mar = c(0,0,0,0), xpd = NA, new=TRUE)
+   if (cont_factor) {
+      # custom legend.gradient
+      px = c(-0.075,   0.075, 0.075, -0.075)
+      py = c(-0.1, -0.1, 0.1, 0.1)
+
+      # order & get rid of NAs
+      fu1 <- fu[ind1]
+      cc1 <- cc[ind1]
+      cc1 <- cc1[!is.na(fu1)]
+      fu1 <- fu1[!is.na(fu1)]
+
+      color.legend(-0.07, -0.1, 0.07, 0.1,
+                   legend = fu1[c(1, length(fu1)/2 + 1, length(fu1))],
+                   rect.col = cc1, gradient = "y", align="rb")
+      text(0.0, 0.125, factor_name, adj = c(0.5, 0.0))
+
+      # old impl
+      # rect(-0.075, -0.1, 0.075, 0.1)
+      #legend.gradient(cbind(x = px, y = py), cols = cc[ind1], title = factor_name, limits = c(fu[1], fu[length(fu)]))
+   } else {
+      # vanilla legend for discrete factor
+      legend("center", "(x,y)", fill = cc, pch = '', box.lwd = 0, title = factor_name, legend = fu)
+   }
+}
 
 dev.off()
 

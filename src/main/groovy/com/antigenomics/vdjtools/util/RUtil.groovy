@@ -16,8 +16,6 @@
 
 package com.antigenomics.vdjtools.util
 
-import com.antigenomics.vdjtools.util.CommonUtil
-
 class RUtil {
     static void execute(String scriptName, String... params) {
         // Create a temp file to store the script
@@ -35,7 +33,9 @@ class RUtil {
         scriptFile.deleteOnExit()
 
         // Run script
-        def proc = ["Rscript", scriptName, params].flatten().execute()
+        def cmd = ["Rscript", scriptName, params]
+        println "[RUtil] Executing ${cmd.flatten().join(" ")}"
+        def proc = cmd.flatten().execute()
 
         proc.in.eachLine {
             println(it)
