@@ -47,7 +47,7 @@ dd$cum <- cumsum(dd$expr)
 
 # custom palette (color blind)
 
-gs.pal <- colorRampPalette(c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"))
+gs.pal <- colorRampPalette(c("#2b8cbe", "#e0f3db", "#fdbb84"))
 
 # plotting
 
