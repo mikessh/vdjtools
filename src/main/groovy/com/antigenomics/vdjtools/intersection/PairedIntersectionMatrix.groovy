@@ -99,13 +99,13 @@ class PairedIntersectionMatrix {
     void print(PrintWriter pw) {
         pw.println("#" +
                 [PairedIntersection.HEADER,
-                 parentCollection.metadataHeader.collect { "1_$it" },
-                 parentCollection.metadataHeader.collect { "2_$it" }].flatten().join("\t"))
+                 parentCollection.metadataTable.columnIterator.collect { "1_$it" },
+                 parentCollection.metadataTable.columnIterator.collect { "2_$it" }].flatten().join("\t"))
 
         pairedIntersections.each { PairedIntersection pairedIntersection ->
             pw.println([pairedIntersection.toString(),
-                        pairedIntersection.sample1.metadata.toString(),
-                        pairedIntersection.sample2.metadata.toString()].join("\t"))
+                        pairedIntersection.sample1.sampleMetadata.toString(),
+                        pairedIntersection.sample2.sampleMetadata.toString()].join("\t"))
         }
     }
 }

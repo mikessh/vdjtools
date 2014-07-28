@@ -18,6 +18,7 @@ package com.antigenomics.vdjtools.sample
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.sample.metadata.SampleMetadata
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
 
@@ -39,7 +40,7 @@ class SampleUtil {
     }
 
     static Sample loadSample(String fileName, Software software) {
-        new Sample(new SampleMetadata(FilenameUtils.getBaseName(fileName)),
+        new Sample(SampleMetadata.create(FilenameUtils.getBaseName(fileName)),
                 loadClonotypes(fileName, software))
     }
 

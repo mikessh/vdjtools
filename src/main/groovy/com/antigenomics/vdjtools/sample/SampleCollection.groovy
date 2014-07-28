@@ -18,8 +18,8 @@ package com.antigenomics.vdjtools.sample
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 import com.antigenomics.vdjtools.util.CommonUtil
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 /**
  * Base class to store and handle collections of samples in VDJtools
@@ -28,25 +28,35 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException
  */
 class SampleCollection implements Iterable<Sample> {
     private final Map<String, Sample> sampleMap = new HashMap<>()
-    private final List<String> sampleOrder = new ArrayList<>()
     private final Map<String, List<String>> filesBySample = new HashMap<>()
     private final HashSet<String> loadedSamples = new HashSet<>()
     private final Software software
     private final boolean strict, lazy
-    final List<String> metadataHeader = new ArrayList<>()
+
+    private final MetadataTable metadataTable
+
+    /**
+     * Gets a metadata table that allows querying and ordering of samples in this collection
+     * @return metadata table
+     */
+    MetadataTable getMetadataTable() {
+        metadataTable
+    }
 
     /**
      * Builds a sample collection from a pre-defined list of samples.
-     * Sample order will be preserved.
+     * Samples should belong to the same metadata table, sample order will be preserved.
      * @param samples list of samples
      */
     SampleCollection(List<Sample> samples) {
         this.software = null
         this.strict = true
         this.lazy = false
+        this.metadataTable = samples[0].sampleMetadata.parent
         samples.each {
-            def sampleId = it.metadata.sampleId
-            sampleOrder.add(sampleId)
+            if (it.sampleMetadata.parent != metadataTable)
+                throw new Exception("Only samples coming from same metadata table are allowed")
+            def sampleId = it.sampleMetadata.sampleId
             sampleMap.put(sampleId, it)
         }
     }
@@ -69,8 +79,10 @@ class SampleCollection implements Iterable<Sample> {
 
         def nSamples = 0, nClonotypes = 0
 
+        def metadataTable
+
         new File(sampleMetadataFileName).withReader { reader ->
-            metadataHeader.addAll(reader.readLine().split("\t")[2..-1])
+            metadataTable = new MetadataTable(reader.readLine().split("\t")[2..-1])
 
             def line, splitLine
             while ((line = reader.readLine()) != null) {
@@ -79,8 +91,9 @@ class SampleCollection implements Iterable<Sample> {
 
                 def entries = splitLine.length > 2 ? splitLine[2..-1] : []
 
-                if (entries.size() != metadataHeader.size())
-                    throw new Exception("Different number of entries in metadata header and sample $sampleId")
+                // This one is catched later
+                //if (entries.size() != metadata.size())
+                //    throw new Exception("Different number of entries in metadata header and sample $sampleId")
 
                 def inputFile = new File(fileName)
 
@@ -98,9 +111,9 @@ class SampleCollection implements Iterable<Sample> {
 
                     def sample = sampleMap[sampleId]
                     if (!sample) {
-                        sampleOrder.add(sampleId)
-                        sampleMap.put(sampleId,
-                                new Sample(new SampleMetadata(sampleId, entries), clonotypes))
+                        def sampleMetadata = metadataTable.createSample(sampleId, entries)
+
+                        sampleMap.put(sampleId, new Sample(sampleMetadata, clonotypes))
                     } else {
                         sample.clonotypes.addAll(clonotypes)
                     }
@@ -120,9 +133,7 @@ class SampleCollection implements Iterable<Sample> {
             }
         }
 
-        //if (metadataHeader[0].startsWith("#"))
-        //    metadataHeader[0] = metadataHeader[0][1..-1]
-        //metadataHeader.add(0, "#sample_id")
+        this.metadataTable = metadataTable
     }
 
     /**
@@ -137,7 +148,7 @@ class SampleCollection implements Iterable<Sample> {
         if (lazy && !loadedSamples.contains(sampleId)) {
             println "[${new Date()} SampleCollection] Loading sample $sampleId"
 
-            sample = new Sample(sampleMap[sampleId].metadata, new LinkedList<Clonotype>())
+            sample = new Sample(sampleMap[sampleId].sampleMetadata, new LinkedList<Clonotype>())
 
             filesBySample[sampleId].each { fileName ->
                 sample.clonotypes.addAll(SampleUtil.loadClonotypes(fileName, software))
@@ -184,19 +195,19 @@ class SampleCollection implements Iterable<Sample> {
     }
 
     /**
-     * Get sample by index in accordance with assigned order
+     * Get sample by index, according to current ordering
      * @param i sample index
      * @return sample
      */
     Sample getAt(int i) {
-        if (i < 0 || i >= sampleOrder.size())
+        if (i < 0 || i >= metadataTable.sampleCount)
             throw new IndexOutOfBoundsException()
 
-        sampleMap[sampleOrder[i]]
+        sampleMap[metadataTable.getRow(i).sampleId]
     }
 
     /**
-     * Gets sample pair by indices
+     * Gets sample pair by indices, according to current ordering
      * @param i index of first sample in pair
      * @param j index of second sample in pair
      * @return sample pair
@@ -205,32 +216,8 @@ class SampleCollection implements Iterable<Sample> {
         new SamplePair(this[i], this[j], i, j)
     }
 
-    /**
-     * Reorders sample list according to provided order
-     * @param sampleOrder list of sample ids in new order
-     */
-    void reorder(List<String> sampleOrder) {
-        if (sampleOrder.size() != sampleMap.size())
-            throw new IllegalArgumentException("Bad sample order, " +
-                    "number of sample ids and sample collection size don't match")
-
-        sampleOrder.each {
-            if (!sampleMap.containsKey(it))
-                throw new IllegalArgumentException("Bad sample order, unknown sample id $it")
-        }
-
-        sampleOrder.removeAll()
-
-        sampleOrder.addAll(sampleOrder)
-    }
-
-    void reorder(Comparator<SampleMetadata> sampleMetadataComparator) {
-        // todo
-        throw new NotImplementedException()
-    }
-
     Iterator iterator() {
-        def iter = sampleOrder.iterator()
+        def iter = metadataTable.sampleIterator
         return [
                 hasNext: {
                     iter.hasNext()
@@ -251,6 +238,6 @@ class SampleCollection implements Iterable<Sample> {
 
     @Override
     String toString() {
-        "samples=" + this.collect { it.metadata.sampleId }.join(",") + "\nmetadata=" + metadataHeader.join(",")
+        "samples=" + this.collect { it.sampleMetadata.sampleId }.join(",") + "\nmetadata=" + metadataTable.join(",")
     }
 }

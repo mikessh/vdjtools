@@ -69,7 +69,7 @@ println "[${new Date()} $scriptName] Processing ${sampleCollection.size()} sampl
 //
 
 new File(outputFileName + ".diversity.txt").withPrintWriter { pwDiv ->
-    def headerDiv = sampleCollection.metadataHeader.join("\t") + "\t" +
+    def headerDiv = sampleCollection.metadataTable.join("\t") + "\t" +
             "cells\t" +
             "clones_nt\tclones_aa\t" +
             "cndiv_nt_m\tcndiv_nt_std\t" +
@@ -85,7 +85,7 @@ new File(outputFileName + ".diversity.txt").withPrintWriter { pwDiv ->
     for (int i = 0; i <= rMax; i += rStep)
         rSteps.add(i)
 
-    def headerR = [sampleCollection.metadataHeader, "cells", "sample_diversity", rSteps].flatten().join("\t")
+    def headerR = [sampleCollection.metadataTable, "cells", "sample_diversity", rSteps].flatten().join("\t")
 
     new File(outputFileName + ".rarefaction_nt.txt").withPrintWriter { pwRNT ->
         pwRNT.println(headerR)
@@ -115,8 +115,8 @@ new File(outputFileName + ".diversity.txt").withPrintWriter { pwDiv ->
                         }
                     }
 
-                    pwRNT.println([sample.metadata, sample.count, sample.diversityCDR3NT, rNT].flatten().join("\t"))
-                    pwRAA.println([sample.metadata, sample.count, sample.diversityCDR3AA, rAA].flatten().join("\t"))
+                    pwRNT.println([sample.sampleMetadata, sample.count, sample.diversityCDR3NT, rNT].flatten().join("\t"))
+                    pwRAA.println([sample.sampleMetadata, sample.count, sample.diversityCDR3AA, rAA].flatten().join("\t"))
                 }
 
                 // Diversity estimates
@@ -130,7 +130,7 @@ new File(outputFileName + ".diversity.txt").withPrintWriter { pwDiv ->
                     efronDivAA = diversityEstimator.efronThisted(efronDepth, efronCvThreshold, true),
                     chaoDivAA = diversityEstimator.chao1(true)
 
-                pwDiv.println([sample.metadata,
+                pwDiv.println([sample.sampleMetadata,
                                sample.count,
                                sample.diversityCDR3NT, sample.diversityCDR3AA,
                                cnDivNT, efronDivNT, chaoDivNT,

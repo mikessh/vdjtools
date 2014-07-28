@@ -121,12 +121,12 @@ if (opt.p) {
     }
     yyFile.deleteOnExit()
 
-    RUtil.execute("intersect_pair_scatter.r", sample1.metadata.sampleId, sample2.metadata.sampleId,
+    RUtil.execute("intersect_pair_scatter.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
             outputFilePrefix + "_xy.txt", outputFilePrefix + "_xx.txt", outputFilePrefix + "_yy.txt",
             outputFilePrefix + "_scatter.pdf")
 
     if (opt.c) {
-        RUtil.execute("intersect_pair_area.r", sample1.metadata.sampleId, sample2.metadata.sampleId,
+        RUtil.execute("intersect_pair_area.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
                 outputFilePrefix + "_table_collapsed.txt", outputFilePrefix + "_difference.pdf")
     }
 }

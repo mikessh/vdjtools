@@ -51,6 +51,6 @@ class DownSampler {
             }
         }
 
-        return new Sample(sample.metadata, sampledClonotypes)
+        return new Sample(sample.sampleMetadata, sampledClonotypes)
     }
 }

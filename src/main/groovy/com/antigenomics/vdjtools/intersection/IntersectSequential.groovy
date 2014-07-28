@@ -104,10 +104,8 @@ PairedIntersectionMatrix pairedIntersectionMatrix
 
 if (allSamples) {
     def sampelCollection = new SampleCollection(samples)
-    println sampelCollection
     pairedIntersectionMatrix = intersectionUtil.intersectWithinCollection(sampelCollection, true, true)
     sequentialIntersection = new SequentialIntersection(pairedIntersectionMatrix)
-    println sequentialIntersection
 } else {
     pairedIntersectionMatrix = null
     sequentialIntersection = new SequentialIntersection(samples as Sample[], intersectionUtil)

@@ -121,10 +121,10 @@ phylo$tip.label <- lbl
 # plotting functions
 
 my.plot <- function(hcl, ...) {
+   mar <- c(0, 0, 0, 0)
    if (color_by_factor) {
       if (hcl) {
          fig <- c(0.05, 0.75, 0, 1.0)
-         mar <- c(0,0,0,0)
       } else {
          fig <- c(0.05, 0.9, 0.1, 0.9)
          mar <- c(1, 4, 1, 4)

@@ -14,10 +14,8 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools.clustering
+package com.antigenomics.vdjtools.sample.metadata
 
-import com.antigenomics.vdjtools.sample.metadata.SampleMetadata
-
-interface MultiSampleCluster {
-    ClonotypeCluster getAt(SampleMetadata sampleMetadata)
+public enum MetadataColumnType {
+    Factor, Numeric, SemiNumeric
 }

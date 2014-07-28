@@ -57,7 +57,7 @@ println "[${new Date()} $scriptName] Processing ${sampleCollection.size()} sampl
 //
 
 new File(outputFileName).withPrintWriter { pw ->
-    def header = sampleCollection.metadataHeader.join("\t") + "\t" + BasicStats.HEADER
+    def header = sampleCollection.metadataTable.join("\t") + "\t" + BasicStats.HEADER
 
     pw.println(header)
 
@@ -72,7 +72,7 @@ new File(outputFileName).withPrintWriter { pw ->
 
         println "[${new Date()} $scriptName] ${sampleCounter.incrementAndGet()} samples processed"
 
-        pw.println([sample.metadata, basicStats].join("\t"))
+        pw.println([sample.sampleMetadata, basicStats].join("\t"))
     }
     //}
 

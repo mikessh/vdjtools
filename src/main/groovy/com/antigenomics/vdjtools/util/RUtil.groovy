@@ -16,7 +16,14 @@
 
 package com.antigenomics.vdjtools.util
 
+import com.antigenomics.vdjtools.sample.metadata.MetadataEntry
+
 class RUtil {
+    static String asNumeric(MetadataEntry metadataEntry) {
+        def value = metadataEntry.asNumeric()
+        value.isNaN() ? "NA" : value.toString()
+    }
+
     static void execute(String scriptName, String... params) {
         // Create a temp file to store the script
         def scriptRes = CommonUtil.resourceStreamReader("rscripts/$scriptName")
@@ -49,5 +56,10 @@ class RUtil {
         }
     }
 
-    final static REQUIRED_PACKAGES = ["ggplot2", "grid", "gridExtra", "reshape"]
+    static void installPackages() {
+        def packages = REQUIRED_PACKAGES.collect { "\"$it\"" }.join(",")
+        execute("-e", "\"install.packages($packages)\"")
+    }
+
+    final static REQUIRED_PACKAGES = ["ggplot2", "grid", "gridExtra", "reshape", "ape", "MASS", "plotrix"]
 }

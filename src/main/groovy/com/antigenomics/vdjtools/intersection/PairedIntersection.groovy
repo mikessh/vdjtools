@@ -153,7 +153,7 @@ class PairedIntersection {
 
     @Override
     String toString() {
-        [sample1.metadata.sampleId, sample2.metadata.sampleId,
+        [sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
          div1, div2, div12,
          count1, count2, count12, count21,
          freq1, freq2, freq12, freq21,

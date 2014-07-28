@@ -17,22 +17,23 @@
 package com.antigenomics.vdjtools.sample
 
 import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.sample.metadata.SampleMetadata
 
 class Sample implements Iterable<Clonotype> {
-    final SampleMetadata metadata
+    final SampleMetadata sampleMetadata
     final List<Clonotype> clonotypes
     private Long count = null
     private Integer diversityCDR3NT = null, diversityCDR3AA = null
     private Double freq = null
 
-    Sample(SampleMetadata metadata, List<Clonotype> clonotypes) {
-        this.metadata = metadata
+    Sample(SampleMetadata sampleMetadata, List<Clonotype> clonotypes) {
+        this.sampleMetadata = sampleMetadata
         this.clonotypes = clonotypes
     }
 
     Sample top(int numberOfClonotypes) {
         numberOfClonotypes = Math.min(numberOfClonotypes, clonotypes.size())
-        new Sample(metadata, clonotypes.sort { -it.freq }.subList(0, numberOfClonotypes - 1))
+        new Sample(sampleMetadata, clonotypes.sort { -it.freq }.subList(0, numberOfClonotypes - 1))
     }
 
     int getDiv() {
@@ -67,14 +68,14 @@ class Sample implements Iterable<Clonotype> {
 
         Sample sample = (Sample) o
 
-        if (metadata != sample.metadata) return false
+        if (sampleMetadata != sample.sampleMetadata) return false
 
         return true
     }
 
     @Override
     int hashCode() {
-        return metadata.hashCode()
+        return sampleMetadata.hashCode()
     }
 
     @Override

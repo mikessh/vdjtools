@@ -14,20 +14,28 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools.sample
+package com.antigenomics.vdjtools.sample.metadata
+
+import groovy.transform.PackageScope
 
 class SampleMetadata {
     final String sampleId
-    final List<String> entries
+    final ArrayList<MetadataEntry> entries
+    final MetadataTable parent
 
-    SampleMetadata(String sampleId, List<String> entries) {
+    private SampleMetadata(String sampleId, ArrayList<MetadataEntry> entries, MetadataTable parent) {
         this.sampleId = sampleId
         this.entries = entries
+        this.parent = parent
     }
 
-    SampleMetadata(String sampleId) {
-        this.sampleId = sampleId
-        this.entries = new ArrayList<>()
+    @PackageScope
+    static SampleMetadata predefined(String sampleId, ArrayList<MetadataEntry> entries, MetadataTable parent) {
+        new SampleMetadata(sampleId, entries, parent)
+    }
+
+    static SampleMetadata create(String sampleId) {
+        MetadataTable.GENERIC_METADATA_TABLE.createSample(sampleId, new ArrayList<String>())
     }
 
     @Override
