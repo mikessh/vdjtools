@@ -118,45 +118,67 @@ lbl  <- sapply(aux[match(hcl$labels, aux[, "id_col1"]), "lbl_col1"], as.characte
 phylo <- as.phylo(hcl)
 phylo$tip.label <- lbl
 
-# draw
-pdf(file_out_hc)
+# plotting functions
 
-# dendrogram
-if (color_by_factor) {
-   par(fig=c(0.05, 0.75, 0, 1.0), mar = c(0,0,0,0), xpd = NA) # this ensures labels are not cut
-} else {
-   par(fig=c(0.05, 0.95, 0, 1.0), mar = c(0,0,0,0), xpd = NA) # this ensures labels are not cut
+my.plot <- function(hcl, ...) {
+   if (color_by_factor) {
+      if (hcl) {
+         fig <- c(0.05, 0.75, 0, 1.0)
+         mar <- c(0,0,0,0)
+      } else {
+         fig <- c(0.05, 0.9, 0.1, 0.9)
+         mar <- c(1, 4, 1, 4)
+      }
+   } else {
+      fig <- c(0.05, 0.95, 0, 1.0)
+   }
+
+   par(fig = fig, mar = mar, xpd = NA) # this ensures labels are not cut
+
+   plot(...)
 }
 
-plot(phylo, type = "fan", tip.color = cc_final)
+my.legend <- function(hcl) {
+   if (color_by_factor) {
+      if (hcl) {
+         f <- 0
+         fig <- c(0.85, 0.95, 0, 1.0)
+      } else {
+         f <- 0.2
+         fig <- c(0.8, 0.95, 0, 1.0)
+      }
+      par(fig = fig, mar = c(0, 0, 0, 0), xpd = NA, new=TRUE)
+      if (cont_factor) {
+         # custom legend.gradient
+         #px = c(-0.075, 0.075, 0.075, -0.075)
+         #py = c(-0.1,   -0.1,  0.1,    0.1)
 
-# legend
-if (color_by_factor) {
-   par(fig=c(0.85, 0.95, 0, 1.0), mar = c(0,0,0,0), xpd = NA, new=TRUE)
-   if (cont_factor) {
-      # custom legend.gradient
-      px = c(-0.075,   0.075, 0.075, -0.075)
-      py = c(-0.1, -0.1, 0.1, 0.1)
+         # order & get rid of NAs
+         fu1 <- fu[ind1]
+         cc1 <- cc[ind1]
+         cc1 <- cc1[!is.na(fu1)]
+         fu1 <- fu1[!is.na(fu1)]
 
-      # order & get rid of NAs
-      fu1 <- fu[ind1]
-      cc1 <- cc[ind1]
-      cc1 <- cc1[!is.na(fu1)]
-      fu1 <- fu1[!is.na(fu1)]
+         color.legend(-0.07, -0.1, 0.07 + f, 0.1,
+                      legend = fu1[c(1, length(fu1)/2 + 1, length(fu1))],
+                      rect.col = cc1, gradient = "y", align="rb")
+         text(0.0, 0.125, factor_name, adj = c(0.5, 0.0))
 
-      color.legend(-0.07, -0.1, 0.07, 0.1,
-                   legend = fu1[c(1, length(fu1)/2 + 1, length(fu1))],
-                   rect.col = cc1, gradient = "y", align="rb")
-      text(0.0, 0.125, factor_name, adj = c(0.5, 0.0))
-
-      # old impl
-      # rect(-0.075, -0.1, 0.075, 0.1)
-      #legend.gradient(cbind(x = px, y = py), cols = cc[ind1], title = factor_name, limits = c(fu[1], fu[length(fu)]))
-   } else {
-      # vanilla legend for discrete factor
-      legend("center", "(x,y)", fill = cc, pch = '', box.lwd = 0, title = factor_name, legend = fu)
+         # old impl
+         # rect(-0.075, -0.1, 0.075, 0.1)
+         #legend.gradient(cbind(x = px, y = py), cols = cc[ind1], title = factor_name, limits = c(fu[1], fu[length(fu)]))
+      } else {
+         # vanilla legend for discrete factor
+         legend("center", "(x,y)", fill = cc, pch = '', box.lwd = 0, title = factor_name, legend = fu)
+      }
    }
 }
+
+# draw dendrogram
+pdf(file_out_hc)
+
+my.plot(TRUE, phylo, type = "fan", tip.color = cc_final)
+my.legend(TRUE)
 
 dev.off()
 
@@ -199,7 +221,8 @@ lbl  <- sapply(aux[match(row.names(as.matrix(df.d)), aux[, "id_col1"]), "lbl_col
 
 pdf(file_out_mds)
 
-plot(xy$x, xy$y, xlab="mds1", ylab="mds2", main="MDS", type = "n")
+my.plot(FALSE, xy$x, xy$y, xlab="mds1", ylab="mds2", type = "n")
 text(xy$x, xy$y, labels = lbl, col = cc_final, cex=.5)
+my.legend(FALSE)
 
 dev.off()
