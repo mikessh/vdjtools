@@ -146,7 +146,7 @@ class Clonotype implements Countable {
     private static List<String> extractVDJ(List<String> vdj) {
         vdj.collect {
             def major = it.split(",")[0]
-            major.replaceAll("\"", "")  // zap characters introduced by opening file in Excel
+            major = major.replaceAll("\"", "")  // zap characters introduced by opening file in Excel
             major.length() > 0 ? major + "*01" : ""
         }
     }

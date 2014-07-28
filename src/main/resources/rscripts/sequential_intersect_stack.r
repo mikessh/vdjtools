@@ -13,13 +13,13 @@ file_out <- args[4] #"out.pdf"
 
 # load time points, create some auxillary variables
 x <- apply(as.vector(read.table(text=points, sep=";")), 1, as.numeric)
-xcols <- (ncol(df) - n + 1):ncol(df)
-fcols <- 1:(ncol(df) - n)
-xlbls <- colnames(df)[xcols]
 n <- length(x)
 
 # load data
 df <- data.frame(read.delim(file_in))
+xcols <- (ncol(df) - n + 1):ncol(df)
+fcols <- 1:(ncol(df) - n)
+xlbls <- colnames(df)[xcols]
 
 # convert abundance columns to numeric
 df[, xcols] <- apply(df[, xcols], 2, as.numeric)
