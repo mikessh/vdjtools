@@ -18,7 +18,6 @@ package com.antigenomics.vdjtools.sample
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Software
-import com.antigenomics.vdjtools.sample.metadata.SampleMetadata
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
 
@@ -26,6 +25,8 @@ class SampleUtil {
     static List<Clonotype> loadClonotypes(String fileName, Software software) {
         def clonotypes = new ArrayList()
         def inputFile = new File(fileName)
+        if (!inputFile.exists())
+            throw new FileNotFoundException("Failed to load clonotypes from $fileName. File not found")
         inputFile.withReader { reader ->
             for (int i = 0; i < software.headerLineCount; i++)
                 reader.readLine()
@@ -40,8 +41,11 @@ class SampleUtil {
     }
 
     static Sample loadSample(String fileName, Software software) {
-        new Sample(SampleMetadata.create(FilenameUtils.getBaseName(fileName)),
-                loadClonotypes(fileName, software))
+        new Sample(FilenameUtils.getBaseName(fileName), loadClonotypes(fileName, software))
+    }
+
+    static Sample blankSample(String fileName) {
+        new Sample(FilenameUtils.getBaseName(fileName), new ArrayList<Clonotype>())
     }
 
     static double correlation(List<Clonotype> clonotypes1, List<Clonotype> clonotypes2) {

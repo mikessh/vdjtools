@@ -35,7 +35,7 @@ class SampleMetadata {
     }
 
     static SampleMetadata create(String sampleId) {
-        MetadataTable.GENERIC_METADATA_TABLE.createSample(sampleId, new ArrayList<String>())
+        MetadataTable.GENERIC_METADATA_TABLE.createRow(sampleId, new ArrayList<String>())
     }
 
     @Override

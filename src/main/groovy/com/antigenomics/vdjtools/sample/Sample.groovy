@@ -31,9 +31,18 @@ class Sample implements Iterable<Clonotype> {
         this.clonotypes = clonotypes
     }
 
+    Sample(String sampleId, List<Clonotype> clonotypes) {
+        this.sampleMetadata = SampleMetadata.create(sampleId)
+        this.clonotypes = clonotypes
+    }
+
     Sample top(int numberOfClonotypes) {
         numberOfClonotypes = Math.min(numberOfClonotypes, clonotypes.size())
         new Sample(sampleMetadata, clonotypes.sort { -it.freq }.subList(0, numberOfClonotypes - 1))
+    }
+
+    Sample clone() {
+        new Sample(sampleMetadata, clonotypes)
     }
 
     int getDiv() {

@@ -175,7 +175,7 @@ class MetadataTable {
      * @param rowValues values of corresponding metadata fields
      * @return sample metadata instance
      */
-    SampleMetadata createSample(String sampleId, List<String> rowValues) {
+    SampleMetadata createRow(String sampleId, List<String> rowValues) {
         // Create metadata entries, assign current metadata as parent
         def entries = new ArrayList<MetadataEntry>()
 

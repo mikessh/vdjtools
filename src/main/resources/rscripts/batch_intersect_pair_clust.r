@@ -29,7 +29,7 @@ if(lbl_col1_index < 1) {
    lbl_col2_index = id_col2_index
 }
 
-require(ape); require(reshape); require(MASS); require(plotrix)#require(SDMTools)
+require(ape); require(reshape); require(MASS); require(plotrix) #require(SDMTools)
 
 # read data
 tbl  <- read.delim(file_in)
@@ -121,16 +121,22 @@ phylo$tip.label <- lbl
 # plotting functions
 
 my.plot <- function(hcl, ...) {
-   mar <- c(0, 0, 0, 0)
    if (color_by_factor) {
       if (hcl) {
          fig <- c(0.05, 0.75, 0, 1.0)
+         mar <- c(0, 0, 0, 0)
       } else {
          fig <- c(0.05, 0.9, 0.1, 0.9)
-         mar <- c(1, 4, 1, 4)
+         mar <- c(2, 4, 2, 4)
       }
    } else {
-      fig <- c(0.05, 0.95, 0, 1.0)
+      if (hcl) {
+         fig <- c(0.05, 0.95, 0, 1.0)
+         mar <- c(0, 0, 0, 0)
+      } else {
+         fig <- c(0, 1.0, 0, 1.0)
+         mar <- c(4, 4, 4, 4)
+      }
    }
 
    par(fig = fig, mar = mar, xpd = NA) # this ensures labels are not cut

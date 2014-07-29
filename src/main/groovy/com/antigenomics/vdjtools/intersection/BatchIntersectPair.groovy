@@ -16,12 +16,16 @@
 
 package com.antigenomics.vdjtools.intersection
 
-import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.sample.SampleCollection
 
-def cli = new CliBuilder(usage: "BatchIntersectPair [options] sample_metadata_file output_prefix")
+def cli = new CliBuilder(usage: "BatchIntersectPair [options] " +
+        "[sample1 sample2 sample3 ... if not -m] output_prefix")
 cli.h("display help message")
-cli.I(longOpt: "intersect-type", argName: "string1,string2,..", args: 1,
+cli.m(longOpt: "metadata", argName: "filename", args: 1,
+        "Metadata file. First and second columns should contain file name and sample id. " +
+                "Header is mandatory and will be used to assign column names for metadata.")
+cli.i(longOpt: "intersect-type", argName: "string1,string2,..", args: 1,
         "Comma-separated list of intersection types to apply. " +
                 "Allowed values: $IntersectionType.allowedNames. " +
                 "Will use '$IntersectionType.AminoAcid.shortName' by default.")
@@ -30,22 +34,39 @@ cli.S(longOpt: "software", argName: "string", required: true, args: 1,
 
 def opt = cli.parse(args)
 
-if (opt == null)
-    System.exit(-1)
-
-if (opt.h || opt.arguments().size() < 2) {
+if (opt == null) {
     cli.usage()
     System.exit(-1)
 }
 
-def software = Software.byName(opt.S), inputFileName = opt.arguments()[0], outputFileName = opt.arguments()[1]
+if (opt.h) {
+    cli.usage()
+    System.exit(0)
+}
+
+// Check if metadata is provided
+
+def metadataFileName = opt.m
+
+if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 4) {
+    if (metadataFileName)
+        println "Only output prefix should be provided in case of -m"
+    else
+        println "At least 3 sample files should be provided if not using -m"
+    cli.usage()
+    System.exit(-1)
+}
+
+def software = Software.byName(opt.S), outputFileName = opt.arguments()[-1]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
+// Build a list of intersection types to apply
+
 def intersectionTypes
 
-if (opt.I) {
-    intersectionTypes = (opt.I as String).split(",").collect {
+if (opt.i) {
+    intersectionTypes = (opt.i as String).split(",").collect {
         def shortName = it.trim()
         def intersectionType = IntersectionType.byName(shortName)
         if (!intersectionType) {
@@ -64,7 +85,9 @@ if (opt.I) {
 
 println "[${new Date()} $scriptName] Reading samples"
 
-def sampleCollection = new SampleCollection(inputFileName, software, false, false)
+def sampleCollection = metadataFileName ?
+        new SampleCollection((String) metadataFileName, software, false, false) :
+        new SampleCollection(opt.arguments()[0..-2], software, false)
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 

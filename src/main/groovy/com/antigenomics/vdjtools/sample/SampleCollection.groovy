@@ -28,7 +28,7 @@ import com.antigenomics.vdjtools.util.CommonUtil
  */
 class SampleCollection implements Iterable<Sample> {
     private final Map<String, Sample> sampleMap = new HashMap<>()
-    private final Map<String, List<String>> filesBySample = new HashMap<>()
+    private final Map<String, String> filesBySample = new HashMap<>()
     private final HashSet<String> loadedSamples = new HashSet<>()
     private final Software software
     private final boolean strict, lazy
@@ -59,6 +59,24 @@ class SampleCollection implements Iterable<Sample> {
             def sampleId = it.sampleMetadata.sampleId
             sampleMap.put(sampleId, it)
         }
+    }
+
+    /**
+     * Builds a sample collection from a pre-defined list of sample file names.
+     * Samples will be assigned to generic metadata table, sample order will be preserved.
+     * @param sampleFileNames list of sample file names
+     */
+    SampleCollection(List<String> sampleFileNames, Software software, boolean lazy) {
+        this.software = software
+        this.strict = true
+        this.lazy = lazy
+        sampleFileNames.each {
+            def sample = lazy ? SampleUtil.blankSample(it) : SampleUtil.loadSample(it, software)
+            def sampleId = sample.sampleMetadata.sampleId
+            filesBySample.put(sampleId, it)
+            sampleMap.put(sampleId, sample)
+        }
+        this.metadataTable = sampleMap.values()[0].sampleMetadata.parent
     }
 
     /**
@@ -101,22 +119,23 @@ class SampleCollection implements Iterable<Sample> {
                     def clonotypes = new ArrayList<Clonotype>()
 
                     if (lazy) {
-                        def fileList = filesBySample[sampleId]
-                        if (!fileList)
-                            filesBySample.put(sampleId, fileList = new LinkedList<String>())
-                        fileList.add(fileName)
+                        filesBySample.put(sampleId, fileName)
                     } else {
                         clonotypes = SampleUtil.loadClonotypes(fileName, software)
                     }
 
-                    def sample = sampleMap[sampleId]
+                    def sampleMetadata = metadataTable.createRow(sampleId, entries)
+
+                    sampleMap.put(sampleId, new Sample(sampleMetadata, clonotypes))
+
+                    /*def sample = sampleMap[sampleId]
                     if (!sample) {
-                        def sampleMetadata = metadataTable.createSample(sampleId, entries)
+                        def sampleMetadata = metadataTable.createRow(sampleId, entries)
 
                         sampleMap.put(sampleId, new Sample(sampleMetadata, clonotypes))
                     } else {
                         sample.clonotypes.addAll(clonotypes)
-                    }
+                    } */
 
                     nSamples++
 
@@ -142,27 +161,25 @@ class SampleCollection implements Iterable<Sample> {
      * if store is true, will store the sample to sample map
      * otherwise just returns it
      */
-    private Sample loadSample(String sampleId, boolean store) {
-        Sample sample
+    private Sample lazyLoad(String sampleId, boolean store) {
+        Sample sample = sampleMap[sampleId]
 
         if (lazy && !loadedSamples.contains(sampleId)) {
             println "[${new Date()} SampleCollection] Loading sample $sampleId"
 
-            sample = new Sample(sampleMap[sampleId].sampleMetadata, new LinkedList<Clonotype>())
+            def clonotypes = SampleUtil.loadClonotypes(filesBySample[sampleId], software)
 
-            filesBySample[sampleId].each { fileName ->
-                sample.clonotypes.addAll(SampleUtil.loadClonotypes(fileName, software))
-            }
-
-            println "[${new Date()} SampleCollection] Sample loaded, ${sample.clonotypes.size()} clonotypes. " +
+            println "[${new Date()} SampleCollection] Sample loaded, ${clonotypes.size()} clonotypes. " +
                     CommonUtil.memoryFootprint()
 
             if (store) {
                 loadedSamples.add(sampleId)
-                sampleMap.put(sampleId, sample)
+            } else {
+                sample = sample.clone()
             }
-        } else
-            sample = sampleMap[sampleId]
+
+            sample.clonotypes.addAll(clonotypes)
+        }
 
         sample
     }
@@ -176,7 +193,7 @@ class SampleCollection implements Iterable<Sample> {
         def samplePairs = new ArrayList()
 
         // Lazy load all samples
-        sampleMap.keySet().each { loadSample(it, true) }
+        sampleMap.keySet().each { lazyLoad(it, true) }
 
         for (int i = 0; i < size(); i++)
             for (int j = i + 1; j < size(); j++)
@@ -224,7 +241,7 @@ class SampleCollection implements Iterable<Sample> {
                 },
                 next   : {
                     def sampleId = iter.next()
-                    loadSample(sampleId, false)
+                    lazyLoad(sampleId, false)
                 }] as Iterator
     }
 

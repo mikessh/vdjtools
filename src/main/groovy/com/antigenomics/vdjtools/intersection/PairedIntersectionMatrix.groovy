@@ -100,12 +100,12 @@ class PairedIntersectionMatrix {
         pw.println("#" +
                 [PairedIntersection.HEADER,
                  parentCollection.metadataTable.columnIterator.collect { "1_$it" },
-                 parentCollection.metadataTable.columnIterator.collect { "2_$it" }].flatten().join("\t"))
+                 parentCollection.metadataTable.columnIterator.collect { "2_$it" }].flatten().join("\t").trim())
 
         pairedIntersections.each { PairedIntersection pairedIntersection ->
             pw.println([pairedIntersection.toString(),
                         pairedIntersection.sample1.sampleMetadata.toString(),
-                        pairedIntersection.sample2.sampleMetadata.toString()].join("\t"))
+                        pairedIntersection.sample2.sampleMetadata.toString()].join("\t").trim())
         }
     }
 }
