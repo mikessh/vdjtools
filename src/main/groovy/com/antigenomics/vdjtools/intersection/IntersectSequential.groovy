@@ -16,80 +16,95 @@
 package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Software
-import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.sample.SampleUtil
 import com.antigenomics.vdjtools.timecourse.TimeCourse
 import com.antigenomics.vdjtools.util.MathUtil
 import com.antigenomics.vdjtools.util.RUtil
 
-def cli = new CliBuilder(usage: "IntersectSequential [options] sample1 sample2 sample3 ... output_prefix")
+def cli = new CliBuilder(usage: "IntersectSequential [options] " +
+        "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.a("Will compare all samples (time-consuming) in order to build intersection heatmaps.")
 cli.c(longOpt: "collapse", argName: "int", args: 1,
         "Generate a collapsed overlap table for visualization purposes with a specified number of top clones.")
-cli.m(longOpt: "metadata", argName: "string", args: 1, "Name of tab-delimited metadata file. " +
-        "First column should contain sample names, " +
-        "second column should contain time course name/units in header and time point values as rows")
+cli.m(longOpt: "metadata", argName: "filename", args: 1,
+        "Metadata file. First and second columns should contain file name and sample id. " +
+                "Header is mandatory and will be used to assign column names for metadata." +
+                "If column named 'time' is present, it will be used to specify time point sequence.")
+cli.t(longOpt: "time", argName: "[t1,t2,t3,...]", args: 1,
+        "Time point sequence. Unused if -m is specified.")
+cli._(longOpt: "time-label", argName: "string", args: 1,
+        "Optional time axis label for plotting.")
 cli.p(longOpt: "plot", "Generate a scatterplot to characterize overlapping clonotypes. " +
         "Also generate abundance difference plot if -c option is specified. " +
         "(R installation with ggplot2, grid and gridExtra packages required).")
 
 def opt = cli.parse(args)
 
-if (opt == null)
-    System.exit(-1)
-
-if (opt.h || opt.arguments().size() < 4) {
+if (opt == null) {
     cli.usage()
     System.exit(-1)
 }
 
-def software = Software.byName(opt.S), allSamples = opt.a, collapse = opt.c, plot = opt.p,
-    sampleFileNames = opt.arguments()[0..-2],
-    outputFilePrefix = opt.arguments()[-1]
+if (opt.h) {
+    cli.usage()
+    System.exit(0)
+}
 
-if (sampleFileNames.unique().size() != sampleFileNames.size())
-    println "[ERROR] Duplicate samples not allowed"
+// Check if metadata is provided
+
+def metadataFileName = opt.m
+
+if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 4) {
+    if (metadataFileName)
+        println "Only output prefix should be provided in case of -m"
+    else
+        println "At least 3 sample files should be provided if not using -m"
+    cli.usage()
+    System.exit(-1)
+}
+
+def software = Software.byName(opt.S), allSamples = (boolean) opt.a, collapse = opt.c, plot = opt.p,
+    timeLabel = opt."time-label" ?: "time",
+    outputFilePrefix = opt.arguments()[-1]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
-def label = "sample"
-Map<String, Double> timePointsMap
-if (opt.m) {
-    timePointsMap = new HashMap<>()
-    new File(opt.m.toString()).withReader { reader ->
-        label = reader.readLine().split("\t")[1]
-        def line
-        while ((line = reader.readLine()) != null) {
-            def splitLine = line.split("\t")
-            timePointsMap.put(sampleFileNames.find { it.contains(splitLine[0]) }, splitLine[1].toDouble())
-        }
-    }
-    if (timePointsMap.size() != sampleFileNames.size()) {
-        println "[ERROR] Time points provided (${timePointsMap.values()}) " +
-                "don't match the number of samples (n=${sampleFileNames.size()})"
-    }
-} else {
-    timePointsMap = (0..<sampleFileNames.size()).collectEntries { [(sampleFileNames[it]): it] }
+//
+// Batch load samples
+//
+
+println "[${new Date()} $scriptName] Reading samples"
+
+def sampleCollection = metadataFileName ?
+        new SampleCollection((String) metadataFileName, software, false, !allSamples) :
+        new SampleCollection(opt.arguments()[0..-2], software, !allSamples)
+
+def metadataTable = sampleCollection.metadataTable
+
+println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
+
+//
+// Sort samples
+//
+
+def timePoints = opt.t ? (opt.t.toString())[1..-2].split(",").collect() : // [-10,0.5,1,20]
+        (0..<sampleCollection.size()).collect { it.toString() } // value provided with argument or uniform
+
+if (!metadataTable.containsColumn("time")) {
+    // add corresponding column to metadata
+    metadataTable.addColumn("time", timePoints)
 }
 
-// Sort samples according to time
+metadataTable.sort("time", false)
 
-timePointsMap = timePointsMap.sort { it.value }
+// Take sorted values from metadata
+timePoints = metadataTable.getColumn("time").collect { it.asNumeric().toString() }
 
-sampleFileNames = timePointsMap.collect { it.key }
-def timePoints = timePointsMap.collect { it.value }
-
-//
-// Load samples
-//
-
-println "[${new Date()} $scriptName] Reading samples ${sampleFileNames[0..-2].join(", ")} and ${sampleFileNames[-1]}"
-
-def samples = sampleFileNames.collect { SampleUtil.loadSample(it, software) }
+println "[${new Date()} $scriptName] Time points and samples to be processed:\n" +
+        "${timePoints.join(",")}\n${metadataTable.sampleIterator.collect().join(",")}"
 
 //
 // Perform a sequential intersection by CDR3NT & V segment
@@ -103,12 +118,12 @@ SequentialIntersection sequentialIntersection
 PairedIntersectionMatrix pairedIntersectionMatrix
 
 if (allSamples) {
-    def sampelCollection = new SampleCollection(samples)
-    pairedIntersectionMatrix = intersectionUtil.intersectWithinCollection(sampelCollection, true, true)
+    //def sampelCollection = new SampleCollection(samples)
+    pairedIntersectionMatrix = intersectionUtil.intersectWithinCollection(sampleCollection, true, true)
     sequentialIntersection = new SequentialIntersection(pairedIntersectionMatrix)
 } else {
     pairedIntersectionMatrix = null
-    sequentialIntersection = new SequentialIntersection(samples as Sample[], intersectionUtil)
+    sequentialIntersection = new SequentialIntersection(sampleCollection, intersectionUtil)
 }
 
 //
@@ -194,15 +209,15 @@ if (plot) {
                 procTable(F),
                 procTable(D),
                 procTable(R),
-                timePoints.join(";"),
+                timePoints.join(","),
                 outputFilePrefix + "_heatmap.pdf")
     }
 
     if (collapse) {
         // Plot a stack plot of top X clonotype abundances
         RUtil.execute("sequential_intersect_stack.r",
-                label,
-                timePoints.join(";"),
+                timeLabel,
+                timePoints.join(","),
                 outputFilePrefix + "_table_collapsed.txt",
                 outputFilePrefix + "_stackplot.pdf")
     }

@@ -5,14 +5,14 @@ args <- commandArgs(TRUE)
 require(ggplot2); require(reshape)
 
 label    <- args[1] #"time since HSCT, months"
-points   <- args[2] #"-48;-0.5;4;10;25;37;72"
+points   <- args[2] #"-48,-0.5,4,10,25,37,72"
 file_in  <- args[3] #"luc_table_collapsed.txt"
 file_out <- args[4] #"out.pdf"
 
 #
 
 # load time points, create some auxillary variables
-x <- apply(as.vector(read.table(text=points, sep=";")), 1, as.numeric)
+x <- apply(as.vector(read.table(text=points, sep=",")), 1, as.numeric)
 n <- length(x)
 
 # load data

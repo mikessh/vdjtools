@@ -18,6 +18,7 @@ package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.timecourse.DynamicClonotype
 import com.antigenomics.vdjtools.timecourse.TimeCourse
 
@@ -42,6 +43,23 @@ class SequentialIntersection {
 
         this.intersectionSequence = (0..(samples.length - 2)).collect { int i ->
             intersectionUtil.generatePairedIntersection(samples[i], samples[i + 1])
+        } as PairedIntersection[]
+    }
+
+    /**
+     * Builds a sequential intersection, i.e. a set of paired intersection of i-th and i+1-th samples
+     * @param sampleCollection collection of samples, with corresponding ordering
+     * @param intersectionUtil object used to build intersections
+     */
+    SequentialIntersection(SampleCollection sampleCollection, IntersectionUtil intersectionUtil) {
+        if (sampleCollection.size() < 3)
+            throw new IllegalArgumentException("More than 2 samples should be provided")
+
+        this.samples = sampleCollection.asList() as Sample[]
+        this.intersectionUtil = intersectionUtil
+
+        this.intersectionSequence = (0..(samples.length - 2)).collect { int i ->
+            intersectionUtil.generatePairedIntersection(sampleCollection[i, i + 1])
         } as PairedIntersection[]
     }
 

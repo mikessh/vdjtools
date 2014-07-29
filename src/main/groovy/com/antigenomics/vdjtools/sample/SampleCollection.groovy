@@ -58,6 +58,7 @@ class SampleCollection implements Iterable<Sample> {
                 throw new Exception("Only samples coming from same metadata table are allowed")
             def sampleId = it.sampleMetadata.sampleId
             sampleMap.put(sampleId, it)
+            reportProgress(it)
         }
     }
 
@@ -75,6 +76,7 @@ class SampleCollection implements Iterable<Sample> {
             def sampleId = sample.sampleMetadata.sampleId
             filesBySample.put(sampleId, it)
             sampleMap.put(sampleId, sample)
+            reportProgress(sample)
         }
         this.metadataTable = sampleMap.values()[0].sampleMetadata.parent
     }
@@ -95,8 +97,6 @@ class SampleCollection implements Iterable<Sample> {
         this.strict = strict
         this.lazy = lazy
 
-        def nSamples = 0, nClonotypes = 0
-
         def metadataTable
 
         new File(sampleMetadataFileName).withReader { reader ->
@@ -109,13 +109,9 @@ class SampleCollection implements Iterable<Sample> {
 
                 def entries = splitLine.length > 2 ? splitLine[2..-1] : []
 
-                // This one is catched later
-                //if (entries.size() != metadata.size())
-                //    throw new Exception("Different number of entries in metadata header and sample $sampleId")
-
                 def inputFile = new File(fileName)
 
-                if (inputFile.exists()) {
+                if (inputFile.exists() || strict) {
                     def clonotypes = new ArrayList<Clonotype>()
 
                     if (lazy) {
@@ -125,34 +121,28 @@ class SampleCollection implements Iterable<Sample> {
                     }
 
                     def sampleMetadata = metadataTable.createRow(sampleId, entries)
-
-                    sampleMap.put(sampleId, new Sample(sampleMetadata, clonotypes))
-
-                    /*def sample = sampleMap[sampleId]
-                    if (!sample) {
-                        def sampleMetadata = metadataTable.createRow(sampleId, entries)
-
-                        sampleMap.put(sampleId, new Sample(sampleMetadata, clonotypes))
-                    } else {
-                        sample.clonotypes.addAll(clonotypes)
-                    } */
-
-                    nSamples++
-
-                    if (!lazy) {
-                        nClonotypes += clonotypes.size()
-
-                        println "[${new Date()} SampleCollection] Loaded $nSamples samples and " +
-                                "$nClonotypes clonotypes so far. " + CommonUtil.memoryFootprint()
-                    }
-                } else if (strict) {
-                    throw new FileNotFoundException(fileName)
+                    def sample = new Sample(sampleMetadata, clonotypes)
+                    sampleMap.put(sampleId, sample)
+                    reportProgress(sample)
                 } else
                     println "[${new Date()} SampleCollection] WARNING: File $fileName not found, skipping"
             }
         }
 
         this.metadataTable = metadataTable
+    }
+
+    int nClonotypes = 0
+
+    private void reportProgress(Sample sample) {
+        if (!lazy) {
+            nClonotypes += sample.clonotypes.size()
+
+            println "[${new Date()} SampleCollection] Loaded ${size()} samples and " +
+                    "$nClonotypes clonotypes so far. " + CommonUtil.memoryFootprint()
+        } else {
+            println "[${new Date()} SampleCollection] Read ${size()} samples"
+        }
     }
 
     /**
@@ -165,20 +155,18 @@ class SampleCollection implements Iterable<Sample> {
         Sample sample = sampleMap[sampleId]
 
         if (lazy && !loadedSamples.contains(sampleId)) {
-            println "[${new Date()} SampleCollection] Loading sample $sampleId"
-
             def clonotypes = SampleUtil.loadClonotypes(filesBySample[sampleId], software)
-
-            println "[${new Date()} SampleCollection] Sample loaded, ${clonotypes.size()} clonotypes. " +
-                    CommonUtil.memoryFootprint()
 
             if (store) {
                 loadedSamples.add(sampleId)
             } else {
                 sample = sample.clone()
+                nClonotypes -= clonotypes.size()
             }
 
             sample.clonotypes.addAll(clonotypes)
+
+            reportProgress(sample)
         }
 
         sample

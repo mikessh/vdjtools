@@ -37,7 +37,7 @@ dF.m <- proc_input(inputF, "Frequency")
 dD.m <- proc_input(inputD, "Diversity")
 dR.m <- proc_input(inputR, "Correlation")
 
-p <- apply(as.vector(read.table(text = points, sep = ";")), 1, as.character)
+p <- apply(as.vector(read.table(text = points, sep = ",")), 1, as.character)
 n <- length(p)
 
 pdf(file_out)
