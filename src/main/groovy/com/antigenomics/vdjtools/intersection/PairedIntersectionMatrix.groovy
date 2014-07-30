@@ -96,11 +96,12 @@ class PairedIntersectionMatrix {
         "Paired intersection of $n samples"
     }
 
-    void print(PrintWriter pw) {
-        pw.println("#" +
-                [PairedIntersection.HEADER,
-                 parentCollection.metadataTable.columnIterator.collect { "1_$it" },
-                 parentCollection.metadataTable.columnIterator.collect { "2_$it" }].flatten().join("\t").trim())
+    void print(PrintWriter pw, boolean header = true) {
+        if (header)
+            pw.println("#" +
+                    [PairedIntersection.HEADER,
+                     parentCollection.metadataTable.columnIterator.collect { "1_$it" },
+                     parentCollection.metadataTable.columnIterator.collect { "2_$it" }].flatten().join("\t").trim())
 
         pairedIntersections.each { PairedIntersection pairedIntersection ->
             pw.println([pairedIntersection.toString(),

@@ -146,10 +146,19 @@ if (collapse) {
 
 println "[${new Date()} $scriptName] Writing output"
 
+// summary statistics: intersection size (count, freq and unique clonotypes)
+// count correlation within intersected set
+
 new File(outputFilePrefix + "_summary.txt").withPrintWriter { pw ->
-    // summary statistics: intersection size (count, freq and unique clonotypes)
-    // count correlation within intersected set
-    sequentialIntersection.print(pw, true)
+    // Sequential
+    sequentialIntersection.print(pw)
+}
+
+if (allSamples) {
+    new File(outputFilePrefix + "_summary_all.txt").withPrintWriter { pw ->
+        // All-vs-all
+        pairedIntersectionMatrix.print(pw)
+    }
 }
 
 new File(outputFilePrefix + "_table.txt").withPrintWriter { pw ->

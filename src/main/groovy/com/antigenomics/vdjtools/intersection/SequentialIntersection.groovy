@@ -112,8 +112,8 @@ class SequentialIntersection {
         "Samples=" + samples.collect { it.sampleMetadata.sampleId }.join(",")
     }
 
-    void print(PrintWriter pw, boolean includeHeader) {
-        if (includeHeader)
+    void print(PrintWriter pw, boolean header = true) {
+        if (header)
             pw.println("#" + PairedIntersection.HEADER)
 
         pw.println(intersectionSequence.join("\n"))
