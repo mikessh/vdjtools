@@ -18,10 +18,10 @@ package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.ClonotypeWrapper
-import com.antigenomics.vdjtools.util.CommonUtil
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.SamplePair
+import com.antigenomics.vdjtools.util.CommonUtil
 import groovyx.gpars.GParsPool
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
@@ -148,6 +148,27 @@ class IntersectionUtil {
     }
 
     /**
+     * Internal - collapse sample according to intersection type
+     */
+    private Map<ClonotypeHashWrapper, ClonotypeHashWrapper> createWrappedSample(Sample sample) {
+        def wrappedSample = new HashMap<ClonotypeHashWrapper, ClonotypeHashWrapper>()
+
+        sample.each { Clonotype clonotype ->
+            def cw = new ClonotypeHashWrapper(clonotype)
+            def ex = wrappedSample[cw]
+            if (ex) {
+                ex.freq += cw.freq
+                ex.count += cw.count
+                ex.clonotypes.add(cw.clonotype)
+            } else {
+                wrappedSample.put(cw, cw)
+            }
+        }
+
+        wrappedSample
+    }
+
+    /**
      * Performs a paired intersection and computes several intersection measures.
      * Measures will have index 1, 2 or 12 and 21 in the resulting object.
      * E.g. freq1 will be the total frequency in first sample,
@@ -164,57 +185,48 @@ class IntersectionUtil {
         def sample1 = samplePair.sample1, sample2 = samplePair.sample2
 
         // Here we'll operate wrapped clonotypes and perform intersection via hash map
+        // Collapse samples to hash sets
 
-        def wrappedSample1 = sample1.clonotypes.collect { new ClonotypeHashWrapper(it) },
-            wrappedSample2 = sample2.clonotypes.collect { new ClonotypeHashWrapper(it) }
-
-        def intersection = new HashMap<ClonotypeWrapper, ClonotypeWrapper>()
+        def wrappedSample1 = createWrappedSample(sample1),
+            wrappedSample2 = createWrappedSample(sample2)
 
         // Flip samples for speedup
 
         boolean flip = wrappedSample1.size() < wrappedSample2.size()
 
-        Collection<ClonotypeWrapper> _sample1, _sample2
-
         // Overlap samples using hash-search
         // also accumulate some statistics
 
-        (_sample1, _sample2) = flip ? [wrappedSample2, wrappedSample1] : [wrappedSample1, wrappedSample2]
+        (wrappedSample1, wrappedSample2) = flip ? [wrappedSample2, wrappedSample1] : [wrappedSample1, wrappedSample2]
 
         double freq12 = 0, freq21 = 0
         int count12 = 0, count21 = 0, clones12 = 0
-
-        // - put larger sample into hash
-
-        _sample1.each {
-            intersection.put(it, it)
-        }
 
         List<Clonotype> clonotypes12 = new ArrayList<>(), clonotypes21 = new ArrayList<>()
 
         final List<Double> x = new ArrayList<>(), y = new ArrayList<>()
 
-        // - iterate through the smaller sample
+        // Use larger sample as hash map and iterate through the smaller sample
 
-        _sample2.each {
-            def other = intersection[it]
+        wrappedSample2.keySet().each { ClonotypeHashWrapper it ->
+            def other = wrappedSample1[it]
 
             if (other != null) {
                 clones12++
 
-                count21 += it.clonotype.count
-                freq21 += it.clonotype.freq
+                count21 += it.count
+                freq21 += it.freq
 
-                count12 += other.clonotype.count
-                freq12 += other.clonotype.freq
+                count12 += other.count
+                freq12 += other.freq
 
                 if (computeComplexMeasures) {
-                    x.add(Math.log10(it.clonotype.freq))
-                    y.add(Math.log10(other.clonotype.freq))
+                    x.add(Math.log10(it.freq))
+                    y.add(Math.log10(other.freq))
                 }
 
                 if (storeIntersectedList) {
-                    clonotypes12.add(other.clonotype)
+                    clonotypes12.addAll(other.clonotypes)
                     clonotypes21.add(it.clonotype)
                 }
             }
@@ -238,7 +250,7 @@ class IntersectionUtil {
 
             // Compute expected values and P-value for f12
             final List<Clonotype> clonotypes1 = new ArrayList<>(sample1.clonotypes),
-                                  clonotypes2 = new ArrayList<>(sample1.clonotypes)
+                                  clonotypes2 = new ArrayList<>(sample2.clonotypes)
 
             Collections.shuffle(clonotypes1)
             Collections.shuffle(clonotypes2)
@@ -305,10 +317,20 @@ class IntersectionUtil {
      * Internal wrapper with overridden equals and hash code for purposes of parent class
      */
     private class ClonotypeHashWrapper implements ClonotypeWrapper {
-        final Clonotype clonotype
+        final Clonotype coreClonotype
+        public final List<Clonotype> clonotypes = new LinkedList<>()
+        public double freq
+        public int count
 
-        ClonotypeHashWrapper(Clonotype clonotype) {
-            this.clonotype = clonotype
+        ClonotypeHashWrapper(Clonotype coreClonotype) {
+            this.coreClonotype = coreClonotype
+            clonotypes.add(coreClonotype)
+            this.freq = coreClonotype.freq
+            this.count = coreClonotype.count
+        }
+
+        public Clonotype getClonotype() {
+            coreClonotype
         }
 
         boolean equals(o) {
@@ -318,21 +340,21 @@ class IntersectionUtil {
 
             switch (intersectionType) {
                 case IntersectionType.Nucleotide:
-                    if (clonotype.cdr3nt != clonotypeWrapper.clonotype.cdr3nt)
+                    if (coreClonotype.cdr3nt != clonotypeWrapper.coreClonotype.cdr3nt)
                         return false
                     break
                 case IntersectionType.NucleotideV:
-                    if (clonotype.cdr3nt != clonotypeWrapper.clonotype.cdr3nt ||
-                            clonotype.v != clonotypeWrapper.clonotype.v)
+                    if (coreClonotype.cdr3nt != clonotypeWrapper.coreClonotype.cdr3nt ||
+                            coreClonotype.v != clonotypeWrapper.coreClonotype.v)
                         return false
                     break
                 case IntersectionType.AminoAcid:
-                    if (clonotype.cdr3aa != clonotypeWrapper.clonotype.cdr3aa)
+                    if (coreClonotype.cdr3aa != clonotypeWrapper.coreClonotype.cdr3aa)
                         return false
                     break
                 case IntersectionType.AminoAcidNonNucleotide:
-                    if (clonotype.cdr3aa != clonotypeWrapper.clonotype.cdr3aa ||
-                            clonotype.cdr3nt == clonotypeWrapper.clonotype.cdr3nt)
+                    if (coreClonotype.cdr3aa != clonotypeWrapper.coreClonotype.cdr3aa ||
+                            coreClonotype.cdr3nt == clonotypeWrapper.coreClonotype.cdr3nt)
                         return false
                     break
             }
@@ -342,10 +364,10 @@ class IntersectionUtil {
 
         int hashCode() {
             if (intersectionType == IntersectionType.NucleotideV)
-                return clonotype.cdr3nt.hashCode() + 31 * clonotype.v.hashCode()
+                return coreClonotype.cdr3nt.hashCode() + 31 * coreClonotype.v.hashCode()
             else
                 return intersectionType == IntersectionType.Nucleotide ?
-                        clonotype.cdr3nt.hashCode() : clonotype.cdr3aa.hashCode()
+                        coreClonotype.cdr3nt.hashCode() : coreClonotype.cdr3aa.hashCode()
         }
     }
 }
