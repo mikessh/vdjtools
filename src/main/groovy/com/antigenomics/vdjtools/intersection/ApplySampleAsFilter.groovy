@@ -23,12 +23,12 @@ import com.antigenomics.vdjtools.sample.SampleUtil
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
-def cli = new CliBuilder(usage: "FilterFromSamples [options] filter_sample sample1 [sample2 ...] output_prefix")
+def cli = new CliBuilder(usage: "ApplySampleAsFilter [options] filter_sample sample1 [sample2 ...] output_prefix")
 cli.h("display help message")
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Intersection type to apply. " +
                 "Allowed values: $IntersectionType.allowedNames. " +
-                "Will use '$IntersectionType.AminoAcid.shortName' by default.")
+                "Will use '$IntersectionType.NucleotideV.shortName' by default.")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.n(longOpt: "negative", "Will report clonotypes present in filter_sample. The default action is to remove them")
@@ -61,7 +61,7 @@ def filterSampleFileName = opt.arguments()[0],
 
 // Parameters
 
-def software = Software.byName(opt.S), intersectionType = IntersectionType.byName((opt.i ?: "aa")),
+def software = Software.byName(opt.S), intersectionType = IntersectionType.byName((opt.i ?: "ntV")),
     negative = opt.n
 
 if (!intersectionType) {
