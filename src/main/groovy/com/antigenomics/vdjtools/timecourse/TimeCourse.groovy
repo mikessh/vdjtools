@@ -62,9 +62,13 @@ class TimeCourse implements Iterable<DynamicClonotype> {
 
     private void lazySort() {
         if (!sorted) {
-            clonotypes.sort { -it.meanFrequency }
+            sort()
             sorted = true
         }
+    }
+
+    void sort() {
+        clonotypes.sort { -it.meanFrequency }
     }
 
     @Override

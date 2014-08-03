@@ -18,8 +18,13 @@ package com.antigenomics.vdjtools.sample
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.intersection.IntersectionUtil
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
+import com.antigenomics.vdjtools.timecourse.DynamicClonotype
+import com.antigenomics.vdjtools.timecourse.TimeCourse
 import com.antigenomics.vdjtools.util.CommonUtil
+import org.apache.commons.io.FilenameUtils
 
 /**
  * Base class to store and handle collections of samples in VDJtools
@@ -71,14 +76,16 @@ class SampleCollection implements Iterable<Sample> {
         this.software = software
         this.strict = true
         this.lazy = lazy
-        sampleFileNames.each {
-            def sample = lazy ? SampleUtil.blankSample(it) : SampleUtil.loadSample(it, software)
-            def sampleId = sample.sampleMetadata.sampleId
-            filesBySample.put(sampleId, it)
+        this.metadataTable = new MetadataTable()
+        sampleFileNames.each { String fileName ->
+            def sampleId = FilenameUtils.getBaseName(fileName)
+            def sampleMetadata = metadataTable.createRow(sampleId, new ArrayList<String>())
+            def clonotypes = lazy ? new ArrayList<Clonotype>() : SampleUtil.loadClonotypes(fileName, software)
+            def sample = new Sample(sampleMetadata, clonotypes)
+            filesBySample.put(sampleId, fileName)
             sampleMap.put(sampleId, sample)
             reportProgress(sample)
         }
-        this.metadataTable = sampleMap.values()[0].sampleMetadata.parent
     }
 
     /**
@@ -132,14 +139,42 @@ class SampleCollection implements Iterable<Sample> {
         this.metadataTable = metadataTable
     }
 
-    int nClonotypes = 0
+    /**
+     * Generates a time course for a given sequential intersection.
+     * Only clonotypes met in at least two sequential samples are retained
+     * @return clonotype abundance time course
+     */
+    TimeCourse asTimeCourse() {
+        def clonotypeMap = new HashMap<String, Clonotype[]>()
+
+        def intersectionUtil = new IntersectionUtil(IntersectionType.NucleotideV)
+
+        this.eachWithIndex { Sample sample, int sampleIndex ->
+            sample.eachWithIndex { Clonotype clonotype, int i ->
+
+                def key = intersectionUtil.generateKey(clonotype)
+                def entry = clonotypeMap[key]
+                if (!entry)
+                    clonotypeMap.put(key, entry = new Clonotype[size()])
+
+                entry[sampleIndex] = clonotype
+            }
+        }
+
+        new TimeCourse(sampleMap.values() as Sample[], clonotypeMap.values().collect { new DynamicClonotype(it) })
+    }
+
+    private int nClonotypes = 0, loadCounter = 0
 
     private void reportProgress(Sample sample) {
-        if (!lazy) {
-            nClonotypes += sample.clonotypes.size()
+        this.nClonotypes += sample.clonotypes.size()
 
+        if (!lazy) {
             println "[${new Date()} SampleCollection] Loaded ${size()} samples and " +
                     "$nClonotypes clonotypes so far. " + CommonUtil.memoryFootprint()
+        } else if (sample.clonotypes.size() > 0) {
+            println "[${new Date()} SampleCollection] Loaded ${++loadCounter}th sample with " +
+                    "${sample.clonotypes.size()} clonotypes so far. " + CommonUtil.memoryFootprint()
         } else {
             println "[${new Date()} SampleCollection] Read ${size()} samples"
         }

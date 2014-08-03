@@ -48,6 +48,15 @@ class DynamicClonotype implements ClonotypeWrapper {
     }
 
     /**
+     * Returns a clonotype instance at a given point
+     * @param index point index
+     * @return clonotype instance
+     */
+    Clonotype getAt(int index) {
+        instances[index]
+    }
+
+    /**
      * Gets the vector of clonotype frequencies.
      * Missing clonotypes are replaced by 0 values.
      * @return vector of clonotype frequencies

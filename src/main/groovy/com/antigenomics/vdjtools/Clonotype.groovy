@@ -148,8 +148,9 @@ class Clonotype implements Countable {
     private static List<String> extractVDJ(List<String> vdj) {
         vdj.collect {
             def major = it.split(",")[0]
+            major = major.split("\\*")[0] // trim allele if present
             major = major.replaceAll("\"", "")  // zap characters introduced by opening file in Excel
-            major.length() > 0 ? major + "*01" : ""
+            major.length() > 0 ? major : ""
         }
     }
 
@@ -178,7 +179,7 @@ class Clonotype implements Countable {
         (cdr1nt, cdr2nt, cdr3nt, cdr1aa, cdr2aa, cdr3aa) = splitString[4..9]
 
         String v, d, j
-        (v, d, j) = splitString[13..15]
+        (v, d, j) = extractVDJ(splitString[13..15])
 
         boolean inFrame, noStop, isComplete
         (inFrame, noStop, isComplete) = splitString[10..12].collect { it.toBoolean() }

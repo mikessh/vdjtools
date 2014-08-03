@@ -66,10 +66,21 @@ class Sample implements Iterable<Clonotype> {
         freq ?: (freq = (double) clonotypes.sum { it.freq })
     }
 
+    void renormalize() {
+        clonotypes.each {
+            it.freq = it.count / (double) getCount()
+        }
+    }
+
     //@Override
     //String toString() {
     //    metadata.toString()
     //}
+
+
+    void sort() {
+        clonotypes.sort { -it.freq }
+    }
 
     @Override
     boolean equals(o) {
