@@ -33,6 +33,8 @@ class Clonotype implements Countable {
     final String cdr1nt, cdr2nt, cdr3nt,
                  cdr1aa, cdr2aa, cdr3aa
 
+    final String blank = "."
+
     private String key
 
     String getKey() {
@@ -125,7 +127,7 @@ class Clonotype implements Countable {
         cdr3aa = splitString[5]
 
         String v, d, j
-        (v, d, j) = extractVDJ(splitString[[7, 9, 11]])
+        (v, d, j) = extractVDJ(splitString[[7, 11, 9]])
 
         boolean inFrame = !cdr3aa.contains("~"), noStop = !cdr3aa.contains("*"), isComplete = true
 
@@ -245,13 +247,7 @@ class Clonotype implements Countable {
     // Table output
     //
 
-    final static String HEADER_SHORT = "cdr3nt\tcdr3aa\t" +
-            "inFrame\tnoStop\tisComplete\t" +
-            "V\tD\tJ"
-
-    String toShortString() {
-        [cdr3nt, cdr3aa,
-         inFrame, noStop, isComplete,
-         v, d, j].join("\t")
+    void print(PrintWriter printWriter, Software software) {
+        printWriter.println(software.printFields.collect { this."$it" }.join("\t"))
     }
 }

@@ -17,6 +17,7 @@
 package com.antigenomics.vdjtools.sample
 
 import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.metadata.SampleMetadata
 
 class Sample implements Iterable<Clonotype> {
@@ -90,5 +91,17 @@ class Sample implements Iterable<Clonotype> {
     @Override
     Iterator<Clonotype> iterator() {
         clonotypes.iterator()
+    }
+
+    //
+    // Table output
+    //
+
+    void print(PrintWriter printWriter, Software software, boolean addHeader) {
+        if (addHeader)
+            printWriter.println(software.header)
+        clonotypes.each {
+            it.print(printWriter, software)
+        }
     }
 }

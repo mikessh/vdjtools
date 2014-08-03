@@ -67,6 +67,13 @@ class TimeCourse implements Iterable<DynamicClonotype> {
         }
     }
 
+    @Override
+    Iterator<DynamicClonotype> iterator() {
+        clonotypes.iterator()
+    }
+
+    // Table output
+
     String getHeader() {
         [DynamicClonotype.PRINT_FIELDS, "peak", samples.collect { it.sampleMetadata.sampleId }].flatten().join("\t")
     }
@@ -80,10 +87,5 @@ class TimeCourse implements Iterable<DynamicClonotype> {
         clonotypes.each {
             pw.println(it.toString() + "\t" + it.peak + "\t" + it.frequencies.collect().join("\t"))
         }
-    }
-
-    @Override
-    Iterator<DynamicClonotype> iterator() {
-        clonotypes.iterator()
     }
 }

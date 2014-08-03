@@ -1,7 +1,3 @@
-package com.antigenomics.vdjtools.intersection
-
-import com.antigenomics.vdjtools.util.RUtil
-
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
 
@@ -17,6 +13,10 @@ import com.antigenomics.vdjtools.util.RUtil
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+
+package com.antigenomics.vdjtools.intersection
+
+import com.antigenomics.vdjtools.util.RUtil
 
 def cli = new CliBuilder(usage: "BatchIntersectPairPlot [options] input_file output_prefix")
 cli.h("display help message")
