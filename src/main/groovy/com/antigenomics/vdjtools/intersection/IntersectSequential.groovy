@@ -214,12 +214,12 @@ if (plot) {
         }
 
         // Plot all the heatmaps
-        RUtil.execute("sequential_intersect_heatmap.r",
+        RUtil.execute("sequential_intersect_similarity_map.r",
                 procTable(F),
                 procTable(D),
                 procTable(R),
                 timePoints.join(","),
-                outputFilePrefix + "_heatmap.pdf")
+                outputFilePrefix + "_simmap.pdf")
     }
 
     if (collapse) {
@@ -229,5 +229,13 @@ if (plot) {
                 timePoints.join(","),
                 outputFilePrefix + "_table_collapsed.txt",
                 outputFilePrefix + "_stackplot.pdf")
+
+
+        // Plot a "heatcourse" plot of top X clonotype abundances
+        RUtil.execute("sequential_intersect_heatcourse.r",
+                timeLabel,
+                timePoints.join(","),
+                outputFilePrefix + "_table_collapsed.txt",
+                outputFilePrefix + "_heatcourse.pdf")
     }
 }
