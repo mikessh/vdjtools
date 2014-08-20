@@ -38,7 +38,7 @@ class ImgtRecord {
         this.fullId = splitHeader[1]
         this.allele = fullId.substring(fullId.length() - 2, fullId.length())
         this.type = splitHeader[4]
-        this.sequence = fastaRecord.seqeunce.toUpperCase()
+        this.sequence = fastaRecord.sequence.toUpperCase()
     }
 
     @Override

@@ -20,7 +20,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 class ImgtToMigecParser {
-    final static int IMGT_V_REF = 312
+    final static int IMGT_V_REF = 312, IMGT_V_REF_AUX = 318
     final static String CysRegex = /TG[TC]/, PheTrpRegex = /(?:TGG|TT[TC])(?:GG[ATGC]|GC[ATGC])...GG[ATGC]/
     final boolean onlyFunctional, onlyMajorAllele
 
@@ -53,13 +53,24 @@ class ImgtToMigecParser {
 
     static int getVReferencePoint(ImgtRecord imgtRecord) {
         String sequenceWithGaps = imgtRecord.sequence
-        if (IMGT_V_REF > sequenceWithGaps.length())
-            return -1
-        String codon = sequenceWithGaps.substring(IMGT_V_REF - 3, IMGT_V_REF)
-        if (!(codon =~ CysRegex))
-            return -1
-        int imgtGapsCount = sequenceWithGaps.substring(0, IMGT_V_REF).count(".")
-        IMGT_V_REF - imgtGapsCount
+
+        //if (IMGT_V_REF > sequenceWithGaps.length())
+        //    return -1
+
+        def ref = [IMGT_V_REF, IMGT_V_REF_AUX].find { ref ->
+            if (ref < sequenceWithGaps.length()) {
+                String codon = sequenceWithGaps.substring(ref - 3, ref)
+                return codon =~ CysRegex
+            }
+            false
+        }
+
+        if (ref) {
+            int imgtGapsCount = sequenceWithGaps.substring(0, ref).count(".")
+            return ref - imgtGapsCount
+        }
+
+        return -1
     }
 
     static int getJReferencePoint(ImgtRecord imgtRecord) {
@@ -119,7 +130,9 @@ class ImgtToMigecParser {
     String toString() {
         segmentPresence.entrySet().collect { bySpecies ->
             bySpecies.value.entrySet().collect { byGene ->
-                [bySpecies.key, byGene.key, byGene.value.collect { it ? 1 : 0 }, byGene.value[0] && byGene.value[2] ? 1 : 0].flatten().join("\t")
+                [bySpecies.key, byGene.key, byGene.value.collect {
+                    it ? 1 : 0
+                }, byGene.value[0] && byGene.value[2] ? 1 : 0].flatten().join("\t")
             }.join("\n")
         }.join("\n")
     }

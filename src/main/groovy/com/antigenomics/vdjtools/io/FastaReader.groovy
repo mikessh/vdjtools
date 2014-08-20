@@ -14,6 +14,7 @@ package com.antigenomics.vdjtools.io
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+
 class FastaReader implements Iterable<FastaRecord> {
     final BufferedReader reader
     String header = ""

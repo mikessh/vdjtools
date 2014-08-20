@@ -21,8 +21,8 @@ HomoSapiens	IGK	1	0	1	1
 HomoSapiens	VPR	0	0	0	0
 HomoSapiens	CD1	0	0	0	0
 HomoSapiens	TRG	1	0	1	1
-OncorhynchusMykiss	IGH	0	1	1	0
-OncorhynchusMykiss	TRB	0	1	1	0
+OncorhynchusMykiss	IGH	1	1	1	1
+OncorhynchusMykiss	TRB	1	1	1	1
 OncorhynchusMykiss	MH2	0	0	0	0
 OncorhynchusMykiss	MH1	0	0	0	0
 MusSaxicola	IGK	0	0	0	0
@@ -32,7 +32,7 @@ MacacaMulatta	IGK	1	0	1	1
 MusMusculus	TRD	1	1	1	1
 MusMusculus	IGH	1	1	1	1
 MusMusculus	TRB	1	1	1	1
-MusMusculus	TRA	0	0	1	0
+MusMusculus	TRA	1	0	1	1
 MusMusculus	IGL	1	0	1	1
 MusMusculus	IGK	1	0	1	1
 MusMusculus	TRG	1	0	1	1
@@ -55,7 +55,7 @@ CercocebusTorquatusAtys	IGH	0	0	0	0
 MusCookii	IGK	0	0	0	0
 BosTaurus	TRD	1	1	1	1
 BosTaurus	TRA	0	0	1	0
-BosTaurus	TRG	0	0	1	0
+BosTaurus	TRG	1	0	1	1
 RattusNorvegicus	IGH	1	1	1	1
 RattusNorvegicus	IGL	1	0	1	1
 RattusNorvegicus	IGK	0	0	1	0
