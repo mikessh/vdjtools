@@ -42,9 +42,11 @@ DanioRerio	IGI	0	0	1	0
 DanioRerio	IGH	0	1	1	0
 CanisLupusFamiliaris	TRB	1	1	1	1
 CanisLupusFamiliaris	TRG	1	0	1	1
+AnasPlatyrhynchos	TRB	1	0	1	1
 OryctolagusCuniculus	IGH	1	1	1	1
 OryctolagusCuniculus	IGL	1	0	1	1
 OryctolagusCuniculus	IGK	1	0	1	1
+GallusGallus	TRB	1	0	1	1
 MusMusculus_BALB/C	IGH	0	0	0	0
 SusScrofa	IGL	1	0	1	1
 SusScrofa	IGK	1	0	1	1

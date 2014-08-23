@@ -58,7 +58,7 @@ class ImgtToMigecParser {
         //    return -1
 
         def ref = [IMGT_V_REF, IMGT_V_REF_AUX].find { ref ->
-            if (ref < sequenceWithGaps.length()) {
+            if (ref <= sequenceWithGaps.length()) {
                 String codon = sequenceWithGaps.substring(ref - 3, ref)
                 return codon =~ CysRegex
             }
