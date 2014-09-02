@@ -35,7 +35,7 @@ cli.S(longOpt: "software", argName: "string", required: true, args: 1,
 def opt = cli.parse(args)
 
 if (opt == null) {
-    cli.usage()
+    //cli.usage()
     System.exit(-1)
 }
 

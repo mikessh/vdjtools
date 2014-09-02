@@ -82,6 +82,8 @@ class Clonotype implements Countable {
                     return parseIgBlastClonotype(clonotypeString)
                 case Software.Simple:
                     return parseSimpleClonotype(clonotypeString)
+                case Software.MiGec:
+                    return parseMiGecClonotype(clonotypeString)
             }
         } catch (Exception e) {
             throw new Exception("Error parsing clonotype from $clonotypeString")
