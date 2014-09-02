@@ -221,8 +221,10 @@ class IntersectionUtil {
                 freq12 += other.freq
 
                 if (computeComplexMeasures) {
-                    x.add(Math.log10(it.freq))
-                    y.add(Math.log10(other.freq))
+                    //x.add(Math.log10(it.freq))
+                    //y.add(Math.log10(other.freq))
+                    x.add(it.freq)
+                    y.add(other.freq)
                 }
 
                 if (storeIntersectedList) {
