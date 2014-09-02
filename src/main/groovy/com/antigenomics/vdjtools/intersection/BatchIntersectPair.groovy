@@ -74,6 +74,7 @@ if (opt.i) {
                     "Allowed values are: $IntersectionType.allowedNames"
             System.exit(-1)
         }
+        intersectionType
     }
 } else {
     intersectionTypes = [IntersectionType.AminoAcid]
