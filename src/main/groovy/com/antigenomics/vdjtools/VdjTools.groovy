@@ -25,13 +25,15 @@ def version = (getClass().classLoader.findResource(JarFile.MANIFEST_NAME).text =
         /Implementation-Version: (.+)/)[0][1]
 
 def printHelp = {
-    println " VdjTools V$version "
+    println "||||||||||||||||||||||||"
+    println "|| VdjTools V$version ||"
+    println "||||||||||||||||||||||||"
     println ""
     println "Run as \$java -jar vdjtools-${version}.jar SCRIPT_NAME arguments"
     println ""
     println "[Single-sample statistics]"
-    println ""
     println "CalcBasicStats"
+    println ""
 }
 
 def getScript = { String scriptName ->

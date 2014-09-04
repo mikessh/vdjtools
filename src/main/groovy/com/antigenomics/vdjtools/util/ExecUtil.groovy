@@ -26,4 +26,8 @@ class ExecUtil {
         script.binding.setVariable("args", argArray)
         script.run()
     }
+
+    static void ensureDir(String fileName) {
+        new File(fileName).absoluteFile.parentFile.mkdirs()
+    }
 }
