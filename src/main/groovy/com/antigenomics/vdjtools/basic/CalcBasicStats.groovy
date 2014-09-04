@@ -19,12 +19,17 @@ package com.antigenomics.vdjtools.basic
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
+import com.antigenomics.vdjtools.util.ExecUtil
 
 def cli = new CliBuilder(usage: "CalcBasicStats [options] " +
-        "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
+        "[sample1 sample2 sample3 ... if -m is not specified] output_file_name.txt")
 cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
+cli.m(longOpt: "metadata", argName: "filename", args: 1,
+        "Metadata file. First and second columns should contain file name and sample id. " +
+                "Header is mandatory and will be used to assign column names for metadata." +
+                "If column named 'time' is present, it will be used to specify time point sequence.")
 
 def opt = cli.parse(args)
 
@@ -52,6 +57,8 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 def software = Software.byName(opt.S),
     outputFileName = opt.arguments()[-1]
 
+ExecUtil.ensureDir(outputFileName)
+
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 //
@@ -71,7 +78,8 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 //
 
 new File(outputFileName).withPrintWriter { pw ->
-    def header = sampleCollection.metadataTable.getColumnIterator().collect().join("\t") + "\t" +
+    def header = "#sample_id\t" +
+            sampleCollection.metadataTable.getColumnIterator().collect().join("\t") + "\t" +
             BasicStats.HEADER
 
     pw.println(header)
@@ -89,11 +97,13 @@ new File(outputFileName).withPrintWriter { pw ->
         //println "[${new Date()} $scriptName] ${sampleCounter.incrementAndGet()} samples processed"
         println "[${new Date()} $scriptName] ${++sampleCounter} samples processed"
 
-        pw.println([sample.sampleMetadata, basicStats].join("\t"))
+        pw.println([sample.sampleMetadata.sampleId, sample.sampleMetadata, basicStats].join("\t"))
     }
     //}
 
     //results.each { pw.println(it) }
 }
+
+println "[${new Date()} $scriptName] Finished"
 
 

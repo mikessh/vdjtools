@@ -16,19 +16,20 @@
 
 package com.antigenomics.vdjtools.basic
 
-import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 
 class BasicStats {
     final Sample sample
     private final DescriptiveStatistics cloneSize
-    private final static int SPECTRA_MIN = 8, SPECTRA_MAX = 32, SPECTRA_LEN = SPECTRA_MAX - SPECTRA_MIN + 1
+    private int oofCount
+    private double oofRatio
+    //private final static int SPECTRA_MIN = 8, SPECTRA_MAX = 32, SPECTRA_LEN = SPECTRA_MAX - SPECTRA_MIN + 1
 
-    private static int spectraBin(Clonotype clonotype) {
-        Math.min(SPECTRA_MAX, Math.max(SPECTRA_MIN, clonotype.cdr3aa.length())) - SPECTRA_MIN
-    }
-    private final double[] spectratype = new double[SPECTRA_LEN]
+    //private static int spectraBin(Clonotype clonotype) {
+    //    Math.min(SPECTRA_MAX, Math.max(SPECTRA_MIN, clonotype.cdr3aa.length())) - SPECTRA_MIN
+    //}
+    //private final double[] spectratype = new double[SPECTRA_LEN]
 
     BasicStats(Sample sample) {
         this.sample = sample
@@ -37,7 +38,11 @@ class BasicStats {
 
         sample.clonotypes.each {
             cloneSize.addValue(it.freq)
-            spectratype[spectraBin(it)] += it.freq
+            if (!it.inFrame) {
+                oofCount++
+                oofRatio += it.freq
+            }
+            //spectratype[spectraBin(it)] += it.freq
         }
     }
 
@@ -57,15 +62,17 @@ class BasicStats {
         sample.div
     }
 
-    int getDiversityCDR3() {
-        sample.diversityCDR3NT
-    }
-
-    static final String HEADER = "#cells\tdiversity\tcdr3_diversity\tmean_clone_size\tmedian_clone_size\t" +
-            (SPECTRA_MIN..SPECTRA_MAX).collect { "S$it" }.join("\t")
+    static final String HEADER = "cells\tdiversity\t" +
+            "mean_clone_fraction\tmedian_clone_fraction\t" +
+            "oof_count\toof_fraction"
+    //(SPECTRA_MIN..SPECTRA_MAX).collect { "S$it" }.join("\t")
 
     @Override
     String toString() {
-        [cells, diversity, diversityCDR3, meanCloneSize, medianCloneSize, spectratype.collect()].flatten().join("\t")
+        [cells, diversity,
+         meanCloneSize, medianCloneSize,
+         oofCount, oofRatio
+         // spectratype.collect()
+        ].flatten().join("\t")
     }
 }
