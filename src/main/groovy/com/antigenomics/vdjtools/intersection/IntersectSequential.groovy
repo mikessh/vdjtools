@@ -44,7 +44,6 @@ cli.p(longOpt: "plot", "Generate a scatterplot to characterize overlapping clono
 def opt = cli.parse(args)
 
 if (opt == null) {
-    //cli.usage()
     System.exit(-1)
 }
 

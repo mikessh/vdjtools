@@ -20,9 +20,8 @@ import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 
-import java.util.concurrent.atomic.AtomicInteger
-
-def cli = new CliBuilder(usage: "DiversityStat [options] sample_metadata_file output_name")
+def cli = new CliBuilder(usage: "CalcBasicStats [options] " +
+        "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
@@ -32,45 +31,63 @@ def opt = cli.parse(args)
 if (opt == null)
     System.exit(-1)
 
-if (opt.h || opt.arguments().size() < 2) {
+if (opt.h) {
     cli.usage()
     System.exit(-1)
 }
 
-def software = Software.byName(opt.S), inputFileName = opt.arguments()[0],
-    outputFileName = opt.arguments()[1]
+// Check if metadata is provided
+
+def metadataFileName = opt.m
+
+if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2) {
+    if (metadataFileName)
+        println "Only output prefix should be provided in case of -m"
+    else
+        println "At least 1 sample files should be provided if not using -m"
+    cli.usage()
+    System.exit(-1)
+}
+
+def software = Software.byName(opt.S),
+    outputFileName = opt.arguments()[-1]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 //
-// Lazy load all samples
+// Batch load all samples (lazy)
 //
 
-println "[${new Date()} $scriptName] Reading sample metadata"
+println "[${new Date()} $scriptName] Reading samples"
 
-def sampleCollection = new SampleCollection(inputFileName, software, false, true)
+def sampleCollection = metadataFileName ?
+        new SampleCollection((String) metadataFileName, software, false, true) :
+        new SampleCollection(opt.arguments()[0..-2], software, false)
 
-println "[${new Date()} $scriptName] Processing ${sampleCollection.size()} samples"
+println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
 //
-// Compute and output diversity measures
+// Compute and output diversity measures, spectratype, etc
 //
 
 new File(outputFileName).withPrintWriter { pw ->
-    def header = sampleCollection.metadataTable.join("\t") + "\t" + BasicStats.HEADER
+    def header = sampleCollection.metadataTable.getColumnIterator().collect().join("\t") + "\t" +
+            BasicStats.HEADER
 
     pw.println(header)
 
     //def results = new LinkedList<>()
 
-    def sampleCounter = new AtomicInteger()
+    //def sampleCounter = new AtomicInteger()
+    def sampleCounter = 0
 
     //GParsPool.withPool Util.THREADS, {
     //results = sampleCollection.collectParallel { Sample sample ->
     sampleCollection.each { Sample sample ->
         def basicStats = new BasicStats(sample)
 
-        println "[${new Date()} $scriptName] ${sampleCounter.incrementAndGet()} samples processed"
+        //println "[${new Date()} $scriptName] ${sampleCounter.incrementAndGet()} samples processed"
+        println "[${new Date()} $scriptName] ${++sampleCounter} samples processed"
 
         pw.println([sample.sampleMetadata, basicStats].join("\t"))
     }
