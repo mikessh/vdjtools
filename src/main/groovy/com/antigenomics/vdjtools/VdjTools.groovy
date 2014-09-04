@@ -1,6 +1,7 @@
 package com.antigenomics.vdjtools
 
 import com.antigenomics.vdjtools.basic.CalcBasicStats
+import com.antigenomics.vdjtools.basic.CalcSpectratype
 import com.antigenomics.vdjtools.util.ExecUtil
 
 /**
@@ -25,14 +26,13 @@ def version = (getClass().classLoader.findResource(JarFile.MANIFEST_NAME).text =
         /Implementation-Version: (.+)/)[0][1]
 
 def printHelp = {
-    println "||||||||||||||||||||||||"
-    println "|| VdjTools V$version ||"
-    println "||||||||||||||||||||||||"
+    println "VdjTools V$version"
     println ""
     println "Run as \$java -jar vdjtools-${version}.jar SCRIPT_NAME arguments"
     println ""
     println "[Single-sample statistics]"
     println "CalcBasicStats"
+    println "CalcSpectratype"
     println ""
 }
 
@@ -40,6 +40,8 @@ def getScript = { String scriptName ->
     switch (scriptName.toUpperCase()) {
         case "CALCBASICSTATS":
             return new CalcBasicStats()
+        case "CALCSPECTRATYPE":
+            return new CalcSpectratype()
         case "-H":
         case "H":
         case "-HELP":

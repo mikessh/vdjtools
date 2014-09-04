@@ -21,7 +21,7 @@ import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.ExecUtil
 
-def cli = new CliBuilder(usage: "CalcBasicStats [options] " +
+def cli = new CliBuilder(usage: "CalcSpectratype [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
@@ -30,6 +30,9 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata." +
                 "If column named 'time' is present, it will be used to specify time point sequence.")
+cli.a(longOpt: "amino-acid", "Will use amino-acid CDR3 sequence lengths instead of nucleotide. " +
+        "Makes the table more compact but misses the input from out-of-frame sequences.")
+cli.u(longOpt: "unweighted", "Will count each clonotype only once, apart from conventional frequency-weighted histogram.")
 
 def opt = cli.parse(args)
 
@@ -55,7 +58,8 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 }
 
 def software = Software.byName(opt.S),
-    outputFileName = opt.arguments()[-1]
+    outputFileName = opt.arguments()[-1],
+    aminoAcid = opt.a, unweighted = opt.u
 
 ExecUtil.ensureDir(outputFileName)
 
@@ -77,33 +81,30 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 // Compute and output diversity measures, spectratype, etc
 //
 
-new File(outputFileName + "_basicstats.txt").withPrintWriter { pw ->
+new File(outputFileName + "_spectratype" +
+        (aminoAcid ? "_aa" : "_nt") +
+        (unweighted ? "_unweighted" : "") +
+        ".txt").withPrintWriter { pw ->
+    def spectratype = new Spectratype(aminoAcid, unweighted)
+
     def header = "#sample_id\t" +
             sampleCollection.metadataTable.getColumnIterator().collect().join("\t") + "\t" +
-            BasicStats.HEADER
+            spectratype.HEADER
 
     pw.println(header)
 
-    //def results = new LinkedList<>()
-
-    //def sampleCounter = new AtomicInteger()
     def sampleCounter = 0
 
-    //GParsPool.withPool Util.THREADS, {
-    //results = sampleCollection.collectParallel { Sample sample ->
     sampleCollection.each { Sample sample ->
-        def basicStats = new BasicStats(sample)
+        spectratype.addAll(sample)
 
-        //println "[${new Date()} $scriptName] ${sampleCounter.incrementAndGet()} samples processed"
         println "[${new Date()} $scriptName] ${++sampleCounter} samples processed"
 
-        pw.println([sample.sampleMetadata.sampleId, sample.sampleMetadata, basicStats].join("\t"))
-    }
-    //}
+        pw.println([sample.sampleMetadata.sampleId, sample.sampleMetadata, spectratype].join("\t"))
 
-    //results.each { pw.println(it) }
+        spectratype.clear()
+    }
 }
 
 println "[${new Date()} $scriptName] Finished"
-
 
