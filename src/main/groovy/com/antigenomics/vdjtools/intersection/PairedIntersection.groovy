@@ -29,14 +29,14 @@ class PairedIntersection {
     final double freq12, freq21, freq12e, freq21e, freq12p, freq21p
 
     private final List<Clonotype> clonotypes12, clonotypes21
-    private final double r
+    private final double r, vJSD
 
     PairedIntersection(SamplePair parent,
                        int div12, int count12, int count21,
                        double freq12, double freq21,
                        double freq12e, double freq21e,
                        double freq12p, double freq21p,
-                       double r,
+                       double r, double vJSD,
                        List<Clonotype> clonotypes12, List<Clonotype> clonotypes21) {
         this.parent = parent
         this.div12 = div12
@@ -49,6 +49,7 @@ class PairedIntersection {
         this.freq12p = freq12p
         this.freq21p = freq21p
         this.r = r
+        this.vJSD = vJSD
         this.clonotypes12 = clonotypes12
         this.clonotypes21 = clonotypes21
     }
@@ -90,6 +91,14 @@ class PairedIntersection {
     double getNormD() {
         def maxValue = div1 < div2 ? Math.sqrt(div1 / div2) : Math.sqrt(div2 / div1)
         getD() / maxValue
+    }
+
+    double getVJSD() {
+        vJSD
+    }
+
+    double getNormVJSD() {
+        vJSD
     }
 
     TimeCourse asTimeCourse() {
@@ -149,7 +158,7 @@ class PairedIntersection {
             "count1\tcount2\tcount12\tcount21\t" +
             "freq1\tfreq2\tfreq12\tfreq21\t" +
             "freq12e\tfreq21e\tfreq12p\tfreq21p\t" +
-            "F\tD\tR"
+            "vJSD\tF\tD\tR"
 
     @Override
     String toString() {
@@ -158,6 +167,6 @@ class PairedIntersection {
          count1, count2, count12, count21,
          freq1, freq2, freq12, freq21,
          freq12e, freq21e, freq12p, freq21p,
-         getNormF(), getNormD(), getNormR()].join("\t")
+         getNormVJSD(), getNormF(), getNormD(), getNormR()].join("\t")
     }
 }

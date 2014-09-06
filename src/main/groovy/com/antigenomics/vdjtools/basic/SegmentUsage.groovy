@@ -92,7 +92,7 @@ class SegmentUsage {
         (0..<p.length).collect { int i ->
             double m = (p[i] + q[i]) / 2.0
             (p[i] > 0 ? (Math.log(p[i] / m) * p[i]) : 0d) + (q[i] > 0 ? (Math.log(q[i] / m) * q[i]) : 0d)
-        }.sum() / 2.0 / Math.log(2)
+        }.sum() / 2.0 / Math.log(2.0)
     }
 
     public String[] jUsageHeader() {

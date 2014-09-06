@@ -21,7 +21,8 @@ import com.antigenomics.vdjtools.util.RUtil
 def cli = new CliBuilder(usage: "BatchIntersectPairPlot [options] input_file output_prefix")
 cli.h("display help message")
 cli.m(longOpt: "measure", argName: "string", args: 1,
-        "Distance measure to use, F (frequency), D (diversity) or R (correlation). [default = F]")
+        "Distance measure to use, vJSD (variable segment Jensen-Shannon distance), " +
+                "F (frequency), D (diversity) or R (correlation). [default = F]")
 cli.f(longOpt: "factor", argName: "string", args: 1,
         "Column name, as in metadata. Factor used to color the plot. [default = no factor]")
 cli.n(longOpt: "num-factor", "Factor will be treated as numeric value and gradient plot coloring will be used. " +
@@ -44,8 +45,11 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 def inputFileName = opt.arguments()[0],
     sampleId = "sample_id", factorName = opt.f, numFactor = opt.n,
-    measureName = (opt.m ?: "F"), labelName = (opt.l ?: "sample_id"),
+    measureName = (opt.m ?: "F").toUpperCase(), labelName = (opt.l ?: "sample_id").toUpperCase(),
     hcFileName = opt.arguments()[1] + "_hc.pdf", mdsFileName = opt.arguments()[1] + "_mds.pdf"
+
+if (factorName)
+    factorName = factorName.toUpperCase()
 
 // Read header
 
@@ -53,7 +57,7 @@ println "[${new Date()} $scriptName] Reading data header"
 
 def header = []
 new File(inputFileName).withReader { reader ->
-    header = reader.readLine().split("\t")
+    header = reader.readLine().split("\t").collect { it.toUpperCase() }
 }
 
 // Match column indices

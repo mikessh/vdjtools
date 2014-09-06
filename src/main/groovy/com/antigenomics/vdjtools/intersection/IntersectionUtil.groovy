@@ -242,7 +242,7 @@ class IntersectionUtil {
 
         // Pre-compute some complex measures
 
-        double r,
+        double r, vJSD,
                freq12e, freq21e,
                freq12p, freq21p
 
@@ -253,6 +253,25 @@ class IntersectionUtil {
             // Compute expected values and P-value for f12
             final List<Clonotype> clonotypes1 = new ArrayList<>(sample1.clonotypes),
                                   clonotypes2 = new ArrayList<>(sample2.clonotypes)
+
+            // Jensen-Shannon distance
+            Map<String, Double> vUsage1 = new HashMap(), vUsage2 = new HashMap<>()
+            clonotypes1.each {
+                vUsage1.put(it.v, (vUsage1[it.v] ?: 0d) + it.freq)
+            }
+            clonotypes2.each {
+                vUsage2.put(it.v, (vUsage2[it.v] ?: 0d) + it.freq)
+            }
+
+            def vUsageSum1 = (double) vUsage1.values().collect().sum(),
+                vUsageSum2 = (double) vUsage2.values().collect().sum()
+
+            vJSD = [vUsage1.keySet(), vUsage2.keySet()].flatten().collect {
+                double p = (vUsage1[it] ?: 0d) / vUsageSum1, q = (vUsage2[it] ?: 0d) / vUsageSum2,
+                       m = (p + q) / 2.0
+
+                (p > 0 ? (Math.log(p / m) * p) : 0d) + (q > 0 ? (Math.log(q / m) * q) : 0d)
+            }.sum() / 2.0 / Math.log(2.0)
 
             Collections.shuffle(clonotypes1)
             Collections.shuffle(clonotypes2)
@@ -288,6 +307,7 @@ class IntersectionUtil {
             freq21p /= nPerms
         } else {
             r = Double.NaN
+            vJSD = Double.NaN
             freq12e = Double.NaN
             freq21e = Double.NaN
             freq12p = Double.NaN
@@ -301,7 +321,7 @@ class IntersectionUtil {
                 freq12, freq21,
                 freq12e, freq21e,
                 freq12p, freq21p,
-                r,
+                r, vJSD,
                 clonotypes12, clonotypes21)
     }
 
