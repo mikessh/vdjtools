@@ -38,7 +38,7 @@ class Sample implements Iterable<Clonotype> {
     }
 
     Sample top(int numberOfClonotypes) {
-        numberOfClonotypes = Math.min(numberOfClonotypes, clonotypes.size())
+        numberOfClonotypes = Math.min(numberOfClonotypes + 1, clonotypes.size())
         new Sample(sampleMetadata, clonotypes.sort { -it.freq }.subList(0, numberOfClonotypes - 1))
     }
 

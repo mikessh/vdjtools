@@ -29,6 +29,7 @@ class Spectratype {
     //}
     private final double[] spectratype
     final String HEADER
+    final int[] lengths
 
     Spectratype(boolean aminoAcid, boolean unweighted) {
         this.aminoAcid = aminoAcid
@@ -44,7 +45,8 @@ class Spectratype {
 
         this.len = max - min + 1
         this.spectratype = new double[len]
-        this.HEADER = (min..max).join("\t")
+        this.lengths = (min..max) as double[]
+        this.HEADER = lengths.collect().join("\t")
     }
 
     int bin(Clonotype clonotype) {
