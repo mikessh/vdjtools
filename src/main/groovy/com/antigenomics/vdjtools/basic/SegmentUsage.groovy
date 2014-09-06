@@ -70,8 +70,9 @@ class SegmentUsage {
         if (!sampleIndex.containsKey(sampleId))
             throw new IllegalArgumentException("$sampleId is not in the sample collection used to build usage matrix")
         def index = sampleIndex[sampleId]
+        def sampleTotal = jSegmentUsage.values().collect { it[index] }.sum()
         sortedJSegmTotal.collect {
-            jSegmentUsage[it.key][index] / (it.value + 1e-7)
+            jSegmentUsage[it.key][index] / (sampleTotal + 1e-7)
         } as double[]
     }
 
@@ -79,9 +80,19 @@ class SegmentUsage {
         if (!sampleIndex.containsKey(sampleId))
             throw new IllegalArgumentException("$sampleId is not in the sample collection used to build usage matrix")
         def index = sampleIndex[sampleId]
+        def sampleTotal = jSegmentUsage.values().collect { it[index] }.sum()
         sortedVSegmTotal.collect {
-            vSegmentUsage[it.key][index] / (it.value + 1e-7)
+            vSegmentUsage[it.key][index] / (sampleTotal + 1e-7)
         } as double[]
+    }
+
+    public double vJSD(String sampleId1, String sampleId2) {
+        double[] p = vUsageVector(sampleId1), q = vUsageVector(sampleId2)
+
+        (0..<p.length).collect { int i ->
+            double m = (p[i] + q[i]) / 2.0
+            (p[i] > 0 ? (Math.log(p[i] / m) * p[i]) : 0d) + (q[i] > 0 ? (Math.log(q[i] / m) * q[i]) : 0d)
+        }.sum() / 2.0 / Math.log(2)
     }
 
     public String[] jUsageHeader() {
