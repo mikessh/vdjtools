@@ -17,32 +17,78 @@
 package com.antigenomics.vdjtools.basic
 
 import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.sample.SampleCollection
 
 class SegmentUsage {
-    private final Map<String, double[]> vSegmentUsage, jSegmentUsage
-    private final int n
+    private final Map<String, double[]> vSegmentUsage = new HashMap<>(), jSegmentUsage = new HashMap<>()
+    private final Map<String, Integer> sampleIndex = new HashMap<>()
+    private Map<String, Double> sortedVSegmTotal = new HashMap<>(), sortedJSegmTotal = new HashMap<>()
+    private final sampleCollection
     private final boolean unweighted
 
-    public SegmentUsage(int nSamples, boolean unweighted) {
-        this.n = nSamples
+    public SegmentUsage(SampleCollection sampleCollection, boolean unweighted) {
+        this.sampleCollection = sampleCollection
         this.unweighted = unweighted
+        // ok to use in batch intersect as all samples are pre-loaded
+        sampleCollection.eachWithIndex { it, ind -> process(it, ind) }
+        summarize()
     }
 
-    public void addAll(Iterable<Clonotype> sample, int sampleIndex) {
+    private void process(Sample sample, int index) {
+        println "[${new Date()} SegmentUsage] Processing sample ${sample.sampleMetadata.sampleId}"
         sample.each { Clonotype clonotype ->
             def vArray = vSegmentUsage[clonotype.v],
                 jArray = jSegmentUsage[clonotype.j]
 
             if (!vArray)
-                vSegmentUsage.put(clonotype.v, vArray = new double[n])
+                vSegmentUsage.put(clonotype.v, vArray = new double[sampleCollection.size()])
 
             if (!jArray)
-                jSegmentUsage.put(clonotype.j, jArray = new double[n])
+                jSegmentUsage.put(clonotype.j, jArray = new double[sampleCollection.size()])
 
             def increment = unweighted ? 1 : clonotype.freq
 
-            vArray[sampleIndex] += increment
-            jArray[sampleIndex] += increment
+            vArray[index] += increment
+            jArray[index] += increment
         }
+        sampleIndex.put(sample.sampleMetadata.sampleId, index)
+    }
+
+    private void summarize() {
+        vSegmentUsage.each {
+            sortedVSegmTotal.put(it.key, (double) it.value.collect().sum() ?: 0)
+        }
+        sortedVSegmTotal = sortedVSegmTotal.sort()
+        jSegmentUsage.each {
+            sortedJSegmTotal.put(it.key, (double) it.value.collect().sum() ?: 0)
+        }
+        sortedJSegmTotal = sortedJSegmTotal.sort()
+    }
+
+    public double[] jUsageVector(String sampleId) {
+        if (!sampleIndex.containsKey(sampleId))
+            throw new IllegalArgumentException("$sampleId is not in the sample collection used to build usage matrix")
+        def index = sampleIndex[sampleId]
+        sortedJSegmTotal.collect {
+            jSegmentUsage[it.key][index] / (it.value + 1e-7)
+        } as double[]
+    }
+
+    public double[] vUsageVector(String sampleId) {
+        if (!sampleIndex.containsKey(sampleId))
+            throw new IllegalArgumentException("$sampleId is not in the sample collection used to build usage matrix")
+        def index = sampleIndex[sampleId]
+        sortedVSegmTotal.collect {
+            vSegmentUsage[it.key][index] / (it.value + 1e-7)
+        } as double[]
+    }
+
+    public String[] jUsageHeader() {
+        sortedJSegmTotal.collect { it.key }
+    }
+
+    public String[] vUsageHeader() {
+        sortedVSegmTotal.collect { it.key }
     }
 }

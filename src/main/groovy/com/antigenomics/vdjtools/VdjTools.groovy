@@ -1,6 +1,7 @@
 package com.antigenomics.vdjtools
 
 import com.antigenomics.vdjtools.basic.CalcBasicStats
+import com.antigenomics.vdjtools.basic.CalcSegmentUsage
 import com.antigenomics.vdjtools.basic.CalcSpectratype
 import com.antigenomics.vdjtools.util.ExecUtil
 
@@ -33,6 +34,7 @@ def printHelp = {
     println "[Single-sample statistics]"
     println "CalcBasicStats"
     println "CalcSpectratype"
+    println "CalcSegmentUsage"
     println ""
 }
 
@@ -42,6 +44,8 @@ def getScript = { String scriptName ->
             return new CalcBasicStats()
         case "CALCSPECTRATYPE":
             return new CalcSpectratype()
+        case "CALCSEGMENTUSAGE":
+            return new CalcSegmentUsage()
         case "-H":
         case "H":
         case "-HELP":
