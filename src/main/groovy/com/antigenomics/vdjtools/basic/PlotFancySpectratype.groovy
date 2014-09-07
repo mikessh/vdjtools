@@ -54,7 +54,7 @@ ExecUtil.ensureDir(outputPrefix)
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 //
-// Batch load all samples (lazy)
+// Read the sample
 //
 
 println "[${new Date()} $scriptName] Reading sample"
@@ -62,20 +62,24 @@ println "[${new Date()} $scriptName] Reading sample"
 def sampleCollection = new SampleCollection([opt.arguments()[0]], software, false)
 
 def sample = sampleCollection[0]
-sample.renormalize()
+sample.renormalize() // ensure normalization as we're going to subtract top clonotype frequencies
 
+// Calculate spectratype
 def spectratype = new Spectratype(aminoAcid, false)
 
 spectratype.addAll(sample)
 
-def topClonotypes = sample.top(top)
-
 def spectratypeHist = spectratype.histogram
 
+// Calculate top clonotypes and subtract their frequencies
+
+def topClonotypes = sample.top(top)
 topClonotypes.each {
     def bin = spectratype.bin(it)
     spectratypeHist[bin] -= it.freq
 }
+
+// Prepair output table
 
 def spectraMatrix = new double[spectratypeHist.length][top + 1]
 
@@ -93,15 +97,18 @@ for (int i = 0; i < spectratypeHist.length; i++) {
     table += "\n" + spectratype.lengths[i] + "\t" + spectraMatrix[i].collect().join("\t")
 }
 
-println "[${new Date()} $scriptName] Plotting data"
+// Output
 
-new File(outputPrefix + "_fancyspectra.txt").withPrintWriter { pw ->
+println "[${new Date()} $scriptName] Writing output and plotting data"
+
+new File(outputPrefix + ".fancyspectra.txt").withPrintWriter { pw ->
     pw.println(table)
 }
 
 RUtil.execute("fancy_spectratype.r",
-        table, outputPrefix + "_fancyspectra.pdf"
+        table, outputPrefix + ".fancyspectra.pdf"
 )
 
+println "[${new Date()} $scriptName] Finished"
 
 

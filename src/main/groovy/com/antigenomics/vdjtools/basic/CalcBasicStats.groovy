@@ -36,7 +36,7 @@ def opt = cli.parse(args)
 if (opt == null)
     System.exit(-1)
 
-if (opt.h) {
+if (opt.h || opt.arguments().size() == 0) {
     cli.usage()
     System.exit(-1)
 }
@@ -53,6 +53,8 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
     cli.usage()
     System.exit(-1)
 }
+
+// Remaining arguments
 
 def software = Software.byName(opt.S),
     outputFileName = opt.arguments()[-1]
@@ -77,7 +79,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 // Compute and output diversity measures, spectratype, etc
 //
 
-new File(outputFileName + "_basicstats.txt").withPrintWriter { pw ->
+new File(outputFileName + ".basicstats.txt").withPrintWriter { pw ->
     def header = "#sample_id\t" +
             sampleCollection.metadataTable.getColumnIterator().collect().join("\t") + "\t" +
             BasicStats.HEADER

@@ -1,11 +1,3 @@
-package com.antigenomics.vdjtools
-
-import com.antigenomics.vdjtools.basic.CalcBasicStats
-import com.antigenomics.vdjtools.basic.CalcSegmentUsage
-import com.antigenomics.vdjtools.basic.CalcSpectratype
-import com.antigenomics.vdjtools.basic.PlotFancySpectratype
-import com.antigenomics.vdjtools.util.ExecUtil
-
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
 
@@ -22,6 +14,16 @@ import com.antigenomics.vdjtools.util.ExecUtil
  limitations under the License.
  */
 
+
+package com.antigenomics.vdjtools
+
+import com.antigenomics.vdjtools.basic.CalcBasicStats
+import com.antigenomics.vdjtools.basic.CalcSegmentUsage
+import com.antigenomics.vdjtools.basic.CalcSpectratype
+import com.antigenomics.vdjtools.basic.PlotFancySpectratype
+import com.antigenomics.vdjtools.diversity.CalcDiversityStats
+import com.antigenomics.vdjtools.util.ExecUtil
+
 import java.util.jar.JarFile
 
 def version = (getClass().classLoader.findResource(JarFile.MANIFEST_NAME).text =~
@@ -30,13 +32,16 @@ def version = (getClass().classLoader.findResource(JarFile.MANIFEST_NAME).text =
 def printHelp = {
     println "VdjTools V$version"
     println ""
-    println "Run as \$java -jar vdjtools-${version}.jar SCRIPT_NAME arguments"
+    println "Run as \$java -jar vdjtools-${version}.jar ROUTINE_NAME arguments"
     println ""
     println "[Single-sample statistics]"
     println "CalcBasicStats"
     println "CalcSpectratype"
     println "CalcSegmentUsage"
     println "PlotFancySpectratype"
+    println ""
+    println "[Sample diversity]"
+    println "CalcDiversityStats"
     println ""
 }
 
@@ -50,6 +55,8 @@ def getScript = { String scriptName ->
             return new CalcSegmentUsage()
         case "PLOTFANCYSPECTRATYPE":
             return new PlotFancySpectratype()
+        case "CALCDIVERSITYSTATS":
+            return new CalcDiversityStats()
         case "-H":
         case "H":
         case "-HELP":
@@ -62,7 +69,7 @@ def getScript = { String scriptName ->
         default:
             printHelp()
             println ""
-            println "Unknown MAIN PIPELINE script $scriptName"
+            println "Unknown routine name $scriptName"
             System.exit(-1)
     }
 }

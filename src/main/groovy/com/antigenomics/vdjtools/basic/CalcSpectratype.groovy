@@ -36,7 +36,7 @@ cli.u(longOpt: "unweighted", "Will count each clonotype only once, apart from co
 
 def opt = cli.parse(args)
 
-if (opt == null)
+if (opt == null || opt.arguments().size() == 0)
     System.exit(-1)
 
 if (opt.h) {
@@ -81,9 +81,9 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 // Compute and output diversity measures, spectratype, etc
 //
 
-new File(outputFileName + "_spectratype" +
-        (aminoAcid ? "_aa" : "_nt") +
-        (unweighted ? "_unweighted" : "") +
+new File(outputFileName + ".spectratype" +
+        (aminoAcid ? ".aa" : ".nt") +
+        (unweighted ? ".unweighted" : "") +
         ".txt").withPrintWriter { pw ->
     def spectratype = new Spectratype(aminoAcid, unweighted)
 

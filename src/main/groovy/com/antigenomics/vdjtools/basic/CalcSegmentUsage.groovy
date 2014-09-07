@@ -36,7 +36,7 @@ def opt = cli.parse(args)
 if (opt == null)
     System.exit(-1)
 
-if (opt.h) {
+if (opt.h || opt.arguments().size() == 0) {
     cli.usage()
     System.exit(-1)
 }
@@ -81,8 +81,8 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
 def segmentUsage = new SegmentUsage(sampleCollection, unweighted)
 
-new File(outputFileName + "_segments" + (unweighted ? "_unweighted" : "") + "_V.txt").withPrintWriter { pwV ->
-    new File(outputFileName + "_segments" + (unweighted ? "_unweighted" : "") + "_J.txt").withPrintWriter { pwJ ->
+new File(outputFileName + ".segments" + (unweighted ? ".unweighted" : "") + ".V.txt").withPrintWriter { pwV ->
+    new File(outputFileName + ".segments" + (unweighted ? ".unweighted" : "") + ".J.txt").withPrintWriter { pwJ ->
         def header = "#sample_id\t" + sampleCollection.metadataTable.getColumnIterator().collect().join("\t")
 
         pwV.println(header + "\t" + segmentUsage.vUsageHeader().join("\t"))
