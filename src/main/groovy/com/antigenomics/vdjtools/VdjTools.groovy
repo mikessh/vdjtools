@@ -22,6 +22,9 @@ import com.antigenomics.vdjtools.basic.CalcSegmentUsage
 import com.antigenomics.vdjtools.basic.CalcSpectratype
 import com.antigenomics.vdjtools.basic.PlotFancySpectratype
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
+import com.antigenomics.vdjtools.diversity.DownSample
+import com.antigenomics.vdjtools.intersection.BatchIntersectPair
+import com.antigenomics.vdjtools.intersection.IntersectPair
 import com.antigenomics.vdjtools.util.ExecUtil
 
 import java.util.jar.JarFile
@@ -42,7 +45,12 @@ def printHelp = {
     println ""
     println "[Sample diversity]"
     println "CalcDiversityStats"
+    println "DownSample"
     println ""
+    println "[Cross-sample analysis]"
+    println "IntersectPair"
+    println "BatchIntersectPair"
+
 }
 
 def getScript = { String scriptName ->
@@ -57,6 +65,12 @@ def getScript = { String scriptName ->
             return new PlotFancySpectratype()
         case "CALCDIVERSITYSTATS":
             return new CalcDiversityStats()
+        case "DOWNSAMPLE":
+            return new DownSample()
+        case "INTERSECTPAIR":
+            return new IntersectPair()
+        case "BATCHINTERSECTPAIR":
+            return new BatchIntersectPair()
         case "-H":
         case "H":
         case "-HELP":

@@ -73,14 +73,14 @@ def timeCourse = pairedIntersection.asTimeCourse()
 
 println "[${new Date()} $scriptName] Writing output"
 
-new File(outputFilePrefix + "_summary.txt").withPrintWriter { pw ->
+new File(outputFilePrefix + ".summary.txt").withPrintWriter { pw ->
     // summary statistics: intersection size (count, freq and unique clonotypes)
     // count correlation within intersected set
     pw.println("#sample1\tsample2\t" + PairedIntersection.HEADER)
     pw.println(pairedIntersection)
 }
 
-new File(outputFilePrefix + "_table.txt").withPrintWriter { pw ->
+new File(outputFilePrefix + ".table.txt").withPrintWriter { pw ->
     // all clonotypes in intersection
     timeCourse.print(pw, true)
 }
@@ -90,7 +90,7 @@ if (opt.c) {
     int top = (opt.c).toInteger()
     def collapsedTimeCourse = timeCourse.collapseBelow(top)
 
-    new File(outputFilePrefix + "_table_collapsed.txt").withPrintWriter { pw ->
+    new File(outputFilePrefix + ".table_collapsed.txt").withPrintWriter { pw ->
         collapsedTimeCourse.print(pw, true)
     }
 }
@@ -100,21 +100,21 @@ def log = { double x ->
 }
 
 if (opt.p) {
-    def xyFile = new File(outputFilePrefix + "_xy.txt")
+    def xyFile = new File(outputFilePrefix + ".xy.txt")
     xyFile.withPrintWriter { pw ->
         pw.println("x\ty")
         timeCourse.each { pw.println(it.frequencies.collect { log(it) }.join("\t")) }
     }
     xyFile.deleteOnExit()
 
-    def xxFile = new File(outputFilePrefix + "_xx.txt")
+    def xxFile = new File(outputFilePrefix + ".xx.txt")
     xxFile.withPrintWriter { pw ->
         pw.println("xx")
         sample1.each { pw.println(log(it.freq)) }
     }
     xxFile.deleteOnExit()
 
-    def yyFile = new File(outputFilePrefix + "_yy.txt")
+    def yyFile = new File(outputFilePrefix + ".yy.txt")
     yyFile.withPrintWriter { pw ->
         pw.println("yy")
         sample2.each { pw.println(log(it.freq)) }
@@ -122,11 +122,11 @@ if (opt.p) {
     yyFile.deleteOnExit()
 
     RUtil.execute("intersect_pair_scatter.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
-            outputFilePrefix + "_xy.txt", outputFilePrefix + "_xx.txt", outputFilePrefix + "_yy.txt",
-            outputFilePrefix + "_scatter.pdf")
+            outputFilePrefix + ".xy.txt", outputFilePrefix + ".xx.txt", outputFilePrefix + ".yy.txt",
+            outputFilePrefix + ".scatter.pdf")
 
     if (opt.c) {
         RUtil.execute("intersect_pair_area.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
-                outputFilePrefix + "_table_collapsed.txt", outputFilePrefix + "_difference.pdf")
+                outputFilePrefix + ".table_collapsed.txt", outputFilePrefix + ".difference.pdf")
     }
 }

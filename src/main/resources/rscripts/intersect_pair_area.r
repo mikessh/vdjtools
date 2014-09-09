@@ -26,6 +26,7 @@ getcol_c = function(lst, col){
 table <- read.delim(file_xy)
 n <- nrow(table)
 m <- ncol(table)
+table <- table[n:1, ]
 
 x1 <- getcol_n(table, m - 1)
 x2 <- getcol_n(table, m)
@@ -59,7 +60,7 @@ ggplot(df, aes(x = sample, y = expr)) +
     xlab("") +
     scale_x_discrete(expand = c(0,0), labels=c(sample1_id, sample2_id)) +
     scale_y_continuous(expand = c(0,0)) +
-    scale_fill_manual(values = gs.pal(n)) +
+    scale_fill_manual(values = c("grey25", "grey50", gs.pal(n - 2))) +
     theme(legend.position = "none") +
     geom_text(data = dd, aes(x = "s2", y = cum, label = cdr3aa, size = expr), hjust = 1, vjust = 1)
 
