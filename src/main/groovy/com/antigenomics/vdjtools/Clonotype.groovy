@@ -55,7 +55,7 @@ class Clonotype implements Countable {
                       String v, String d, String j,
                       String cdr1nt, String cdr2nt, String cdr3nt,
                       String cdr1aa, String cdr2aa, String cdr3aa,
-                      boolean inFrame, boolean isComplete, boolean noStop) {
+                      boolean inFrame, boolean noStop, boolean isComplete) {
         this.count = count
         this.freq = freq
         this.v = v
@@ -69,8 +69,8 @@ class Clonotype implements Countable {
         this.cdr3aa = cdr3aa
         this.key = key
         this.inFrame = inFrame
-        this.isComplete = isComplete
         this.noStop = noStop
+        this.isComplete = isComplete
     }
 
     static Clonotype parseClonotype(String clonotypeString, Software software) {
@@ -98,6 +98,7 @@ class Clonotype implements Countable {
         def freq = splitString[1].toDouble()
 
         String cdr1nt = null, cdr2nt = null, cdr3nt, cdr1aa = null, cdr2aa = null, cdr3aa
+
         cdr3nt = splitString[2]
         cdr3aa = splitString[3]
 
@@ -105,7 +106,8 @@ class Clonotype implements Countable {
         (v, d, j) = extractVDJ(splitString[4..-1])
 
         boolean inFrame = !(cdr3aa.contains("~") || cdr3aa.contains("?")),
-                noStop = !cdr3aa.contains("*"), isComplete = true
+                noStop = !cdr3aa.contains("*"),
+                isComplete = true
 
         def clonotype = new Clonotype(count, freq,
                 v, d, j,
@@ -125,13 +127,17 @@ class Clonotype implements Countable {
         def freq = splitString[1].toDouble()
 
         String cdr1nt = null, cdr2nt = null, cdr3nt, cdr1aa = null, cdr2aa = null, cdr3aa
+
         cdr3nt = splitString[2]
         cdr3aa = splitString[5]
+
 
         String v, d, j
         (v, d, j) = extractVDJ(splitString[[7, 11, 9]])
 
-        boolean inFrame = !cdr3aa.contains("~"), noStop = !cdr3aa.contains("*"), isComplete = true
+        boolean inFrame = !cdr3aa.contains('~'),
+                noStop = !cdr3aa.contains('*'),
+                isComplete = true
 
         def clonotype = new Clonotype(count, freq,
                 v, d, j,
@@ -246,7 +252,7 @@ class Clonotype implements Countable {
             def major = it.split(",")[0]
             major = major.split("\\*")[0] // trim allele if present
             major = major.replaceAll("\"", "")  // zap characters introduced by opening file in Excel
-            major.length() > 0 ? major : ""
+            major.length() > 0 ? major : "."
         }
     }
 

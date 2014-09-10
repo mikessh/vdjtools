@@ -20,10 +20,12 @@ package com.antigenomics.vdjtools
 import com.antigenomics.vdjtools.basic.CalcBasicStats
 import com.antigenomics.vdjtools.basic.CalcSegmentUsage
 import com.antigenomics.vdjtools.basic.CalcSpectratype
+import com.antigenomics.vdjtools.basic.FilterNonFunctional
 import com.antigenomics.vdjtools.basic.PlotFancySpectratype
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.DownSample
 import com.antigenomics.vdjtools.intersection.BatchIntersectPair
+import com.antigenomics.vdjtools.intersection.BatchIntersectPairPlot
 import com.antigenomics.vdjtools.intersection.IntersectPair
 import com.antigenomics.vdjtools.util.ExecUtil
 
@@ -42,6 +44,7 @@ def printHelp = {
     println "CalcSpectratype"
     println "CalcSegmentUsage"
     println "PlotFancySpectratype"
+    println "FilterNonFunctional"
     println ""
     println "[Sample diversity]"
     println "CalcDiversityStats"
@@ -50,6 +53,7 @@ def printHelp = {
     println "[Cross-sample analysis]"
     println "IntersectPair"
     println "BatchIntersectPair"
+    println "BatchIntersectPairPlot"
 
 }
 
@@ -65,12 +69,16 @@ def getScript = { String scriptName ->
             return new PlotFancySpectratype()
         case "CALCDIVERSITYSTATS":
             return new CalcDiversityStats()
+        case "FILTERNONFUNCTIONAL":
+            return new FilterNonFunctional()
         case "DOWNSAMPLE":
             return new DownSample()
         case "INTERSECTPAIR":
             return new IntersectPair()
         case "BATCHINTERSECTPAIR":
             return new BatchIntersectPair()
+        case "BATCHINTERSECTPAIRPLOT":
+            return new BatchIntersectPairPlot()
         case "-H":
         case "H":
         case "-HELP":

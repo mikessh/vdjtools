@@ -42,6 +42,14 @@ class Sample implements Iterable<Clonotype> {
         new Sample(sampleMetadata, clonotypes.sort { -it.freq }.subList(0, numberOfClonotypes - 1))
     }
 
+    Sample functional() {
+        def sample = new Sample(sampleMetadata, clonotypes.findAll {
+            it.inFrame && it.noStop
+        })
+        sample.renormalize()
+        sample
+    }
+
     Sample clone() {
         new Sample(sampleMetadata, clonotypes)
     }
