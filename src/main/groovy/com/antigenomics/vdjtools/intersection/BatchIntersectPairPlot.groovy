@@ -44,12 +44,16 @@ if (opt.h || opt.arguments().size() < 2) {
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 def inputFileName = opt.arguments()[0],
-    sampleId = "sample_id", factorName = opt.f, numFactor = opt.n,
+    sampleId = "sample_id".toUpperCase(), factorName = opt.f, numFactor = opt.n,
     measureName = (opt.m ?: "F").toUpperCase(), labelName = (opt.l ?: "sample_id").toUpperCase(),
-    hcFileName = opt.arguments()[1] + "_hc.pdf", mdsFileName = opt.arguments()[1] + "_mds.pdf"
+    hcFileName = opt.arguments()[1] + ".batch_intersect_hc.pdf",
+    mdsFileName = opt.arguments()[1] + ".batch_intersect_mds.pdf"
 
-if (factorName)
+def factorNameOrig = null
+if (factorName) {
+    factorNameOrig = factorName
     factorName = factorName.toUpperCase()
+}
 
 // Read header
 
@@ -107,7 +111,7 @@ RUtil.execute("batch_intersect_pair_clust.r",
         measureColInd,
         factorCol1Ind, factorCol2Ind,
         labelCol1Ind, labelCol2Ind,
-        factorName ?: "NA", numFactor ? "TRUE" : "FALSE",
+        factorNameOrig ?: "NA", numFactor ? "TRUE" : "FALSE",
         hcFileName, mdsFileName
 )
 

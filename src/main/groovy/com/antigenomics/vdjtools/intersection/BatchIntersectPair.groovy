@@ -105,7 +105,7 @@ intersectionTypes.each { IntersectionType intersectionType ->
 
     println "[${new Date()} $scriptName] Writing results"
 
-    new File(outputFileName + "_" + intersectionType.shortName + ".txt").withPrintWriter { pw ->
+    new File(outputFileName + ".batch_intersect_" + intersectionType.shortName + ".txt").withPrintWriter { pw ->
         pairedIntersectionMatrix.print(pw)
     }
 }
