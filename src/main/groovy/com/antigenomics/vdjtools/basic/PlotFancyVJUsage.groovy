@@ -54,11 +54,11 @@ def sampleCollection = new SampleCollection([opt.arguments()[0]], software, fals
 
 def sample = sampleCollection[0]
 
-// Calculate spectratype
+// Calculate segment usage
 def segmentUsage = new SegmentUsage(sampleCollection, unweighted)
 
-// Output
 
+// Output
 println "[${new Date()} $scriptName] Writing output and plotting data"
 
 new File(outputPrefix + ".fancyvj.txt").withPrintWriter { pw ->
@@ -67,6 +67,8 @@ new File(outputPrefix + ".fancyvj.txt").withPrintWriter { pw ->
     vjMatrix.eachWithIndex { double[] vVectorByJ, int i ->
         pw.println(segmentUsage.jUsageHeader()[i] + "\t" + vVectorByJ.collect().join("\t"))
     }
+
+    // ! TODO: plot using external Circos and Circos/Tableviewer intallation
 }
 
 println "[${new Date()} $scriptName] Finished"
