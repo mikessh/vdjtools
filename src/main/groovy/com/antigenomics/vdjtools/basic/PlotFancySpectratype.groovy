@@ -42,7 +42,7 @@ if (opt.h || opt.arguments().size() != 2) {
 
 def software = Software.byName(opt.S),
     outputPrefix = opt.arguments()[1],
-    aminoAcid = opt.a, top = opt.t ?: 20
+    top = opt.t ?: 20
 
 if (top > 20) {
     println "[ERROR] Specified number of top clonotypes should not exceed 20"
