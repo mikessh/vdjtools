@@ -18,8 +18,8 @@ package com.antigenomics.vdjtools.basic
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.util.CircosUtil
 import com.antigenomics.vdjtools.util.ExecUtil
+import com.antigenomics.vdjtools.util.RUtil
 
 def cli = new CliBuilder(usage: "PlotFancyVJUsage [options] input_name output_prefix")
 cli.h("display help message")
@@ -59,8 +59,8 @@ def sampleId = sample.sampleMetadata.sampleId
 // Calculate segment usage
 def segmentUsage = new SegmentUsage(sampleCollection, unweighted)
 
-// Output
-println "[${new Date()} $scriptName] Writing output and plotting data"
+// Output and plotting
+println "[${new Date()} $scriptName] Writing output"
 
 new File(outputPrefix + ".fancyvj.txt").withPrintWriter { pw ->
     pw.println(".\t" + segmentUsage.vUsageHeader().collect().join("\t"))
@@ -70,7 +70,11 @@ new File(outputPrefix + ".fancyvj.txt").withPrintWriter { pw ->
     }
 }
 
-// ! TODO: plot using circlize r package
+println "[${new Date()} $scriptName] Plotting data (be patient, complex graphics)"
+
+RUtil.execute("table_circ.r",
+        outputPrefix + ".fancyvj.txt", outputPrefix + ".fancyvj.pdf"
+)
 
 
 println "[${new Date()} $scriptName] Finished"
