@@ -18,11 +18,12 @@ package com.antigenomics.vdjtools.sample
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Software
-import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 import org.apache.commons.io.FilenameUtils
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
 
 class SampleUtil {
+    private static int counter = 0
+
     static List<Clonotype> loadClonotypes(String fileName, Software software) {
         def clonotypes = new ArrayList()
         def inputFile = new File(fileName)
@@ -42,11 +43,11 @@ class SampleUtil {
     }
 
     static Sample loadSample(String fileName, Software software) {
-        new Sample(FilenameUtils.getBaseName(fileName), loadClonotypes(fileName, software))
+        new Sample(FilenameUtils.getBaseName(fileName) + "_" + (++counter), loadClonotypes(fileName, software))
     }
 
     static Sample blankSample(String fileName) {
-        new Sample(FilenameUtils.getBaseName(fileName), new ArrayList<Clonotype>())
+        new Sample(FilenameUtils.getBaseName(fileName) + "_" + (++counter), new ArrayList<Clonotype>())
     }
 
     static double correlation(List<Clonotype> clonotypes1, List<Clonotype> clonotypes2) {

@@ -111,28 +111,30 @@ class SampleCollection implements Iterable<Sample> {
 
             def line, splitLine
             while ((line = reader.readLine()) != null) {
-                splitLine = line.split("\t")
-                String fileName = splitLine[0], sampleId = splitLine[1]
+                if (!line.startsWith("#")) {
+                    splitLine = line.split("\t")
+                    String fileName = splitLine[0], sampleId = splitLine[1]
 
-                def entries = splitLine.length > 2 ? splitLine[2..-1] : []
+                    def entries = splitLine.length > 2 ? splitLine[2..-1] : []
 
-                def inputFile = new File(fileName)
+                    def inputFile = new File(fileName)
 
-                if (inputFile.exists() || strict) {
-                    def clonotypes = new ArrayList<Clonotype>()
+                    if (inputFile.exists() || strict) {
+                        def clonotypes = new ArrayList<Clonotype>()
 
-                    if (lazy) {
-                        filesBySample.put(sampleId, fileName)
-                    } else {
-                        clonotypes = SampleUtil.loadClonotypes(fileName, software)
-                    }
+                        if (lazy) {
+                            filesBySample.put(sampleId, fileName)
+                        } else {
+                            clonotypes = SampleUtil.loadClonotypes(fileName, software)
+                        }
 
-                    def sampleMetadata = metadataTable.createRow(sampleId, entries)
-                    def sample = new Sample(sampleMetadata, clonotypes)
-                    sampleMap.put(sampleId, sample)
-                    reportProgress(sample)
-                } else
-                    println "[${new Date()} SampleCollection] WARNING: File $fileName not found, skipping"
+                        def sampleMetadata = metadataTable.createRow(sampleId, entries)
+                        def sample = new Sample(sampleMetadata, clonotypes)
+                        sampleMap.put(sampleId, sample)
+                        reportProgress(sample)
+                    } else
+                        println "[${new Date()} SampleCollection] WARNING: File $fileName not found, skipping"
+                }
             }
         }
 

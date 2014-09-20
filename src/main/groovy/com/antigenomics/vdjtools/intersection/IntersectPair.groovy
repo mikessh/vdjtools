@@ -16,9 +16,9 @@
 
 package com.antigenomics.vdjtools.intersection
 
-import com.antigenomics.vdjtools.util.RUtil
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleUtil
+import com.antigenomics.vdjtools.util.RUtil
 
 def cli = new CliBuilder(usage: "IntersectPair [options] sample1 sample2 output_prefix")
 cli.h("display help message")
@@ -61,7 +61,7 @@ def sample1 = SampleUtil.loadSample(sample1FileName, software),
 
 println "[${new Date()} $scriptName] Intersecting"
 
-def intersectionUtil = new IntersectionUtil( IntersectionType.NucleotideV)
+def intersectionUtil = new IntersectionUtil(IntersectionType.NucleotideV)
 
 def pairedIntersection = intersectionUtil.generatePairedIntersection(sample1, sample2)
 
@@ -76,8 +76,8 @@ println "[${new Date()} $scriptName] Writing output"
 new File(outputFilePrefix + ".summary.txt").withPrintWriter { pw ->
     // summary statistics: intersection size (count, freq and unique clonotypes)
     // count correlation within intersected set
-    pw.println("#sample1\tsample2\t" + PairedIntersection.HEADER)
-    pw.println(pairedIntersection)
+    pw.println("#sample1_file\tsample2_file\t" + PairedIntersection.HEADER)
+    pw.println(sample1FileName + "\t" + sample2FileName + "\t" + pairedIntersection)
 }
 
 new File(outputFilePrefix + ".table.txt").withPrintWriter { pw ->
