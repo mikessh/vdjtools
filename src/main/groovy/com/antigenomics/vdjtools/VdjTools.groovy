@@ -61,6 +61,9 @@ def printHelp = {
 
 def getScript = { String scriptName ->
     switch (scriptName.toUpperCase()) {
+        // todo: setup
+        // intall r dependencies
+        // RScript is required for most plotting routines
         case "CALCBASICSTATS":
             return new CalcBasicStats()
         case "CALCSPECTRATYPE":

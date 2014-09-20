@@ -18,6 +18,7 @@ package com.antigenomics.vdjtools.basic
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
+import com.antigenomics.vdjtools.util.CircosUtil
 import com.antigenomics.vdjtools.util.ExecUtil
 
 def cli = new CliBuilder(usage: "PlotFancyVJUsage [options] input_name output_prefix")
@@ -53,24 +54,23 @@ println "[${new Date()} $scriptName] Reading sample"
 def sampleCollection = new SampleCollection([opt.arguments()[0]], software, false)
 
 def sample = sampleCollection[0]
+def sampleId = sample.sampleMetadata.sampleId
 
 // Calculate segment usage
 def segmentUsage = new SegmentUsage(sampleCollection, unweighted)
-
 
 // Output
 println "[${new Date()} $scriptName] Writing output and plotting data"
 
 new File(outputPrefix + ".fancyvj.txt").withPrintWriter { pw ->
     pw.println(".\t" + segmentUsage.vUsageHeader().collect().join("\t"))
-    def vjMatrix = segmentUsage.vjUsageMatrix(sample.sampleMetadata.sampleId)
+    def vjMatrix = segmentUsage.vjUsageMatrix(sampleId)
     vjMatrix.eachWithIndex { double[] vVectorByJ, int i ->
         pw.println(segmentUsage.jUsageHeader()[i] + "\t" + vVectorByJ.collect().join("\t"))
     }
-
-    // ! TODO: plot using external Circos and Circos/Tableviewer intallation
 }
 
+// ! TODO: plot using circlize r package
+
+
 println "[${new Date()} $scriptName] Finished"
-
-

@@ -30,4 +30,15 @@ class ExecUtil {
     static void ensureDir(String fileName) {
         new File(fileName).absoluteFile.parentFile.mkdirs()
     }
+
+    static String createTempDir(String outputPrefix) {
+        def tmpPath = new File(outputPrefix).absolutePath + "-vdjtools-" + UUID.randomUUID().toString()
+
+        def tmpFolderFile = new File(tmpPath)
+        tmpFolderFile.mkdirs()
+
+        //tmpFolderFile.deleteOnExit()
+
+        tmpPath
+    }
 }
