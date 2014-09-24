@@ -23,6 +23,7 @@ import com.antigenomics.vdjtools.basic.CalcSpectratype
 import com.antigenomics.vdjtools.basic.FilterNonFunctional
 import com.antigenomics.vdjtools.basic.PlotFancySpectratype
 import com.antigenomics.vdjtools.basic.PlotFancyVJUsage
+import com.antigenomics.vdjtools.db.ScanDatabase
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.DownSample
 import com.antigenomics.vdjtools.intersection.BatchIntersectPair
@@ -56,6 +57,9 @@ def printHelp = {
     println "IntersectPair"
     println "BatchIntersectPair"
     println "BatchIntersectPairPlot"
+    println ""
+    println "[Sample annotation]"
+    println "ScanDatabase"
 
 }
 
@@ -86,6 +90,8 @@ def getScript = { String scriptName ->
             return new BatchIntersectPair()
         case "BATCHINTERSECTPAIRPLOT":
             return new BatchIntersectPairPlot()
+        case "SCANDATABASE":
+            return new ScanDatabase()
         case "-H":
         case "H":
         case "-HELP":

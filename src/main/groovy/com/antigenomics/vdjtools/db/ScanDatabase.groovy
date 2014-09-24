@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools.basic
+package com.antigenomics.vdjtools.db
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
@@ -26,6 +26,8 @@ def cli = new CliBuilder(usage: "CalcBasicStats [options] " +
 cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
+cli.D(longOpt: "db-name", argName: "string", args: "1",
+        "Database name, currently supported: trdb")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
@@ -55,7 +57,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 // Remaining arguments
 
-def software = Software.byName(opt.S),
+def software = Software.byName(opt.S), dbName = opt.D ?: "trdb",
     outputFileName = opt.arguments()[-1]
 
 ExecUtil.ensureDir(outputFileName)
@@ -75,36 +77,40 @@ def sampleCollection = metadataFileName ?
 println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded"
 
 //
-// Compute and output diversity measures, spectratype, etc
+// Annotation
 //
 
-new File(outputFileName + ".basicstats.txt").withPrintWriter { pw ->
-    def header = "#sample_id\t" +
-            sampleCollection.metadataTable.getColumnIterator().collect().join("\t") + "\t" +
-            BasicStats.HEADER
+def dbCdrFreqs = new HashMap<String, double[]>()
+def database = new CdrDatabase(dbName)
 
-    pw.println(header)
+database.each { dbCdrFreqs.put(it, new double[sampleCollection.size()]) }
 
-    //def results = new LinkedList<>()
+println "[${new Date()} $scriptName] Annotating sample(s)"
 
-    //def sampleCounter = new AtomicInteger()
-    def sampleCounter = 0
+sampleCollection.eachWithIndex { Sample sample, int ind ->
+    def sampleAnnotation = new SampleAnnotation(sample)
+    println "[${new Date()} $scriptName] ${ind + 1} sample(s) prepared"
 
-    //GParsPool.withPool Util.THREADS, {
-    //results = sampleCollection.collectParallel { Sample sample ->
-    sampleCollection.each { Sample sample ->
-        def basicStats = new BasicStats(sample)
-
-        //println "[${new Date()} $scriptName] ${sampleCounter.incrementAndGet()} samples processed"
-        println "[${new Date()} $scriptName] ${++sampleCounter} sample(s) processed"
-
-        pw.println([sample.sampleMetadata.sampleId, sample.sampleMetadata, basicStats].join("\t"))
+    sampleAnnotation.getEntryFrequencies(database).each {
+        dbCdrFreqs[it.key][ind] += it.value
     }
-    //}
+    println "[${new Date()} $scriptName] ${ind + 1} sample(s) done"
+}
 
-    //results.each { pw.println(it) }
+//
+// Output
+//
+
+println "[${new Date()} $scriptName] Writing output"
+
+new File(outputFileName + ".annot.${dbName}.txt").withPrintWriter { pw ->
+    pw.println([database.header, sampleCollection.metadataTable.sampleIterator.collect()].flatten().join("\t"))
+    dbCdrFreqs.sort { -it.value.collect().sum() }.each {
+        def cdr = it.key, values = it.value.collect()
+        database.getAnnotationEntries(cdr).each { annotLine ->
+            pw.println([cdr, annotLine, values].flatten().join("\t"))
+        }
+    }
 }
 
 println "[${new Date()} $scriptName] Finished"
-
-

@@ -30,8 +30,7 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata." +
                 "If column named 'time' is present, it will be used to specify time point sequence.")
-cli.a(longOpt: "amino-acid", "Will use amino-acid CDR3 sequence lengths instead of nucleotide. " +
-        "Makes the table more compact but misses the input from out-of-frame sequences.")
+cli.a(longOpt: "amino-acid", "Will use amino-acid CDR3 sequence lengths instead of nucleotide.")
 cli.u(longOpt: "unweighted", "Will count each clonotype only once, apart from conventional frequency-weighted histogram.")
 
 def opt = cli.parse(args)

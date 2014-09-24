@@ -21,7 +21,12 @@ class CommonUtil {
 
     static final String AA_LIST = "[FLSYCWPHQRIMTNKVADEGX\\*\\?]"
 
-    static final char[] NTS = ['A', 'T', 'G', 'C']
+    static final char[] NTS = ['A', 'T', 'G', 'C'],
+                        AAS = ['F', 'L', 'S', 'Y',
+                               'C', 'W', 'P', 'H',
+                               'Q', 'R', 'I', 'M',
+                               'T', 'N', 'K', 'V',
+                               'A', 'D', 'E', 'G']
 
     static String memoryFootprint() {
         final factor = 1024 * 1024 * 1024
