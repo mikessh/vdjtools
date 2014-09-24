@@ -21,33 +21,38 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 
 class BasicStats {
     final Sample sample
-    private final DescriptiveStatistics cloneSize
+    private final DescriptiveStatistics cloneSize, cdr3ntLength, insertSize
     private int oofCount
     private double oofRatio
-    //private final static int SPECTRA_MIN = 8, SPECTRA_MAX = 32, SPECTRA_LEN = SPECTRA_MAX - SPECTRA_MIN + 1
-
-    //private static int spectraBin(Clonotype clonotype) {
-    //    Math.min(SPECTRA_MAX, Math.max(SPECTRA_MIN, clonotype.cdr3aa.length())) - SPECTRA_MIN
-    //}
-    //private final double[] spectratype = new double[SPECTRA_LEN]
 
     BasicStats(Sample sample) {
         this.sample = sample
 
-        cloneSize = new DescriptiveStatistics()
+        this.cloneSize = new DescriptiveStatistics()
+        this.cdr3ntLength = new DescriptiveStatistics()
+        this.insertSize = new DescriptiveStatistics()
 
         sample.clonotypes.each {
             cloneSize.addValue(it.freq)
+            cdr3ntLength.addValue(it.cdr3nt.length())
+            insertSize.addValue(it.getVJIns())
             if (!it.inFrame) {
                 oofCount++
                 oofRatio += it.freq
             }
-            //spectratype[spectraBin(it)] += it.freq
         }
     }
 
     double getMeanCloneSize() {
         cloneSize.mean
+    }
+
+    double getMeanCdr3ntLength() {
+        cdr3ntLength.mean
+    }
+
+    double getMeanInsertSize() {
+        insertSize.mean
     }
 
     double getMedianCloneSize() {
@@ -64,15 +69,14 @@ class BasicStats {
 
     static final String HEADER = "cells\tdiversity\t" +
             "mean_clone_fraction\tmedian_clone_fraction\t" +
-            "oof_count\toof_fraction"
-    //(SPECTRA_MIN..SPECTRA_MAX).collect { "S$it" }.join("\t")
+            "oof_count\toof_fraction\tmean_cdr3nt_length\tmean_insert_size"
 
     @Override
     String toString() {
         [cells, diversity,
          meanCloneSize, medianCloneSize,
-         oofCount, oofRatio
-         // spectratype.collect()
+         oofCount, oofRatio,
+         meanCdr3ntLength, meanInsertSize
         ].flatten().join("\t")
     }
 }

@@ -29,6 +29,7 @@ class Clonotype implements Countable {
     int count
     double freq
 
+    final int[] segmPoints = new int[4]
     final String v, d, j
     final String cdr1nt, cdr2nt, cdr3nt,
                  cdr1aa, cdr2aa, cdr3aa
@@ -145,6 +146,11 @@ class Clonotype implements Countable {
                 cdr1aa, cdr2aa, cdr3aa,
                 inFrame, noStop, isComplete)
 
+        clonotype.segmPoints[0] = splitString[12].toInteger()
+        clonotype.segmPoints[1] = splitString[13].isInteger() ? splitString[13].toInteger() : -1
+        clonotype.segmPoints[2] = splitString[14].isInteger() ? splitString[14].toInteger() : -1
+        clonotype.segmPoints[3] = splitString[15].toInteger()
+
         clonotype.key = [v, cdr3nt].join("_")
 
         clonotype
@@ -187,6 +193,11 @@ class Clonotype implements Countable {
                 cdr1nt, cdr2nt, cdr3nt,
                 cdr1aa, cdr2aa, cdr3aa,
                 inFrame, noStop, isComplete)
+
+        clonotype.segmPoints[0] = splitString[7].toInteger()
+        clonotype.segmPoints[1] = splitString[8].isInteger() ? splitString[8].toInteger() : -1
+        clonotype.segmPoints[2] = splitString[9].isInteger() ? splitString[9].toInteger() : -1
+        clonotype.segmPoints[3] = splitString[10].toInteger()
 
         clonotype.key = [v, cdr3nt].join("_")
 
@@ -262,6 +273,36 @@ class Clonotype implements Countable {
 
     SegmentData getVSegmentData() {
         parentVSegmentTable.getSegmentData(v)
+    }
+
+    public int getVEnd() {
+        segmPoints[0]
+    }
+
+    public int getDStart() {
+        segmPoints[1]
+    }
+
+    public int getDEnd() {
+        segmPoints[2]
+    }
+
+    public int getJStart() {
+        segmPoints[3]
+    }
+
+    public int getVDIns() {
+        segmPoints[1] >= 0 ? segmPoints[1] - segmPoints[0] + 1 : -1
+    }
+
+    public int getDJIns() {
+        segmPoints[2] >= 0 ? segmPoints[3] - segmPoints[2] + 1 : -1
+    }
+
+    public int getVJIns() {
+        segmPoints[1] >= 0 && segmPoints[2] >= 0 ?
+                getVDIns() + getDJIns() :
+                segmPoints[3] - segmPoints[1] + 1
     }
 
     //
