@@ -172,13 +172,13 @@ class SampleCollection implements Iterable<Sample> {
         this.nClonotypes += sample.clonotypes.size()
 
         if (!lazy) {
-            println "[${new Date()} SampleCollection] Loaded ${size()} samples and " +
+            println "[${new Date()} SampleCollection] Loaded ${size()} sample(s) and " +
                     "$nClonotypes clonotypes so far. " + CommonUtil.memoryFootprint()
         } else if (sample.clonotypes.size() > 0) {
-            println "[${new Date()} SampleCollection] Loaded ${++loadCounter}th sample with " +
+            println "[${new Date()} SampleCollection] Loaded sample #${++loadCounter} with " +
                     "${sample.clonotypes.size()} clonotypes so far. " + CommonUtil.memoryFootprint()
         } else {
-            println "[${new Date()} SampleCollection] Read ${size()} samples"
+            println "[${new Date()} SampleCollection] Read ${size()} sample(s)"
         }
     }
 

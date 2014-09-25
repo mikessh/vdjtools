@@ -18,9 +18,11 @@ package com.antigenomics.vdjtools
 
 enum Software {
     MiTcr("mitcr", "\t", null, 2, ["count", "freq", "cdr3nt", "blank", "blank", "cdr3aa",
-                                   "blank", "v", "blank", "j", "blank", "d"]),
+                                   "blank", "v", "blank", "j", "blank", "d",
+                                   "VEnd", "DStart", "DEnd", "JStart"]),
     MiGec("migec", "\t", null, 1, ["count", "freq", "cdr3nt", "blank", "blank", "cdr3aa",
-                                   "blank", "v", "blank", "j", "blank", "d"]),
+                                   "blank", "v", "blank", "j", "blank", "d",
+                                   "VEnd", "DStart", "DEnd", "JStart"]),
     IgBlast("igblast", "\t", "#", 0, ["blank", "blank", "count", "freq",
                                       "cdr1nt", "cdr2nt", "cdr3nt", "cdr1aa", "cdr2aa", "cdr3aa",
                                       "inFrame", "noStop", "complete",

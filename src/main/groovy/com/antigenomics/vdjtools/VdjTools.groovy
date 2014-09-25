@@ -60,7 +60,6 @@ def printHelp = {
     println ""
     println "[Sample annotation]"
     println "ScanDatabase"
-
 }
 
 def getScript = { String scriptName ->

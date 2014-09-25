@@ -70,7 +70,7 @@ println "[${new Date()} $scriptName] Reading sample(s)"
 
 def sampleCollection = metadataFileName ?
         new SampleCollection((String) metadataFileName, software, false, true) :
-        new SampleCollection(opt.arguments()[0..-2], software, false)
+        new SampleCollection(opt.arguments()[0..-2], software, true)
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded"
 

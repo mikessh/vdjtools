@@ -35,7 +35,7 @@ class BasicStats {
         sample.clonotypes.each {
             cloneSize.addValue(it.freq)
             cdr3ntLength.addValue(it.cdr3nt.length())
-            insertSize.addValue(it.getVJIns())
+            insertSize.addValue(it.VJIns)
             if (!it.inFrame) {
                 oofCount++
                 oofRatio += it.freq

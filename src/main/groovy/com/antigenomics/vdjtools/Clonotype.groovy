@@ -29,7 +29,7 @@ class Clonotype implements Countable {
     int count
     double freq
 
-    final int[] segmPoints = new int[4]
+    final int[] segmPoints
     final String v, d, j
     final String cdr1nt, cdr2nt, cdr3nt,
                  cdr1aa, cdr2aa, cdr3aa
@@ -49,14 +49,16 @@ class Clonotype implements Countable {
                 v, d, j,
                 cdr1nt, cdr2nt, cdr3nt,
                 cdr1aa, cdr2aa, cdr3aa,
-                inFrame, isComplete, noStop)
+                inFrame, isComplete, noStop,
+                segmPoints)
     }
 
     private Clonotype(int count, double freq,
                       String v, String d, String j,
                       String cdr1nt, String cdr2nt, String cdr3nt,
                       String cdr1aa, String cdr2aa, String cdr3aa,
-                      boolean inFrame, boolean noStop, boolean isComplete) {
+                      boolean inFrame, boolean noStop, boolean isComplete,
+                      int[] segmPoints) {
         this.count = count
         this.freq = freq
         this.v = v
@@ -72,6 +74,7 @@ class Clonotype implements Countable {
         this.inFrame = inFrame
         this.noStop = noStop
         this.isComplete = isComplete
+        this.segmPoints = segmPoints
     }
 
     static Clonotype parseClonotype(String clonotypeString, Software software) {
@@ -114,7 +117,8 @@ class Clonotype implements Countable {
                 v, d, j,
                 cdr1nt, cdr2nt, cdr3nt,
                 cdr1aa, cdr2aa, cdr3aa,
-                inFrame, noStop, isComplete)
+                inFrame, noStop, isComplete,
+                [-1, -1, -1, -1] as int[])
 
         clonotype.key = [v, cdr3nt].join("_")
 
@@ -136,6 +140,11 @@ class Clonotype implements Countable {
         String v, d, j
         (v, d, j) = extractVDJ(splitString[[7, 11, 9]])
 
+        def segmPoints = [splitString[12].toInteger(),
+                          splitString[13].isInteger() ? splitString[13].toInteger() : -1,
+                          splitString[14].isInteger() ? splitString[14].toInteger() : -1,
+                          splitString[15].toInteger()] as int[]
+
         boolean inFrame = !cdr3aa.contains('~'),
                 noStop = !cdr3aa.contains('*'),
                 isComplete = true
@@ -144,12 +153,8 @@ class Clonotype implements Countable {
                 v, d, j,
                 cdr1nt, cdr2nt, cdr3nt,
                 cdr1aa, cdr2aa, cdr3aa,
-                inFrame, noStop, isComplete)
-
-        clonotype.segmPoints[0] = splitString[12].toInteger()
-        clonotype.segmPoints[1] = splitString[13].isInteger() ? splitString[13].toInteger() : -1
-        clonotype.segmPoints[2] = splitString[14].isInteger() ? splitString[14].toInteger() : -1
-        clonotype.segmPoints[3] = splitString[15].toInteger()
+                inFrame, noStop, isComplete,
+                segmPoints)
 
         clonotype.key = [v, cdr3nt].join("_")
 
@@ -188,16 +193,18 @@ class Clonotype implements Countable {
 
         boolean inFrame = !cdr3aa.contains("~"), noStop = !cdr3aa.contains("*"), isComplete = true
 
+        def segmPoints = [
+                splitString[7].toInteger(),
+                splitString[8].isInteger() ? splitString[8].toInteger() : -1,
+                splitString[9].isInteger() ? splitString[9].toInteger() : -1,
+                splitString[10].toInteger()] as int[]
+
         def clonotype = new Clonotype(count, freq,
                 v, d, j,
                 cdr1nt, cdr2nt, cdr3nt,
                 cdr1aa, cdr2aa, cdr3aa,
-                inFrame, noStop, isComplete)
-
-        clonotype.segmPoints[0] = splitString[7].toInteger()
-        clonotype.segmPoints[1] = splitString[8].isInteger() ? splitString[8].toInteger() : -1
-        clonotype.segmPoints[2] = splitString[9].isInteger() ? splitString[9].toInteger() : -1
-        clonotype.segmPoints[3] = splitString[10].toInteger()
+                inFrame, noStop, isComplete,
+                segmPoints)
 
         clonotype.key = [v, cdr3nt].join("_")
 
@@ -238,7 +245,8 @@ class Clonotype implements Countable {
                 v, d, j,
                 cdr1nt, cdr2nt, cdr3nt,
                 cdr1aa, cdr2aa, cdr3aa,
-                inFrame, noStop, isComplete)
+                inFrame, noStop, isComplete,
+                [-1, -1, -1, -1] as int[])
 
         if (splitString[19] != ".")
             clonotype.mutations.addAll(splitString[19].split("\\|").collect { String mutString ->
@@ -301,7 +309,7 @@ class Clonotype implements Countable {
 
     public int getVJIns() {
         segmPoints[1] >= 0 && segmPoints[2] >= 0 ?
-                getVDIns() + getDJIns() :
+                VDIns + DJIns :
                 segmPoints[3] - segmPoints[1] + 1
     }
 

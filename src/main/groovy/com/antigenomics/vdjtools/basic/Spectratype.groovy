@@ -66,6 +66,22 @@ class Spectratype {
         }
     }
 
+    public List<Clonotype> addAllFancy(Iterable<Clonotype> sample, int top) {
+        def topClonotypes = new LinkedList<Clonotype>();
+        int counter = 0
+        sample.each { Clonotype clonotype ->
+            if (counter++ < top)
+                topClonotypes.add(clonotype)
+            else {
+                if (unweighted)
+                    this.spectratype[bin(clonotype)]++
+                else
+                    this.spectratype[bin(clonotype)] += clonotype.freq
+            }
+        }
+        topClonotypes
+    }
+
     public void clear() {
         for (int i = 0; i < len; i++)
             this.spectratype[i] = 0
