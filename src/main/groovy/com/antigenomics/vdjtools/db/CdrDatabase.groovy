@@ -22,6 +22,10 @@ class CdrDatabase implements Iterable<String> {
     public final String[] header
     private final HashMap<String, List<String[]>> cdrAnnotation = new HashMap<>()
 
+    public CdrDatabase() {
+        this("trdb")
+    }
+
     public CdrDatabase(String dbName) {
         def dbReader = CommonUtil.resourceStreamReader("db/${dbName}.txt")
         header = dbReader.readLine().split("\t")
