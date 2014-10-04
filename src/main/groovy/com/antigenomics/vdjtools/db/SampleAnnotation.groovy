@@ -35,7 +35,7 @@ class SampleAnnotation {
         def dbCdrFreqs = new HashMap<String, Double>()
 
         database.each { String seq ->
-            dbCdrFreqs.put(seq, 0)
+            dbCdrFreqs.put(seq, (Double) 0)
 
             def freq = sampleCdrFreqs[seq]
             if (freq)

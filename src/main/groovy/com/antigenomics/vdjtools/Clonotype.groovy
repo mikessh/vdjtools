@@ -188,8 +188,9 @@ class Clonotype implements Countable {
         cdr3nt = splitString[2]
         cdr3aa = splitString[3]
 
-        String v, d, j
-        (v, d, j) = extractVDJ(splitString[4..6])
+
+        String v, j, d
+        (v, j, d) = extractVDJ(splitString[4..6])
 
         boolean inFrame = !cdr3aa.contains("~"), noStop = !cdr3aa.contains("*"), isComplete = true
 
