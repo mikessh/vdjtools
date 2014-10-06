@@ -315,6 +315,18 @@ class MetadataTable {
         metadataBySample.size()
     }
 
+    String getColumnHeader() {
+        columnIds.size() > 0 ? columnIds.collect().join("\t") : "metadata_blank"
+    }
+
+    String getColumnHeader1() {
+        columnIds.size() > 0 ? columnIds.collect { "1_$it" }.join("\t") : "1_metadata_blank"
+    }
+
+    String getColumnHeader2() {
+        columnIds.size() > 0 ? columnIds.collect { "2_$it" }.join("\t") : "2_metadata_blank"
+    }
+
     @Override
     String toString() {
         "\t" + columnIds.collect().join("\t") + "\n" +

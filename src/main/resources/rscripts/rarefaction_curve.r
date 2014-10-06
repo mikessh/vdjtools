@@ -19,7 +19,6 @@ df.s[, 1:ncol(df.s)] <- apply(df.s[, 1:ncol(df.s)], 2, as.numeric)
 # format to a suitable data frame
 df.f <- data.frame(x=x, series=t(df.s))
 names(df.f) <- c("ss", labels)
-df.m <- melt(df.f, id="ss")
 
 # plot
 

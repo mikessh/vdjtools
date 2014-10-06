@@ -106,7 +106,7 @@ for (int i = 0; i <= rMax; i += rStep)
 
 new File(outputPrefix + ".diversity.txt").withPrintWriter { pwDiv ->
     def headerDiv = "#sample_id\t" +
-            sampleCollection.metadataTable.getColumnIterator().collect().join("\t") + "\t" +
+            sampleCollection.metadataTable.columnHeader + "\t" +
             "cells\t" +
             "clones_nt\tclones_aa\t" +
             "cndiv_nt_m\tcndiv_nt_std\t" +
@@ -118,7 +118,7 @@ new File(outputPrefix + ".diversity.txt").withPrintWriter { pwDiv ->
 
     pwDiv.println(headerDiv)
 
-    def headerR = ["#sample_id", sampleCollection.metadataTable.getColumnIterator().collect().join("\t"),
+    def headerR = ["#sample_id", sampleCollection.metadataTable.columnHeader,
                    "cells", "sample_diversity", rSteps].flatten().join("\t")
 
     new File(outputPrefix + ".rarefaction_nt.txt").withPrintWriter { pwRNT ->

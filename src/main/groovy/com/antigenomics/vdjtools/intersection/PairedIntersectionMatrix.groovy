@@ -100,8 +100,8 @@ class PairedIntersectionMatrix {
         if (header)
             pw.println("#" +
                     [PairedIntersection.HEADER,
-                     parentCollection.metadataTable.columnIterator.collect { "1_$it" },
-                     parentCollection.metadataTable.columnIterator.collect { "2_$it" }].flatten().join("\t").trim())
+                     parentCollection.metadataTable.columnHeader1,
+                     parentCollection.metadataTable.columnHeader2].flatten().join("\t").trim())
 
         pairedIntersections.each { PairedIntersection pairedIntersection ->
             pw.println([pairedIntersection.toString(),

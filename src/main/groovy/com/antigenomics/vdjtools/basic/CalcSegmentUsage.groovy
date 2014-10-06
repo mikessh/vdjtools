@@ -82,7 +82,7 @@ def segmentUsage = new SegmentUsage(sampleCollection, unweighted)
 
 new File(outputFileName + ".segments" + (unweighted ? ".unweighted" : "") + ".V.txt").withPrintWriter { pwV ->
     new File(outputFileName + ".segments" + (unweighted ? ".unweighted" : "") + ".J.txt").withPrintWriter { pwJ ->
-        def header = "#sample_id\t" + sampleCollection.metadataTable.getColumnIterator().collect().join("\t")
+        def header = "#sample_id\t" + sampleCollection.metadataTable.columnHeader
 
         pwV.println(header + "\t" + segmentUsage.vUsageHeader().join("\t"))
         pwJ.println(header + "\t" + segmentUsage.jUsageHeader().join("\t"))

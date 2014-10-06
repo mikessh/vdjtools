@@ -80,7 +80,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 
 new File(outputFileName + ".basicstats.txt").withPrintWriter { pw ->
     def header = "#sample_id\t" +
-            sampleCollection.metadataTable.getColumnIterator().collect().join("\t") + "\t" +
+            sampleCollection.metadataTable.columnHeader + "\t" +
             BasicStats.HEADER
 
     pw.println(header)
