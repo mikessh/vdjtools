@@ -76,6 +76,7 @@ class Sample implements Iterable<Clonotype> {
 
     void renormalize() {
         clonotypes.each {
+            // todo
             it.freq = it.count / (double) getCount()
         }
     }

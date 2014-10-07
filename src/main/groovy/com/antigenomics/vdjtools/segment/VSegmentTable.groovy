@@ -1,9 +1,3 @@
-package com.antigenomics.vdjtools.segment
-
-import com.antigenomics.vdjtools.Clonotype
-import com.antigenomics.vdjtools.util.CommonUtil
-import com.antigenomics.vdjtools.io.FastaReader
-
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
 
@@ -19,6 +13,13 @@ import com.antigenomics.vdjtools.io.FastaReader
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+
+package com.antigenomics.vdjtools.segment
+
+import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.util.CommonUtil
+import com.antigenomics.vdjtools.io.FastaReader
+
 class VSegmentTable {
     final Map<String, FrequencyCounter> countersByName = new HashMap()
     final Map<String, SegmentData> segmentByName = new HashMap<>()
