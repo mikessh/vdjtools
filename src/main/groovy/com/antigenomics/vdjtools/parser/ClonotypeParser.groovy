@@ -16,10 +16,42 @@
 
 package com.antigenomics.vdjtools.parser
 
-import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.ClonotypeJ
+import com.antigenomics.vdjtools.SampleJ
+import com.antigenomics.vdjtools.Software
 
-public abstract class ClonotypeParser {
-    public abstract Clonotype parse(String clonotypeString)
+public abstract class ClonotypeParser implements Iterable<ClonotypeJ> {
+    public static ClonotypeParser create(InputStream inputStream, Software software, SampleJ sample) {
+        ClonotypeParser parser
+        def reader = new BufferedReader(new InputStreamReader(inputStream))
+
+        switch (software) {
+            case Software.MiTcr:
+                parser = new MiTcrParser(inputStream: inputStream, software: software, sample: sample)
+                break
+            case Software.IgBlast:
+                parser = new IgBlastParser(inputStream: inputStream, software: software, sample: sample)
+                break
+            case Software.Simple:
+                parser = new SimpleParser(inputStream: inputStream, software: software, sample: sample)
+                break
+            case Software.MiGec:
+                parser = new MiGecParser(inputStream: inputStream, software: software, sample: sample)
+                break
+            default:
+                throw new UnsupportedOperationException("Don't know how to parse $software data")
+        }
+
+        (1..software.headerLineCount).each { reader.readLine() }
+
+        return parser
+    }
+
+    protected final Software software
+    protected final InputStream inputStream
+    protected final SampleJ sample
+
+    protected abstract ClonotypeJ parse(String clonotypeString)
 
     /**
      * Internal util, extracts most probable allele
@@ -31,5 +63,12 @@ public abstract class ClonotypeParser {
             major = major.replaceAll("\"", "")  // zap characters introduced by opening file in Excel
             major.length() > 0 ? major : "."
         }
+    }
+
+    @Override
+    Iterator<ClonotypeJ> iterator() {
+        [hasNext: {
+            header != null
+        }, next: { next() }] as Iterator
     }
 }

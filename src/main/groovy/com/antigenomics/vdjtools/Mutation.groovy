@@ -1,4 +1,3 @@
-package com.antigenomics.vdjtools
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
 
@@ -15,19 +14,21 @@ package com.antigenomics.vdjtools
  limitations under the License.
  */
 
+package com.antigenomics.vdjtools
+
 class Mutation {
     final String key, ntString, aaString, region
     final int ntPos, aaPos
     final char fromAa, toAa, fromNt, toNt
     final boolean isSilent, isStop, directed
-    final Clonotype parent
+    final ClonotypeJ parent
     double altFreq
 
     private Mutation(String region,
                      int ntPos, int aaPos,
                      char fromAa, char toAa, char fromNt, char toNt,
                      boolean directed,
-                     Clonotype parent) {
+                     ClonotypeJ parent) {
         this.parent = parent
         this.directed = directed
         def delim = directed ? ">" : "<>"
@@ -45,14 +46,14 @@ class Mutation {
         this.key = region + ":" + ntString
     }
 
-    Mutation reassignParent(Clonotype parent) {
+    Mutation reassignParent(ClonotypeJ parent) {
         new Mutation(region,
                 ntPos, aaPos,
                 fromAa, toAa, fromNt, toNt,
                 directed, parent)
     }
 
-    static Mutation parseIgBlastMutation(String mutationString, Clonotype parent) {
+    static Mutation parseIgBlastMutation(String mutationString, ClonotypeJ parent) {
         def splitString = mutationString.split(",")
 
         def ntString = splitString[1]
@@ -77,7 +78,7 @@ class Mutation {
 
     static Mutation cdr3Mutation(int ntPos, char fromNt, char toNt,
                                  int aaPos, char fromAa, char toAa,
-                                 boolean directed, Clonotype parent) {
+                                 boolean directed, ClonotypeJ parent) {
         new Mutation("CDR3",
                 ntPos, aaPos,
                 fromAa, toAa, fromNt, toNt,

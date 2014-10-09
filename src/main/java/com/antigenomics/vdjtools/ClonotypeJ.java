@@ -16,27 +16,31 @@
 
 package com.antigenomics.vdjtools;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ClonotypeJ {
+public class ClonotypeJ implements Comparable<ClonotypeJ> {
+    private final SampleJ parent;
     private final int count;
     private final double freq;
 
     private final int[] segmPoints;
     private final String v, d, j;
-    private final String cdr1nt, cdr2nt, cdr3nt, cdr1aa, cdr2aa, cdr3aa;
+    private final String cdr1nt, cdr2nt, cdr3nt,
+            cdr1aa, cdr2aa, cdr3aa;
 
     private final boolean inFrame, isComplete, noStop;
 
     private final Set<Mutation> mutations;
 
-    public ClonotypeJ(int count, double freq,
+    public ClonotypeJ(SampleJ parent, int count, double freq,
                       int[] segmPoints, String v, String d, String j,
                       String cdr1nt, String cdr2nt, String cdr3nt,
                       String cdr1aa, String cdr2aa, String cdr3aa,
                       boolean inFrame, boolean isComplete, boolean noStop,
                       Set<Mutation> mutations) {
+        this.parent = parent;
         this.count = count;
         this.freq = freq;
         this.segmPoints = segmPoints;
@@ -55,8 +59,32 @@ public class ClonotypeJ {
         this.mutations = mutations;
     }
 
+    public ClonotypeJ(ClonotypeJ toClone) {
+        this(toClone, toClone.parent, toClone.count);
+    }
+
+    public ClonotypeJ(ClonotypeJ toClone, SampleJ newParent) {
+        this(toClone, newParent, toClone.count);
+    }
+
+    public ClonotypeJ(ClonotypeJ toClone, SampleJ newParent, int newCount) {
+        this(newParent, newCount, toClone.freq,
+                toClone.segmPoints, toClone.v, toClone.d, toClone.j,
+                toClone.cdr1nt, toClone.cdr2nt, toClone.cdr3nt,
+                toClone.cdr1aa, toClone.cdr2aa, toClone.cdr3aa,
+                toClone.inFrame, toClone.isComplete, toClone.noStop,
+                new HashSet<Mutation>());
+
+        for (Mutation mutation : toClone.mutations)
+            mutations.add(mutation.reassignParent(this));
+    }
+
     public int getCount() {
         return count;
+    }
+
+    public double getSampleFreq() {
+        return count / (double) parent.getTotalCount();
     }
 
     public double getFreq() {
@@ -141,10 +169,35 @@ public class ClonotypeJ {
                 segmPoints[3] - segmPoints[1] + 1;
     }
 
+    public String getBlank() {
+        return ".";
+    }
+
+    public SampleJ getParent() {
+        return parent;
+    }
+
+    public Set<Mutation> getMutations() {
+        return Collections.unmodifiableSet(mutations);
+    }
+
+    private static final String KEY_SEP = "_";
+
     public String getKey() {
-        StringBuilder key = new StringBuilder(v + "_" + cdr3nt + "_" + j + "_");
+        StringBuilder key = new StringBuilder(v).append(KEY_SEP).append(cdr3nt).append(KEY_SEP).append(j);
         for (Mutation mutation : mutations) {
-            key.append("_").append(mutation)
+            key.append(KEY_SEP).append(mutation);
         }
+        return key.toString();
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+    @Override
+    public int compareTo(ClonotypeJ o) {
+        return -Integer.compare(this.count, o.count);
     }
 }

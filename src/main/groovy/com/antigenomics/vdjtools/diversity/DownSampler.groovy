@@ -24,7 +24,7 @@ class DownSampler {
     final Sample sample
 
     DownSampler(Sample sample) {
-        sample.clonotypes.each {
+        sample.each {
             for (long i = 0; i < it.count; i++)
                 flattenedClonotypes.add(it)
         }

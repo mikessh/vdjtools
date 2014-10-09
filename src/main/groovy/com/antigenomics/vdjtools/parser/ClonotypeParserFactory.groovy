@@ -16,25 +16,20 @@
 
 package com.antigenomics.vdjtools.parser
 
+import com.antigenomics.vdjtools.SampleJ
 import com.antigenomics.vdjtools.Software
 
 class ClonotypeParserFactory {
-    public final Software software
-
-    public ClonotypeParserFactory(Software software) {
-        this.software = software
-    }
-
-    public ClonotypeParser getParser() {
+    public static ClonotypeParser getParser(Software software, SampleJ sample) {
         switch (software) {
             case Software.MiTcr:
-                return new MiTcrParser()
+                return new MiTcrParser(sample)
             case Software.IgBlast:
-                return new IgBlastParser()
+                return new IgBlastParser(sample)
             case Software.Simple:
-                return new SimpleParser()
+                return new SimpleParser(sample)
             case Software.MiGec:
-                return new MiGecParser()
+                return new MiGecParser(sample)
             default:
                 throw new UnsupportedOperationException("Don't know how to parse $software data")
         }

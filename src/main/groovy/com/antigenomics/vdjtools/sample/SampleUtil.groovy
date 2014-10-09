@@ -43,6 +43,7 @@ class SampleUtil {
     }
 
     static Sample loadSample(String fileName, Software software) {
+        def sample = blankSample(FilenameUtils.getBaseName(fileName) + "_" + (++counter))
         new Sample(FilenameUtils.getBaseName(fileName) + "_" + (++counter), loadClonotypes(fileName, software))
     }
 

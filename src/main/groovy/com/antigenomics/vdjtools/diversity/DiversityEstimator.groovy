@@ -113,11 +113,11 @@ class DiversityEstimator {
         private final Map<Long, Long> frequencyMap = new HashMap<>()
 
         FrequencyTable(Sample sample, boolean byAminoAcid) {
-            Collection<Countable> counters
-
+            Iterable<Countable> counters
+                 Collection
             if (byAminoAcid) {
                 def aaCounts = new HashMap<String, Counter>()
-                sample.clonotypes.each {
+                sample.each {
                     def counter = aaCounts[it.cdr3aa]
                     if (!counter)
                         aaCounts.put(it.cdr3aa, counter = new Counter())
@@ -125,7 +125,7 @@ class DiversityEstimator {
                 }
                 counters = aaCounts.values()
             } else
-                counters = sample.clonotypes
+                counters = sample
 
             counters.each {
                 long count = it.count
