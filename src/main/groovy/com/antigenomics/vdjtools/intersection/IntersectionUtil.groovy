@@ -199,7 +199,7 @@ class IntersectionUtil {
 
         (wrappedSample1, wrappedSample2) = flip ? [wrappedSample2, wrappedSample1] : [wrappedSample1, wrappedSample2]
 
-        double freq12 = 0, freq21 = 0
+        double freq12 = 0, freq21 = 0, freq = 0
         int count12 = 0, count21 = 0, clones12 = 0
 
         List<Clonotype> clonotypes12 = new ArrayList<>(), clonotypes21 = new ArrayList<>()
@@ -219,6 +219,8 @@ class IntersectionUtil {
 
                 count12 += other.count
                 freq12 += other.freq
+
+                freq += Math.sqrt(it.freq * other.freq)
 
                 if (computeComplexMeasures) {
                     //x.add(Math.log10(it.freq))
@@ -318,6 +320,7 @@ class IntersectionUtil {
                 samplePair,
                 clones12,
                 count12, count21,
+                freq,
                 freq12, freq21,
                 freq12e, freq21e,
                 freq12p, freq21p,

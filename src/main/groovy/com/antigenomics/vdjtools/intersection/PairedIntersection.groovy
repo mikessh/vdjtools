@@ -26,13 +26,14 @@ class PairedIntersection {
     final SamplePair parent
 
     final int div12, count12, count21
-    final double freq12, freq21, freq12e, freq21e, freq12p, freq21p
+    final double freq, freq12, freq21, freq12e, freq21e, freq12p, freq21p
 
     private final List<Clonotype> clonotypes12, clonotypes21
     private final double r, vJSD
 
     PairedIntersection(SamplePair parent,
                        int div12, int count12, int count21,
+                       double freq,
                        double freq12, double freq21,
                        double freq12e, double freq21e,
                        double freq12p, double freq21p,
@@ -42,6 +43,7 @@ class PairedIntersection {
         this.div12 = div12
         this.count12 = count12
         this.count21 = count21
+        this.freq = freq
         this.freq12 = freq12
         this.freq21 = freq21
         this.freq12e = freq12e
@@ -69,11 +71,11 @@ class PairedIntersection {
     }
 
     /**
-     * Gets the geometric mean of intersection frequencies
+     * Gets the sum of geometric means of clonotype frequencies in paired intersection
      * @return normalized frequency
      */
     double getF() {
-        Math.sqrt(freq12 * freq21)
+        freq//Math.sqrt(freq12 * freq21)
     }
 
     double getNormF() {
