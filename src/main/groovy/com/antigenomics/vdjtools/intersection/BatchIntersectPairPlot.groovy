@@ -30,6 +30,8 @@ cli.n(longOpt: "num-factor", "Factor will be treated as numeric value and gradie
         "Should contain at least one numeric value. [default = off]")
 cli.l(longOpt: "label", argName: "string", args: 1,
         "Column name, as in metadata. Row values will be used as sample labels. [default = sample_id]")
+cli.k(longOpt: "hcl-cutoff", argName: "int, >0", args: 1,
+        "Number of clusters to cut the dendrogram into. No output is generated for values <1. [default = 3]")
 
 def opt = cli.parse(args)
 
@@ -47,7 +49,9 @@ def inputFileName = opt.arguments()[0],
     sampleId = "sample_id".toUpperCase(), factorName = opt.f, numFactor = opt.n,
     measureName = (opt.m ?: "F").toUpperCase(), labelName = (opt.l ?: "sample_id").toUpperCase(),
     hcFileName = opt.arguments()[1] + ".batch_intersect_hc.pdf",
-    mdsFileName = opt.arguments()[1] + ".batch_intersect_mds.pdf"
+    mdsFileName = opt.arguments()[1] + ".batch_intersect_mds.pdf",
+    k = (opt.k ?: 3),
+    clustFileName = opt.arguments()[1] + ".batch_intersect_clusters${k}.txt"
 
 def factorNameOrig = null
 if (factorName) {
@@ -112,7 +116,8 @@ RUtil.execute("batch_intersect_pair_clust.r",
         factorCol1Ind, factorCol2Ind,
         labelCol1Ind, labelCol2Ind,
         factorNameOrig ?: "NA", numFactor ? "TRUE" : "FALSE",
-        hcFileName, mdsFileName
+        hcFileName, mdsFileName,
+        clustFileName, k.toString()
 )
 
 

@@ -14,6 +14,8 @@ factor_name       = args[9] #"Group"
 cont_factor       = args[10] #TRUE
 file_out_hc       = args[11]
 file_out_mds      = args[12]
+file_out_clust    = args[13]
+k_clust           = args[14]
 
 color_by_factor <- TRUE
 
@@ -100,6 +102,14 @@ df.d <- dist(df.m)
 ## HCL
 
 hcl <- hclust(df.d)
+
+k_clust <- as.integer(k_clust)
+if (k_clust > 0) {
+   clusters <- cutree(hcl, k = k_clust)
+   clusters <- data.frame(id_col1 = names(clusters), cluster = clusters)
+   ctbl <- merge(aux, clusters, by = "id_col1")
+   write.table(ctbl, file_out_clust, sep = "\t", quote = FALSE, row.names = FALSE)
+}
 
 ## Plotting
 
