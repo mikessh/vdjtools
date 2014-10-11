@@ -29,6 +29,10 @@ class SampleMetadata {
         this.parent = parent
     }
 
+    public MetadataEntry getAt(String columnId) {
+        parent[sampleId, columnId]
+    }
+
     @PackageScope
     static SampleMetadata predefined(String sampleId, ArrayList<MetadataEntry> entries, MetadataTable parent) {
         new SampleMetadata(sampleId, entries, parent)

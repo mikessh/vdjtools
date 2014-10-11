@@ -28,7 +28,7 @@ import java.util.List;
 public class SampleJ implements Iterable<ClonotypeJ> {
     private final List<ClonotypeJ> clonotypes = new ArrayList<>();
     private final SampleMetadata sampleMetadata;
-    private long totalCount;
+    private long totalCount = 0;
 
     private SampleJ(SampleMetadata sampleMetadata) {
         this.sampleMetadata = sampleMetadata;

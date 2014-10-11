@@ -86,7 +86,7 @@ class MetadataTable {
             case MetadataColumnType.Numeric:
             case MetadataColumnType.SemiNumeric:
                 sampleOrder.sort {
-                    def value = getEntry(it, columnId).asNumeric()
+                    def value = this[it, columnId].asNumeric()
                     Double.isNaN(value) ?
                             (descending ? Double.MAX_VALUE : Double.MIN_VALUE) :
                             (descending ? -value : value)
@@ -295,7 +295,7 @@ class MetadataTable {
      * @param columnId metadata id
      * @return metadata entry
      */
-    MetadataEntry getEntry(String sampleId, String columnId) {
+    MetadataEntry getAt(String sampleId, String columnId) {
         metadataBySample[sampleId].entries[id2index[columnId]]
     }
 
