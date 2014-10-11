@@ -20,10 +20,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ClonotypeJ implements Comparable<ClonotypeJ> {
+public class ClonotypeJ implements Comparable<ClonotypeJ>, Countable {
     private final SampleJ parent;
     private final int count;
     private final double freq;
+    private final String key;
 
     private final int[] segmPoints;
     private final String v, d, j;
@@ -57,6 +58,19 @@ public class ClonotypeJ implements Comparable<ClonotypeJ> {
         this.isComplete = isComplete;
         this.noStop = noStop;
         this.mutations = mutations;
+
+        StringBuilder key = new StringBuilder(v).append(KEY_SEP).
+                append(cdr3nt).append(KEY_SEP).
+                append(j).append(KEY_SEP);
+
+        if (mutations != null)
+            for (Mutation mutation : mutations) {
+                key.append(mutation.getNtString()).append(MUT_SEP);
+            }
+
+        key.setLength(key.length() - 1);
+
+        this.key = key.toString();
     }
 
     public ClonotypeJ(ClonotypeJ toClone) {
@@ -73,10 +87,11 @@ public class ClonotypeJ implements Comparable<ClonotypeJ> {
                 toClone.cdr1nt, toClone.cdr2nt, toClone.cdr3nt,
                 toClone.cdr1aa, toClone.cdr2aa, toClone.cdr3aa,
                 toClone.inFrame, toClone.isComplete, toClone.noStop,
-                new HashSet<Mutation>());
+                toClone.mutations != null ? new HashSet<Mutation>() : null);
 
-        for (Mutation mutation : toClone.mutations)
-            mutations.add(mutation.reassignParent(this));
+        if (toClone.mutations != null)
+            for (Mutation mutation : toClone.mutations)
+                mutations.add(mutation.reassignParent(this));
     }
 
     public int getCount() {
@@ -107,12 +122,12 @@ public class ClonotypeJ implements Comparable<ClonotypeJ> {
         return cdr1nt;
     }
 
-    public String getCdr3nt() {
-        return cdr3nt;
-    }
-
     public String getCdr2nt() {
         return cdr2nt;
+    }
+
+    public String getCdr3nt() {
+        return cdr3nt;
     }
 
     public String getCdr1aa() {
@@ -178,17 +193,13 @@ public class ClonotypeJ implements Comparable<ClonotypeJ> {
     }
 
     public Set<Mutation> getMutations() {
-        return Collections.unmodifiableSet(mutations);
+        return mutations != null ? Collections.unmodifiableSet(mutations) : null;
     }
 
-    private static final String KEY_SEP = "_";
+    private static final String KEY_SEP = "_", MUT_SEP = "|";
 
     public String getKey() {
-        StringBuilder key = new StringBuilder(v).append(KEY_SEP).append(cdr3nt).append(KEY_SEP).append(j);
-        for (Mutation mutation : mutations) {
-            key.append(KEY_SEP).append(mutation);
-        }
-        return key.toString();
+        return key;
     }
 
     @Override

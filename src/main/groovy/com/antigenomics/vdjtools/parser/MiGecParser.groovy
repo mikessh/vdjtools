@@ -17,31 +17,47 @@ import com.antigenomics.vdjtools.ClonotypeJ
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-class MiTcrParser extends ClonotypeParser {
+class MiGecParser extends ClonotypeParser {
     @Override
     protected ClonotypeJ parse(String clonotypeString) {
-        def splitString = clonotypeString.split(software.delimiter)
+        /*
+             0  Count
+             1  Percentage
+             2  CDR3 nucleotide sequence
+             3  CDR3 amino acid sequence
+             4  V segments
+             5  J segments
+             6  D segments
+             7  Last V nucleotide position
+             8  First D nucleotide position
+             9  Last D nucleotide position
+             10 First J nucleotide position
+             11 Good events
+             12 Total events
+             13 Good reads
+             14 Total reads
+          */
+
+        def splitString = clonotypeString.split("\t")
 
         def count = splitString[0].toInteger()
         def freq = splitString[1].toDouble()
 
         String cdr1nt = null, cdr2nt = null, cdr3nt, cdr1aa = null, cdr2aa = null, cdr3aa
-
         cdr3nt = splitString[2]
-        cdr3aa = splitString[5]
+        cdr3aa = splitString[3]
 
 
-        String v, d, j
-        (v, d, j) = extractVDJ(splitString[[7, 11, 9]])
+        String v, j, d
+        (v, j, d) = extractVDJ(splitString[4..6])
 
-        def segmPoints = [splitString[12].toInteger(),
-                          splitString[13].isInteger() ? splitString[13].toInteger() : -1,
-                          splitString[14].isInteger() ? splitString[14].toInteger() : -1,
-                          splitString[15].toInteger()] as int[]
+        boolean inFrame = !cdr3aa.contains("~"), noStop = !cdr3aa.contains("*"), isComplete = true
 
-        boolean inFrame = !cdr3aa.contains('~'),
-                noStop = !cdr3aa.contains('*'),
-                isComplete = true
+        def segmPoints = [
+                splitString[7].toInteger(),
+                splitString[8].isInteger() ? splitString[8].toInteger() : -1,
+                splitString[9].isInteger() ? splitString[9].toInteger() : -1,
+                splitString[10].toInteger()] as int[]
 
         new ClonotypeJ(sample, count, freq,
                 segmPoints, v, d, j,

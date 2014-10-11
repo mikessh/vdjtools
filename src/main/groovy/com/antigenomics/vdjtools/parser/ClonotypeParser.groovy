@@ -24,31 +24,32 @@ public abstract class ClonotypeParser implements Iterable<ClonotypeJ> {
     public static ClonotypeParser create(InputStream inputStream, Software software, SampleJ sample) {
         ClonotypeParser parser
         def reader = new BufferedReader(new InputStreamReader(inputStream))
+        def innerIter = reader.iterator()
 
         switch (software) {
             case Software.MiTcr:
-                parser = new MiTcrParser(inputStream: inputStream, software: software, sample: sample)
+                parser = new MiTcrParser(innerIter: innerIter, software: software, sample: sample)
                 break
             case Software.IgBlast:
-                parser = new IgBlastParser(inputStream: inputStream, software: software, sample: sample)
+                parser = new IgBlastParser(innerIter: innerIter, software: software, sample: sample)
                 break
             case Software.Simple:
-                parser = new SimpleParser(inputStream: inputStream, software: software, sample: sample)
+                parser = new SimpleParser(innerIter: innerIter, software: software, sample: sample)
                 break
             case Software.MiGec:
-                parser = new MiGecParser(inputStream: inputStream, software: software, sample: sample)
+                parser = new MiGecParser(innerIter: innerIter, software: software, sample: sample)
                 break
             default:
                 throw new UnsupportedOperationException("Don't know how to parse $software data")
         }
 
-        (1..software.headerLineCount).each { reader.readLine() }
+        (1..software.headerLineCount).each { innerIter.next() }
 
         return parser
     }
 
     protected final Software software
-    protected final InputStream inputStream
+    protected final Iterator<String> innerIter
     protected final SampleJ sample
 
     protected abstract ClonotypeJ parse(String clonotypeString)
@@ -68,7 +69,9 @@ public abstract class ClonotypeParser implements Iterable<ClonotypeJ> {
     @Override
     Iterator<ClonotypeJ> iterator() {
         [hasNext: {
-            header != null
-        }, next: { next() }] as Iterator
+            innerIter.hasNext()
+        }, next : {
+            parse(innerIter.next())
+        }] as Iterator
     }
 }

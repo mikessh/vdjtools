@@ -17,7 +17,7 @@ import com.antigenomics.vdjtools.ClonotypeJ
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-class MiTcrParser extends ClonotypeParser {
+class SimpleParser extends ClonotypeParser {
     @Override
     protected ClonotypeJ parse(String clonotypeString) {
         def splitString = clonotypeString.split(software.delimiter)
@@ -28,26 +28,20 @@ class MiTcrParser extends ClonotypeParser {
         String cdr1nt = null, cdr2nt = null, cdr3nt, cdr1aa = null, cdr2aa = null, cdr3aa
 
         cdr3nt = splitString[2]
-        cdr3aa = splitString[5]
-
+        cdr3aa = splitString[3]
 
         String v, d, j
-        (v, d, j) = extractVDJ(splitString[[7, 11, 9]])
+        (v, d, j) = extractVDJ(splitString[4..-1])
 
-        def segmPoints = [splitString[12].toInteger(),
-                          splitString[13].isInteger() ? splitString[13].toInteger() : -1,
-                          splitString[14].isInteger() ? splitString[14].toInteger() : -1,
-                          splitString[15].toInteger()] as int[]
-
-        boolean inFrame = !cdr3aa.contains('~'),
-                noStop = !cdr3aa.contains('*'),
+        boolean inFrame = !(cdr3aa.contains("~") || cdr3aa.contains("?")),
+                noStop = !cdr3aa.contains("*"),
                 isComplete = true
 
         new ClonotypeJ(sample, count, freq,
-                segmPoints, v, d, j,
+                [-1, -1, -1, -1] as int[], v, d, j,
                 cdr1nt, cdr2nt, cdr3nt,
                 cdr1aa, cdr2aa, cdr3aa,
                 inFrame, noStop, isComplete,
-                new HashSet<>())
+                null)
     }
 }
