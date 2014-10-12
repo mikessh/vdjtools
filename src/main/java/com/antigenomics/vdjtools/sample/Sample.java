@@ -111,6 +111,12 @@ public class Sample implements Iterable<Clonotype> {
         return clonotypes.size();
     }
 
+    public Clonotype getAt(int index) {
+        if (index < 0 || index >= clonotypes.size())
+            throw new IndexOutOfBoundsException();
+        return clonotypes.get(index);
+    }
+
     @Override
     public Iterator<Clonotype> iterator() {
         return clonotypes.iterator();

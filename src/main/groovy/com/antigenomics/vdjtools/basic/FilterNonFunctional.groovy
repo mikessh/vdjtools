@@ -18,6 +18,7 @@
 package com.antigenomics.vdjtools.basic
 
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.parser.SampleWriter
 import com.antigenomics.vdjtools.sample.FunctionalClonotypeFilter
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
@@ -80,14 +81,16 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 // Iterate over samples & down-sample
 //
 
+def writer = new SampleWriter(software)
+
 sampleCollection.eachWithIndex { sample, ind ->
-    def newSample = new Sample(sample, FunctionalClonotypeFilter.INSTANCE)
+    def filteredSample = new Sample(sample, FunctionalClonotypeFilter.INSTANCE)
 
     println "[${new Date()} $scriptName] Processed ${ind + 1} sample(s).."
 
     // print output
     new File(outputPrefix + "." + sample.sampleMetadata.sampleId + ".txt").withPrintWriter { pw ->
-        newSample.print(pw, software, true)
+        writer.write(filteredSample, pw)
     }
 }
 

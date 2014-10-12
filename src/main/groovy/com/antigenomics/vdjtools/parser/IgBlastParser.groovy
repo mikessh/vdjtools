@@ -68,9 +68,32 @@ class IgBlastParser extends ClonotypeStreamParser {
 
         if (splitString[19] != ".")
             mutations.addAll(splitString[19].split("\\|").collect { String mutString ->
-                Mutation.parseIgBlastMutation(mutString, clonotype)
+                parseIgBlastMutation(mutString, clonotype)
             })
 
         return clonotype
+    }
+
+    private static Mutation parseIgBlastMutation(String mutationString, Clonotype parent) {
+        def splitString = mutationString.split(",")
+
+        def ntString = splitString[1]
+        def splitNTString = ntString.split("[:>]")
+        def ntPos = splitNTString[0].toInteger()
+        char fromNt = splitNTString[1]
+        char toNt = splitNTString[2]
+
+        def aaString = splitString[2]
+        def splitAAString = aaString.split("[:>]")
+        def aaPos = splitAAString[0].toInteger()
+        char fromAa = splitAAString[1]
+        char toAa = splitAAString[2]
+
+        def region = splitString[3]
+
+        new Mutation(region,
+                ntPos, aaPos,
+                fromAa, toAa, fromNt, toNt,
+                true, parent)
     }
 }

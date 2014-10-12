@@ -85,24 +85,15 @@ new File(outputFileName + ".basicstats.txt").withPrintWriter { pw ->
 
     pw.println(header)
 
-    //def results = new LinkedList<>()
-
-    //def sampleCounter = new AtomicInteger()
     def sampleCounter = 0
 
-    //GParsPool.withPool Util.THREADS, {
-    //results = sampleCollection.collectParallel { Sample sample ->
     sampleCollection.each { Sample sample ->
         def basicStats = new BasicStats(sample)
 
-        //println "[${new Date()} $scriptName] ${sampleCounter.incrementAndGet()} samples processed"
         println "[${new Date()} $scriptName] ${++sampleCounter} sample(s) processed"
 
         pw.println([sample.sampleMetadata.sampleId, sample.sampleMetadata, basicStats].join("\t"))
     }
-    //}
-
-    //results.each { pw.println(it) }
 }
 
 println "[${new Date()} $scriptName] Finished"

@@ -17,6 +17,7 @@
 package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.parser.SampleWriter
 import com.antigenomics.vdjtools.sample.IntersectionClonotypeFilter
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
@@ -28,7 +29,7 @@ cli.h("display help message")
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Intersection type to apply. " +
                 "Allowed values: $IntersectionType.allowedNames. " +
-                "Will use '$IntersectionType.NucleotideV.shortName' by default.")
+                "Will use '$IntersectionType.Strict.shortName' by default.")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.n(longOpt: "negative", "Will report clonotypes present in filter_sample. The default action is to remove them")
@@ -60,7 +61,7 @@ def sampleFileNames = opt.arguments()[0..-2],
 
 // Parameters
 
-def software = Software.byName(opt.S), intersectionType = IntersectionType.byName((opt.i ?: "ntV")),
+def software = Software.byName(opt.S), intersectionType = IntersectionType.byName((opt.i ?: "strict")),
     negative = (boolean) opt.n
 
 if (!intersectionType) {
@@ -85,6 +86,7 @@ def clonotypeFilter = new IntersectionClonotypeFilter(intersectionUtil, sampleCo
 
 println "[${new Date()} $scriptName] Filtering (${negative ? "negative" : "positive"}) and writing output"
 
+def writer = new SampleWriter(software)
 
 new File("${outputPrefix}.filtersummary.txt").withPrintWriter { pwSummary ->
     pwSummary.println("#sample_id\tcells_before\tdiversity_before\tcells_after\tdiversity_after")
@@ -102,7 +104,7 @@ new File("${outputPrefix}.filtersummary.txt").withPrintWriter { pwSummary ->
 
         // print output
         new File("${outputPrefix}_${sample.sampleMetadata.sampleId}.txt").withPrintWriter { pw ->
-            filteredSample.print(pw, software, true)
+            writer.write(filteredSample, pw)
         }
     }
 }

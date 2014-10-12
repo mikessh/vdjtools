@@ -16,6 +16,7 @@
 
 package com.antigenomics.vdjtools.basic
 
+import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.ExecUtil
@@ -28,7 +29,6 @@ cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.t(longOpt: "top", args: 1, "Number of top clonotypes to present on the histogram. " +
         "Values > 20 are not allowed, as they would make the plot legend unreadable. default = 20")
-
 
 def opt = cli.parse(args)
 
@@ -62,10 +62,9 @@ println "[${new Date()} $scriptName] Reading sample"
 def sampleCollection = new SampleCollection([opt.arguments()[0]], software, false)
 
 def sample = sampleCollection[0]
-sample.renormalize() // ensure normalization as we're going to subtract top clonotype frequencies
 
 // Calculate spectratype
-def spectratype = new Spectratype(aminoAcid, false)
+def spectratype = new Spectratype(false, false)
 
 spectratype.addAll(sample)
 
@@ -73,7 +72,12 @@ def spectratypeHist = spectratype.histogram
 
 // Calculate top clonotypes and subtract their frequencies
 
-def topClonotypes = sample.top(top)
+def topClonotypes = new ArrayList<Clonotype>()
+
+(0..<top).each { int ind ->
+    topClonotypes.add(sample[ind])
+}
+
 topClonotypes.each {
     def bin = spectratype.bin(it)
     spectratypeHist[bin] -= it.freq

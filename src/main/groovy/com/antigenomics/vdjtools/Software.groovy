@@ -43,10 +43,6 @@ enum Software {
         this.printFields = printFields
     }
 
-    String getHeader() {
-        (comment ?: ("$name-header-blank\n" * (headerLineCount - 1))) + printFields.join("\t")
-    }
-
     static Software byName(String name) {
         name = name.toLowerCase()
         def software = values().find { it.name == name }
