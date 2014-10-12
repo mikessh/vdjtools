@@ -53,14 +53,25 @@ class IntersectionUtil {
     String generateKey(Clonotype clonotype) {
         switch (intersectionType) {
             case IntersectionType.NucleotideV:
-                return clonotype.cdr3nt + "\t" + clonotype.v
+                return clonotype.cdr3nt + "_" + clonotype.v
             case IntersectionType.Nucleotide:
                 return clonotype.cdr3nt
             case IntersectionType.AminoAcid:
                 return clonotype.cdr3aa
+            case IntersectionType.Strict:
+                return clonotype.key
             default:
                 throw new NotImplementedException()
         }
+    }
+
+    /**
+     * Generates a set of keys for a given sample
+     * @param sample sample to process
+     * @return a set of keys present in current sample
+     */
+    Set<String> generateKeySet(Sample sample) {
+        new HashSet<String>(sample.collect { generateKey(it) })
     }
 
     /**

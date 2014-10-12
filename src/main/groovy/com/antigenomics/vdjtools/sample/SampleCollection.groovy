@@ -117,6 +117,15 @@ class SampleCollection implements Iterable<Sample> {
     }
 
     /**
+     * Builds a sample collection from a pre-defined list of sample file names.
+     * Samples will be assigned to generic metadata table, sample order will be preserved.
+     * @param sampleFileNames list of sample file names
+     */
+    SampleCollection(List<String> sampleFileNames, Software software) {
+        this(sampleFileNames, software, false, true, true)
+    }
+
+    /**
      * Loads a sample collection using custom metadata file.
      * File should contain two columns: first with file path and second with sample id
      * Additional columns will be stored as metadata entries.
@@ -194,6 +203,19 @@ class SampleCollection implements Iterable<Sample> {
     SampleCollection(String sampleMetadataFileName, Software software,
                      boolean store) {
         this(sampleMetadataFileName, software, store, true, true)
+    }
+
+    /**
+     * Loads a sample collection using custom metadata file.
+     * File should contain two columns: first with file path and second with sample id
+     * Additional columns will be stored as metadata entries.
+     * First line of file should contain header that includes metadata field names.
+     * Samples will be ordered as they appear in file
+     * @param sampleMetadataFileName metadata file path
+     * @param software software used to get processed samples
+     */
+    SampleCollection(String sampleMetadataFileName, Software software) {
+        this(sampleMetadataFileName, software, false, true, true)
     }
 
     /**

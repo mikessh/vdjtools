@@ -27,8 +27,16 @@ class SamplePair {
         this.j = j
     }
 
+    SamplePair(Sample sample1, Sample sample2, int i, int j) {
+        this(new DummySampleConnection(sample1), new DummySampleConnection(sample2), i, j)
+    }
+
     SamplePair(SampleConnection sample1conn, SampleConnection sample2conn) {
         this(sample1conn, sample2conn, 0, 1)
+    }
+
+    SamplePair(Sample sample1, Sample sample2) {
+        this(sample1, sample2, 0, 1)
     }
 
     Sample getAt(int index) {

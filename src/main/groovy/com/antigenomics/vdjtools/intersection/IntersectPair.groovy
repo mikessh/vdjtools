@@ -17,7 +17,7 @@
 package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Software
-import com.antigenomics.vdjtools.sample.SampleUtil
+import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.RUtil
 
 def cli = new CliBuilder(usage: "IntersectPair [options] sample1 sample2 output_prefix")
@@ -52,8 +52,11 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 println "[${new Date()} $scriptName] Reading samples $sample1FileName and $sample2FileName"
 
-def sample1 = SampleUtil.loadSample(sample1FileName, software),
-    sample2 = SampleUtil.loadSample(sample2FileName, software)
+
+def sampleCollection = new SampleCollection([sample1FileName, sample2FileName], software, true, false)
+
+def sample1 = sampleCollection[0],
+    sample2 = sampleCollection[1]
 
 //
 // Perform an intersection by CDR3NT & V segment
