@@ -100,12 +100,12 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
         return count;
     }
 
-    public double getSampleFreq() {
-        return count / (double) parent.getCount();
+    public double getFixedFreq() {
+        return freq;
     }
 
     public double getFreq() {
-        return freq;
+        return count / (double) parent.getCount();
     }
 
     public String getV() {
