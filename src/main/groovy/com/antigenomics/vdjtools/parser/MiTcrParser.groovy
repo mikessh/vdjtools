@@ -1,6 +1,8 @@
 package com.antigenomics.vdjtools.parser
 
-import com.antigenomics.vdjtools.ClonotypeJ
+import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.sample.Sample
 
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
@@ -17,9 +19,13 @@ import com.antigenomics.vdjtools.ClonotypeJ
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-class MiTcrParser extends ClonotypeParser {
+class MiTcrParser extends ClonotypeStreamParser {
+    MiTcrParser(Iterator<String> innerIter, Software software, Sample sample) {
+        super(innerIter, software, sample)
+    }
+
     @Override
-    protected ClonotypeJ parse(String clonotypeString) {
+    protected Clonotype parse(String clonotypeString) {
         def splitString = clonotypeString.split(software.delimiter)
 
         def count = splitString[0].toInteger()
@@ -43,7 +49,7 @@ class MiTcrParser extends ClonotypeParser {
                 noStop = !cdr3aa.contains('*'),
                 isComplete = true
 
-        new ClonotypeJ(sample, count, freq,
+        new Clonotype(sample, count, freq,
                 segmPoints, v, d, j,
                 cdr1nt, cdr2nt, cdr3nt,
                 cdr1aa, cdr2aa, cdr3aa,

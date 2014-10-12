@@ -182,7 +182,7 @@ class IntersectionUtil {
     PairedIntersection generatePairedIntersection(SamplePair samplePair,
                                                   boolean storeIntersectedList,
                                                   boolean computeComplexMeasures) {
-        def sample1 = samplePair.sample1, sample2 = samplePair.sample2
+        def sample1 = samplePair[0], sample2 = samplePair[1]
 
         // Here we'll operate wrapped clonotypes and perform intersection via hash map
         // Collapse samples to hash sets

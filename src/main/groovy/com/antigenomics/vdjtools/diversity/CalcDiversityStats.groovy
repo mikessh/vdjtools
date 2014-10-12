@@ -132,6 +132,10 @@ new File(outputPrefix + ".diversity.txt").withPrintWriter { pwDiv ->
             sampleCollection.each { Sample sample ->
                 def diversityEstimator = new DiversityEstimator(sample)
 
+                // Basic estimates
+                def diversityCDR3NT = diversityEstimator.computeCdr3SampleDiversity(false),
+                    diversityCDR3AA = diversityEstimator.computeCdr3SampleDiversity(true)
+
                 // Rarefaction
 
                 if (doRarefaction) {
@@ -146,16 +150,17 @@ new File(outputPrefix + ".diversity.txt").withPrintWriter { pwDiv ->
                                 rNT.add(R_EMPTY)
                                 rAA.add(R_EMPTY)
                             } else {
-                                def ds = diversityEstimator.downSampler.reSample(i)
-                                rNT.add(ds.diversityCDR3NT)
-                                rAA.add(ds.diversityCDR3AA)
+                                def subSample = diversityEstimator.downSampler.reSample(i)
+                                def subSampleDiversityEstimator = new DiversityEstimator(subSample)
+                                rNT.add(subSampleDiversityEstimator.computeCdr3SampleDiversity(false))
+                                rAA.add(subSampleDiversityEstimator.computeCdr3SampleDiversity(true))
                             }
                         }
 
                         pwRNT.println([sample.sampleMetadata.sampleId, sample.sampleMetadata,
-                                       sample.count, sample.diversityCDR3NT, rNT].flatten().join("\t"))
+                                       sample.count, diversityCDR3NT, rNT].flatten().join("\t"))
                         pwRAA.println([sample.sampleMetadata.sampleId, sample.sampleMetadata,
-                                       sample.count, sample.diversityCDR3AA, rAA].flatten().join("\t"))
+                                       sample.count, diversityCDR3AA, rAA].flatten().join("\t"))
                     }
                 }
 
@@ -163,15 +168,15 @@ new File(outputPrefix + ".diversity.txt").withPrintWriter { pwDiv ->
 
                 println "[${new Date()} $scriptName] Computing diversity estimates"
 
-                def cnDivNT = diversityEstimator.countNormalizedSampleDiversity(effectiveSampleSize, nResamples, false),
-                    efronDivNT = diversityEstimator.efronThisted(efronDepth, efronCvThreshold, false),
-                    chaoDivNT = diversityEstimator.chao1(false),
-                    cnDivAA = diversityEstimator.countNormalizedSampleDiversity(effectiveSampleSize, nResamples, true),
-                    efronDivAA = diversityEstimator.efronThisted(efronDepth, efronCvThreshold, true),
-                    chaoDivAA = diversityEstimator.chao1(true)
+                def cnDivNT = diversityEstimator.computeNormalizedSampleDiversity(effectiveSampleSize, nResamples, false),
+                    efronDivNT = diversityEstimator.computeEfronThisted(efronDepth, efronCvThreshold, false),
+                    chaoDivNT = diversityEstimator.computeChao1(false),
+                    cnDivAA = diversityEstimator.computeNormalizedSampleDiversity(effectiveSampleSize, nResamples, true),
+                    efronDivAA = diversityEstimator.computeEfronThisted(efronDepth, efronCvThreshold, true),
+                    chaoDivAA = diversityEstimator.computeChao1(true)
 
                 pwDiv.println([sample.sampleMetadata.sampleId, sample.sampleMetadata,
-                               sample.count, sample.diversityCDR3NT, sample.diversityCDR3AA,
+                               sample.count, diversityCDR3NT, diversityCDR3AA,
                                cnDivNT, efronDivNT, chaoDivNT,
                                cnDivAA, efronDivAA, chaoDivAA].join("\t"))
 

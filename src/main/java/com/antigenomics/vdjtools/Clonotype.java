@@ -16,12 +16,14 @@
 
 package com.antigenomics.vdjtools;
 
+import com.antigenomics.vdjtools.sample.Sample;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ClonotypeJ implements Comparable<ClonotypeJ>, Countable {
-    private final SampleJ parent;
+public class Clonotype implements Comparable<Clonotype>, Countable {
+    private final Sample parent;
     private final int count;
     private final double freq;
     private final String key;
@@ -35,12 +37,12 @@ public class ClonotypeJ implements Comparable<ClonotypeJ>, Countable {
 
     private final Set<Mutation> mutations;
 
-    public ClonotypeJ(SampleJ parent, int count, double freq,
-                      int[] segmPoints, String v, String d, String j,
-                      String cdr1nt, String cdr2nt, String cdr3nt,
-                      String cdr1aa, String cdr2aa, String cdr3aa,
-                      boolean inFrame, boolean isComplete, boolean noStop,
-                      Set<Mutation> mutations) {
+    public Clonotype(Sample parent, int count, double freq,
+                     int[] segmPoints, String v, String d, String j,
+                     String cdr1nt, String cdr2nt, String cdr3nt,
+                     String cdr1aa, String cdr2aa, String cdr3aa,
+                     boolean inFrame, boolean isComplete, boolean noStop,
+                     Set<Mutation> mutations) {
         this.parent = parent;
         this.count = count;
         this.freq = freq;
@@ -73,15 +75,15 @@ public class ClonotypeJ implements Comparable<ClonotypeJ>, Countable {
         this.key = key.toString();
     }
 
-    public ClonotypeJ(ClonotypeJ toClone) {
+    public Clonotype(Clonotype toClone) {
         this(toClone, toClone.parent, toClone.count);
     }
 
-    public ClonotypeJ(ClonotypeJ toClone, SampleJ newParent) {
+    public Clonotype(Clonotype toClone, Sample newParent) {
         this(toClone, newParent, toClone.count);
     }
 
-    public ClonotypeJ(ClonotypeJ toClone, SampleJ newParent, int newCount) {
+    public Clonotype(Clonotype toClone, Sample newParent, int newCount) {
         this(newParent, newCount, toClone.freq,
                 toClone.segmPoints, toClone.v, toClone.d, toClone.j,
                 toClone.cdr1nt, toClone.cdr2nt, toClone.cdr3nt,
@@ -99,7 +101,7 @@ public class ClonotypeJ implements Comparable<ClonotypeJ>, Countable {
     }
 
     public double getSampleFreq() {
-        return count / (double) parent.getTotalCount();
+        return count / (double) parent.getCount();
     }
 
     public double getFreq() {
@@ -142,7 +144,7 @@ public class ClonotypeJ implements Comparable<ClonotypeJ>, Countable {
         return cdr3aa;
     }
 
-    public boolean inFrame() {
+    public boolean isInFrame() {
         return inFrame;
     }
 
@@ -150,7 +152,7 @@ public class ClonotypeJ implements Comparable<ClonotypeJ>, Countable {
         return isComplete;
     }
 
-    public boolean noStop() {
+    public boolean isNoStop() {
         return noStop;
     }
 
@@ -188,7 +190,7 @@ public class ClonotypeJ implements Comparable<ClonotypeJ>, Countable {
         return ".";
     }
 
-    public SampleJ getParent() {
+    public Sample getParent() {
         return parent;
     }
 
@@ -203,12 +205,22 @@ public class ClonotypeJ implements Comparable<ClonotypeJ>, Countable {
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public int compareTo(Clonotype o) {
+        return -Integer.compare(this.count, o.count);
     }
 
     @Override
-    public int compareTo(ClonotypeJ o) {
-        return -Integer.compare(this.count, o.count);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Clonotype that = (Clonotype) o;
+
+        return key.equals(that.key) && parent.equals(that.parent);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * parent.hashCode() + key.hashCode();
     }
 }

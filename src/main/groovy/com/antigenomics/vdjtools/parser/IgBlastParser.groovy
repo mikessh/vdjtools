@@ -1,7 +1,9 @@
 package com.antigenomics.vdjtools.parser
 
-import com.antigenomics.vdjtools.ClonotypeJ
+import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Mutation
+import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.sample.Sample
 
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
@@ -18,9 +20,13 @@ import com.antigenomics.vdjtools.Mutation
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-class IgBlastParser extends ClonotypeParser {
+class IgBlastParser extends ClonotypeStreamParser {
+    IgBlastParser(Iterator<String> innerIter, Software software, Sample sample) {
+        super(innerIter, software, sample)
+    }
+
     @Override
-    protected ClonotypeJ parse(String clonotypeString) {
+    protected Clonotype parse(String clonotypeString) {
         /*
         0	1	2	3
         #reads_count	reads_percent	events_count	events_percent
@@ -52,7 +58,7 @@ class IgBlastParser extends ClonotypeParser {
 
         def mutations = new HashSet<Mutation>()
 
-        def clonotype = new ClonotypeJ(sample,
+        def clonotype = new Clonotype(sample,
                 count, freq,
                 [-1, -1, -1, -1] as int[], v, d, j,
                 cdr1nt, cdr2nt, cdr3nt,

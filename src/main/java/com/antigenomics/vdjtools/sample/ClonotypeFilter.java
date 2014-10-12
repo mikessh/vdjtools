@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools;
+package com.antigenomics.vdjtools.sample;
+
+import com.antigenomics.vdjtools.Clonotype;
 
 public interface ClonotypeFilter {
-    public boolean pass(ClonotypeJ clonotypeJ);
+    public boolean pass(Clonotype clonotype);
 }

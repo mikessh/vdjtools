@@ -64,7 +64,7 @@ class BasicStats {
     }
 
     int getDiversity() {
-        sample.div
+        sample.diversity
     }
 
     static final String HEADER = "cells\tdiversity\t" +

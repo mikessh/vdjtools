@@ -61,7 +61,6 @@ class SampleMetadata {
 
     @Override
     String toString() {
-        //[sampleId, entries].flatten().join("\t")
         entries.size() > 0 ? entries.join("\t") : "."
     }
 }

@@ -118,19 +118,19 @@ class PairedIntersection {
     }
 
     Sample getSample1() {
-        parent.sample1
+        parent[0]
     }
 
     Sample getSample2() {
-        parent.sample2
+        parent[1]
     }
 
     int getDiv1() {
-        sample1.div
+        sample1.diversity
     }
 
     int getDiv2() {
-        sample2.div
+        sample2.diversity
     }
 
     int getCount1() {

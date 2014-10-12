@@ -16,6 +16,8 @@
 
 package com.antigenomics.vdjtools.sample.metadata
 
+import groovy.transform.PackageScope
+
 /**
  * Base class to handle sample metadata
  */
@@ -192,6 +194,15 @@ class MetadataTable {
         sampleMetadata
     }
 
+    /**
+     * Creates an empty sample row, appends the metadata to table and binds sample to a given table
+     * @param sampleId sample name
+     * @return sample metadata instance
+     */
+    SampleMetadata createRow(String sampleId) {
+        createRow(sampleId, new ArrayList<String>())
+    }
+
     private void addSample(SampleMetadata row) {
         // Extensive checks
         checkSample(row)
@@ -315,14 +326,17 @@ class MetadataTable {
         metadataBySample.size()
     }
 
+    @PackageScope
     String getColumnHeader() {
         columnIds.size() > 0 ? columnIds.collect().join("\t") : "metadata_blank"
     }
 
+    @PackageScope
     String getColumnHeader1() {
         columnIds.size() > 0 ? columnIds.collect { "1_$it" }.join("\t") : "1_metadata_blank"
     }
 
+    @PackageScope
     String getColumnHeader2() {
         columnIds.size() > 0 ? columnIds.collect { "2_$it" }.join("\t") : "2_metadata_blank"
     }

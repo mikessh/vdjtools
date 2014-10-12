@@ -69,8 +69,8 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 println "[${new Date()} $scriptName] Reading sample(s)"
 
 def sampleCollection = metadataFileName ?
-        new SampleCollection((String) metadataFileName, software, false, true) :
-        new SampleCollection(opt.arguments()[0..-2], software, true)
+        new SampleCollection((String) metadataFileName, software, true, false, true) :
+        new SampleCollection(opt.arguments()[0..-2], software, true, false, true)
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded"
 

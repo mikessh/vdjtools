@@ -1,6 +1,8 @@
 package com.antigenomics.vdjtools.parser
 
-import com.antigenomics.vdjtools.ClonotypeJ
+import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.sample.Sample
 
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
@@ -17,9 +19,13 @@ import com.antigenomics.vdjtools.ClonotypeJ
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-class MiGecParser extends ClonotypeParser {
+class MiGecParser extends ClonotypeStreamParser {
+    MiGecParser(Iterator<String> innerIter, Software software, Sample sample) {
+        super(innerIter, software, sample)
+    }
+
     @Override
-    protected ClonotypeJ parse(String clonotypeString) {
+    protected Clonotype parse(String clonotypeString) {
         /*
              0  Count
              1  Percentage
@@ -59,7 +65,7 @@ class MiGecParser extends ClonotypeParser {
                 splitString[9].isInteger() ? splitString[9].toInteger() : -1,
                 splitString[10].toInteger()] as int[]
 
-        new ClonotypeJ(sample, count, freq,
+        new Clonotype(sample, count, freq,
                 segmPoints, v, d, j,
                 cdr1nt, cdr2nt, cdr3nt,
                 cdr1aa, cdr2aa, cdr3aa,

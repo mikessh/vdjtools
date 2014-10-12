@@ -32,25 +32,19 @@ class DownSampler {
     }
 
     Sample reSample(int count) {
-        def sampledClonotypes
         if (count >= sample.count) {
-            sampledClonotypes = new LinkedList<Clonotype>(sample.clonotypes)
+            return new Sample(sample)
         } else {
             Collections.shuffle(flattenedClonotypes)
 
             def countMap = new HashMap<Clonotype, Integer>()
+
             for (int i = 0; i < count; i++) {
                 def clonotype = flattenedClonotypes[i]
                 countMap.put(clonotype, (countMap[clonotype] ?: 0) + 1)
             }
 
-            sampledClonotypes = new LinkedList<Clonotype>()
-
-            countMap.each {
-                sampledClonotypes.add(it.key.changeCount(it.value, count))
-            }
+            return new Sample(sample, countMap)
         }
-
-        return new Sample(sample.sampleMetadata, sampledClonotypes)
     }
 }

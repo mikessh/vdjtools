@@ -17,26 +17,26 @@
 package com.antigenomics.vdjtools.sample
 
 class SamplePair {
-    final Sample sample1, sample2
+    private final SampleConnection sample1conn, sample2conn
     final int i, j
 
-    SamplePair(Sample sample1, Sample sample2, int i, int j) {
-        this.sample1 = sample1
-        this.sample2 = sample2
+    SamplePair(SampleConnection sample1conn, SampleConnection sample2conn, int i, int j) {
+        this.sample1conn = sample1conn
+        this.sample2conn = sample2conn
         this.i = i
         this.j = j
     }
 
-    SamplePair(Sample sample1, Sample sample2) {
-        this(sample1, sample2, 0, 1)
+    SamplePair(SampleConnection sample1conn, SampleConnection sample2conn) {
+        this(sample1conn, sample2conn, 0, 1)
     }
 
     Sample getAt(int index) {
         switch (index) {
             case 0:
-                return sample1
+                return sample1conn.sample
             case 1:
-                return sample2
+                return sample2conn.sample
         }
         throw new IndexOutOfBoundsException()
     }

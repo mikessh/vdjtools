@@ -16,28 +16,30 @@
 
 package com.antigenomics.vdjtools.parser
 
-import com.antigenomics.vdjtools.ClonotypeJ
-import com.antigenomics.vdjtools.SampleJ
+import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.sample.Sample
+import groovy.transform.PackageScope
 
-public abstract class ClonotypeParser implements Iterable<ClonotypeJ> {
-    public static ClonotypeParser create(InputStream inputStream, Software software, SampleJ sample) {
-        ClonotypeParser parser
+public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
+    @PackageScope
+    public static ClonotypeStreamParser create(InputStream inputStream, Software software, Sample sample) {
+        ClonotypeStreamParser parser
         def reader = new BufferedReader(new InputStreamReader(inputStream))
         def innerIter = reader.iterator()
 
         switch (software) {
             case Software.MiTcr:
-                parser = new MiTcrParser(innerIter: innerIter, software: software, sample: sample)
+                parser = new MiTcrParser(innerIter, software, sample)
                 break
             case Software.IgBlast:
-                parser = new IgBlastParser(innerIter: innerIter, software: software, sample: sample)
+                parser = new IgBlastParser(innerIter, software, sample)
                 break
             case Software.Simple:
-                parser = new SimpleParser(innerIter: innerIter, software: software, sample: sample)
+                parser = new SimpleParser(innerIter, software, sample)
                 break
             case Software.MiGec:
-                parser = new MiGecParser(innerIter: innerIter, software: software, sample: sample)
+                parser = new MiGecParser(innerIter, software, sample)
                 break
             default:
                 throw new UnsupportedOperationException("Don't know how to parse $software data")
@@ -50,9 +52,15 @@ public abstract class ClonotypeParser implements Iterable<ClonotypeJ> {
 
     protected final Software software
     protected final Iterator<String> innerIter
-    protected final SampleJ sample
+    protected final Sample sample
 
-    protected abstract ClonotypeJ parse(String clonotypeString)
+    protected ClonotypeStreamParser(Iterator<String> innerIter, Software software, Sample sample) {
+        this.software = software
+        this.innerIter = innerIter
+        this.sample = sample
+    }
+
+    protected abstract Clonotype parse(String clonotypeString)
 
     /**
      * Internal util, extracts most probable allele
@@ -67,7 +75,7 @@ public abstract class ClonotypeParser implements Iterable<ClonotypeJ> {
     }
 
     @Override
-    Iterator<ClonotypeJ> iterator() {
+    Iterator<Clonotype> iterator() {
         [hasNext: {
             innerIter.hasNext()
         }, next : {

@@ -21,14 +21,14 @@ class Mutation {
     final int ntPos, aaPos
     final char fromAa, toAa, fromNt, toNt
     final boolean isSilent, isStop, directed
-    final ClonotypeJ parent
+    final Clonotype parent
     double altFreq
 
     private Mutation(String region,
                      int ntPos, int aaPos,
                      char fromAa, char toAa, char fromNt, char toNt,
                      boolean directed,
-                     ClonotypeJ parent) {
+                     Clonotype parent) {
         this.parent = parent
         this.directed = directed
         def delim = directed ? ">" : "<>"
@@ -46,14 +46,14 @@ class Mutation {
         this.key = region + ":" + ntString
     }
 
-    Mutation reassignParent(ClonotypeJ parent) {
+    Mutation reassignParent(Clonotype parent) {
         new Mutation(region,
                 ntPos, aaPos,
                 fromAa, toAa, fromNt, toNt,
                 directed, parent)
     }
 
-    static Mutation parseIgBlastMutation(String mutationString, ClonotypeJ parent) {
+    static Mutation parseIgBlastMutation(String mutationString, Clonotype parent) {
         def splitString = mutationString.split(",")
 
         def ntString = splitString[1]
@@ -78,7 +78,7 @@ class Mutation {
 
     static Mutation cdr3Mutation(int ntPos, char fromNt, char toNt,
                                  int aaPos, char fromAa, char toAa,
-                                 boolean directed, ClonotypeJ parent) {
+                                 boolean directed, Clonotype parent) {
         new Mutation("CDR3",
                 ntPos, aaPos,
                 fromAa, toAa, fromNt, toNt,

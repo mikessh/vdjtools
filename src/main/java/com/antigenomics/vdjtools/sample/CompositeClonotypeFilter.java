@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools;
+package com.antigenomics.vdjtools.sample;
+
+import com.antigenomics.vdjtools.Clonotype;
 
 import java.util.Collection;
 
@@ -27,9 +29,9 @@ public class CompositeClonotypeFilter implements ClonotypeFilter {
     }
 
     @Override
-    public boolean pass(ClonotypeJ clonotypeJ) {
+    public boolean pass(Clonotype clonotype) {
         for (ClonotypeFilter filter : filters)
-            if (!filter.pass(clonotypeJ))
+            if (!filter.pass(clonotype))
                 return false;
 
         return true;

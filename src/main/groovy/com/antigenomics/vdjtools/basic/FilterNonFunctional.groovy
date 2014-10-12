@@ -18,6 +18,8 @@
 package com.antigenomics.vdjtools.basic
 
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.sample.FunctionalClonotypeFilter
+import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.ExecUtil
 
@@ -79,7 +81,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 //
 
 sampleCollection.eachWithIndex { sample, ind ->
-    def newSample = sample.functional()
+    def newSample = new Sample(sample, FunctionalClonotypeFilter.INSTANCE)
 
     println "[${new Date()} $scriptName] Processed ${ind + 1} sample(s).."
 

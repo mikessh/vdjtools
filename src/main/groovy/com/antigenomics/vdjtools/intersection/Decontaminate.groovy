@@ -132,7 +132,7 @@ new File(outputFilePrefix + "_summary.txt").withPrintWriter { pw ->
     pw.println("frequncy\t" + filteredFreq.collect().join("\t") + "\t" +
             sampleCollection.collect { it.freq }.join("\t"))
     pw.println("clonotypes\t" + filteredClonotypes.collect().join("\t") + "\t" +
-            sampleCollection.collect { it.div }.join("\t"))
+            sampleCollection.collect { it.diversity }.join("\t"))
 }
 
 printWriters.each { pw -> pw.close() }

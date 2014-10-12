@@ -30,12 +30,10 @@ class DiversityEstimator {
     private FrequencyTable getFrequencyTable(boolean byAminoAcid) {
         if (byAminoAcid) {
             return frequencyTableAA ?: (frequencyTableAA = new FrequencyTable(sample, true))
-        }
-        else {
+        } else {
             return frequencyTableNT ?: (frequencyTableNT = new FrequencyTable(sample, false))
         }
     }
-
 
     DownSampler getDownSampler() {
         downSampler ?: (downSampler = new DownSampler(sample))
@@ -45,20 +43,24 @@ class DiversityEstimator {
         this.sample = sample
     }
 
-    Diversity sampleDiversity() {
-        new Diversity(sample.diversityCDR3NT, 0, sample.count, false)
+    Diversity computeCdr3SampleDiversity(boolean byAminoAcid) {
+        new Diversity(new HashSet<>(sample.collect {
+            byAminoAcid ? it.cdr3aa : it.cdr3nt
+        }).size(), 0, sample.count, false)
     }
 
-    Diversity countNormalizedSampleDiversity(int sampleSize, int nResamples, boolean byAminoAcid) {
-        if (sampleSize >= sample.count)
-            return new Diversity((long) (((double) sampleSize *
-                    (double) (byAminoAcid ? sample.diversityCDR3AA : sample.diversityCDR3NT) / (double) sample.count)),
-                    0, sampleSize, false)
+    Diversity computeNormalizedSampleDiversity(int sampleSize, int nResamples, boolean byAminoAcid) {
+        if (sampleSize >= sample.count) {
+            def baseDiversity = computeCdr3SampleDiversity(byAminoAcid)
+            return new Diversity((long) (((double) sampleSize * (double) baseDiversity.mean / (double) sample.count)),
+                    0, sampleSize, true)
+        }
 
         def diversityValues = new double[nResamples]
         for (int i = 0; i < nResamples; i++) {
-            def newSample = getDownSampler().reSample(sampleSize)
-            diversityValues[i] = byAminoAcid ? newSample.diversityCDR3AA : newSample.diversityCDR3NT
+            def subSample = getDownSampler().reSample(sampleSize)
+            def newDiversityEstimator = new DiversityEstimator(subSample)
+            diversityValues[i] = (double)newDiversityEstimator.computeCdr3SampleDiversity(byAminoAcid).mean
         }
 
         def descrStats = new DescriptiveStatistics(diversityValues)
@@ -66,7 +68,7 @@ class DiversityEstimator {
         return new Diversity((long) descrStats.mean, (long) descrStats.standardDeviation, sampleSize, false)
     }
 
-    Diversity efronThisted(int maxDepth, double cvThreshold, boolean byAminoAcid) {
+    Diversity computeEfronThisted(int maxDepth, double cvThreshold, boolean byAminoAcid) {
         def frequencyTable = getFrequencyTable(byAminoAcid)
 
         double S = -1, D = -1, CV = -1
@@ -99,7 +101,7 @@ class DiversityEstimator {
         new Diversity((long) S, (long) D, sample.count, true)
     }
 
-    Diversity chao1(boolean byAminoAcid) {
+    Diversity computeChao1(boolean byAminoAcid) {
         def frequencyTable = getFrequencyTable(byAminoAcid)
 
         double F1 = frequencyTable[1], F2 = frequencyTable[2], RF = F1 / F2 / 2
@@ -114,7 +116,7 @@ class DiversityEstimator {
 
         FrequencyTable(Sample sample, boolean byAminoAcid) {
             Iterable<Countable> counters
-                 Collection
+
             if (byAminoAcid) {
                 def aaCounts = new HashMap<String, Counter>()
                 sample.each {
