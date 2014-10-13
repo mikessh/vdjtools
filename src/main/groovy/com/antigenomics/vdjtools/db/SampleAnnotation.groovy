@@ -22,9 +22,10 @@ import com.antigenomics.vdjtools.util.CommonUtil
 class SampleAnnotation {
     private final Sample sample
     private final sampleCdrFreqs = new HashMap<String, Double>()
-    private final boolean oneMM = true
+    private final boolean oneMM
 
-    SampleAnnotation(Sample sample) {
+    SampleAnnotation(Sample sample, boolean oneMM) {
+        this.oneMM = oneMM
         this.sample = sample
         sample.each {
             sampleCdrFreqs.put(it.cdr3aa, (sampleCdrFreqs[it.cdr3aa] ?: 0) + it.freq)

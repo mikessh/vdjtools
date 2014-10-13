@@ -31,6 +31,7 @@ cli.D(longOpt: "db-name", argName: "string", args: "1",
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
+cli.o(longOpt: "one-mismatch", "Will query database allowing a single amino-acid substitution")
 
 def opt = cli.parse(args)
 
@@ -57,7 +58,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 // Remaining arguments
 
-def software = Software.byName(opt.S), dbName = opt.D ?: "trdb",
+def software = Software.byName(opt.S), dbName = opt.D ?: "trdb", oneMM = (boolean) opt.o,
     outputFileName = opt.arguments()[-1]
 
 ExecUtil.ensureDir(outputFileName)
@@ -88,7 +89,7 @@ database.each { dbCdrFreqs.put(it, new double[sampleCollection.size()]) }
 println "[${new Date()} $scriptName] Annotating sample(s)"
 
 sampleCollection.eachWithIndex { Sample sample, int ind ->
-    def sampleAnnotation = new SampleAnnotation(sample)
+    def sampleAnnotation = new SampleAnnotation(sample, oneMM)
     println "[${new Date()} $scriptName] ${ind + 1} sample(s) prepared"
 
     sampleAnnotation.getEntryFrequencies(database).each {
