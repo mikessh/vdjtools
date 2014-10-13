@@ -112,6 +112,7 @@ class DiversityEstimator {
     }
 
     private class FrequencyTable {
+        //todo: use intersectionUtil
         private final Map<Long, Long> frequencyMap = new HashMap<>()
 
         FrequencyTable(Sample sample, boolean byAminoAcid) {

@@ -59,7 +59,7 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 println "[${new Date()} $scriptName] Reading sample"
 
-def sampleCollection = new SampleCollection([opt.arguments()[0]], software, false)
+def sampleCollection = new SampleCollection([opt.arguments()[0]], software)
 
 def sample = sampleCollection[0]
 
