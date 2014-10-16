@@ -53,7 +53,13 @@ class IntersectionUtil {
     String generateKey(Clonotype clonotype) {
         switch (intersectionType) {
             case IntersectionType.NucleotideV:
-                return clonotype.cdr3nt + "_" + clonotype.v
+                return clonotype.v + "_" + clonotype.cdr3nt
+            case IntersectionType.NucleotideVJ:
+                return clonotype.v + "_" + clonotype.cdr3nt + "_" + clonotype.j
+            case IntersectionType.AminoAcidV:
+                return clonotype.v + "_" + clonotype.cdr3aa
+            case IntersectionType.AminoAcidVJ:
+                return clonotype.v + "_" + clonotype.cdr3aa + "_" + clonotype.j
             case IntersectionType.Nucleotide:
                 return clonotype.cdr3nt
             case IntersectionType.AminoAcid:
@@ -350,7 +356,7 @@ class IntersectionUtil {
      * Internal wrapper with overridden equals and hash code for purposes of parent class
      */
     private class ClonotypeHashWrapper implements ClonotypeWrapper {
-        final Clonotype coreClonotype
+        private final Clonotype coreClonotype
         public final List<Clonotype> clonotypes = new LinkedList<>()
         public double freq
         public int count
@@ -366,6 +372,7 @@ class IntersectionUtil {
             coreClonotype
         }
 
+        @Override
         boolean equals(o) {
             if (this.is(o)) return true
 
@@ -381,26 +388,70 @@ class IntersectionUtil {
                             coreClonotype.v != clonotypeWrapper.coreClonotype.v)
                         return false
                     break
+                case IntersectionType.NucleotideVJ:
+                    if (coreClonotype.cdr3nt != clonotypeWrapper.coreClonotype.cdr3nt ||
+                            coreClonotype.v != clonotypeWrapper.coreClonotype.v ||
+                            coreClonotype.j != clonotypeWrapper.coreClonotype.j)
+                        return false
+                    break
+
                 case IntersectionType.AminoAcid:
                     if (coreClonotype.cdr3aa != clonotypeWrapper.coreClonotype.cdr3aa)
                         return false
                     break
+                case IntersectionType.AminoAcidV:
+                    if (coreClonotype.cdr3aa != clonotypeWrapper.coreClonotype.cdr3aa ||
+                            coreClonotype.v != clonotypeWrapper.coreClonotype.v)
+                        return false
+                    break
+                case IntersectionType.AminoAcidVJ:
+                    if (coreClonotype.cdr3aa != clonotypeWrapper.coreClonotype.cdr3aa ||
+                            coreClonotype.v != clonotypeWrapper.coreClonotype.v ||
+                            coreClonotype.j != clonotypeWrapper.coreClonotype.j)
+                        return false
+                    break
+
                 case IntersectionType.AminoAcidNonNucleotide:
                     if (coreClonotype.cdr3aa != clonotypeWrapper.coreClonotype.cdr3aa ||
                             coreClonotype.cdr3nt == clonotypeWrapper.coreClonotype.cdr3nt)
                         return false
                     break
+
+                default:
+                    throw new NotImplementedException()
             }
 
             return true
         }
 
+        @Override
         int hashCode() {
-            if (intersectionType == IntersectionType.NucleotideV)
-                return coreClonotype.cdr3nt.hashCode() + 31 * coreClonotype.v.hashCode()
-            else
-                return intersectionType == IntersectionType.Nucleotide ?
-                        coreClonotype.cdr3nt.hashCode() : coreClonotype.cdr3aa.hashCode()
+            switch (intersectionType) {
+                case IntersectionType.Nucleotide:
+                    return coreClonotype.cdr3nt.hashCode()
+                case IntersectionType.NucleotideV:
+                    return coreClonotype.cdr3nt.hashCode() +
+                            31 * coreClonotype.v.hashCode()
+                case IntersectionType.NucleotideVJ:
+                    return coreClonotype.cdr3nt.hashCode() +
+                            31 * (coreClonotype.v.hashCode() + 31 * coreClonotype.j.hashCode())
+
+                case IntersectionType.AminoAcid:
+                    return coreClonotype.cdr3aa.hashCode()
+                case IntersectionType.AminoAcidV:
+                    return coreClonotype.cdr3aa.hashCode() +
+                            31 * coreClonotype.v.hashCode()
+                    break
+                case IntersectionType.AminoAcidVJ:
+                    return coreClonotype.cdr3aa.hashCode() +
+                            31 * (coreClonotype.v.hashCode() + 31 * coreClonotype.j.hashCode())
+
+                case IntersectionType.AminoAcidNonNucleotide:
+                    return coreClonotype.cdr3aa.hashCode()
+
+                default:
+                    throw new NotImplementedException()
+            }
         }
     }
 }

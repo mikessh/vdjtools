@@ -20,14 +20,20 @@ import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 
 class DownSampler {
-    final List<Clonotype> flattenedClonotypes = new ArrayList<>(1000000)
+    final List<Clonotype> flattenedClonotypes
     final Sample sample
 
     DownSampler(Sample sample) {
+        if (sample.count > Integer.MAX_VALUE)
+            throw new RuntimeException("Couldn't downsample samples with > ${Integer.MAX_VALUE} cells")
+
+        this.flattenedClonotypes = new ArrayList<>((int) sample.count)
+
         sample.each {
             for (long i = 0; i < it.count; i++)
                 flattenedClonotypes.add(it)
         }
+
         this.sample = sample
     }
 

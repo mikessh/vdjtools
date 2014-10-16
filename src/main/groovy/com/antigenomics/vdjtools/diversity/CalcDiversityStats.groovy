@@ -17,12 +17,15 @@
 package com.antigenomics.vdjtools.diversity
 
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.intersection.IntersectionUtil
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.ExecUtil
 import com.antigenomics.vdjtools.util.RUtil
 
-def N_DEFAULT = "300000", R_STEP_DEFAULT = "100000", R_MAX_DEFAULT = "1000000"
+def N_DEFAULT = "300000", R_STEP_DEFAULT = "100000", R_MAX_DEFAULT = "1000000",
+    I_TYPES_DEFAULT = [IntersectionType.AminoAcid, IntersectionType.Nucleotide]
 def cli = new CliBuilder(usage: "CalcDiversityStats [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
@@ -30,11 +33,14 @@ cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
-                "Header is mandatory and will be used to assign column names for metadata." +
-                "If column named 'time' is present, it will be used to specify time point sequence.")
+                "Header is mandatory and will be used to assign column names for metadata.")
 cli.n(longOpt: "num-cells", argName: "integer", args: 1,
         "Number of cells to take for normalized sample diversity estimate. [default = $N_DEFAULT]")
 cli.r("Perform rarefaction analysis.")
+cli.i(longOpt: "intersect-type", argName: "string1,string2,..", args: 1,
+        "Comma-separated list of intersection types to apply. " +
+                "Allowed values: $IntersectionType.allowedNames. " +
+                "Will use '${I_TYPES_DEFAULT.collect { it.shortName }.join(",")}' by default.")
 cli._(longOpt: "r-step", argName: "integer", args: 1,
         "Rarefaction curve step. [default = $R_STEP_DEFAULT]")
 cli._(longOpt: "r-max", argName: "integer", args: 1,
@@ -72,6 +78,25 @@ def software = Software.byName(opt.S), effectiveSampleSize = (opt.n ?: N_DEFAULT
     doRarefaction = opt.r, plot = opt.p,
     outputPrefix = opt.arguments()[-1]
 
+// Build a list of intersection types to apply
+
+def intersectionTypes
+
+if (opt.i) {
+    intersectionTypes = (opt.i as String).split(",").collect {
+        def shortName = it.trim()
+        def intersectionType = IntersectionType.byName(shortName)
+        if (!intersectionType) {
+            println "[ERROR] Bad intersection type specified ($shortName). " +
+                    "Allowed values are: $IntersectionType.allowedNames"
+            System.exit(-1)
+        }
+        intersectionType
+    }
+} else {
+    intersectionTypes = I_TYPES_DEFAULT
+}
+
 ExecUtil.ensureDir(outputPrefix)
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
@@ -108,81 +133,70 @@ new File(outputPrefix + ".diversity.txt").withPrintWriter { pwDiv ->
     def headerDiv = "#sample_id\t" +
             sampleCollection.metadataTable.columnHeader + "\t" +
             "cells\t" +
-            "clones_nt\tclones_aa\t" +
-            "cndiv_nt_m\tcndiv_nt_std\t" +
-            "efron_nt_m\tefron_nt_std\t" +
-            "chao_nt_m\tchao_nt_std\t" +
-            "cndiv_aa_m\tcndiv_aa_std\t" +
-            "efron_aa_m\tefron_aa_std\t" +
-            "chao_aa_m\tchao_aa_std"
+            intersectionTypes.collect { i ->
+                ["clones", "normdiv_m", "normdiv_s", "efron_m", "efron_s", "chao_m", "chao_s"].collect { m ->
+                    "${m}_$i.shortName"
+                }
+            }.join("\t")
 
     pwDiv.println(headerDiv)
 
     def headerR = ["#sample_id", sampleCollection.metadataTable.columnHeader,
                    "cells", "sample_diversity", rSteps].flatten().join("\t")
 
-    new File(outputPrefix + ".rarefaction_nt.txt").withPrintWriter { pwRNT ->
-        pwRNT.println(headerR)
 
-        new File(outputPrefix + ".rarefaction_aa.txt").withPrintWriter { pwRAA ->
-            pwRAA.println(headerR)
+    intersectionTypes.each { IntersectionType i ->
+        new File(outputPrefix + ".rarefaction_${i.shortName}.txt").withPrintWriter { pwR ->
+            pwR.println(headerR)
+        }
+    }
 
-            int sampleCounter = 0
+    sampleCollection.each { Sample sample ->
+        def diversityRow = [sample.sampleMetadata.sampleId, sample.sampleMetadata,
+                            sample.count]
 
-            sampleCollection.each { Sample sample ->
-                def diversityEstimator = new DiversityEstimator(sample)
+        intersectionTypes.each { IntersectionType i ->
+            def intersectionUtil = new IntersectionUtil(i)
+            def diversityEstimator = new DiversityEstimator(sample, intersectionUtil)
+            def basediv = diversityEstimator.computeCollapsedSampleDiversity(),
+                normdiv = diversityEstimator.computeNormalizedSampleDiversity(effectiveSampleSize, nResamples),
+                efron = diversityEstimator.computeEfronThisted(efronDepth, efronCvThreshold),
+                chao = diversityEstimator.computeChao1()
 
-                // Basic estimates
-                def diversityCDR3NT = diversityEstimator.computeCdr3SampleDiversity(false),
-                    diversityCDR3AA = diversityEstimator.computeCdr3SampleDiversity(true)
 
-                // Rarefaction
+            diversityRow.addAll([basediv.mean,
+                                 normdiv.mean, normdiv.std,
+                                 efron.mean, efron.std,
+                                 chao.mean, chao.std])
 
+            new File(outputPrefix + ".rarefaction_nt.txt").withPrintWriter { pwRNT ->
                 if (doRarefaction) {
-                    println "[${new Date()} $scriptName] Bulding rarefaction curve"
+                    println "[${new Date()} $scriptName] Bulding rarefaction curve аor ${i.shortName}"
 
                     for (int k = 0; k < nResamples; k++) {
                         datasets = [datasets, sample.sampleMetadata.sampleId]
 
-                        def rNT = [], rAA = []
-                        rSteps.each { int i ->
-                            if (i > sample.count) {
-                                rNT.add(R_EMPTY)
-                                rAA.add(R_EMPTY)
+                        def y = []
+                        rSteps.each { int x ->
+                            if (x > sample.count) {
+                                y.add(R_EMPTY)
                             } else {
-                                def subSample = diversityEstimator.downSampler.reSample(i)
-                                def subSampleDiversityEstimator = new DiversityEstimator(subSample)
-                                rNT.add(subSampleDiversityEstimator.computeCdr3SampleDiversity(false))
-                                rAA.add(subSampleDiversityEstimator.computeCdr3SampleDiversity(true))
+                                def subSample = diversityEstimator.downSampler.reSample(x)
+                                def subSampleDiversityEstimator = new DiversityEstimator(subSample, intersectionUtil)
+                                y.add(subSampleDiversityEstimator.computeCollapsedSampleDiversity())
                             }
                         }
 
-                        pwRNT.println([sample.sampleMetadata.sampleId, sample.sampleMetadata,
-                                       sample.count, diversityCDR3NT, rNT].flatten().join("\t"))
-                        pwRAA.println([sample.sampleMetadata.sampleId, sample.sampleMetadata,
-                                       sample.count, diversityCDR3AA, rAA].flatten().join("\t"))
+                        new File(outputPrefix + ".rarefaction_${i.shortName}.txt").withWriterAppend { pwR ->
+                            pwR.println([sample.sampleMetadata.sampleId, sample.sampleMetadata,
+                                         sample.count, basediv.mean, y].flatten().join("\t"))
+                        }
                     }
                 }
-
-                // Diversity estimates
-
-                println "[${new Date()} $scriptName] Computing diversity estimates"
-
-                def cnDivNT = diversityEstimator.computeNormalizedSampleDiversity(effectiveSampleSize, nResamples, false),
-                    efronDivNT = diversityEstimator.computeEfronThisted(efronDepth, efronCvThreshold, false),
-                    chaoDivNT = diversityEstimator.computeChao1(false),
-                    cnDivAA = diversityEstimator.computeNormalizedSampleDiversity(effectiveSampleSize, nResamples, true),
-                    efronDivAA = diversityEstimator.computeEfronThisted(efronDepth, efronCvThreshold, true),
-                    chaoDivAA = diversityEstimator.computeChao1(true)
-
-                pwDiv.println([sample.sampleMetadata.sampleId, sample.sampleMetadata,
-                               sample.count, diversityCDR3NT, diversityCDR3AA,
-                               cnDivNT, efronDivNT, chaoDivNT,
-                               cnDivAA, efronDivAA, chaoDivAA].join("\t"))
-
-                println "[${new Date()} $scriptName] ${++sampleCounter} samples processed"
             }
         }
+
+        pwDiv.println(diversityRow.join("\t"))
     }
 }
 

@@ -17,7 +17,8 @@
 package com.antigenomics.vdjtools.intersection
 
 enum IntersectMetric {
-    Correlation("R"), Diversity("D"), Frequency("F")
+    // todo: check classes using vJSD metric
+    Correlation("R"), Diversity("D"), Frequency("F"), vJSD("vJSD")
 
     private final String name
 
