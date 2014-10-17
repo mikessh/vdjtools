@@ -53,8 +53,7 @@ println "[${new Date()} $scriptName] Reading sample"
 
 def sampleCollection = new SampleCollection([opt.arguments()[0]], software)
 
-def sample = sampleCollection[0]
-def sampleId = sample.sampleMetadata.sampleId
+def sampleId = sampleCollection.metadataTable.getRow(0).sampleId
 
 // Calculate segment usage
 def segmentUsage = new SegmentUsage(sampleCollection, unweighted)
