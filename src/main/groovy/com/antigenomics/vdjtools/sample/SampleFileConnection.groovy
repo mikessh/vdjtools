@@ -23,16 +23,16 @@ import com.antigenomics.vdjtools.util.CommonUtil
 /**
  A semi-internal class to provide lazy-loading support for SampleCollection
  */
-class SampleStreamConnection implements SampleConnection {
-    private final InputStream inputStream
+class SampleFileConnection implements SampleConnection {
+    private final String fileName
     private final SampleMetadata sampleMetadata
     private final Software software
     private Sample _sample = null
     private final boolean lazy, store
 
-    SampleStreamConnection(InputStream inputStream, SampleMetadata sampleMetadata, Software software,
+    SampleFileConnection(String fileName, SampleMetadata sampleMetadata, Software software,
                            boolean lazy, boolean store) {
-        this.inputStream = inputStream
+        this.fileName = fileName
         this.sampleMetadata = sampleMetadata
         this.software = software
         this.lazy = lazy
@@ -44,6 +44,7 @@ class SampleStreamConnection implements SampleConnection {
 
     private Sample load() {
         println "[${new Date()} SampleStreamConnection] Loading sample $sampleMetadata.sampleId"
+        def inputStream = CommonUtil.getFileStream(fileName)
         def sample = Sample.fromInputStream(inputStream, sampleMetadata, software)
         println "[${new Date()} SampleStreamConnection] Loaded sample $sampleMetadata.sampleId with " +
                 "$sample.diversity clonotypes and $sample.count cells. " + CommonUtil.memoryFootprint()
