@@ -44,9 +44,10 @@ class SampleStreamConnection implements SampleConnection {
 
     private Sample load() {
         println "[${new Date()} SampleStreamConnection] Loading sample $sampleMetadata.sampleId"
-        Sample.fromInputStream(inputStream, sampleMetadata, software)
+        def sample = Sample.fromInputStream(inputStream, sampleMetadata, software)
         println "[${new Date()} SampleStreamConnection] Loaded sample $sampleMetadata.sampleId with " +
                 "$sample.diversity clonotypes and $sample.count cells. " + CommonUtil.memoryFootprint()
+        sample
     }
 
     public Sample getSample() {

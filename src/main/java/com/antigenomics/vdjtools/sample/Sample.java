@@ -46,6 +46,10 @@ public class Sample implements Iterable<Clonotype> {
         Collections.sort(clonotypes);
     }
 
+    public double getFreq() {
+        return 1.0;
+    }
+
     public Sample(Sample toClone, ClonotypeFilter filter, int top) {
         this.sampleMetadata = toClone.sampleMetadata;
 

@@ -23,6 +23,7 @@ import com.antigenomics.vdjtools.intersection.IntersectionUtil
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 import com.antigenomics.vdjtools.timecourse.DynamicClonotype
 import com.antigenomics.vdjtools.timecourse.TimeCourse
+import com.antigenomics.vdjtools.util.CommonUtil
 import org.apache.commons.io.FilenameUtils
 
 /**
@@ -83,7 +84,7 @@ class SampleCollection implements Iterable<Sample> {
             if (new File(fileName).exists()) {
                 def sampleId = FilenameUtils.getBaseName(fileName)
                 def sampleMetadata = metadataTable.createRow(sampleId)
-                sampleMap.put(sampleId, new SampleStreamConnection(new FileInputStream(fileName),
+                sampleMap.put(sampleId, new SampleStreamConnection(CommonUtil.getFileStream(fileName),
                         sampleMetadata, software, lazy, store))
             } else if (strict) {
                 throw new FileNotFoundException("Missing sample file $fileName")
@@ -160,7 +161,7 @@ class SampleCollection implements Iterable<Sample> {
 
                     if (new File(fileName).exists()) {
                         def sampleMetadata = metadataTable.createRow(sampleId, entries)
-                        sampleMap.put(sampleId, new SampleStreamConnection(new FileInputStream(fileName),
+                        sampleMap.put(sampleId, new SampleStreamConnection(CommonUtil.getFileStream(fileName),
                                 sampleMetadata, software, lazy, store))
                     } else if (strict) {
                         throw new FileNotFoundException("Missing sample file $fileName")

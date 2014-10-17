@@ -16,6 +16,8 @@
 
 package com.antigenomics.vdjtools.util
 
+import java.util.zip.GZIPInputStream
+
 class CommonUtil {
     static final int THREADS = Runtime.runtime.availableProcessors()
 
@@ -188,6 +190,10 @@ class CommonUtil {
 
     static InputStreamReader resourceStreamReader(String resourceName) {
         new InputStreamReader(CommonUtil.class.classLoader.getResourceAsStream(resourceName))
+    }
+
+    static InputStream getFileStream(String fileName) {
+        fileName.endsWith(".gz") ? new GZIPInputStream(new FileInputStream(fileName)) : new FileInputStream(fileName)
     }
 
     static String getSubSequence(String sequence, int from, int to) {
