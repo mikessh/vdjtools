@@ -31,6 +31,9 @@ class Spectratype {
     final String HEADER
     final int[] lengths
 
+    private int count = 0
+    private double freq = 0
+
     Spectratype(boolean aminoAcid, boolean unweighted) {
         this.aminoAcid = aminoAcid
         this.unweighted = unweighted
@@ -57,12 +60,20 @@ class Spectratype {
         (int) (clonotype.inFrame ? clonotype.cdr3aa.length() : (clonotype.cdr3nt.length() / 3))
     }
 
+    private void add(Clonotype clonotype) {
+        if (unweighted) {
+            this.spectratype[bin(clonotype)]++
+            freq++
+        } else {
+            this.spectratype[bin(clonotype)] += clonotype.freq
+            freq += clonotype.freq
+        }
+        count++
+    }
+
     public void addAll(Iterable<Clonotype> sample) {
         sample.each { Clonotype clonotype ->
-            if (unweighted)
-                this.spectratype[bin(clonotype)]++
-            else
-                this.spectratype[bin(clonotype)] += clonotype.freq
+            add(clonotype)
         }
     }
 
@@ -72,12 +83,8 @@ class Spectratype {
         sample.each { Clonotype clonotype ->
             if (counter++ < top)
                 topClonotypes.add(clonotype)
-            else {
-                if (unweighted)
-                    this.spectratype[bin(clonotype)]++
-                else
-                    this.spectratype[bin(clonotype)] += clonotype.freq
-            }
+            else
+                add(clonotype)
         }
         topClonotypes
     }
@@ -85,17 +92,30 @@ class Spectratype {
     public void clear() {
         for (int i = 0; i < len; i++)
             this.spectratype[i] = 0
+        count = 0
+        freq = 0
     }
 
     double[] getHistogram() {
-        double s = this.spectratype.collect().sum()
+        getHistogram(true)
+    }
 
+    double[] getHistogram(boolean normalized) {
         def spectratype = new double[len]
+        def _freq = normalized ? freq : 1.0
 
         for (int i = 0; i < len; i++)
-            spectratype[i] = this.spectratype[i] / s
+            spectratype[i] = this.spectratype[i] / _freq
 
         spectratype
+    }
+
+    double getFreq() {
+        return freq
+    }
+
+    int getCount() {
+        return count
     }
 
     @Override

@@ -16,12 +16,10 @@
 
 package com.antigenomics.vdjtools.basic
 
-import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.ExecUtil
 import com.antigenomics.vdjtools.util.RUtil
-
 
 def cli = new CliBuilder(usage: "PlotFancySpectratype [options] input_name output_prefix")
 cli.h("display help message")
@@ -63,27 +61,17 @@ def sampleCollection = new SampleCollection([opt.arguments()[0]], software)
 
 def sample = sampleCollection[0]
 
+
 // Calculate spectratype
+
 def spectratype = new Spectratype(false, false)
 
-spectratype.addAll(sample)
+def topClonotypes = spectratype.addAllFancy(sample, top)
 
 def spectratypeHist = spectratype.histogram
 
-// Calculate top clonotypes and subtract their frequencies
 
-def topClonotypes = new ArrayList<Clonotype>()
-
-(0..<top).each { int ind ->
-    topClonotypes.add(sample[ind])
-}
-
-topClonotypes.each {
-    def bin = spectratype.bin(it)
-    spectratypeHist[bin] -= it.freq
-}
-
-// Prepair output table
+// Prepare output table
 
 def spectraMatrix = new double[spectratypeHist.length][top + 1]
 
@@ -100,6 +88,7 @@ def table = "Len\tOther\t" + topClonotypes.collect { it.cdr3aa }.join("\t")
 for (int i = 0; i < spectratypeHist.length; i++) {
     table += "\n" + spectratype.lengths[i] + "\t" + spectraMatrix[i].collect().join("\t")
 }
+
 
 // Output
 
