@@ -23,7 +23,7 @@ import groovy.transform.PackageScope
 
 public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
     @PackageScope
-    public static ClonotypeStreamParser create(InputStream inputStream, Software software, Sample sample) {
+    static ClonotypeStreamParser create(InputStream inputStream, Software software, Sample sample) {
         ClonotypeStreamParser parser
         def reader = new BufferedReader(new InputStreamReader(inputStream))
         def innerIter = reader.iterator()

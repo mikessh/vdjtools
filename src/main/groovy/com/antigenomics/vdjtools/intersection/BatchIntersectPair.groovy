@@ -19,6 +19,7 @@ package com.antigenomics.vdjtools.intersection
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
 
+def I_TYPES_DEFAULT = [IntersectionType.AminoAcid, IntersectionType.Nucleotide]
 def cli = new CliBuilder(usage: "BatchIntersectPair [options] " +
         "[sample1 sample2 sample3 ... if not -m] output_prefix")
 cli.h("display help message")
@@ -28,7 +29,7 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
 cli.i(longOpt: "intersect-type", argName: "string1,string2,..", args: 1,
         "Comma-separated list of intersection types to apply. " +
                 "Allowed values: $IntersectionType.allowedNames. " +
-                "Will use '$IntersectionType.AminoAcid.shortName' by default.")
+                "Will use '${I_TYPES_DEFAULT.collect { it.shortName }.join(",")}' by default.")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 
@@ -77,7 +78,7 @@ if (opt.i) {
         intersectionType
     }
 } else {
-    intersectionTypes = [IntersectionType.AminoAcid]
+    intersectionTypes = I_TYPES_DEFAULT
 }
 
 //
