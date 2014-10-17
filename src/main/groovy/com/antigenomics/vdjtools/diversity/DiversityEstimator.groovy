@@ -16,49 +16,44 @@
 
 package com.antigenomics.vdjtools.diversity
 
-import com.antigenomics.vdjtools.Countable
-import com.antigenomics.vdjtools.Counter
+import com.antigenomics.vdjtools.intersection.IntersectionUtil
 import com.antigenomics.vdjtools.sample.Sample
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 import org.apache.commons.math3.util.CombinatoricsUtils
 
 class DiversityEstimator {
-    final Sample sample
-    private FrequencyTable frequencyTableNT = null, frequencyTableAA = null
+    private final Sample sample
+    private final IntersectionUtil intersectionUtil
+    private FrequencyTable frequencyTable = null
     private DownSampler downSampler = null
 
-    private FrequencyTable getFrequencyTable(boolean byAminoAcid) {
-        if (byAminoAcid) {
-            return frequencyTableAA ?: (frequencyTableAA = new FrequencyTable(sample, true))
-        }
-        else {
-            return frequencyTableNT ?: (frequencyTableNT = new FrequencyTable(sample, false))
-        }
-    }
-
-
-    DownSampler getDownSampler() {
+    public DownSampler getDownSampler() {
         downSampler ?: (downSampler = new DownSampler(sample))
     }
 
-    DiversityEstimator(Sample sample) {
+    public DiversityEstimator(Sample sample, IntersectionUtil intersectionUtil) {
         this.sample = sample
+        this.intersectionUtil = intersectionUtil
+        this.frequencyTable = new FrequencyTable(sample, intersectionUtil)
     }
 
-    Diversity sampleDiversity() {
-        new Diversity(sample.diversityCDR3NT, 0, sample.count, false)
+    public Diversity computeCollapsedSampleDiversity() {
+        new Diversity(frequencyTable.diversity, 0, sample.count, false)
     }
 
-    Diversity countNormalizedSampleDiversity(int sampleSize, int nResamples, boolean byAminoAcid) {
-        if (sampleSize >= sample.count)
-            return new Diversity((long) (((double) sampleSize *
-                    (double) (byAminoAcid ? sample.diversityCDR3AA : sample.diversityCDR3NT) / (double) sample.count)),
-                    0, sampleSize, false)
+    Diversity computeNormalizedSampleDiversity(int sampleSize, int resampleCount) {
+        if (sampleSize >= sample.count) {
+            // extrapolating
+            def baseDiversity = computeCollapsedSampleDiversity()
+            return new Diversity((long) (((double) sampleSize * (double) baseDiversity.mean / (double) sample.count)),
+                    0, sampleSize, true)
+        }
 
-        def diversityValues = new double[nResamples]
-        for (int i = 0; i < nResamples; i++) {
-            def newSample = getDownSampler().reSample(sampleSize)
-            diversityValues[i] = byAminoAcid ? newSample.diversityCDR3AA : newSample.diversityCDR3NT
+        def diversityValues = new double[resampleCount]
+        for (int i = 0; i < resampleCount; i++) {
+            def subSample = getDownSampler().reSample(sampleSize)
+            def newDiversityEstimator = new DiversityEstimator(subSample, this.intersectionUtil)
+            diversityValues[i] = (double) newDiversityEstimator.computeCollapsedSampleDiversity().mean
         }
 
         def descrStats = new DescriptiveStatistics(diversityValues)
@@ -66,9 +61,7 @@ class DiversityEstimator {
         return new Diversity((long) descrStats.mean, (long) descrStats.standardDeviation, sampleSize, false)
     }
 
-    Diversity efronThisted(int maxDepth, double cvThreshold, boolean byAminoAcid) {
-        def frequencyTable = getFrequencyTable(byAminoAcid)
-
+    Diversity computeEfronThisted(int maxDepth, double cvThreshold) {
         double S = -1, D = -1, CV = -1
 
         for (int depth = 1; depth <= maxDepth; depth++) {
@@ -87,7 +80,7 @@ class DiversityEstimator {
             }
 
             // Extrapolate count
-            S = sample.diversityCDR3NT + (double) (0..<depth).sum { int i -> h[i] * nx[i] }
+            S = frequencyTable.diversity + (double) (0..<depth).sum { int i -> h[i] * nx[i] }
             D = Math.sqrt((double) (0..<depth).sum { int i -> h[i] * h[i] * nx[i] })
             CV = D / S
 
@@ -99,42 +92,11 @@ class DiversityEstimator {
         new Diversity((long) S, (long) D, sample.count, true)
     }
 
-    Diversity chao1(boolean byAminoAcid) {
-        def frequencyTable = getFrequencyTable(byAminoAcid)
-
+    Diversity computeChao1() {
         double F1 = frequencyTable[1], F2 = frequencyTable[2], RF = F1 / F2 / 2
 
-        new Diversity((long) (sample.diversityCDR3NT + F1 * RF),
-                (long) (F2 * (Math.pow(RF / 2, 4) + Math.pow(2 * RF, 3) + RF * RF)),
+        new Diversity((long) (frequencyTable.diversity + F1 * RF),
+                (long) Math.sqrt(F2 * (Math.pow(RF / 2, 4) + Math.pow(2 * RF, 3) + RF * RF)),
                 sample.count, true)
-    }
-
-    private class FrequencyTable {
-        private final Map<Long, Long> frequencyMap = new HashMap<>()
-
-        FrequencyTable(Sample sample, boolean byAminoAcid) {
-            Collection<Countable> counters
-
-            if (byAminoAcid) {
-                def aaCounts = new HashMap<String, Counter>()
-                sample.clonotypes.each {
-                    def counter = aaCounts[it.cdr3aa]
-                    if (!counter)
-                        aaCounts.put(it.cdr3aa, counter = new Counter())
-                    counter.add(it)
-                }
-                counters = aaCounts.values()
-            } else
-                counters = sample.clonotypes
-
-            counters.each {
-                long count = it.count
-                frequencyMap.put(count, (frequencyMap[count] ?: 0L) + 1L)
-            }
-        }
-
-        int getAt(long count) {
-            frequencyMap[count] ?: 0
-        }
     }
 }

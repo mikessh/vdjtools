@@ -29,7 +29,7 @@ class Spectratype implements SingleSampleClustering {
     Spectratype(Sample parentSample) {
         this.parentSample = parentSample
 
-        parentSample.clonotypes.each { clonotype ->
+        parentSample.each { clonotype ->
             def tempPeak = new SpectratypePeak(clonotype)
 
             def peak = peaks[tempPeak.signature]

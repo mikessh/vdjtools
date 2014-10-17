@@ -29,6 +29,10 @@ class SampleMetadata {
         this.parent = parent
     }
 
+    public MetadataEntry getAt(String columnId) {
+        parent[sampleId, columnId]
+    }
+
     @PackageScope
     static SampleMetadata predefined(String sampleId, ArrayList<MetadataEntry> entries, MetadataTable parent) {
         new SampleMetadata(sampleId, entries, parent)
@@ -57,7 +61,6 @@ class SampleMetadata {
 
     @Override
     String toString() {
-        //[sampleId, entries].flatten().join("\t")
         entries.size() > 0 ? entries.join("\t") : "."
     }
 }

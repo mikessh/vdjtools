@@ -1,9 +1,3 @@
-package com.antigenomics.vdjtools.segment
-
-import com.antigenomics.vdjtools.Clonotype
-import com.antigenomics.vdjtools.util.CommonUtil
-import com.antigenomics.vdjtools.io.FastaReader
-
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
 
@@ -19,6 +13,13 @@ import com.antigenomics.vdjtools.io.FastaReader
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+
+package com.antigenomics.vdjtools.segment
+
+import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.io.FastaReader
+import com.antigenomics.vdjtools.util.CommonUtil
+
 class VSegmentTable {
     final Map<String, FrequencyCounter> countersByName = new HashMap()
     final Map<String, SegmentData> segmentByName = new HashMap<>()
@@ -31,7 +32,7 @@ class VSegmentTable {
 
         CommonUtil.resourceStreamReader("segments/${species}_regions.txt").splitEachLine("\t") { List<String> splitLine ->
             def segmentName = splitLine[0]
-            def sequence = segmentToSequenceMap[segmentName]
+            String sequence = segmentToSequenceMap[segmentName]
 
             // todo: check missing
 

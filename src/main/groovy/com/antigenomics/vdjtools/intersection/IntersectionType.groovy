@@ -17,7 +17,10 @@
 package com.antigenomics.vdjtools.intersection
 
 enum IntersectionType {
-    NucleotideV("ntV"), Nucleotide("nt"), AminoAcid("aa"), AminoAcidNonNucleotide("aa!nt")
+    Nucleotide("nt"), NucleotideV("ntV"), NucleotideVJ("ntVJ"),
+    AminoAcid("aa"), AminoAcidV("aaV"), AminoAcidVJ("aaVJ"),
+    AminoAcidNonNucleotide("aa!nt"),
+    Strict("strict")
 
     final String shortName
 

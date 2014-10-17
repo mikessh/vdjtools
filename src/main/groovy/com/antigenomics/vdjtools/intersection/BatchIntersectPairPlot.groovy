@@ -109,6 +109,8 @@ if (numFactor && factorCol1Ind.toInteger() > 0) {
 
 println "[${new Date()} $scriptName] Plotting data"
 
+// todo: work on legend
+
 RUtil.execute("batch_intersect_pair_clust.r",
         inputFileName,
         idCol1Ind, idCol2Ind,

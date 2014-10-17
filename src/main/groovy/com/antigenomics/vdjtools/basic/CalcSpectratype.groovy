@@ -71,8 +71,8 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 println "[${new Date()} $scriptName] Reading samples"
 
 def sampleCollection = metadataFileName ?
-        new SampleCollection((String) metadataFileName, software, false, true) :
-        new SampleCollection(opt.arguments()[0..-2], software, true)
+        new SampleCollection((String) metadataFileName, software) :
+        new SampleCollection(opt.arguments()[0..-2], software)
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
@@ -86,9 +86,7 @@ new File(outputFileName + ".spectratype" +
         ".txt").withPrintWriter { pw ->
     def spectratype = new Spectratype(aminoAcid, unweighted)
 
-    def header = "#sample_id\t" +
-            sampleCollection.metadataTable.getColumnIterator().collect().join("\t") + "\t" +
-            spectratype.HEADER
+    def header = "#sample_id\t" + sampleCollection.metadataTable.columnHeader + "\t" + spectratype.HEADER
 
     pw.println(header)
 

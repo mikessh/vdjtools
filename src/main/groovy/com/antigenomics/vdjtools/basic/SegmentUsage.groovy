@@ -96,7 +96,8 @@ class SegmentUsage {
         if (!sampleIndex.containsKey(sampleId))
             throw new IllegalArgumentException("$sampleId is not in the sample collection used to build usage matrix")
         def index = sampleIndex[sampleId]
-        double sampleTotal = jSegmentUsage.values().collect { it[index] }.sum()
+
+        double sampleTotal = (double)jSegmentUsage.values().collect { it[index] }.sum()
 
         def matrix = new double[jSegmentUsage.size()][vSegmentUsage.size()]
 

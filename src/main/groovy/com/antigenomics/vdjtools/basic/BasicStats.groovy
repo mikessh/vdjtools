@@ -32,7 +32,7 @@ class BasicStats {
         this.cdr3ntLength = new DescriptiveStatistics()
         this.insertSize = new DescriptiveStatistics()
 
-        sample.clonotypes.each {
+        sample.each {
             cloneSize.addValue(it.freq)
             cdr3ntLength.addValue(it.cdr3nt.length())
             insertSize.addValue(it.VJIns)
@@ -64,7 +64,7 @@ class BasicStats {
     }
 
     int getDiversity() {
-        sample.div
+        sample.diversity
     }
 
     static final String HEADER = "cells\tdiversity\t" +

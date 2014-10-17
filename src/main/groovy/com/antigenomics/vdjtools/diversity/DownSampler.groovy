@@ -20,37 +20,37 @@ import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 
 class DownSampler {
-    final List<Clonotype> flattenedClonotypes = new ArrayList<>(1000000)
+    final List<Clonotype> flattenedClonotypes
     final Sample sample
 
     DownSampler(Sample sample) {
-        sample.clonotypes.each {
+        if (sample.count > Integer.MAX_VALUE)
+            throw new RuntimeException("Couldn't downsample samples with > ${Integer.MAX_VALUE} cells")
+
+        this.flattenedClonotypes = new ArrayList<>((int) sample.count)
+
+        sample.each {
             for (long i = 0; i < it.count; i++)
                 flattenedClonotypes.add(it)
         }
+
         this.sample = sample
     }
 
     Sample reSample(int count) {
-        def sampledClonotypes
         if (count >= sample.count) {
-            sampledClonotypes = new LinkedList<Clonotype>(sample.clonotypes)
+            return new Sample(sample)
         } else {
             Collections.shuffle(flattenedClonotypes)
 
             def countMap = new HashMap<Clonotype, Integer>()
+
             for (int i = 0; i < count; i++) {
                 def clonotype = flattenedClonotypes[i]
                 countMap.put(clonotype, (countMap[clonotype] ?: 0) + 1)
             }
 
-            sampledClonotypes = new LinkedList<Clonotype>()
-
-            countMap.each {
-                sampledClonotypes.add(it.key.changeCount(it.value, count))
-            }
+            return new Sample(sample, countMap)
         }
-
-        return new Sample(sample.sampleMetadata, sampledClonotypes)
     }
 }

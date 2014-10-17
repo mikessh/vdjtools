@@ -17,9 +17,10 @@
 package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.parser.SampleWriter
+import com.antigenomics.vdjtools.sample.IntersectionClonotypeFilter
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.sample.SampleUtil
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -28,7 +29,7 @@ cli.h("display help message")
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Intersection type to apply. " +
                 "Allowed values: $IntersectionType.allowedNames. " +
-                "Will use '$IntersectionType.NucleotideV.shortName' by default.")
+                "Will use '$IntersectionType.Strict.shortName' by default.")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.n(longOpt: "negative", "Will report clonotypes present in filter_sample. The default action is to remove them")
@@ -55,14 +56,13 @@ if (opt.arguments().size() < 3) {
 
 // IO stuff
 
-def filterSampleFileName = opt.arguments()[0],
-    sampleFileNames = opt.arguments()[1..-2],
+def sampleFileNames = opt.arguments()[0..-2],
     outputPrefix = opt.arguments()[-1]
 
 // Parameters
 
-def software = Software.byName(opt.S), intersectionType = IntersectionType.byName((opt.i ?: "ntV")),
-    negative = opt.n
+def software = Software.byName(opt.S), intersectionType = IntersectionType.byName((opt.i ?: "strict")),
+    negative = (boolean) opt.n
 
 if (!intersectionType) {
     println "[ERROR] Bad intersection type specified ($opt.i). " +
@@ -74,47 +74,38 @@ if (!intersectionType) {
 // Load samples
 //
 
-println "[${new Date()} $scriptName] Reading samples"
+println "[${new Date()} $scriptName] Reading input samples & filter sample"
 
-def filterSample = SampleUtil.loadSample(filterSampleFileName, software)
-def samples = new SampleCollection(sampleFileNames, software, true)
+def sampleCollection = new SampleCollection(sampleFileNames.flatten() as List<String>, software)
+def intersectionUtil = new IntersectionUtil(intersectionType)
+def clonotypeFilter = new IntersectionClonotypeFilter(intersectionUtil, sampleCollection[0], negative)
 
 //
 // Filter samples
 //
 
-println "[${new Date()} $scriptName] Filtering and writing output"
+println "[${new Date()} $scriptName] Filtering (${negative ? "negative" : "positive"}) and writing output"
 
-def intersectionUtil = new IntersectionUtil(intersectionType)
+def writer = new SampleWriter(software)
 
-samples.eachWithIndex { Sample sample, int index ->
-    // Perform the intersection
-    def result = intersectionUtil.generatePairedIntersection(filterSample, sample, true, false)
+new File("${outputPrefix}.filtersummary.txt").withPrintWriter { pwSummary ->
+    pwSummary.println("#sample_id\tcells_before\tdiversity_before\tcells_after\tdiversity_after")
+    (1..<sampleCollection.size()).each { int index ->
+        def sample = sampleCollection[index]
 
-    // Filter
-    Sample newSample
+        // Filter
+        def filteredSample = new Sample(sample, clonotypeFilter)
 
-    if (negative) {
-        // add only clonotypes in intersection
-        newSample = new Sample("filtered_" + sample.sampleMetadata.sampleId, result.clonotypes21)
-    } else {
-        // remove clonotypes in intersection
-        def filterSet = new HashSet<>(result.clonotypes21)
-        sample.clonotypes.removeAll { filterSet.contains(it) }
-        newSample = sample
-    }
+        println "[${new Date()} $scriptName] Processed ${index + 1}th sample."
 
-    // recompute frequencies and sort
-    newSample.renormalize()
-    newSample.sort()
+        pwSummary.println([sample.sampleMetadata.sampleId,
+                           sample.count, sample.diversity,
+                           filteredSample.count, filteredSample.diversity].join("\t"))
 
-    println "[${new Date()} $scriptName] Processed ${index + 1}th sample. " +
-            "${negative ? "Retained" : "Removed"} ${(int)(result.freq21 * 10000) / (int)100}% cells " +
-            "and $result.div12 clonotypes"
-
-    // print output
-    new File(outputPrefix + "_" + sample.sampleMetadata.sampleId + ".txt").withPrintWriter { pw ->
-        newSample.print(pw, software, true)
+        // print output
+        new File("${outputPrefix}_${sample.sampleMetadata.sampleId}.txt").withPrintWriter { pw ->
+            writer.write(filteredSample, pw)
+        }
     }
 }
 

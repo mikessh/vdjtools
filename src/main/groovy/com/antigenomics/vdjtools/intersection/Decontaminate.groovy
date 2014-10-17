@@ -127,12 +127,13 @@ timeCourse.each { DynamicClonotype clonotype ->
 }
 
 new File(outputFilePrefix + "_summary.txt").withPrintWriter { pw ->
+    // todo: fix
     pw.println("#\t" + metadataTable.sampleIterator.collect { "filtered_$it" }.join("\t") + "\t" +
             metadataTable.sampleIterator.collect { "total_$it" }.join("\t"))
     pw.println("frequncy\t" + filteredFreq.collect().join("\t") + "\t" +
             sampleCollection.collect { it.freq }.join("\t"))
     pw.println("clonotypes\t" + filteredClonotypes.collect().join("\t") + "\t" +
-            sampleCollection.collect { it.div }.join("\t"))
+            sampleCollection.collect { it.diversity }.join("\t"))
 }
 
 printWriters.each { pw -> pw.close() }

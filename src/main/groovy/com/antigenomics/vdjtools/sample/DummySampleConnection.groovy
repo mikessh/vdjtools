@@ -14,19 +14,17 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools.intersection
+package com.antigenomics.vdjtools.sample
 
-enum IntersectMetric {
-    // todo: check classes using vJSD metric
-    Correlation("R"), Diversity("D"), Frequency("F"), vJSD("vJSD")
+class DummySampleConnection implements SampleConnection {
+    private final Sample sample
 
-    private final String name
-
-    IntersectMetric(String name) {
-        this.name = name
+    DummySampleConnection(Sample sample) {
+        this.sample = sample
     }
 
-    double value(PairedIntersection pairedIntersection) {
-        pairedIntersection."norm$name"
+    @Override
+    Sample getSample() {
+        sample
     }
 }

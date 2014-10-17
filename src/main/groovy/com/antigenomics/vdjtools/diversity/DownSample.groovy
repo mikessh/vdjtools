@@ -18,6 +18,7 @@
 package com.antigenomics.vdjtools.diversity
 
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.parser.SampleWriter
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.ExecUtil
 
@@ -57,7 +58,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 // Remaining arguments
 
-def software = Software.byName(opt.S), n = opt.n.toInteger(),
+def software = Software.byName(opt.S), n = (int) opt.n.toInteger(),
     outputPrefix = opt.arguments()[-1]
 
 ExecUtil.ensureDir(outputPrefix)
@@ -84,15 +85,13 @@ sampleCollection.eachWithIndex { sample, ind ->
     def downSampler = new DownSampler(sample)
     def newSample = downSampler.reSample(n)
 
-    // recompute frequencies and sort
-    newSample.renormalize()
-    newSample.sort()
+    println "[${new Date()} $scriptName] Processed ${ind + 1} sample(s).. Writing output"
 
-    println "[${new Date()} $scriptName] Processed ${ind + 1} sample(s).."
+    def sampleWriter = new SampleWriter(software)
 
     // print output
     new File(outputPrefix + "." + sample.sampleMetadata.sampleId + ".txt").withPrintWriter { pw ->
-        newSample.print(pw, software, true)
+        sampleWriter.write(sample, pw)
     }
 }
 
