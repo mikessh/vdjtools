@@ -96,7 +96,7 @@ class DiversityEstimator {
         double F1 = frequencyTable[1], F2 = frequencyTable[2], RF = F1 / F2 / 2
 
         new Diversity((long) (frequencyTable.diversity + F1 * RF),
-                (long) (F2 * (Math.pow(RF / 2, 4) + Math.pow(2 * RF, 3) + RF * RF)),
+                (long) Math.sqrt(F2 * (Math.pow(RF / 2, 4) + Math.pow(2 * RF, 3) + RF * RF)),
                 sample.count, true)
     }
 }
