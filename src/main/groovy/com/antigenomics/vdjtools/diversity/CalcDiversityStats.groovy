@@ -124,7 +124,6 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 //
 
 // for r plot
-def datasets = []  // todo: label and color selection
 def rSteps = []
 for (int i = 0; i <= rMax; i += rStep)
     rSteps.add(i)
@@ -137,7 +136,7 @@ new File(outputPrefix + ".diversity.txt").withPrintWriter { pwDiv ->
                 ["clones", "normdiv_m", "normdiv_s", "efron_m", "efron_s", "chao_m", "chao_s"].collect { m ->
                     "${m}_$i.shortName"
                 }
-            }.join("\t")
+            }.flatten().join("\t")
 
     pwDiv.println(headerDiv)
 
@@ -169,28 +168,24 @@ new File(outputPrefix + ".diversity.txt").withPrintWriter { pwDiv ->
                                  efron.mean, efron.std,
                                  chao.mean, chao.std])
 
-            new File(outputPrefix + ".rarefaction_nt.txt").withPrintWriter { pwRNT ->
-                if (doRarefaction) {
-                    println "[${new Date()} $scriptName] Bulding rarefaction curve аor ${i.shortName}"
+            if (doRarefaction) {
+                println "[${new Date()} $scriptName] Bulding rarefaction curve for '${i.shortName}'"
 
-                    for (int k = 0; k < nResamples; k++) {
-                        datasets = [datasets, sample.sampleMetadata.sampleId]
-
-                        def y = []
-                        rSteps.each { int x ->
-                            if (x > sample.count) {
-                                y.add(R_EMPTY)
-                            } else {
-                                def subSample = diversityEstimator.downSampler.reSample(x)
-                                def subSampleDiversityEstimator = new DiversityEstimator(subSample, intersectionUtil)
-                                y.add(subSampleDiversityEstimator.computeCollapsedSampleDiversity())
-                            }
+                for (int k = 0; k < nResamples; k++) {
+                    def y = []
+                    rSteps.each { int x ->
+                        if (x > sample.count) {
+                            y.add(R_EMPTY)
+                        } else {
+                            def subSample = diversityEstimator.downSampler.reSample(x)
+                            def subSampleDiversityEstimator = new DiversityEstimator(subSample, intersectionUtil)
+                            y.add(subSampleDiversityEstimator.computeCollapsedSampleDiversity())
                         }
+                    }
 
-                        new File(outputPrefix + ".rarefaction_${i.shortName}.txt").withWriterAppend { pwR ->
-                            pwR.println([sample.sampleMetadata.sampleId, sample.sampleMetadata,
-                                         sample.count, basediv.mean, y].flatten().join("\t"))
-                        }
+                    new File(outputPrefix + ".rarefaction_${i.shortName}.txt").withWriterAppend { pwR ->
+                        pwR.println([sample.sampleMetadata.sampleId, sample.sampleMetadata,
+                                     sample.count, basediv.mean, y].flatten().join("\t"))
                     }
                 }
             }
@@ -203,17 +198,22 @@ new File(outputPrefix + ".diversity.txt").withPrintWriter { pwDiv ->
 if (plot) {
     println "[${new Date()} $scriptName] Plotting data"
 
-    RUtil.execute("rarefaction_curve.r",
-            datasets.flatten().join(","), rSteps.join(","),
-            outputPrefix + ".rarefaction_nt.txt",
-            outputPrefix + ".rarefaction_nt.pdf"
-    )
+    // todo: label and color selection, consider not allowing
 
-    RUtil.execute("rarefaction_curve.r",
-            datasets.flatten().join(","), rSteps.join(","),
-            outputPrefix + ".rarefaction_aa.txt",
-            outputPrefix + ".rarefaction_aa.pdf"
-    )
+    def datasets = []
+
+    sampleCollection.metadataTable.sampleIterator.each {
+        for (int i =0;i<nResamples;i++)
+            datasets.add(it)
+    }
+
+    intersectionTypes.each { IntersectionType i ->
+        RUtil.execute("rarefaction_curve.r",
+                datasets.flatten().join(","), rSteps.join(","),
+                outputPrefix + ".rarefaction_${i.shortName}.txt",
+                outputPrefix + ".rarefaction_${i.shortName}.pdf"
+        )
+    }
 }
 
 println "[${new Date()} $scriptName] Finished"
