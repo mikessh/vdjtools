@@ -23,6 +23,7 @@ import com.antigenomics.vdjtools.basic.CalcSpectratype
 import com.antigenomics.vdjtools.basic.FilterNonFunctional
 import com.antigenomics.vdjtools.basic.PlotFancySpectratype
 import com.antigenomics.vdjtools.basic.PlotFancyVJUsage
+import com.antigenomics.vdjtools.basic.PlotSpectratypeV
 import com.antigenomics.vdjtools.db.ScanDatabase
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.DownSample
@@ -46,6 +47,7 @@ def printHelp = {
     println "CalcSpectratype"
     println "CalcSegmentUsage"
     println "PlotFancySpectratype"
+    println "PlotSpectratypeV"
     println "PlotFancyVJUsage"
     println "FilterNonFunctional"
     println ""
@@ -75,6 +77,8 @@ def getScript = { String scriptName ->
             return new CalcSegmentUsage()
         case "PLOTFANCYSPECTRATYPE":
             return new PlotFancySpectratype()
+        case "PLOTSPECTRATYPEV":
+            return new PlotSpectratypeV()
         case "PLOTFANCYVJUSAGE":
             return new PlotFancyVJUsage()
         case "CALCDIVERSITYSTATS":

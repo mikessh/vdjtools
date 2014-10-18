@@ -4,21 +4,19 @@
 
 args<-commandArgs(TRUE)
 
-require(ggplot2); require(reshape)
+require(ggplot2); require(reshape); require(RColorBrewer)
 
 # data input
 
 table      <- args[1]
 file_out   <- args[2]
+gradient   <- args[3]
 
 # transform data
 
 df <- read.table(text = table, sep ="\t", header = TRUE)
 
-# Oh really?
-# We have to use it otherwise the table will never be treated as completely numeric
-# Moreover, df <- apply(df, as.numeric) generates lots of fun
-# Stop using R guys, this is pathetic
+# Don't ask me why
 df[, 1:ncol(df)] <- apply(df[, 1:ncol(df)], 2, as.numeric)
 
 df.m <- melt(df, id = "Len")
@@ -32,7 +30,11 @@ df.m <- melt(df, id = "Len")
 
 # custom palette (color blind)
 
-gs.pal <- colorRampPalette(c("#2b8cbe", "#e0f3db", "#fdbb84"))
+if (gradient) {
+   pal <- colorRampPalette(c("#2b8cbe", "#e0f3db", "#fdbb84"))(ncol(df) - 2)
+} else {
+   pal <- brewer.pal(ncol(df) - 2, "Paired")
+}
 
 # plotting
 
@@ -44,7 +46,7 @@ ggplot(df.m, aes(x = Len, y = value, fill = variable)) +
   labs(fill="Clonotype") +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
-  scale_fill_manual(values=c("grey75", gs.pal(ncol(df) - 2))) +
+  scale_fill_manual(values=c("grey75", pal)) +
   theme(legend.text=element_text(size=8), axis.title.y=element_blank()) +
   guides(fill = guide_legend(reverse = TRUE))
 
