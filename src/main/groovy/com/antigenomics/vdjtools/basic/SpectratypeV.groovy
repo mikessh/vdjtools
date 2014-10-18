@@ -22,6 +22,7 @@ import com.antigenomics.vdjtools.intersection.IntersectionType
 class SpectratypeV {
     private final Map<String, Spectratype> spectratypes = new HashMap<>()
     private final boolean aminoAcid, unweighted
+    private final Spectratype dummy
 
     SpectratypeV(IntersectionType intersectionType, boolean unweighted) {
         this(intersectionType.aminoAcid, unweighted)
@@ -30,6 +31,7 @@ class SpectratypeV {
     public SpectratypeV(boolean aminoAcid, boolean unweighted) {
         this.aminoAcid = aminoAcid
         this.unweighted = unweighted
+        this.dummy = new Spectratype(aminoAcid, unweighted)
     }
 
     public void clear() {
@@ -54,7 +56,7 @@ class SpectratypeV {
     }
 
     public Map<String, Spectratype> collapse(int top) {
-        def collapsedSpectratypes = new HashMap(), otherSpectratype
+        def collapsedSpectratypes = new HashMap<String, Spectratype>(), otherSpectratype
         collapsedSpectratypes.put("other", otherSpectratype = new Spectratype(aminoAcid, unweighted))
 
         spectratypes.sort { -it.value.freq }.eachWithIndex { it, ind ->
@@ -64,6 +66,14 @@ class SpectratypeV {
                 otherSpectratype.addAll(it.value)
         }
 
-        collapsedSpectratypes
+        collapsedSpectratypes.sort { -it.value.freq }
+    }
+
+    public int getLen() {
+        dummy.len
+    }
+
+    public int[] getLengths() {
+        dummy.lengths
     }
 }

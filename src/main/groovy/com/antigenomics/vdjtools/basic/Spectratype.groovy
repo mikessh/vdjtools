@@ -97,7 +97,7 @@ class Spectratype {
             else
                 add(clonotype)
         }
-        topClonotypes
+        topClonotypes.sort { -it.freq }
     }
 
     public void clear() {
@@ -119,6 +119,10 @@ class Spectratype {
             spectratype[i] = this.spectratype[i] / _freq
 
         spectratype
+    }
+
+    public int getLen() {
+        return len
     }
 
     public double getFreq() {
