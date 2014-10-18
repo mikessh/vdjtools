@@ -78,12 +78,10 @@ for (int i = 0; i < spectratypeV.len; i++) {
     spectraMatrix[i][0] = otherHistogram[i]
 }
 
-collapsedSpectratypes.eachWithIndex { it, ind ->
-    if (it.key != "other") {
-        def histogram = it.value.getHistogram(false)
-        for (int i = 0; i < spectratypeV.len; i++) {
-            spectraMatrix[i][top - ind] = histogram[i]
-        }
+collapsedSpectratypes.findAll { it.key != "other" }.eachWithIndex { it, ind ->
+    def histogram = it.value.getHistogram(false)
+    for (int i = 0; i < spectratypeV.len; i++) {
+        spectraMatrix[i][top - ind] = histogram[i]
     }
 }
 
@@ -101,7 +99,7 @@ new File(outputPrefix + ".spectraV.txt").withPrintWriter { pw ->
 }
 
 RUtil.execute("fancy_spectratype.r",
-        table, outputPrefix + ".spectraV.pdf", "FALSE"  //todo: R false/true
+        table, outputPrefix + ".spectraV.pdf", "Variable segment", "FALSE"  //todo: R false/true
 )
 
 println "[${new Date()} $scriptName] Finished"

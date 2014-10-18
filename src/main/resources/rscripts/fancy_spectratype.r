@@ -10,7 +10,8 @@ require(ggplot2); require(reshape); require(RColorBrewer)
 
 table      <- args[1]
 file_out   <- args[2]
-gradient   <- args[3]
+label      <- args[3]
+gradient   <- args[4]
 
 # transform data
 
@@ -43,7 +44,7 @@ pdf(file_out)
 ggplot(df.m, aes(x = Len, y = value, fill = variable)) +
   geom_bar(width = 1, stat = "identity") +
   xlab("CDR3 length, bp") +
-  labs(fill="Clonotype") +
+  labs(fill=label) +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
   scale_fill_manual(values=c("grey75", pal)) +

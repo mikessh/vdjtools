@@ -99,7 +99,7 @@ new File(outputPrefix + ".fancyspectra.txt").withPrintWriter { pw ->
 }
 
 RUtil.execute("fancy_spectratype.r",
-        table, outputPrefix + ".fancyspectra.pdf", "TRUE"
+        table, outputPrefix + ".fancyspectra.pdf", "Clonotype", "TRUE"
 )
 
 println "[${new Date()} $scriptName] Finished"
