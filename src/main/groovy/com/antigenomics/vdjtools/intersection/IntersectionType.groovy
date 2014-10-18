@@ -17,15 +17,17 @@
 package com.antigenomics.vdjtools.intersection
 
 enum IntersectionType {
-    Nucleotide("nt"), NucleotideV("ntV"), NucleotideVJ("ntVJ"),
-    AminoAcid("aa"), AminoAcidV("aaV"), AminoAcidVJ("aaVJ"),
-    AminoAcidNonNucleotide("aa!nt"),
-    Strict("strict")
+    Nucleotide("nt", false), NucleotideV("ntV", false), NucleotideVJ("ntVJ", false),
+    AminoAcid("aa", true), AminoAcidV("aaV", true), AminoAcidVJ("aaVJ", true),
+    AminoAcidNonNucleotide("aa!nt", true),
+    Strict("strict", false)
 
     final String shortName
+    final boolean aminoAcid
 
-    IntersectionType(String shortName) {
+    IntersectionType(String shortName, boolean aminoAcid) {
         this.shortName = shortName
+        this.aminoAcid = aminoAcid
     }
 
     static IntersectionType byName(String shortName) {

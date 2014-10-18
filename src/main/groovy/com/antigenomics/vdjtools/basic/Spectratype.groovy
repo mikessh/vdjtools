@@ -17,16 +17,12 @@
 package com.antigenomics.vdjtools.basic
 
 import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.intersection.IntersectionType
 
 class Spectratype {
     private final boolean aminoAcid, unweighted
     private final int min, max, len
 
-    //private final static int SPECTRA_MIN = 8, SPECTRA_MAX = 32, SPECTRA_LEN = SPECTRA_MAX - SPECTRA_MIN + 1
-
-    //private static int spectraBin(Clonotype clonotype) {
-    //    Math.min(SPECTRA_MAX, Math.max(SPECTRA_MIN, clonotype.cdr3aa.length())) - SPECTRA_MIN
-    //}
     private final double[] spectratype
     final String HEADER
     final int[] lengths
@@ -34,7 +30,11 @@ class Spectratype {
     private int count = 0
     private double freq = 0
 
-    Spectratype(boolean aminoAcid, boolean unweighted) {
+    public Spectratype(IntersectionType intersectionType, boolean unweighted) {
+        this(intersectionType.aminoAcid, unweighted)
+    }
+
+    public Spectratype(boolean aminoAcid, boolean unweighted) {
         this.aminoAcid = aminoAcid
         this.unweighted = unweighted
 
@@ -52,7 +52,7 @@ class Spectratype {
         this.HEADER = lengths.collect().join("\t")
     }
 
-    int bin(Clonotype clonotype) {
+    private int bin(Clonotype clonotype) {
         Math.min(max, Math.max(min, (aminoAcid ? getCdr3AaLen(clonotype) : clonotype.cdr3nt.length()))) - min
     }
 
@@ -60,7 +60,7 @@ class Spectratype {
         (int) (clonotype.inFrame ? clonotype.cdr3aa.length() : (clonotype.cdr3nt.length() / 3))
     }
 
-    private void add(Clonotype clonotype) {
+    public void add(Clonotype clonotype) {
         if (unweighted) {
             this.spectratype[bin(clonotype)]++
             freq++
@@ -74,6 +74,17 @@ class Spectratype {
     public void addAll(Iterable<Clonotype> sample) {
         sample.each { Clonotype clonotype ->
             add(clonotype)
+        }
+    }
+
+    public void addAll(Spectratype other) {
+        if (other.aminoAcid != this.aminoAcid || other.unweighted != this.unweighted)
+            throw new Exception("Can't add Spectratype of different type")
+
+        this.count += other.count
+        this.freq += other.freq
+        other.histogram.eachWithIndex { it, ind ->
+            histogram[ind] += it
         }
     }
 
@@ -96,11 +107,11 @@ class Spectratype {
         freq = 0
     }
 
-    double[] getHistogram() {
+    public double[] getHistogram() {
         getHistogram(true)
     }
 
-    double[] getHistogram(boolean normalized) {
+    public double[] getHistogram(boolean normalized) {
         def spectratype = new double[len]
         def _freq = normalized ? freq : 1.0
 
@@ -110,11 +121,11 @@ class Spectratype {
         spectratype
     }
 
-    double getFreq() {
+    public double getFreq() {
         return freq
     }
 
-    int getCount() {
+    public int getCount() {
         return count
     }
 
