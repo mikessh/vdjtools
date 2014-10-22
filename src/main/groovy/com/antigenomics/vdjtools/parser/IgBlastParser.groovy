@@ -4,6 +4,7 @@ import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Mutation
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.util.CommonUtil
 
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
@@ -51,7 +52,7 @@ class IgBlastParser extends ClonotypeStreamParser {
         (cdr1nt, cdr2nt, cdr3nt, cdr1aa, cdr2aa, cdr3aa) = splitString[4..9]
 
         String v, d, j
-        (v, d, j) = extractVDJ(splitString[13..15])
+        (v, d, j) = CommonUtil.extractVDJ(splitString[13..15])
 
         boolean inFrame, noStop, isComplete
         (inFrame, noStop, isComplete) = splitString[10..12].collect { it.toBoolean() }

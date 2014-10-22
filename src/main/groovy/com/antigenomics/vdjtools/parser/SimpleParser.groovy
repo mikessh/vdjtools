@@ -3,6 +3,7 @@ package com.antigenomics.vdjtools.parser
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.util.CommonUtil
 
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
@@ -37,7 +38,7 @@ class SimpleParser extends ClonotypeStreamParser {
         cdr3aa = splitString[3]
 
         String v, d, j
-        (v, d, j) = extractVDJ(splitString[4..-1])
+        (v, d, j) = CommonUtil.extractVDJ(splitString[4..-1])
 
         boolean inFrame = !(cdr3aa.contains("~") || cdr3aa.contains("?")),
                 noStop = !cdr3aa.contains("*"),

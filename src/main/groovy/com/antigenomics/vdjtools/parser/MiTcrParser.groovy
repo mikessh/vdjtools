@@ -3,6 +3,7 @@ package com.antigenomics.vdjtools.parser
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.util.CommonUtil
 
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
@@ -38,7 +39,7 @@ class MiTcrParser extends ClonotypeStreamParser {
 
 
         String v, d, j
-        (v, d, j) = extractVDJ(splitString[[7, 11, 9]])
+        (v, d, j) = CommonUtil.extractVDJ(splitString[[7, 11, 9]])
 
         def segmPoints = [splitString[12].toInteger(),
                           splitString[13].isInteger() ? splitString[13].toInteger() : -1,

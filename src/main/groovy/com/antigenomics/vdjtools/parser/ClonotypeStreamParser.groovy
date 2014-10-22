@@ -61,18 +61,6 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
 
     protected abstract Clonotype parse(String clonotypeString)
 
-    /**
-     * Internal util, extracts most probable allele
-     */
-    protected static List<String> extractVDJ(List<String> vdj) {
-        vdj.collect {
-            def major = it.split(",")[0]
-            major = major.split("\\*")[0] // trim allele if present
-            major = major.replaceAll("\"", "")  // zap characters introduced by opening file in Excel
-            major.length() > 0 ? major : "."
-        }
-    }
-
     @Override
     Iterator<Clonotype> iterator() {
         [hasNext: {

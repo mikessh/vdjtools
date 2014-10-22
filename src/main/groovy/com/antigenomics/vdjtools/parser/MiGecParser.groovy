@@ -3,6 +3,7 @@ package com.antigenomics.vdjtools.parser
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.util.CommonUtil
 
 /**
  Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
@@ -55,7 +56,7 @@ class MiGecParser extends ClonotypeStreamParser {
 
 
         String v, j, d
-        (v, j, d) = extractVDJ(splitString[4..6])
+        (v, j, d) = CommonUtil.extractVDJ(splitString[4..6])
 
         boolean inFrame = !cdr3aa.contains("~"), noStop = !cdr3aa.contains("*"), isComplete = true
 

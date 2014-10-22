@@ -209,4 +209,17 @@ class CommonUtil {
 
         left + sequence.substring(from, to) + right
     }
+
+
+    /**
+     * Bring V/D/J alleles to unified look
+     */
+    public static List<String> extractVDJ(List<String> vdj) {
+        vdj.collect {
+            def major = it.split(",")[0]
+            major = major.split("\\*")[0] // trim allele if present
+            major = major.replaceAll("\"", "")  // zap characters introduced by opening file in Excel
+            major.length() > 0 ? major : "."
+        }
+    }
 }
