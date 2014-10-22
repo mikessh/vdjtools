@@ -31,7 +31,7 @@ if(lbl_col1_index < 1) {
    lbl_col2_index = id_col2_index
 }
 
-require(ape); require(reshape); require(MASS); require(plotrix) #require(SDMTools)
+require(ape); require(reshape2); require(ggplot2); require(MASS); require(plotrix) #require(SDMTools)
 
 # read data
 tbl  <- read.delim(file_in)
@@ -93,11 +93,38 @@ if (color_by_factor) {
 
 # Symmetrize matrix & compute distance measure
 
-df.2 <- df
+df.1 <- data.frame(id_col1 = df$id_col1, id_col2 = df$id_col2, measure_col = df$measure_col)
+df.2 <- df.1
 df.2[c("id_col1", "id_col2")] <- df.2[c("id_col2", "id_col1")]
-df.sym <- rbind(df, df.2)
-df.m <- cast(df.sym, id_col1 ~ id_col2, mean, value = "measure_col")
-df.d <- dist(df.m)
+df.sym <- rbind(df.1, df.2)
+
+# cast back to square matrix
+df.m <- as.matrix(dcast(df.sym, id_col1 ~ id_col2, value.var = "measure_col"))
+rownames(df.m) <- df.m[,1]
+df.m <- df.m[,2:ncol(df.m)]
+df.m <- df.m[order(rownames(df.m)), order(colnames(df.m))]
+
+df.m <- apply(df.m, 2, as.numeric) # Don't ask me why
+
+write.table(df.sym, "temp.txt")
+
+# normalize
+#df.m <- log10(df.m * ncol(df.m) / sqrt(colSums(df.m, na.rm = TRUE)[col(df.m)] * rowSums(df.m, na.rm = TRUE)[row(df.m)]))
+
+# convert to true distance
+#df.m <- 1.0 - df.m
+
+df.m <- -log10(df.m)
+
+#a <- min(df.m, na.rm = TRUE)
+#b <- max(df.m, na.rm = TRUE)
+
+#df.m <- (df.m - a) / (b - a)
+
+diag(df.m) <- 0 # replace diag NAs with 0
+
+#write.table(df.m, "temp2.txt")
+df.d <- as.dist(df.m)
 
 ## HCL
 
@@ -240,5 +267,15 @@ pdf(file_out_mds)
 my.plot(FALSE, xy$x, xy$y, xlab="mds1", ylab="mds2", type = "n")
 text(xy$x, xy$y, labels = lbl, col = cc_final, cex=.5)
 my.legend(FALSE)
+
+dev.off()
+
+df.c <- data.frame(x = xy$x, y = xy$y, f = aux[match(row.names(as.matrix(df.d)), aux[, "id_col1"]), "factor_col1"])
+
+write.table(df.c, "tmp.txt")
+
+pdf("tmp.pdf")
+
+ggplot() + stat_density2d(data = df.c, aes(x, y, weight = f), geom="tile", contour = FALSE)
 
 dev.off()
