@@ -16,36 +16,37 @@
 
 package com.antigenomics.vdjtools.db
 
+import com.antigenomics.vdjtools.intersection.IntersectionUtil
 import com.antigenomics.vdjtools.util.CommonUtil
 
-class CdrDatabase implements Iterable<String> {
+class CdrDatabase {
     public final String[] header
-    private final HashMap<String, List<String[]>> cdrAnnotation = new HashMap<>()
+    private final IntersectionUtil intersectionUtil
+    private final HashMap<String, List<CdrDatabaseEntry>> entriesByCdr = new HashMap<>()
 
-    public CdrDatabase() {
-        this("trdb")
+    public CdrDatabase(IntersectionUtil intersectionUtil) {
+        this("trdb", intersectionUtil)
     }
 
-    public CdrDatabase(String dbName) {
+    public CdrDatabase(String dbName, IntersectionUtil intersectionUtil) {
+        this.intersectionUtil = intersectionUtil
         def dbReader = CommonUtil.resourceStreamReader("db/${dbName}.txt")
-        header = dbReader.readLine().split("\t")
+        header = dbReader.readLine().split("\t")[3..-1]
         def line
         while ((line = dbReader.readLine()) != null) {
             def splitLine = line.split("\t")
-            def cdr3aa = splitLine[0]
-            def annotationList = cdrAnnotation[cdr3aa]
-            if (!annotationList)
-                cdrAnnotation.put(cdr3aa, annotationList = new ArrayList<String[]>())
-            annotationList.add(splitLine[1..-1] as String[])
+
+            String cdr3aa = splitLine[0], v, j
+            (v, j) = CommonUtil.extractVDJ(splitLine[1..2])
+
+            def entryList = entriesByCdr[cdr3aa]
+            if (!entryList)
+                entriesByCdr.put(cdr3aa, entryList = new ArrayList<CdrDatabaseEntry>())
+            entryList.add(new CdrDatabaseEntry(cdr3aa, v, j, splitLine[3..-1] as String[], this))
         }
     }
 
-    public List<String[]> getAnnotationEntries(String cdr3aa) {
-        cdrAnnotation[cdr3aa]
-    }
-
-    @Override
-    Iterator<String> iterator() {
-        cdrAnnotation.keySet().iterator()
+    public List<CdrDatabaseEntry> getAt(String cdr3aa) {
+        entriesByCdr[cdr3aa] ?: []
     }
 }
