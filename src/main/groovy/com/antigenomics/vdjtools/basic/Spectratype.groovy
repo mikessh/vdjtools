@@ -23,7 +23,7 @@ class Spectratype {
     private final boolean aminoAcid, unweighted
     private final int min, max, len
 
-    private final double[] spectratype
+    private final double[] innerHist
     final String HEADER
     final int[] lengths
 
@@ -47,7 +47,7 @@ class Spectratype {
         }
 
         this.len = max - min + 1
-        this.spectratype = new double[len]
+        this.innerHist = new double[len]
         this.lengths = (min..max) as double[]
         this.HEADER = lengths.collect().join("\t")
     }
@@ -62,10 +62,10 @@ class Spectratype {
 
     public void add(Clonotype clonotype) {
         if (unweighted) {
-            this.spectratype[bin(clonotype)]++
+            this.innerHist[bin(clonotype)]++
             freq++
         } else {
-            this.spectratype[bin(clonotype)] += clonotype.freq
+            this.innerHist[bin(clonotype)] += clonotype.freq
             freq += clonotype.freq
         }
         count++
@@ -83,8 +83,8 @@ class Spectratype {
 
         this.count += other.count
         this.freq += other.freq
-        other.histogram.eachWithIndex { it, ind ->
-            histogram[ind] += it
+        other.innerHist.eachWithIndex { it, ind ->
+            innerHist[ind] += it
         }
     }
 
@@ -102,7 +102,7 @@ class Spectratype {
 
     public void clear() {
         for (int i = 0; i < len; i++)
-            this.spectratype[i] = 0
+            this.innerHist[i] = 0
         count = 0
         freq = 0
     }
@@ -116,7 +116,7 @@ class Spectratype {
         def _freq = normalized ? freq : 1.0
 
         for (int i = 0; i < len; i++)
-            spectratype[i] = this.spectratype[i] / _freq
+            spectratype[i] = this.innerHist[i] / _freq
 
         spectratype
     }

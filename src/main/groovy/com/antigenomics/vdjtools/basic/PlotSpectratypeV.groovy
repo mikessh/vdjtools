@@ -26,7 +26,7 @@ cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.t(longOpt: "top", args: 1, "Number of top V segments to present on the histogram. " +
-        "Values > 11 are not allowed, as they would make the plot unreadable. default = 12")
+        "Values > 12 are not allowed, as they would make the plot unreadable. default = 12")
 
 def opt = cli.parse(args)
 
@@ -73,8 +73,8 @@ def collapsedSpectratypes = spectratypeV.collapse(top)
 
 def spectraMatrix = new double[spectratypeV.len][top + 1]
 
+def otherHistogram = collapsedSpectratypes["other"].getHistogram(false)
 for (int i = 0; i < spectratypeV.len; i++) {
-    def otherHistogram = collapsedSpectratypes["other"].getHistogram(false)
     spectraMatrix[i][0] = otherHistogram[i]
 }
 
