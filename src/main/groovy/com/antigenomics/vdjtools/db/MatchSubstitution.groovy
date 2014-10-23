@@ -6,7 +6,7 @@ import com.antigenomics.vdjtools.Clonotype
  * Created by mikesh on 10/22/14.
  */
 class MatchSubstitution {
-    private final Clonotype parent
+    public final Clonotype parent
     public final int pos
     public final char to
 
@@ -16,7 +16,12 @@ class MatchSubstitution {
         this.to = to
     }
 
-    Clonotype getParent() {
-        parent
+    public char getFrom() {
+        parent.cdr3aa.charAt(pos)
+    }
+
+    @Override
+    String toString() {
+        "$pos:$from>$to"
     }
 }

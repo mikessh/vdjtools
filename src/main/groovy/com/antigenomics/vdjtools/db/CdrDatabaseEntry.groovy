@@ -5,7 +5,7 @@
 package com.antigenomics.vdjtools.db
 
 class CdrDatabaseEntry {
-    private final String cdr3aa, v, j
+    public final String cdr3aa, v, j
     private final String[] annotation
     private final CdrDatabase parent
 
@@ -17,23 +17,23 @@ class CdrDatabaseEntry {
         this.parent = parent
     }
 
-    String getCdr3aa() {
-        return cdr3aa
-    }
-
-    String getV() {
-        return v
-    }
-
-    String getJ() {
-        return j
-    }
-
     String[] getAnnotation() {
-        return annotation
+        annotation
     }
 
     CdrDatabase getParent() {
-        return parent
+        parent
+    }
+
+    boolean equals(o) {
+        def that = (CdrDatabaseEntry) o
+        cdr3aa == that.cdr3aa && j == that.j && v == that.v
+    }
+
+    int hashCode() {
+        int result
+        result = cdr3aa.hashCode()
+        result = 31 * result + v.hashCode()
+        31 * result + j.hashCode()
     }
 }

@@ -7,10 +7,10 @@ import com.antigenomics.vdjtools.Clonotype
  */
 class CdrDatabaseMatch {
     private static final List<MatchSubstitution> dummy = new LinkedList<>()
-    private final Clonotype query
-    private final boolean vMatch, jMatch
+    public final Clonotype query
+    public final boolean vMatch, jMatch
     private final List<MatchSubstitution> substitutions
-    private final CdrDatabaseEntry subject
+    public final CdrDatabaseEntry subject
 
     CdrDatabaseMatch(Clonotype query, CdrDatabaseEntry subject, boolean vMatch, boolean jMatch) {
         this(query, subject, vMatch, jMatch, dummy)
@@ -25,23 +25,20 @@ class CdrDatabaseMatch {
         this.substitutions = substitutions
     }
 
-    Clonotype getQuery() {
-        query
-    }
-
-    boolean getvMatch() {
-        vMatch
-    }
-
-    boolean getjMatch() {
-        jMatch
-    }
 
     List<MatchSubstitution> getSubstitutions() {
         Collections.unmodifiableList(substitutions)
     }
 
-    CdrDatabaseEntry getSubject() {
-        subject
+    public static final String HEADER = "query_cdr3aa\tquery_v\tquery_j\t" +
+            "subject_cdr3aa\tsubject_v\tsubject_j\t" +
+            "v_match\tj_match\tsubstitutions"
+
+    @Override
+    String toString() {
+        [query.cdr3aa, query.v, query.j,
+         subject.cdr3aa, subject.v, subject.j,
+         vMatch, jMatch, substitutions.size() > 0 ? substitutions.collect { it.toString() }.join(",") : ".",
+         subject.annotation.collect()].flatten().join("\t")
     }
 }

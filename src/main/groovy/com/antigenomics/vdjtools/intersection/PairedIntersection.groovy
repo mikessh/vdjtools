@@ -17,6 +17,7 @@
 package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.join.JointSample
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SamplePair
 import com.antigenomics.vdjtools.timecourse.DynamicClonotype
@@ -103,12 +104,13 @@ class PairedIntersection {
         vJSD
     }
 
+    @Deprecated
     TimeCourse asTimeCourse() {
-        def dynamicClontypes = new ArrayList<DynamicClonotype>()
+        def dynamicClonotypes = new ArrayList<DynamicClonotype>()
         for (int i = 0; i < div12; i++)
-            dynamicClontypes.add(new DynamicClonotype([clonotypes12[i], clonotypes21[i]] as Clonotype[]))
+            dynamicClonotypes.add(new DynamicClonotype([clonotypes12[i], clonotypes21[i]] as Clonotype[]))
         def samples = [sample1, sample2] as Sample[]
-        new TimeCourse(samples, dynamicClontypes)
+        new TimeCourse(samples, dynamicClonotypes)
     }
 
     List<Clonotype> getClonotypes12() {

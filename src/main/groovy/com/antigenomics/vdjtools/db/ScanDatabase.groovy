@@ -17,11 +17,12 @@
 package com.antigenomics.vdjtools.db
 
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.basic.BasicStats
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.ExecUtil
 
-def cli = new CliBuilder(usage: "CalcBasicStats [options] " +
+def cli = new CliBuilder(usage: "ScanDatabase [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
@@ -31,7 +32,7 @@ cli.D(longOpt: "db-name", argName: "string", args: "1",
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
-cli.o(longOpt: "one-mismatch", "Will query database allowing a single amino-acid substitution")
+cli.f(longOpt: "fuzzy", "Will query database allowing a fuzzy match containing an amino-acid substitution")
 
 def opt = cli.parse(args)
 
@@ -58,7 +59,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 // Remaining arguments
 
-def software = Software.byName(opt.S), dbName = opt.D ?: "trdb", oneMM = (boolean) opt.o,
+def software = Software.byName(opt.S), dbName = opt.D ?: "trdb", fuzzy = (boolean) opt.f,
     outputFileName = opt.arguments()[-1]
 
 ExecUtil.ensureDir(outputFileName)
@@ -81,36 +82,36 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 // Annotation
 //
 
-def dbCdrFreqs = new HashMap<String, double[]>()
 def database = new CdrDatabase(dbName)
+def databaseBrowser = new DatabaseBrowser(false, false, fuzzy) // todo: more options
 
-database.each { dbCdrFreqs.put(it, new double[sampleCollection.size()]) }
+println "[${new Date()} $scriptName] Annotating sample(s) & writing results"
 
-println "[${new Date()} $scriptName] Annotating sample(s)"
+new File(outputFileName + ".annot.${dbName}.summary.txt").withPrintWriter { pwSummary ->
+    def header = "#sample_id\t" +
+            sampleCollection.metadataTable.columnHeader + "\t" +
+            BrowserResult.HEADER
 
-sampleCollection.eachWithIndex { Sample sample, int ind ->
-    def sampleAnnotation = new SampleAnnotation(sample, oneMM)
-    println "[${new Date()} $scriptName] ${ind + 1} sample(s) prepared"
+    pwSummary.println(header)
 
-    sampleAnnotation.getEntryFrequencies(database).each {
-        dbCdrFreqs[it.key][ind] += it.value
-    }
-    println "[${new Date()} $scriptName] ${ind + 1} sample(s) done"
-}
+    sampleCollection.eachWithIndex { Sample sample, int ind ->
+        def sampleId = sample.sampleMetadata.sampleId
+        def browserResult = databaseBrowser.query(sample, database)
 
-//
-// Output
-//
+        println "[${new Date()} $scriptName] ${ind + 1} sample(s) prepared"
 
-println "[${new Date()} $scriptName] Writing output"
+        // Global stats
+        pwSummary.println([sampleId, sample.sampleMetadata, browserResult].join("\t"))
 
-new File(outputFileName + ".annot.${dbName}.txt").withPrintWriter { pw ->
-    pw.println([database.header, sampleCollection.metadataTable.sampleIterator.collect()].flatten().join("\t"))
-    dbCdrFreqs.sort { -it.value.collect().sum() }.each {
-        def cdr = it.key, values = it.value.collect()
-        database.getAnnotationEntries(cdr).each { annotLine ->
-            pw.println([cdr, annotLine, values].flatten().join("\t"))
+        // Write full summary
+        new File(outputFileName + ".annot.${dbName}.${sampleId}.txt").withPrintWriter { pwDetails ->
+            pwDetails.println("#" + CdrDatabaseMatch.HEADER + "\t" + database.HEADER) // todo: better header composition
+            browserResult.each { match ->
+                pwDetails.println(match)
+            }
         }
+
+        println "[${new Date()} $scriptName] ${ind + 1} sample(s) done"
     }
 }
 

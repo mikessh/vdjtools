@@ -16,22 +16,16 @@
 
 package com.antigenomics.vdjtools.db
 
-import com.antigenomics.vdjtools.intersection.IntersectionUtil
 import com.antigenomics.vdjtools.util.CommonUtil
 
 class CdrDatabase {
     public final String[] header
-    private final IntersectionUtil intersectionUtil
     private final HashMap<String, List<CdrDatabaseEntry>> entriesByCdr = new HashMap<>()
 
-    public CdrDatabase(IntersectionUtil intersectionUtil) {
-        this("trdb", intersectionUtil)
-    }
-
-    public CdrDatabase(String dbName, IntersectionUtil intersectionUtil) {
-        this.intersectionUtil = intersectionUtil
+    public CdrDatabase(String dbName) {
         def dbReader = CommonUtil.resourceStreamReader("db/${dbName}.txt")
         header = dbReader.readLine().split("\t")[3..-1]
+        HEADER = header.join("\t")
         def line
         while ((line = dbReader.readLine()) != null) {
             def splitLine = line.split("\t")
@@ -45,6 +39,8 @@ class CdrDatabase {
             entryList.add(new CdrDatabaseEntry(cdr3aa, v, j, splitLine[3..-1] as String[], this))
         }
     }
+
+    public final String HEADER
 
     public List<CdrDatabaseEntry> getAt(String cdr3aa) {
         entriesByCdr[cdr3aa] ?: []

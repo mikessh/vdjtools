@@ -270,8 +270,8 @@ class IntersectionUtil {
             r = x.size() > 2 ? new PearsonsCorrelation().correlation(x as double[], y as double[]) : Double.NaN
 
             // Compute expected values and P-value for f12
-            final List<Clonotype> clonotypes1 = new ArrayList<>(sample1.clonotypes),
-                                  clonotypes2 = new ArrayList<>(sample2.clonotypes)
+            final List<Clonotype> clonotypes1 = new ArrayList<>(sample1.collect()),
+                                  clonotypes2 = new ArrayList<>(sample2.collect())
 
             // Jensen-Shannon distance
             Map<String, Double> vUsage1 = new HashMap(), vUsage2 = new HashMap<>()
