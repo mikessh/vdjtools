@@ -30,13 +30,12 @@ public class JointClonotype implements Comparable<JointClonotype> {
     private int peak = -1;
     private Clonotype representative = null;
     private double meanFreq = -1;
-    private int meanCount = -1;
 
     public JointClonotype(String key, JointSample parent) {
         this.key = key;
         this.parent = parent;
-        this.variantsBySample = new List[parent.getSampleCount()];
-        this.counts = new int[parent.getSampleCount()];
+        this.variantsBySample = new List[parent.getNumberOfSamples()];
+        this.counts = new int[parent.getNumberOfSamples()];
     }
 
     void addVariant(Clonotype variant, int sampleIndex) {
@@ -49,17 +48,6 @@ public class JointClonotype implements Comparable<JointClonotype> {
 
     public JointSample getParent() {
         return parent;
-    }
-
-    @Deprecated
-    public int getNumberOfSamplesWhereDetected() {
-        int numberOfSamplesWhereDetected = 0;
-
-        for (int count : counts)
-            if (count > 0)
-                numberOfSamplesWhereDetected++;
-
-        return numberOfSamplesWhereDetected;
     }
 
     public int getPeak() {
@@ -97,38 +85,62 @@ public class JointClonotype implements Comparable<JointClonotype> {
         return counts[sampleIndex];
     }
 
+    /**
+     * Gets clonotype frequency in a given sample
+     *
+     * @param sampleIndex
+     * @return
+     */
     public double getFreq(int sampleIndex) {
         return getCount(sampleIndex) / (double) parent.getSample(sampleIndex).getCount();
     }
 
+    /**
+     * Gets clonotype frequency at a given sample relative to intersection size of this sample
+     *
+     * @param sampleIndex
+     * @return
+     */
     public double getFreqWithinIntersection(int sampleIndex) {
         return getFreq(sampleIndex) / parent.getIntersectionFreq(sampleIndex);
     }
 
-    public double getMeanFreq() {
+    /**
+     * Gets a representative (geometric mean) frequency of a given joint clonotype
+     *
+     * @return
+     */
+    double getGeomeanFreq() {
         if (meanFreq < 0) {
             meanFreq = 1;
-            for (int i = 0; i < parent.getSampleCount(); i++) {
+            for (int i = 0; i < parent.getNumberOfSamples(); i++) {
                 meanFreq *= (getFreq(i) + JITTER);
             }
-            meanFreq = Math.pow(meanFreq, 1.0 / (double) parent.getSampleCount());
+            meanFreq = Math.pow(meanFreq, 1.0 / (double) parent.getNumberOfSamples());
         }
         return meanFreq;
     }
 
-    public double getMeanFreqNorm() {
-        return getMeanFreq() / parent.getTotalMeanFreq();
+    /**
+     * Gets a representative (geometric mean) frequency of a given joint clonotype.
+     * The frequency is normalized so that the total mean frequency will sum to 1.0 in JointSample,
+     * thus allowing to use it during sample output
+     *
+     * @return
+     */
+    public double getFreq() {
+        return getGeomeanFreq() / parent.getTotalMeanFreq();
     }
 
-    public int getMeanCount() {
-        if (meanCount < 0) {
-            meanCount = 1;
-            for (int i = 0; i < parent.getSampleCount(); i++) {
-                meanCount *= (getCount(i) + JITTER);
-            }
-            meanCount = (int) Math.pow(meanCount, 1.0 / (double) parent.getSampleCount());
-        }
-        return meanCount;
+    /**
+     * Gets a representative count of a given joint clonotype, which is proportional to representative
+     * (geometric mean) frequency. The count is scaled so it is equal to 1 for the smallest JointClonotype,
+     * thus allowing to use it during sample output
+     *
+     * @return
+     */
+    public int getCount() {
+        return (int) (getFreq() / parent.getMinMeanFreq());
     }
 
     public boolean present(int sampleIndex) {
@@ -137,7 +149,7 @@ public class JointClonotype implements Comparable<JointClonotype> {
 
     @Override
     public int compareTo(JointClonotype o) {
-        return -Double.compare(this.getMeanFreq(), o.getMeanFreq());
+        return -Double.compare(this.getGeomeanFreq(), o.getGeomeanFreq());
     }
 
     @Override

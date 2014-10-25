@@ -29,8 +29,8 @@ public class JointSample implements Iterable<JointClonotype> {
     private final int[] intersectionDiv;
     private final int[][] intersectionDivMatrix;
     private final List<JointClonotype> jointClonotypes;
-    private final double totalMeanFreq;
-    private final int sampleCount;
+    private final double totalMeanFreq, minMeanFreq;
+    private final int numberOfSamples;
     private final IntersectionUtil intersectionUtil;
 
     public JointSample(IntersectionUtil intersectionUtil, Sample[] samples) {
@@ -38,12 +38,12 @@ public class JointSample implements Iterable<JointClonotype> {
     }
 
     public JointSample(IntersectionUtil intersectionUtil, Sample[] samples, JoinFilter joinFilter) {
-        this.sampleCount = samples.length;
+        this.numberOfSamples = samples.length;
         this.samples = samples;
-        this.intersectionDiv = new int[sampleCount];
-        this.intersectionFreq = new double[sampleCount];
-        this.intersectionFreqMatrix = new double[sampleCount][sampleCount];
-        this.intersectionDivMatrix = new int[sampleCount][sampleCount];
+        this.intersectionDiv = new int[numberOfSamples];
+        this.intersectionFreq = new double[numberOfSamples];
+        this.intersectionFreqMatrix = new double[numberOfSamples][numberOfSamples];
+        this.intersectionDivMatrix = new int[numberOfSamples][numberOfSamples];
         this.intersectionUtil = intersectionUtil;
 
         Map<String, JointClonotype> clonotypeMap = new HashMap<>();
@@ -65,17 +65,21 @@ public class JointSample implements Iterable<JointClonotype> {
 
         this.jointClonotypes = new ArrayList<>(clonotypeMap.size() / 2);
 
-        double totalMeanFreq = 0;
+        double totalMeanFreq = 0, minMeanFreq = 1;
         for (JointClonotype jointClonotype : clonotypeMap.values()) {
             if (joinFilter.pass(jointClonotype)) {
                 jointClonotypes.add(jointClonotype);
-                totalMeanFreq += jointClonotype.getMeanFreq();
-                for (int i = 0; i < sampleCount; i++) {
+
+                double meanFreq = jointClonotype.getGeomeanFreq();
+                totalMeanFreq += meanFreq;
+                minMeanFreq = Math.min(minMeanFreq, meanFreq);
+
+                for (int i = 0; i < numberOfSamples; i++) {
                     if (jointClonotype.present(i)) {
                         double freq1 = jointClonotype.getFreq(i);
                         intersectionFreq[i] += freq1;
                         intersectionDiv[i]++;
-                        for (int j = i + 1; j < sampleCount; j++) {
+                        for (int j = i + 1; j < numberOfSamples; j++) {
                             if (jointClonotype.present(j)) {
                                 double freq2 = jointClonotype.getFreq(j);
                                 intersectionFreqMatrix[i][j] += Math.sqrt(freq1 * freq2);
@@ -87,12 +91,13 @@ public class JointSample implements Iterable<JointClonotype> {
             }
         }
         this.totalMeanFreq = totalMeanFreq;
+        this.minMeanFreq = minMeanFreq;
 
         Collections.sort(jointClonotypes);
     }
 
-    public int getSampleCount() {
-        return sampleCount;
+    public int getNumberOfSamples() {
+        return numberOfSamples;
     }
 
     public Sample getSample(int sampleIndex) {
@@ -131,6 +136,10 @@ public class JointSample implements Iterable<JointClonotype> {
 
     double getTotalMeanFreq() {
         return totalMeanFreq;
+    }
+
+    double getMinMeanFreq() {
+        return minMeanFreq;
     }
 
     @Override

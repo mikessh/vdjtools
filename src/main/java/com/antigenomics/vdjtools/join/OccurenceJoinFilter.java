@@ -21,7 +21,7 @@ public class OccurenceJoinFilter implements JoinFilter {
     @Override
     public boolean pass(JointClonotype jointClonotype) {
         int detectionCounter = 0;
-        for (int i = 0; i < jointClonotype.getParent().getSampleCount(); i++) {
+        for (int i = 0; i < jointClonotype.getParent().getNumberOfSamples(); i++) {
             if (jointClonotype.present(i) && ++detectionCounter == occurenceThreshold) return true;
         }
         return false;

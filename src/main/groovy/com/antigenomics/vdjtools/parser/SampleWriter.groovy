@@ -52,7 +52,7 @@ class SampleWriter {
     public void write(JointSample jointSample, PrintWriter printWriter, int top) {
         top = top > jointSample.size() || top < 0 ? jointSample.size() : top
 
-        def ii = (0..<jointSample.sampleCount)
+        def ii = (0..<jointSample.numberOfSamples)
 
         printWriter.println(header + "\t" +
                 ii.collect { jointSample.getSample(it).sampleMetadata.sampleId }.join("\t"))
@@ -64,9 +64,9 @@ class SampleWriter {
             printWriter.println(
                     [software.printFields.collect {
                         if (it == "count")
-                            jointClonotype.meanCount
+                            jointClonotype.count
                         else if (it == "freq")
-                            jointClonotype.meanFreq
+                            jointClonotype.freq
                         else
                             clonotype."$it"
                     },
