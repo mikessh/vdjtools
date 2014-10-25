@@ -27,6 +27,8 @@ public class JointClonotype implements Comparable<JointClonotype> {
     private final List[] variantsBySample;
     private final int[] counts;
     private static final double JITTER = 1e-9; // upper limit on current precision of RepSeq
+    private int peak = -1;
+    private Clonotype representative = null;
 
     public JointClonotype(String key, JointSample parent) {
         this.key = key;
@@ -53,6 +55,33 @@ public class JointClonotype implements Comparable<JointClonotype> {
         return numberOfSamplesWhereDetected;
     }
 
+    public int getPeak() {
+        if (peak < 0) {
+            int peakCount = -1;
+            for (int i = 0; i < counts.length; i++) {
+                if (counts[i] > peakCount) {
+                    peak = i;
+                    peakCount = counts[i];
+                }
+            }
+        }
+        return peak;
+    }
+
+    public Clonotype getRepresentative() {
+        if (representative == null) {
+            int max = 0;
+            for (Object o : variantsBySample[getPeak()]) {
+                Clonotype clonotype = (Clonotype) o;
+                if (clonotype.getCount() > max) {
+                    max = clonotype.getCount();
+                    representative = clonotype;
+                }
+            }
+        }
+        return representative;
+    }
+
     public int getNumberOfVariants(int sampleIndex) {
         return variantsBySample[sampleIndex].size();
     }
@@ -62,7 +91,11 @@ public class JointClonotype implements Comparable<JointClonotype> {
     }
 
     public double getFreq(int sampleIndex) {
-        return getCount(sampleIndex) / (double) parent.getSamples()[sampleIndex].getCount();
+        return getCount(sampleIndex) / (double) parent.getSample(sampleIndex).getCount();
+    }
+
+    public double getFreqWithinIntersection(int sampleIndex) {
+        return getFreq(sampleIndex) / parent.getIntersectionFreq(sampleIndex);
     }
 
     public double getMeanFreq() {
@@ -71,6 +104,18 @@ public class JointClonotype implements Comparable<JointClonotype> {
             meanFreq *= (getFreq(i) + JITTER);
         }
         return Math.pow(meanFreq, 1.0 / (double) parent.getSampleCount());
+    }
+
+    public int getMeanCount() {
+        int meanCount = 1;
+        for (int i = 0; i < parent.getSampleCount(); i++) {
+            meanCount *= (getCount(i) + 1);
+        }
+        return (int)Math.pow(meanCount, 1.0 / (double) parent.getSampleCount());
+    }
+
+    public boolean present(int sampleIndex) {
+        return counts[sampleIndex] > 0;
     }
 
     @Override

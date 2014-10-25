@@ -100,7 +100,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
         return count;
     }
 
-    public double getFixedFreq() {
+    public double getFreqAsInInput() {
         return freq;
     }
 
@@ -120,6 +120,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
         return j;
     }
 
+    // todo: extract
     public String getCdr1nt() {
         return cdr1nt;
     }

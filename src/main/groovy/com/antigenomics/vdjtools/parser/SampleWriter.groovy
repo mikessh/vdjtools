@@ -17,8 +17,12 @@
 package com.antigenomics.vdjtools.parser
 
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.join.JointSample
 import com.antigenomics.vdjtools.sample.Sample
 
+/**
+ * Base class for providing output of Sample and JointSample
+ */
 class SampleWriter {
     private final Software software
     private final String header
@@ -29,12 +33,50 @@ class SampleWriter {
     }
 
     public void write(Sample sample, PrintWriter printWriter) {
+        write(sample, printWriter, -1)
+    }
+
+    public void write(Sample sample, PrintWriter printWriter, int top) {
+        top = top > sample.size() || top < 0 ? sample.size() : top
         printWriter.println(header)
 
-        sample.each { clonotype ->
+        for (int i = 0; i < top; i++) {
+            def clonotype = sample[i]
+
             printWriter.println(software.printFields.collect {
                 clonotype."$it"
             }.join("\t"))
         }
+    }
+
+    public void write(JointSample jointSample, PrintWriter printWriter, int top) {
+        top = top > jointSample.size() || top < 0 ? jointSample.size() : top
+
+        def ii = (0..<jointSample.sampleCount)
+
+        printWriter.println(header + "\t" +
+                ii.collect { jointSample.getSample(it).sampleMetadata.sampleId }.join("\t"))
+
+        for (int i = 0; i < top; i++) {
+            def jointClonotype = jointSample[i],
+                clonotype = jointClonotype.representative
+
+            printWriter.println(
+                    [software.printFields.collect {
+                        if (it == "count")
+                            jointClonotype.meanCount
+                        else if (it == "freq")
+                            jointClonotype.meanFreq
+                        else
+                            clonotype."$it"
+                    },
+                     ii.collect {
+                         jointClonotype.getFreq(it)
+                     }].flatten().join("\t"))
+        }
+    }
+
+    public void write(JointSample jointSample, PrintWriter printWriter) {
+        write(jointSample, printWriter, -1)
     }
 }

@@ -21,6 +21,9 @@ import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import groovy.transform.PackageScope
 
+/**
+ * Base class for providing parsing of various RepSeq software output
+ */
 public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
     public static ClonotypeStreamParser create(InputStream inputStream, Software software, Sample sample) {
         ClonotypeStreamParser parser

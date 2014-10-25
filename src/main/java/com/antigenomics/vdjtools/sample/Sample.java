@@ -111,7 +111,11 @@ public class Sample implements Iterable<Clonotype> {
         return count;
     }
 
-    public long getDiversity() {
+    public int getDiversity() {
+        return clonotypes.size();
+    }
+
+    public int size() {
         return clonotypes.size();
     }
 
