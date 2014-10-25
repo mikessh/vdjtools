@@ -29,17 +29,17 @@ public class JointSample implements Iterable<JointClonotype> {
     private final int[] intersectionDiv;
     private final int[][] intersectionDivMatrix;
     private final List<JointClonotype> jointClonotypes;
-    private final int sampleCount, detectionThreshold;
+    private final double totalMeanFreq;
+    private final int sampleCount;
     private final IntersectionUtil intersectionUtil;
 
     public JointSample(IntersectionUtil intersectionUtil, Sample[] samples) {
-        this(intersectionUtil, samples, 2);
+        this(intersectionUtil, samples, new OccurenceJoinFilter());
     }
 
-    public JointSample(IntersectionUtil intersectionUtil, Sample[] samples, int detectionThreshold) {
+    public JointSample(IntersectionUtil intersectionUtil, Sample[] samples, JoinFilter joinFilter) {
         this.sampleCount = samples.length;
         this.samples = samples;
-        this.detectionThreshold = detectionThreshold;
         this.intersectionDiv = new int[sampleCount];
         this.intersectionFreq = new double[sampleCount];
         this.intersectionFreqMatrix = new double[sampleCount][sampleCount];
@@ -65,9 +65,11 @@ public class JointSample implements Iterable<JointClonotype> {
 
         this.jointClonotypes = new ArrayList<>(clonotypeMap.size() / 2);
 
+        double totalMeanFreq = 0;
         for (JointClonotype jointClonotype : clonotypeMap.values()) {
-            if (jointClonotype.getNumberOfSamplesWhereDetected() >= detectionThreshold) {
+            if (joinFilter.pass(jointClonotype)) {
                 jointClonotypes.add(jointClonotype);
+                totalMeanFreq += jointClonotype.getMeanFreq();
                 for (int i = 0; i < sampleCount; i++) {
                     if (jointClonotype.present(i)) {
                         double freq1 = jointClonotype.getFreq(i);
@@ -84,6 +86,7 @@ public class JointSample implements Iterable<JointClonotype> {
                 }
             }
         }
+        this.totalMeanFreq = totalMeanFreq;
 
         Collections.sort(jointClonotypes);
     }
@@ -102,10 +105,6 @@ public class JointSample implements Iterable<JointClonotype> {
 
     public JointClonotype getAt(int index) {
         return jointClonotypes.get(index);
-    }
-
-    public int getDetectionThreshold() {
-        return detectionThreshold;
     }
 
     public int getIntersectionDiv(int sampleIndex) {
@@ -128,6 +127,10 @@ public class JointSample implements Iterable<JointClonotype> {
 
     public IntersectionUtil getIntersectionUtil() {
         return intersectionUtil;
+    }
+
+    double getTotalMeanFreq() {
+        return totalMeanFreq;
     }
 
     @Override

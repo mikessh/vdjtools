@@ -29,6 +29,8 @@ public class JointClonotype implements Comparable<JointClonotype> {
     private static final double JITTER = 1e-9; // upper limit on current precision of RepSeq
     private int peak = -1;
     private Clonotype representative = null;
+    private double meanFreq = -1;
+    private int meanCount = -1;
 
     public JointClonotype(String key, JointSample parent) {
         this.key = key;
@@ -37,7 +39,7 @@ public class JointClonotype implements Comparable<JointClonotype> {
         this.counts = new int[parent.getSampleCount()];
     }
 
-    public void addVariant(Clonotype variant, int sampleIndex) {
+    void addVariant(Clonotype variant, int sampleIndex) {
         List<Clonotype> variants = variantsBySample[sampleIndex];
         if (variants == null)
             variantsBySample[sampleIndex] = (variants = new LinkedList());
@@ -45,6 +47,11 @@ public class JointClonotype implements Comparable<JointClonotype> {
         counts[sampleIndex] += variant.getCount();
     }
 
+    public JointSample getParent() {
+        return parent;
+    }
+
+    @Deprecated
     public int getNumberOfSamplesWhereDetected() {
         int numberOfSamplesWhereDetected = 0;
 
@@ -99,19 +106,29 @@ public class JointClonotype implements Comparable<JointClonotype> {
     }
 
     public double getMeanFreq() {
-        double meanFreq = 1;
-        for (int i = 0; i < parent.getSampleCount(); i++) {
-            meanFreq *= (getFreq(i) + JITTER);
+        if (meanFreq < 0) {
+            meanFreq = 1;
+            for (int i = 0; i < parent.getSampleCount(); i++) {
+                meanFreq *= (getFreq(i) + JITTER);
+            }
+            meanFreq = Math.pow(meanFreq, 1.0 / (double) parent.getSampleCount());
         }
-        return Math.pow(meanFreq, 1.0 / (double) parent.getSampleCount());
+        return meanFreq;
+    }
+
+    public double getMeanFreqNorm() {
+        return getMeanFreq() / parent.getTotalMeanFreq();
     }
 
     public int getMeanCount() {
-        int meanCount = 1;
-        for (int i = 0; i < parent.getSampleCount(); i++) {
-            meanCount *= (getCount(i) + 1);
+        if (meanCount < 0) {
+            meanCount = 1;
+            for (int i = 0; i < parent.getSampleCount(); i++) {
+                meanCount *= (getCount(i) + JITTER);
+            }
+            meanCount = (int) Math.pow(meanCount, 1.0 / (double) parent.getSampleCount());
         }
-        return (int)Math.pow(meanCount, 1.0 / (double) parent.getSampleCount());
+        return meanCount;
     }
 
     public boolean present(int sampleIndex) {
