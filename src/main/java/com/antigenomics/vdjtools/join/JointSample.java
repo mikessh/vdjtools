@@ -24,14 +24,25 @@ import java.util.*;
 
 public class JointSample implements Iterable<JointClonotype> {
     private final Sample[] samples;
-    private final int sampleCount;
+    private final double[] intersectionFreq;
+    private final double[][] intersectionFreqMatrix;
+    private final int[] intersectionDiv;
+    private final int[][] intersectionDivMatrix;
     private final List<JointClonotype> jointClonotypes;
-    private final int detectionThreshold;
+    private final int sampleCount, detectionThreshold;
+
+    public JointSample(IntersectionUtil intersectionUtil, Sample[] samples) {
+        this(intersectionUtil, samples, 2);
+    }
 
     public JointSample(IntersectionUtil intersectionUtil, Sample[] samples, int detectionThreshold) {
         this.sampleCount = samples.length;
         this.samples = samples;
         this.detectionThreshold = detectionThreshold;
+        this.intersectionDiv = new int[sampleCount];
+        this.intersectionFreq = new double[sampleCount];
+        this.intersectionFreqMatrix = new double[sampleCount][sampleCount];
+        this.intersectionDivMatrix = new int[sampleCount][sampleCount];
 
         Map<String, JointClonotype> clonotypeMap = new HashMap<>();
         int sampleIndex = 0;
@@ -53,8 +64,23 @@ public class JointSample implements Iterable<JointClonotype> {
         this.jointClonotypes = new ArrayList<>(clonotypeMap.size() / 2);
 
         for (JointClonotype jointClonotype : clonotypeMap.values()) {
-            if (jointClonotype.getNumberOfSamplesWhereDetected() >= detectionThreshold)
+            if (jointClonotype.getNumberOfSamplesWhereDetected() >= detectionThreshold) {
                 jointClonotypes.add(jointClonotype);
+                for (int i = 0; i < sampleCount; i++) {
+                    double freq1 = jointClonotype.getFreq(i);
+                    if (freq1 > 0) {
+                        intersectionFreq[i] += freq1;
+                        intersectionDiv[i]++;
+                        for (int j = i + 1; j < sampleCount; j++) {
+                            double freq2 = jointClonotype.getFreq(j);
+                            if (freq2 > 0) {
+                                intersectionFreqMatrix[i][j] += Math.sqrt(freq1 * freq2);
+                                intersectionDivMatrix[i][j]++;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         Collections.sort(jointClonotypes);
@@ -78,6 +104,24 @@ public class JointSample implements Iterable<JointClonotype> {
 
     public int getDetectionThreshold() {
         return detectionThreshold;
+    }
+
+    public int getIntersectionDiv(int sampleIndex) {
+        return intersectionDiv[sampleIndex];
+    }
+
+    public int getIntersectionDiv(int sampleIndex1, int sampleIndex2) {
+        return sampleIndex1 < sampleIndex2 ? intersectionDivMatrix[sampleIndex1][sampleIndex2] :
+                intersectionDivMatrix[sampleIndex2][sampleIndex1];
+    }
+
+    public double getIntersectionFreq(int sampleIndex) {
+        return intersectionFreq[sampleIndex];
+    }
+
+    public double getIntersectionFreq(int sampleIndex1, int sampleIndex2) {
+        return sampleIndex1 < sampleIndex2 ? intersectionFreqMatrix[sampleIndex1][sampleIndex2] :
+                intersectionFreqMatrix[sampleIndex2][sampleIndex1];
     }
 
     @Override
