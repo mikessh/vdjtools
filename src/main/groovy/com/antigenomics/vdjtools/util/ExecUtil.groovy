@@ -17,6 +17,11 @@
 package com.antigenomics.vdjtools.util
 
 class ExecUtil {
+    static void report(Object me, String message) { // todo: use this everywhere
+        def scriptName = me.class.canonicalName.split("\\.")[-1]
+        println "[${new Date()} $scriptName] $message"
+    }
+
     static Object run(Script script, String args) {
         // perform cleanup
         def argArray = args.split(" ").

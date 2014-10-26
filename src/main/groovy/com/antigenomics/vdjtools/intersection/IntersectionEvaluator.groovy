@@ -4,6 +4,7 @@ import com.antigenomics.vdjtools.basic.SegmentUsage
 import com.antigenomics.vdjtools.basic.Spectratype
 import com.antigenomics.vdjtools.join.JointSample
 import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.util.ExecUtil
 import com.antigenomics.vdjtools.util.MathUtil
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
@@ -42,6 +43,7 @@ class IntersectionEvaluator {
 
     private double _computeIntersectionMetric(IntersectMetric metric,
                                               int i, int j) {
+        ExecUtil.report(this, "Computing $metric")
         switch (metric) {
             case IntersectMetric.Diversity:
                 def div1 = jointSample.getSample(i).diversity,

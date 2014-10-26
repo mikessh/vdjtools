@@ -12,36 +12,38 @@ class PairedIntersectionSummary {
     private final JointSample jointSample
     private final IntersectionEvaluator intersectionEvaluator
     private final Map<IntersectMetric, Double> intersectMetricCache = new HashMap<>()
+    private final Collection<IntersectMetric> intersectMetrics
+
+    PairedIntersectionSummary(SamplePair samplePair, IntersectionType intersectionType) {
+        this(samplePair, intersectionType, IntersectMetric.values())
+    }
 
     PairedIntersectionSummary(SamplePair samplePair,
-                              IntersectionType intersectionType) {
+                              IntersectionType intersectionType,
+                              Collection<IntersectMetric> intersectMetrics) {
         this.samplePair = samplePair
         this.jointSample = new JointSample(intersectionType, [samplePair[0], samplePair[1]] as Sample[])
         this.intersectionEvaluator = new IntersectionEvaluator(jointSample)
-    }
+        this.intersectMetrics = intersectMetrics
 
-    public double getMetricValue(IntersectMetric intersectMetric) {
-        def value = intersectMetricCache[intersectMetric]
-        if (!value) {
-            intersectMetricCache.put(intersectMetric,
-                    value = intersectionEvaluator.computeIntersectionMetric(intersectMetric))
+        intersectMetrics.each {
+            intersectMetricCache.put(it, intersectionEvaluator.computeIntersectionMetric(it))
         }
-        value
     }
 
     public double getDiv1() {
         samplePair[0].diversity
     }
 
-    public double getDiv2() {
+    public int getDiv2() {
         samplePair[1].diversity
     }
 
-    public double getDiv12() {
+    public int getDiv12() {
         jointSample.diversity
     }
 
-    public double getDiv21() {
+    public int getDiv21() {
         jointSample.diversity
     }
 
@@ -82,12 +84,12 @@ class PairedIntersectionSummary {
     }
 
     private static final String[] OUTPUT_FIELDS = ["div1", "div2", "div12", "div21",
-                                            "count1", "count2", "count12", "count21",
-                                            "freq1", "freq2", "freq12", "freq21"]
+                                                   "count1", "count2", "count12", "count21",
+                                                   "freq1", "freq2", "freq12", "freq21"]
 
     public String getHeader() {
         ["#sample_id1", "sample_id2",
-         OUTPUT_FIELDS.collect(), IntersectMetric.values().collect { it.shortName },
+         OUTPUT_FIELDS.collect(), intersectMetrics.collect { it.shortName },
          samplePair[0].sampleMetadata.parent.columnHeader1,
          samplePair[0].sampleMetadata.parent.columnHeader2].flatten().join("\t")
     }
@@ -95,7 +97,7 @@ class PairedIntersectionSummary {
     public String getRow() {
         [samplePair[0].sampleMetadata.sampleId,
          samplePair[1].sampleMetadata.sampleId,
-         OUTPUT_FIELDS.collect { this."$it" }, IntersectMetric.values().collect { getMetricValue(it) },
+         OUTPUT_FIELDS.collect { this."$it" }, intersectMetrics.collect { intersectMetricCache[it] },
          samplePair[0].sampleMetadata.toString(),
          samplePair[1].sampleMetadata.toString()].flatten().join("\t")
     }

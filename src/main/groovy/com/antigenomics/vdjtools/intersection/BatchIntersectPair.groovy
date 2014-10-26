@@ -79,6 +79,7 @@ if (!intersectionType) {
 
 println "[${new Date()} $scriptName] Reading samples"
 
+
 def sampleCollection = metadataFileName ?
         new SampleCollection((String) metadataFileName, software, false, false) :
         new SampleCollection(opt.arguments()[0..-2], software, false)

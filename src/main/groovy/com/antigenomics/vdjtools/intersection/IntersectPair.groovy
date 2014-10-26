@@ -69,11 +69,7 @@ if (!intersectionType) {
 
 println "[${new Date()} $scriptName] Reading samples $sample1FileName and $sample2FileName"
 
-
 def sampleCollection = new SampleCollection([sample1FileName, sample2FileName], software, true, false)
-
-def sample1 = sampleCollection[0],
-    sample2 = sampleCollection[1]
 
 //
 // Perform an intersection by CDR3NT & V segment
@@ -101,40 +97,46 @@ sampleWriter.write(jointSample, outputFilePrefix + ".table.txt")
 if (top >= 0)
     sampleWriter.write(jointSample, outputFilePrefix + ".table_collapsed.txt", top, true)
 
-//def log = { double x ->
-//    Math.log10(x + 1e-7)
-//}
-
 if (opt.p) {
+    println "[${new Date()} $scriptName] Plotting"
+
+    def sample1 = sampleCollection[0],
+        sample2 = sampleCollection[1]
+
+    def log = { double x ->
+        Math.log10(x + 1e-7)
+    }
+
     // todo: remake completely
-    /*
-     def xyFile = new File(outputFilePrefix + ".xy.txt")
-     xyFile.withPrintWriter { pw ->
-         pw.println("x\ty")
-         jointSample.each {
-             pw.println((0..1).collect { it.getFreq(0).collect { log(it) }.join("\t"))
-             }
-     }
-     xyFile.deleteOnExit()
+    def xyFile = new File(outputFilePrefix + ".xy.txt")
+    xyFile.withPrintWriter { pw ->
+        pw.println("x\ty")
+        jointSample.each { jointClone ->
+            pw.println((0..1).collect { sampleIndex ->
+                log(jointClone.getFreq(sampleIndex))
+            }.join("\t"))
+        }
+    }
+    xyFile.deleteOnExit()
 
-     def xxFile = new File(outputFilePrefix + ".xx.txt")
-     xxFile.withPrintWriter { pw ->
-         pw.println("xx")
-         sample1.each { pw.println(log(it.freq)) }
-     }
-     xxFile.deleteOnExit()
+    def xxFile = new File(outputFilePrefix + ".xx.txt")
+    xxFile.withPrintWriter { pw ->
+        pw.println("xx")
+        sample1.each { pw.println(log(it.freq)) }
+    }
+    xxFile.deleteOnExit()
 
-     def yyFile = new File(outputFilePrefix + ".yy.txt")
-     yyFile.withPrintWriter { pw ->
-         pw.println("yy")
-         sample2.each { pw.println(log(it.freq)) }
-     }
-     yyFile.deleteOnExit()
+    def yyFile = new File(outputFilePrefix + ".yy.txt")
+    yyFile.withPrintWriter { pw ->
+        pw.println("yy")
+        sample2.each { pw.println(log(it.freq)) }
+    }
+    yyFile.deleteOnExit()
 
-     RUtil.execute("intersect_pair_scatter.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
-             outputFilePrefix + ".xy.txt", outputFilePrefix + ".xx.txt", outputFilePrefix + ".yy.txt",
-             outputFilePrefix + ".scatter.pdf")
- */
+    RUtil.execute("intersect_pair_scatter.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
+            outputFilePrefix + ".xy.txt", outputFilePrefix + ".xx.txt", outputFilePrefix + ".yy.txt",
+            outputFilePrefix + ".scatter.pdf")
+
     if (opt.c) {
         RUtil.execute("intersect_pair_area.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
                 outputFilePrefix + ".table_collapsed.txt", outputFilePrefix + ".difference.pdf",

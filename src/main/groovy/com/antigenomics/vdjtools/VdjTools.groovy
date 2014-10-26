@@ -17,13 +17,7 @@
 
 package com.antigenomics.vdjtools
 
-import com.antigenomics.vdjtools.basic.CalcBasicStats
-import com.antigenomics.vdjtools.basic.CalcSegmentUsage
-import com.antigenomics.vdjtools.basic.CalcSpectratype
-import com.antigenomics.vdjtools.basic.FilterNonFunctional
-import com.antigenomics.vdjtools.basic.PlotFancySpectratype
-import com.antigenomics.vdjtools.basic.PlotFancyVJUsage
-import com.antigenomics.vdjtools.basic.PlotSpectratypeV
+import com.antigenomics.vdjtools.basic.*
 import com.antigenomics.vdjtools.db.ScanDatabase
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.DownSample
@@ -66,9 +60,9 @@ def printHelp = {
 
 def getScript = { String scriptName ->
     switch (scriptName.toUpperCase()) {
-        // todo: setup
-        // intall r dependencies
-        // RScript is required for most plotting routines
+    // todo: setup
+    // intall r dependencies
+    // RScript is required for most plotting routines
         case "CALCBASICSTATS":
             return new CalcBasicStats()
         case "CALCSPECTRATYPE":

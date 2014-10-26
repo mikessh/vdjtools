@@ -4,7 +4,7 @@
 # marginal plots are built based on complete datasets
 #
 # Adapted from R-bloggers (http://www.r-bloggers.com/ggplot2-cheatsheet-for-visualizing-distributions/)
-# With minor additions based on StackOverflow various replies
+# With minor additions based on various StackOverflow replies
 #
 
 require(ggplot2); require(grid); require(gridExtra)
