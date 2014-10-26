@@ -17,23 +17,25 @@
 package com.antigenomics.vdjtools.sample;
 
 import com.antigenomics.vdjtools.Clonotype;
-import com.antigenomics.vdjtools.intersection.IntersectionUtil;
+import com.antigenomics.vdjtools.intersection.IntersectionType;
+import com.antigenomics.vdjtools.join.ClonotypeKeyGen;
+import com.antigenomics.vdjtools.join.key.ClonotypeKey;
 
 import java.util.Set;
 
 public class IntersectionClonotypeFilter implements ClonotypeFilter {
-    private final IntersectionUtil intersectionUtil;
-    private final Set<String> keySet;
+    private final ClonotypeKeyGen clonotypeKeyGen;
+    private final Set<ClonotypeKey> keySet;
     private final boolean negative;
 
-    public IntersectionClonotypeFilter(IntersectionUtil intersectionUtil, Sample sample, boolean negative) {
-        this.intersectionUtil = intersectionUtil;
-        this.keySet = intersectionUtil.generateKeySet(sample);
+    public IntersectionClonotypeFilter(IntersectionType intersectionType, Sample sample, boolean negative) {
+        this.clonotypeKeyGen = new ClonotypeKeyGen(intersectionType);
+        this.keySet = new ClonotypeKeyGen(intersectionType).generateKeySet(sample);
         this.negative = negative;
     }
 
     @Override
     public boolean pass(Clonotype clonotype) {
-        return negative ^ keySet.contains(intersectionUtil.generateKey(clonotype));
+        return negative ^ keySet.contains(clonotypeKeyGen.generateKey(clonotype));
     }
 }

@@ -1,14 +1,14 @@
-package com.antigenomics.vdjtools.join;
+package com.antigenomics.vdjtools.join.key;
 
 import com.antigenomics.vdjtools.Clonotype;
 
 /**
  * Created by mikesh on 10/26/14.
  */
-abstract class ClonotypeKey {
+public abstract class ClonotypeKey {
     protected final Clonotype clonotype;
 
-    protected ClonotypeKey(Clonotype clonotype) {
+    public ClonotypeKey(Clonotype clonotype) {
         this.clonotype = clonotype;
     }
 

@@ -24,7 +24,7 @@ class IntersectionEvaluator {
     private Spectratype getSpectratype(int sampleIndex) {
         if (!spectratypeCache[sampleIndex]) {
             spectratypeCache[sampleIndex] = new Spectratype(jointSample.getSample(sampleIndex),
-                    jointSample.intersectionUtil.intersectionType,
+                    jointSample.intersectionType,
                     false)
         }
         spectratypeCache[sampleIndex]

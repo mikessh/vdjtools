@@ -17,7 +17,8 @@
 package com.antigenomics.vdjtools.join;
 
 import com.antigenomics.vdjtools.Clonotype;
-import com.antigenomics.vdjtools.intersection.IntersectionUtil;
+import com.antigenomics.vdjtools.intersection.IntersectionType;
+import com.antigenomics.vdjtools.join.key.ClonotypeKey;
 import com.antigenomics.vdjtools.sample.Sample;
 
 import java.util.*;
@@ -34,13 +35,13 @@ public class JointSample implements Iterable<JointClonotype> {
     private final double totalMeanFreq, minMeanFreq;
     private final int numberOfSamples;
     private final int count;
-    private final IntersectionUtil intersectionUtil;
+    private final IntersectionType intersectionType;
 
-    public JointSample(IntersectionUtil intersectionUtil, Sample[] samples) {
-        this(intersectionUtil, samples, new OccurenceJoinFilter());
+    public JointSample(IntersectionType intersectionType, Sample[] samples) {
+        this(intersectionType, samples, new OccurenceJoinFilter());
     }
 
-    public JointSample(IntersectionUtil intersectionUtil, Sample[] samples, JoinFilter joinFilter) {
+    public JointSample(IntersectionType intersectionType, Sample[] samples, JoinFilter joinFilter) {
         this.numberOfSamples = samples.length;
         this.samples = samples;
         this.intersectionDiv = new int[numberOfSamples];
@@ -49,18 +50,20 @@ public class JointSample implements Iterable<JointClonotype> {
         this.intersectionCount = new long[numberOfSamples];
         this.intersectionCountMatrix = new long[numberOfSamples][numberOfSamples];
         this.intersectionDivMatrix = new int[numberOfSamples][numberOfSamples];
-        this.intersectionUtil = intersectionUtil;
+        this.intersectionType = intersectionType;
 
-        Map<String, JointClonotype> clonotypeMap = new HashMap<>();
+        ClonotypeKeyGen clonotypeKeyGen = new ClonotypeKeyGen(intersectionType);
+
+        Map<ClonotypeKey, JointClonotype> clonotypeMap = new HashMap<>();
         int sampleIndex = 0;
         for (Sample sample : samples) {
             for (Clonotype clonotype : sample) {
-                String key = intersectionUtil.generateKey(clonotype);
+                ClonotypeKey key = clonotypeKeyGen.generateKey(clonotype);
 
                 JointClonotype jointClonotype = clonotypeMap.get(key);
 
                 if (jointClonotype == null) {
-                    clonotypeMap.put(key, jointClonotype = new JointClonotype(key, this));
+                    clonotypeMap.put(key, jointClonotype = new JointClonotype(this));
                 }
 
                 jointClonotype.addVariant(clonotype, sampleIndex);
@@ -163,8 +166,8 @@ public class JointSample implements Iterable<JointClonotype> {
         return intersectionCountMatrix[sampleIndex1][sampleIndex2];
     }
 
-    public IntersectionUtil getIntersectionUtil() {
-        return intersectionUtil;
+    public IntersectionType getIntersectionType() {
+        return intersectionType;
     }
 
     double getTotalMeanFreq() {

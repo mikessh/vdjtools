@@ -22,7 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class JointClonotype implements Comparable<JointClonotype> {
-    private final String key;
     private final JointSample parent;
     private final List[] variantsBySample;
     private final int[] counts;
@@ -31,8 +30,7 @@ public class JointClonotype implements Comparable<JointClonotype> {
     private Clonotype representative = null;
     private double meanFreq = -1;
 
-    public JointClonotype(String key, JointSample parent) {
-        this.key = key;
+    public JointClonotype(JointSample parent) {
         this.parent = parent;
         this.variantsBySample = new List[parent.getNumberOfSamples()];
         this.counts = new int[parent.getNumberOfSamples()];
@@ -150,20 +148,5 @@ public class JointClonotype implements Comparable<JointClonotype> {
     @Override
     public int compareTo(JointClonotype o) {
         return -Double.compare(this.getGeomeanFreq(), o.getGeomeanFreq());
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        JointClonotype that = (JointClonotype) o;
-
-        return key.equals(that.key) && parent.equals(that.parent);
-    }
-
-    @Override
-    public int hashCode() {
-        return 31 * key.hashCode() + parent.hashCode();
     }
 }
