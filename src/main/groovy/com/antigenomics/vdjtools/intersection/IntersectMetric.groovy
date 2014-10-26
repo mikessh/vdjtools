@@ -20,14 +20,16 @@ enum IntersectMetric {
     Correlation("R"), Diversity("D"), Frequency("F"), Frequency2("F2"),
     vJSD("vJSD"), vjJSD("vjJSD"), vj2JSD("vj2JSD"), sJSD("sJSD")
 
-    private final String name
+    final String shortName
 
-    IntersectMetric(String name) {
-        this.name = name
+    IntersectMetric(String shortName) {
+        this.shortName = shortName
     }
 
     @Deprecated
     double value(PairedIntersection pairedIntersection) {
-        pairedIntersection."norm$name"
+        pairedIntersection."norm$shortName"
     }
+
+    static String allowedNames = values().collect { it.shortName }.join(",")
 }

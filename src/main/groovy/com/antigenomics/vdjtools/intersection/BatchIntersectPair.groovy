@@ -19,17 +19,17 @@ package com.antigenomics.vdjtools.intersection
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
 
-def I_TYPES_DEFAULT = [IntersectionType.AminoAcid, IntersectionType.Nucleotide]
+def I_TYPE_DEFAULT = "aa"
 def cli = new CliBuilder(usage: "BatchIntersectPair [options] " +
         "[sample1 sample2 sample3 ... if not -m] output_prefix")
 cli.h("display help message")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
-cli.i(longOpt: "intersect-type", argName: "string1,string2,..", args: 1,
+cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Comma-separated list of intersection types to apply. " +
                 "Allowed values: $IntersectionType.allowedNames. " +
-                "Will use '${I_TYPES_DEFAULT.collect { it.shortName }.join(",")}' by default.")
+                "Will use '$I_TYPE_DEFAULT' by default.")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 
@@ -62,23 +62,15 @@ def software = Software.byName(opt.S), outputFileName = opt.arguments()[-1]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
-// Build a list of intersection types to apply
+// Select intersection type
 
-def intersectionTypes
+def iName = opt.i ?: I_TYPE_DEFAULT
+def intersectionType = IntersectionType.byName(iName)
 
-if (opt.i) {
-    intersectionTypes = (opt.i as String).split(",").collect {
-        def shortName = it.trim()
-        def intersectionType = IntersectionType.byName(shortName)
-        if (!intersectionType) {
-            println "[ERROR] Bad intersection type specified ($shortName). " +
-                    "Allowed values are: $IntersectionType.allowedNames"
-            System.exit(-1)
-        }
-        intersectionType
-    }
-} else {
-    intersectionTypes = I_TYPES_DEFAULT
+if (!intersectionType) {
+    println "[ERROR] Bad intersection type specified ($iName). " +
+            "Allowed values are: $IntersectionType.allowedNames"
+    System.exit(-1)
 }
 
 //
@@ -97,16 +89,14 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 // Perform intersection for all specified intersection types
 //
 
-intersectionTypes.each { IntersectionType intersectionType ->
-    println "[${new Date()} $scriptName] Intersecting by $intersectionType"
+println "[${new Date()} $scriptName] Intersecting by $intersectionType"
 
-    def intersectionUtil = new IntersectionUtil(intersectionType)
+def intersectionUtil = new IntersectionUtil(intersectionType)
 
-    def pairedIntersectionMatrix = intersectionUtil.intersectWithinCollection(sampleCollection, false, true)
+def pairedIntersectionMatrix = intersectionUtil.intersectWithinCollection(sampleCollection, false, true)
 
-    println "[${new Date()} $scriptName] Writing results"
+println "[${new Date()} $scriptName] Writing results"
 
-    new File(outputFileName + ".batch_intersect_" + intersectionType.shortName + ".txt").withPrintWriter { pw ->
-        pairedIntersectionMatrix.print(pw)
-    }
+new File(outputFileName + ".batch_intersect_" + intersectionType.shortName + ".txt").withPrintWriter { pw ->
+    pairedIntersectionMatrix.print(pw)
 }

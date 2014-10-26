@@ -17,13 +17,19 @@
 package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.parser.SampleWriter
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.RUtil
 
+def I_TYPE_DEFAULT = "aa"
 def cli = new CliBuilder(usage: "IntersectPair [options] sample1 sample2 output_prefix")
 cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
+cli.i(longOpt: "intersect-type", argName: "string", args: 1,
+        "Comma-separated list of intersection types to apply. " +
+                "Allowed values: $IntersectionType.allowedNames. " +
+                "Will use '$I_TYPE_DEFAULT' by default.")
 cli.c(longOpt: "collapse", argName: "int", args: 1,
         "Generate a collapsed overlap table for visualization purposes with a specified number of top clones.")
 cli.p(longOpt: "plot", "Generate a scatterplot to characterize overlapping clonotypes. " +
@@ -40,11 +46,22 @@ if (opt.h || opt.arguments().size() < 3) {
     System.exit(-1)
 }
 
-def software = Software.byName(opt.S),
+def software = Software.byName(opt.S), top = (int) ((opt.c ?: "-1").toInteger()),
     sample1FileName = opt.arguments()[0], sample2FileName = opt.arguments()[1],
     outputFilePrefix = opt.arguments()[2]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
+
+// Select intersection type
+
+def iName = opt.i ?: I_TYPE_DEFAULT
+def intersectionType = IntersectionType.byName(iName)
+
+if (!intersectionType) {
+    println "[ERROR] Bad intersection type specified ($iName). " +
+            "Allowed values are: $IntersectionType.allowedNames"
+    System.exit(-1)
+}
 
 //
 // Load samples
@@ -64,11 +81,8 @@ def sample1 = sampleCollection[0],
 
 println "[${new Date()} $scriptName] Intersecting"
 
-def intersectionUtil = new IntersectionUtil(IntersectionType.NucleotideV)
-
-def pairedIntersection = intersectionUtil.generatePairedIntersection(sample1, sample2)
-
-def timeCourse = pairedIntersection.asTimeCourse()
+def pairedIntersection = new PairedIntersectionSummary(sampleCollection.listPairs()[0], intersectionType)
+def jointSample = pairedIntersection.jointSample
 
 //
 // Generate and write output
@@ -77,59 +91,53 @@ def timeCourse = pairedIntersection.asTimeCourse()
 println "[${new Date()} $scriptName] Writing output"
 
 new File(outputFilePrefix + ".summary.txt").withPrintWriter { pw ->
-    // summary statistics: intersection size (count, freq and unique clonotypes)
-    // count correlation within intersected set
-    pw.println("#sample1_file\tsample2_file\t" + PairedIntersection.HEADER)
-    pw.println(sample1FileName + "\t" + sample2FileName + "\t" + pairedIntersection)
+    pw.println(pairedIntersection.header)
+    pw.println(pairedIntersection.row)
 }
 
-new File(outputFilePrefix + ".table.txt").withPrintWriter { pw ->
-    // all clonotypes in intersection
-    timeCourse.print(pw, true)
-}
+def sampleWriter = new SampleWriter(software)
+sampleWriter.write(jointSample, outputFilePrefix + ".table.txt")
 
-if (opt.c) {
-    // top clonotypes in intersection and non-overlapping clonotypes frequency
-    int top = (opt.c).toInteger()
-    def collapsedTimeCourse = timeCourse.collapseBelow(top)
+if (top >= 0)
+    sampleWriter.write(jointSample, outputFilePrefix + ".table_collapsed.txt", top, true)
 
-    new File(outputFilePrefix + ".table_collapsed.txt").withPrintWriter { pw ->
-        collapsedTimeCourse.print(pw, true)
-    }
-}
-
-def log = { double x ->
-    Math.log10(x + 1e-7)
-}
+//def log = { double x ->
+//    Math.log10(x + 1e-7)
+//}
 
 if (opt.p) {
-    def xyFile = new File(outputFilePrefix + ".xy.txt")
-    xyFile.withPrintWriter { pw ->
-        pw.println("x\ty")
-        timeCourse.each { pw.println(it.frequencies.collect { log(it) }.join("\t")) }
-    }
-    xyFile.deleteOnExit()
+    // todo: remake completely
+    /*
+     def xyFile = new File(outputFilePrefix + ".xy.txt")
+     xyFile.withPrintWriter { pw ->
+         pw.println("x\ty")
+         jointSample.each {
+             pw.println((0..1).collect { it.getFreq(0).collect { log(it) }.join("\t"))
+             }
+     }
+     xyFile.deleteOnExit()
 
-    def xxFile = new File(outputFilePrefix + ".xx.txt")
-    xxFile.withPrintWriter { pw ->
-        pw.println("xx")
-        sample1.each { pw.println(log(it.freq)) }
-    }
-    xxFile.deleteOnExit()
+     def xxFile = new File(outputFilePrefix + ".xx.txt")
+     xxFile.withPrintWriter { pw ->
+         pw.println("xx")
+         sample1.each { pw.println(log(it.freq)) }
+     }
+     xxFile.deleteOnExit()
 
-    def yyFile = new File(outputFilePrefix + ".yy.txt")
-    yyFile.withPrintWriter { pw ->
-        pw.println("yy")
-        sample2.each { pw.println(log(it.freq)) }
-    }
-    yyFile.deleteOnExit()
+     def yyFile = new File(outputFilePrefix + ".yy.txt")
+     yyFile.withPrintWriter { pw ->
+         pw.println("yy")
+         sample2.each { pw.println(log(it.freq)) }
+     }
+     yyFile.deleteOnExit()
 
-    RUtil.execute("intersect_pair_scatter.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
-            outputFilePrefix + ".xy.txt", outputFilePrefix + ".xx.txt", outputFilePrefix + ".yy.txt",
-            outputFilePrefix + ".scatter.pdf")
-
+     RUtil.execute("intersect_pair_scatter.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
+             outputFilePrefix + ".xy.txt", outputFilePrefix + ".xx.txt", outputFilePrefix + ".yy.txt",
+             outputFilePrefix + ".scatter.pdf")
+ */
     if (opt.c) {
         RUtil.execute("intersect_pair_area.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
-                outputFilePrefix + ".table_collapsed.txt", outputFilePrefix + ".difference.pdf")
+                outputFilePrefix + ".table_collapsed.txt", outputFilePrefix + ".difference.pdf",
+                Math.max(0, software.headerLineCount - 1).toString())
     }
 }

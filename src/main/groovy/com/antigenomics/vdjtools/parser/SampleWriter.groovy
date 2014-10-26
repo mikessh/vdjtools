@@ -32,96 +32,123 @@ class SampleWriter {
         this.header = ("$software.name-header-blank\n" * (software.headerLineCount - 1)) + software.printFields.join("\t")
     }
 
-    public void write(Sample sample, PrintWriter printWriter) {
-        write(sample, printWriter, -1, false)
+    public void write(Sample sample, String fileName) {
+        write(sample, fileName, -1, false)
     }
 
-    public void write(Sample sample, PrintWriter printWriter, int top, boolean collapse) {
-        top = top > sample.diversity || top < 0 ? sample.diversity : top
-        printWriter.println(header)
+    public void write(Sample sample, String fileName, int top, boolean collapse) {
+        new File(fileName).withPrintWriter { printWriter ->
+            top = top > sample.diversity || top < 0 ? sample.diversity : top
+            printWriter.println(header)
 
-        long count = 0
-        double freq = 0.0
+            long count = 0
+            double freq = 0.0
 
-        for (int i = 0; i < top; i++) {
-            def clonotype = sample[i]
+            for (int i = 0; i < top; i++) {
+                def clonotype = sample[i]
 
-            if (collapse) {
-                count += clonotype.count
-                freq += clonotype.freq
-            }
-
-            printWriter.println(software.printFields.collect {
-                clonotype."$it"
-            }.join("\t"))
-        }
-
-        if (collapse && top < sample.diversity) {
-            printWriter.println(software.printFields.collect {
-                if (it == "count")
-                    sample.count - count
-                else if (it == "freq")
-                    sample.freq - freq
-                else
-                    "COLLAPSED"
-            }.join("\t"))
-        }
-    }
-
-    public void write(JointSample jointSample, PrintWriter printWriter, int top, boolean collapse) {
-        top = top > jointSample.diversity || top < 0 ? jointSample.diversity : top
-
-        def ii = (0..<jointSample.numberOfSamples)
-
-        printWriter.println(header + "\t" +
-                ii.collect { jointSample.getSample(it).sampleMetadata.sampleId }.join("\t"))
-
-        long count = 0
-        double freq = 0.0
-        double[] freqArr = new double[jointSample.numberOfSamples]
-
-        for (int i = 0; i < top; i++) {
-            def jointClonotype = jointSample[i],
-                clonotype = jointClonotype.representative
-
-            if (collapse) {
-                count += jointClonotype.count
-                freq += jointClonotype.freq
-                ii.each {
-                    freqArr[it] += jointClonotype.getFreq(it)
+                if (collapse) {
+                    count += clonotype.count
+                    freq += clonotype.freq
                 }
+
+                printWriter.println(software.printFields.collect {
+                    clonotype."$it"
+                }.join("\t"))
             }
 
-            printWriter.println(
-                    [software.printFields.collect {
-                        if (it == "count")
-                            jointClonotype.count
-                        else if (it == "freq")
-                            jointClonotype.freq
-                        else
-                            clonotype."$it"
-                    },
-                     ii.collect {
-                         jointClonotype.getFreq(it)
-                     }].flatten().join("\t"))
+            if (collapse && top < sample.diversity) {
+                // Collapsed
+                printWriter.println(software.printFields.collect {
+                    if (it == "count")
+                        sample.count - count
+                    else if (it == "freq")
+                        sample.freq - freq
+                    else
+                        "NotShown"
+                }.join("\t"))
+            }
         }
+    }
 
-        if (collapse && top < jointSample.diversity) {
+    public void write(JointSample jointSample, String fileName, int top, boolean collapse) {
+        new File(fileName).withPrintWriter { printWriter ->
+            top = top > jointSample.diversity || top < 0 ? jointSample.diversity : top
+
+            def sampleIndices = (0..<jointSample.numberOfSamples)
+
+            printWriter.println(header + "\tpeak\t" +
+                    sampleIndices.collect { jointSample.getSample(it).sampleMetadata.sampleId }.join("\t"))
+
+            double collapsedMeanFreq = 0.0
+            double[] freqArr = new double[jointSample.numberOfSamples]
+
+            for (int i = 0; i < top; i++) {
+                def jointClonotype = jointSample[i],
+                    clonotype = jointClonotype.representative
+
+                if (collapse) {
+                    collapsedMeanFreq += jointClonotype.baseFreq
+                    sampleIndices.each { int j ->
+                        freqArr[j] += jointClonotype.getFreq(j)
+                    }
+                }
+
+                printWriter.println(
+                        [software.printFields.collect {
+                            if (it == "count")
+                                jointClonotype.count
+                            else if (it == "freq")
+                                jointClonotype.freq
+                            else
+                                clonotype."$it"
+                        },
+                         jointClonotype.peak,
+                         sampleIndices.collect { int j ->
+                             jointClonotype.getFreq(j)
+                         }].flatten().join("\t"))
+            }
+
+            if (collapse && top < jointSample.diversity) {
+                // Collapsed
+                def collapsedFreq = jointSample.totalMeanFreq - collapsedMeanFreq,
+                    collapsedFreqArr = sampleIndices.collect { int j ->
+                        jointSample.getIntersectionFreq(j) - freqArr[j]
+                    }
+                printWriter.println(
+                        [software.printFields.collect {
+                            if (it == "count")
+                                jointSample.calcCount(collapsedFreq)
+                            else if (it == "freq")
+                                jointSample.calcFreq(collapsedFreq)
+                            else
+                                "NotShown"
+                        },
+                         collapsedFreqArr.findIndexOf { it == collapsedFreqArr.max() },
+                         collapsedFreqArr
+                        ].flatten().join("\t"))
+            }
+
+            // Not in the overlap
+            def nonOverlappingFreqArr = sampleIndices.collect { int j ->
+                jointSample.getSample(j).freq - jointSample.getIntersectionFreq(j)
+            }
             printWriter.println(
                     [software.printFields.collect {
                         if (it == "count")
-                            jointSample.count - count
+                            0
                         else if (it == "freq")
-                            jointSample.freq - freq
+                            0.0
                         else
-                            "COLLAPSED"
+                            "NonOverlapping"
                     },
-                     freqArr[ii]
+                     nonOverlappingFreqArr.findIndexOf { it == nonOverlappingFreqArr.max() },
+                     nonOverlappingFreqArr
                     ].flatten().join("\t"))
         }
     }
 
-    public void write(JointSample jointSample, PrintWriter printWriter) {
-        write(jointSample, printWriter, -1, false)
+    public void write(JointSample jointSample, String fileName) {
+        write(jointSample, fileName, -1, false)
     }
 }

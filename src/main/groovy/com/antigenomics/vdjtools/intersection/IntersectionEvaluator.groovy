@@ -15,6 +15,7 @@ class IntersectionEvaluator {
     private final JointSample jointSample
     private SegmentUsage segmentUsageCache
     private final Spectratype[] spectratypeCache
+    private final Map<String, Double> metricCache = new HashMap<>()
 
     IntersectionEvaluator(JointSample jointSample) {
         this.jointSample = jointSample
@@ -39,8 +40,8 @@ class IntersectionEvaluator {
         segmentUsageCache
     }
 
-    public double computeIntersectionMetric(IntersectMetric metric,
-                                            int i, int j) {
+    private double _computeIntersectionMetric(IntersectMetric metric,
+                                              int i, int j) {
         switch (metric) {
             case IntersectMetric.Diversity:
                 def div1 = jointSample.getSample(i).diversity,
@@ -101,6 +102,16 @@ class IntersectionEvaluator {
             default:
                 throw new NotImplementedException()
         }
+    }
+
+
+    public double computeIntersectionMetric(IntersectMetric metric,
+                                            int i, int j) {
+        def key = [metric.shortName, i, j].join("_")
+        def value = metricCache[key]
+        if (!value)
+            metricCache.put(key, value = _computeIntersectionMetric(metric, i, j))
+        value
     }
 
     public double computeIntersectionMetric(IntersectMetric intersectMetric) {

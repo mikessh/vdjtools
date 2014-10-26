@@ -81,7 +81,7 @@ class SampleCollection implements Iterable<Sample> {
         this.metadataTable = new MetadataTable()
         sampleFileNames.each { String fileName ->
             if (new File(fileName).exists()) {
-                def sampleId = FilenameUtils.getBaseName(fileName)
+                def sampleId = FilenameUtils.getBaseName(FilenameUtils.getBaseName(fileName)) // for gzip
                 def sampleMetadata = metadataTable.createRow(sampleId)
                 sampleMap.put(sampleId, new SampleFileConnection(fileName, sampleMetadata, software, lazy, store))
             } else if (strict) {

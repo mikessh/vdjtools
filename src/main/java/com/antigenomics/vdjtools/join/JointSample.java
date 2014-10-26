@@ -79,7 +79,7 @@ public class JointSample implements Iterable<JointClonotype> {
             if (joinFilter.pass(jointClonotype)) {
                 jointClonotypes.add(jointClonotype);
 
-                double meanFreq = jointClonotype.getGeomeanFreq();
+                double meanFreq = jointClonotype.getBaseFreq();
                 totalMeanFreq += meanFreq;
                 minMeanFreq = Math.min(minMeanFreq, meanFreq);
 
@@ -170,12 +170,16 @@ public class JointSample implements Iterable<JointClonotype> {
         return intersectionType;
     }
 
-    double getTotalMeanFreq() {
+    public double getTotalMeanFreq() {
         return totalMeanFreq;
     }
 
-    double getMinMeanFreq() {
-        return minMeanFreq;
+    public double calcFreq(double meanFreq) {
+        return meanFreq / totalMeanFreq;
+    }
+
+    public int calcCount(double freq) {
+        return (int) (freq / minMeanFreq);
     }
 
     @Override

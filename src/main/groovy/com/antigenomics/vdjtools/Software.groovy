@@ -50,4 +50,6 @@ enum Software {
             throw new IllegalArgumentException("Unknown software $name")
         software
     }
+
+    static String allowedNames = values().collect { it.name }.join(",")
 }

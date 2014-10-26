@@ -9,17 +9,15 @@ import com.antigenomics.vdjtools.sample.SamplePair
  */
 class PairedIntersectionSummary {
     private final SamplePair samplePair
-    private final JointSample sampleJoin
-    private final IntersectionUtil intersectionUtil
+    private final JointSample jointSample
     private final IntersectionEvaluator intersectionEvaluator
     private final Map<IntersectMetric, Double> intersectMetricCache = new HashMap<>()
 
     PairedIntersectionSummary(SamplePair samplePair,
-                              IntersectionUtil intersectionUtil) {
+                              IntersectionType intersectionType) {
         this.samplePair = samplePair
-        this.intersectionUtil = intersectionUtil
-        this.sampleJoin = new JointSample(intersectionUtil, [samplePair[0], samplePair[1]] as Sample[])
-        this.intersectionEvaluator = new IntersectionEvaluator(sampleJoin)
+        this.jointSample = new JointSample(intersectionType, [samplePair[0], samplePair[1]] as Sample[])
+        this.intersectionEvaluator = new IntersectionEvaluator(jointSample)
     }
 
     public double getMetricValue(IntersectMetric intersectMetric) {
@@ -40,11 +38,11 @@ class PairedIntersectionSummary {
     }
 
     public double getDiv12() {
-        sampleJoin.diversity
+        jointSample.diversity
     }
 
     public double getDiv21() {
-        sampleJoin.diversity
+        jointSample.diversity
     }
 
     public long getCount1() {
@@ -56,11 +54,11 @@ class PairedIntersectionSummary {
     }
 
     public long getCount12() {
-        sampleJoin.getIntersectionCount(0, 1)
+        jointSample.getIntersectionCount(0, 1)
     }
 
     public long getCount21() {
-        sampleJoin.getIntersectionCount(1, 0)
+        jointSample.getIntersectionCount(1, 0)
     }
 
     public double getFreq1() {
@@ -72,10 +70,33 @@ class PairedIntersectionSummary {
     }
 
     public double getFreq12() {
-        sampleJoin.getIntersectionFreq(0, 1)
+        jointSample.getIntersectionFreq(0, 1)
     }
 
     public double getFreq21() {
-        sampleJoin.getIntersectionFreq(1, 0)
+        jointSample.getIntersectionFreq(1, 0)
+    }
+
+    JointSample getJointSample() {
+        return jointSample
+    }
+
+    private static final String[] OUTPUT_FIELDS = ["div1", "div2", "div12", "div21",
+                                            "count1", "count2", "count12", "count21",
+                                            "freq1", "freq2", "freq12", "freq21"]
+
+    public String getHeader() {
+        ["#sample_id1", "sample_id2",
+         OUTPUT_FIELDS.collect(), IntersectMetric.values().collect { it.shortName },
+         samplePair[0].sampleMetadata.parent.columnHeader1,
+         samplePair[0].sampleMetadata.parent.columnHeader2].flatten().join("\t")
+    }
+
+    public String getRow() {
+        [samplePair[0].sampleMetadata.sampleId,
+         samplePair[1].sampleMetadata.sampleId,
+         OUTPUT_FIELDS.collect { this."$it" }, IntersectMetric.values().collect { getMetricValue(it) },
+         samplePair[0].sampleMetadata.toString(),
+         samplePair[1].sampleMetadata.toString()].flatten().join("\t")
     }
 }

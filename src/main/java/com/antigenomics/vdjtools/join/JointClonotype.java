@@ -108,7 +108,7 @@ public class JointClonotype implements Comparable<JointClonotype> {
      *
      * @return
      */
-    double getGeomeanFreq() {
+    public double getBaseFreq() {
         if (meanFreq < 0) {
             meanFreq = 1;
             for (int i = 0; i < parent.getNumberOfSamples(); i++) {
@@ -127,7 +127,7 @@ public class JointClonotype implements Comparable<JointClonotype> {
      * @return
      */
     public double getFreq() {
-        return getGeomeanFreq() / parent.getTotalMeanFreq();
+        return parent.calcFreq(getBaseFreq());
     }
 
     /**
@@ -138,7 +138,7 @@ public class JointClonotype implements Comparable<JointClonotype> {
      * @return
      */
     public int getCount() {
-        return (int) (getFreq() / parent.getMinMeanFreq());
+        return parent.calcCount(getBaseFreq());
     }
 
     public boolean present(int sampleIndex) {
@@ -147,6 +147,6 @@ public class JointClonotype implements Comparable<JointClonotype> {
 
     @Override
     public int compareTo(JointClonotype o) {
-        return -Double.compare(this.getGeomeanFreq(), o.getGeomeanFreq());
+        return -Double.compare(this.getBaseFreq(), o.getBaseFreq());
     }
 }
