@@ -46,10 +46,6 @@ public class Sample implements Iterable<Clonotype> {
         Collections.sort(clonotypes);
     }
 
-    public double getFreq() {
-        return 1.0;
-    }
-
     public Sample(Sample toClone, ClonotypeFilter filter, int top) {
         this.sampleMetadata = toClone.sampleMetadata;
 
@@ -105,17 +101,15 @@ public class Sample implements Iterable<Clonotype> {
         return sampleMetadata;
     }
 
-    //todo: rename to total
+    public double getFreq() {
+        return 1.0;
+    }
 
     public long getCount() {
         return count;
     }
 
     public int getDiversity() {
-        return clonotypes.size();
-    }
-
-    public int size() {
         return clonotypes.size();
     }
 

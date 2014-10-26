@@ -17,8 +17,8 @@
 package com.antigenomics.vdjtools.intersection
 
 enum IntersectMetric {
-    // todo: check classes using vJSD metric
-    Correlation("R"), Diversity("D"), Frequency("F"), vJSD("vJSD")
+    Correlation("R"), Diversity("D"), Frequency("F"), Frequency2("F2"),
+    vJSD("vJSD"), vjJSD("vjJSD"), vj2JSD("vj2JSD"), sJSD("sJSD")
 
     private final String name
 
@@ -26,6 +26,7 @@ enum IntersectMetric {
         this.name = name
     }
 
+    @Deprecated
     double value(PairedIntersection pairedIntersection) {
         pairedIntersection."norm$name"
     }

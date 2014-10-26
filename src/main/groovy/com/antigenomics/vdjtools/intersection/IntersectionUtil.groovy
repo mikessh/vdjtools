@@ -18,10 +18,14 @@ package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.ClonotypeWrapper
+import com.antigenomics.vdjtools.basic.SegmentUsage
+import com.antigenomics.vdjtools.basic.Spectratype
+import com.antigenomics.vdjtools.join.JointSample
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.SamplePair
 import com.antigenomics.vdjtools.util.CommonUtil
+import com.antigenomics.vdjtools.util.MathUtil
 import groovyx.gpars.GParsPool
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
@@ -66,6 +70,7 @@ class IntersectionUtil {
                 return clonotype.cdr3aa
             case IntersectionType.Strict:
                 return clonotype.key
+            // todo: special key class, non-nucleotide
             default:
                 throw new NotImplementedException()
         }
@@ -351,7 +356,7 @@ class IntersectionUtil {
      * @param clonotype clonotype to wrap
      * @return wrapped clonotype
      */
-    public ClonotypeWrapper wrap(Clonotype clonotype) {
+    private ClonotypeWrapper wrap(Clonotype clonotype) {
         new ClonotypeHashWrapper(clonotype)
     }
 

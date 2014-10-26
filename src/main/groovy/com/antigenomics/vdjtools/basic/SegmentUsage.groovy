@@ -25,14 +25,22 @@ class SegmentUsage {
                                         jSegmentUsage = new HashMap<>(), vjSegmentUsage = new HashMap<>()
     private final Map<String, Integer> sampleIndex = new HashMap<>()
     private Map<String, Double> sortedVSegmTotal = new HashMap<>(), sortedJSegmTotal = new HashMap<>()
-    private final sampleCollection
+    private final int n
     private final boolean unweighted
 
     public SegmentUsage(SampleCollection sampleCollection, boolean unweighted) {
-        this.sampleCollection = sampleCollection
+        this.n = sampleCollection.size()
         this.unweighted = unweighted
         // ok to use in batch intersect as all samples are pre-loaded
         sampleCollection.eachWithIndex { it, ind -> process(it, ind) }
+        summarize()
+    }
+
+    public SegmentUsage(Sample[] samples, boolean unweighted) {
+        this.n = samples.length
+        this.unweighted = unweighted
+        // ok to use in batch intersect as all samples are pre-loaded
+        samples.eachWithIndex { it, ind -> process(it, ind) }
         summarize()
     }
 
@@ -44,13 +52,13 @@ class SegmentUsage {
                 vjArray = vjSegmentUsage[clonotype.v + "\t" + clonotype.j]
 
             if (!vArray)
-                vSegmentUsage.put(clonotype.v, vArray = new double[sampleCollection.size()])
+                vSegmentUsage.put(clonotype.v, vArray = new double[n])
 
             if (!jArray)
-                jSegmentUsage.put(clonotype.j, jArray = new double[sampleCollection.size()])
+                jSegmentUsage.put(clonotype.j, jArray = new double[n])
 
             if (!vjArray)
-                vjSegmentUsage.put(clonotype.v + "\t" + clonotype.j, vjArray = new double[sampleCollection.size()])
+                vjSegmentUsage.put(clonotype.v + "\t" + clonotype.j, vjArray = new double[n])
 
             def increment = unweighted ? 1 : clonotype.freq
 
@@ -73,51 +81,51 @@ class SegmentUsage {
     }
 
     public double[] jUsageVector(String sampleId) {
-        if (!sampleIndex.containsKey(sampleId))
-            throw new IllegalArgumentException("$sampleId is not in the sample collection used to build usage matrix")
-        def index = sampleIndex[sampleId]
-        def sampleTotal = jSegmentUsage.values().collect { it[index] }.sum()
-        sortedJSegmTotal.collect {
-            jSegmentUsage[it.key][index] / (sampleTotal + 1e-7)
-        } as double[]
+        jUsageVector(getSampleIndex(sampleId))
+    }
+
+    public double[] jUsageVector(int sampleIndex) {
+        usageVector(jSegmentUsage, sortedJSegmTotal, sampleIndex)
     }
 
     public double[] vUsageVector(String sampleId) {
-        if (!sampleIndex.containsKey(sampleId))
-            throw new IllegalArgumentException("$sampleId is not in the sample collection used to build usage matrix")
-        def index = sampleIndex[sampleId]
-        def sampleTotal = vSegmentUsage.values().collect { it[index] }.sum()
-        sortedVSegmTotal.collect {
-            vSegmentUsage[it.key][index] / (sampleTotal + 1e-7)
+        vUsageVector(getSampleIndex(sampleId))
+    }
+
+    public double[] vUsageVector(int sampleIndex) {
+        usageVector(vSegmentUsage, sortedVSegmTotal, sampleIndex)
+    }
+
+    private int getSampleIndex(String sampleId) {
+        if (!this.sampleIndex.containsKey(sampleId))
+            throw new IllegalArgumentException("$sampleId is not in the sample collection used to build segment usage matrix")
+        this.sampleIndex[sampleId]
+    }
+
+    private static double[] usageVector(Map<String, double[]> usageMap, Map<String, Double> totalMap, int sampleIndex) {
+        def sampleTotal = usageMap.values().collect { it[sampleIndex] }.sum()
+        totalMap.collect {
+            usageMap[it.key][sampleIndex] / (double) (sampleTotal + 1e-7)
         } as double[]
     }
 
     public double[][] vjUsageMatrix(String sampleId) {
-        if (!sampleIndex.containsKey(sampleId))
-            throw new IllegalArgumentException("$sampleId is not in the sample collection used to build usage matrix")
-        def index = sampleIndex[sampleId]
+        vjUsageMatrix(getSampleIndex(sampleId))
+    }
 
-        double sampleTotal = (double)jSegmentUsage.values().collect { it[index] }.sum()
+    public double[][] vjUsageMatrix(int sampleIndex) {
+        double sampleTotal = (double) jSegmentUsage.values().collect { it[sampleIndex] }.sum()
 
         def matrix = new double[jSegmentUsage.size()][vSegmentUsage.size()]
 
         sortedJSegmTotal.eachWithIndex { jEntry, ii ->
             sortedVSegmTotal.eachWithIndex { vEntry, jj ->
                 def v = vEntry.key, j = jEntry.key, vj = v + "\t" + j
-                matrix[ii][jj] = vjSegmentUsage.containsKey(vj) ? (vjSegmentUsage[vj][index] / sampleTotal) : 0d
+                matrix[ii][jj] = vjSegmentUsage.containsKey(vj) ? (vjSegmentUsage[vj][sampleIndex] / sampleTotal) : 0d
             }
         }
 
         matrix
-    }
-
-    public double vJSD(String sampleId1, String sampleId2) {
-        double[] p = vUsageVector(sampleId1), q = vUsageVector(sampleId2)
-
-        (0..<p.length).collect { int i ->
-            double m = (p[i] + q[i]) / 2.0
-            (p[i] > 0 ? (Math.log(p[i] / m) * p[i]) : 0d) + (q[i] > 0 ? (Math.log(q[i] / m) * q[i]) : 0d)
-        }.sum() / 2.0 / Math.log(2.0)
     }
 
     public String[] jUsageHeader() {

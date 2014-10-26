@@ -18,6 +18,7 @@ package com.antigenomics.vdjtools.basic
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.sample.Sample
 
 class Spectratype {
     private final boolean aminoAcid, unweighted
@@ -29,6 +30,16 @@ class Spectratype {
 
     private int count = 0
     private double freq = 0
+
+    public Spectratype(Sample sample, boolean aminoAcid, boolean unweighted) {
+        this(aminoAcid, unweighted)
+        addAll(sample)
+    }
+
+    public Spectratype(Sample sample, IntersectionType intersectionType, boolean unweighted) {
+        this(intersectionType.aminoAcid, unweighted)
+        addAll(sample)
+    }
 
     public Spectratype(IntersectionType intersectionType, boolean unweighted) {
         this(intersectionType.aminoAcid, unweighted)

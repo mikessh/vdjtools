@@ -26,11 +26,14 @@ public class JointSample implements Iterable<JointClonotype> {
     private final Sample[] samples;
     private final double[] intersectionFreq;
     private final double[][] intersectionFreqMatrix;
+    private final long[] intersectionCount;
+    private final long[][] intersectionCountMatrix;
     private final int[] intersectionDiv;
     private final int[][] intersectionDivMatrix;
     private final List<JointClonotype> jointClonotypes;
     private final double totalMeanFreq, minMeanFreq;
     private final int numberOfSamples;
+    private final int count;
     private final IntersectionUtil intersectionUtil;
 
     public JointSample(IntersectionUtil intersectionUtil, Sample[] samples) {
@@ -43,6 +46,8 @@ public class JointSample implements Iterable<JointClonotype> {
         this.intersectionDiv = new int[numberOfSamples];
         this.intersectionFreq = new double[numberOfSamples];
         this.intersectionFreqMatrix = new double[numberOfSamples][numberOfSamples];
+        this.intersectionCount = new long[numberOfSamples];
+        this.intersectionCountMatrix = new long[numberOfSamples][numberOfSamples];
         this.intersectionDivMatrix = new int[numberOfSamples][numberOfSamples];
         this.intersectionUtil = intersectionUtil;
 
@@ -66,6 +71,7 @@ public class JointSample implements Iterable<JointClonotype> {
         this.jointClonotypes = new ArrayList<>(clonotypeMap.size() / 2);
 
         double totalMeanFreq = 0, minMeanFreq = 1;
+        int count = 0;
         for (JointClonotype jointClonotype : clonotypeMap.values()) {
             if (joinFilter.pass(jointClonotype)) {
                 jointClonotypes.add(jointClonotype);
@@ -76,13 +82,24 @@ public class JointSample implements Iterable<JointClonotype> {
 
                 for (int i = 0; i < numberOfSamples; i++) {
                     if (jointClonotype.present(i)) {
+                        count += jointClonotype.getCount(i);
+
                         double freq1 = jointClonotype.getFreq(i);
+                        int count1 = jointClonotype.getCount(i);
+
+                        intersectionCount[i] += count1;
                         intersectionFreq[i] += freq1;
                         intersectionDiv[i]++;
+
                         for (int j = i + 1; j < numberOfSamples; j++) {
                             if (jointClonotype.present(j)) {
                                 double freq2 = jointClonotype.getFreq(j);
-                                intersectionFreqMatrix[i][j] += Math.sqrt(freq1 * freq2);
+                                int count2 = jointClonotype.getCount(j);
+
+                                intersectionFreqMatrix[i][j] += freq1;
+                                intersectionFreqMatrix[j][i] += freq2;
+                                intersectionCountMatrix[i][j] += count1;
+                                intersectionCountMatrix[j][i] += count2;
                                 intersectionDivMatrix[i][j]++;
                             }
                         }
@@ -92,6 +109,7 @@ public class JointSample implements Iterable<JointClonotype> {
         }
         this.totalMeanFreq = totalMeanFreq;
         this.minMeanFreq = minMeanFreq;
+        this.count = count;
 
         Collections.sort(jointClonotypes);
     }
@@ -104,8 +122,16 @@ public class JointSample implements Iterable<JointClonotype> {
         return samples[sampleIndex];
     }
 
-    public int size() {
+    public double getFreq() {
+        return 1.0;
+    }
+
+    public int getDiversity() {
         return jointClonotypes.size();
+    }
+
+    public int getCount() {
+        return count;
     }
 
     public JointClonotype getAt(int index) {
@@ -126,8 +152,15 @@ public class JointSample implements Iterable<JointClonotype> {
     }
 
     public double getIntersectionFreq(int sampleIndex1, int sampleIndex2) {
-        return sampleIndex1 < sampleIndex2 ? intersectionFreqMatrix[sampleIndex1][sampleIndex2] :
-                intersectionFreqMatrix[sampleIndex2][sampleIndex1];
+        return intersectionFreqMatrix[sampleIndex1][sampleIndex2];
+    }
+
+    public long getIntersectionCount(int sampleIndex) {
+        return intersectionCount[sampleIndex];
+    }
+
+    public long getIntersectionCount(int sampleIndex1, int sampleIndex2) {
+        return intersectionCountMatrix[sampleIndex1][sampleIndex2];
     }
 
     public IntersectionUtil getIntersectionUtil() {

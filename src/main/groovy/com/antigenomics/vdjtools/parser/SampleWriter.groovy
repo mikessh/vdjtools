@@ -37,7 +37,7 @@ class SampleWriter {
     }
 
     public void write(Sample sample, PrintWriter printWriter, int top) {
-        top = top > sample.size() || top < 0 ? sample.size() : top
+        top = top > sample.diversity || top < 0 ? sample.diversity : top
         printWriter.println(header)
 
         for (int i = 0; i < top; i++) {
@@ -50,7 +50,7 @@ class SampleWriter {
     }
 
     public void write(JointSample jointSample, PrintWriter printWriter, int top) {
-        top = top > jointSample.size() || top < 0 ? jointSample.size() : top
+        top = top > jointSample.diversity || top < 0 ? jointSample.diversity : top
 
         def ii = (0..<jointSample.numberOfSamples)
 
