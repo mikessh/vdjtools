@@ -37,4 +37,28 @@ class MathUtil {
             }
         }
     }
+
+    public static double JSD(double[] pArr, double[] qArr) {
+        int n = pArr.length
+
+        if (n != qArr.length)
+            throw new Exception("Input histograms must be of same length")
+
+        double pSum = 0, qSum = 0
+
+        for (int i = 0; i < n; i++) {
+            pSum += pArr[i]
+            qSum += qArr[i]
+        }
+
+        double jsd = 0
+        for (int i = 0; i < n; i++) {
+            double p = pArr[i] / pSum, q = qArr[i] / qSum,
+                   m = (p + q) / 2.0
+            jsd += (p > 0 ? (Math.log(p / m) * p) : 0d) + (q > 0 ? (Math.log(q / m) * q) : 0d)
+        }
+
+
+        jsd / 2.0 / Math.log(2.0)
+    }
 }

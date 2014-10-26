@@ -57,6 +57,7 @@ class RUtil {
     }
 
     static void installPackages() {
+        // todo: automatic
         def packages = REQUIRED_PACKAGES.collect { "\"$it\"" }.join(",")
         execute("-e", "\"install.packages($packages)\"")
     }

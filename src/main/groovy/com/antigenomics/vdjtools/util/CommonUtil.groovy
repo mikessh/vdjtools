@@ -210,7 +210,6 @@ class CommonUtil {
         left + sequence.substring(from, to) + right
     }
 
-
     /**
      * Bring V/D/J alleles to unified look
      */
