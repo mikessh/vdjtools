@@ -20,25 +20,25 @@ import com.antigenomics.vdjtools.sample.SampleCollection
 
 class PairedIntersectionMatrix {
     public final IntersectionUtil intersectionUtil
-    private final List<PairedIntersection> pairedIntersections
-    private final PairedIntersection[][] intersectionMatrix
+    private final List<PairedIntersectionTmp> pairedIntersections
+    private final PairedIntersectionTmp[][] intersectionMatrix
     private final SampleCollection parentCollection
     private final int n
 
     PairedIntersectionMatrix(SampleCollection parentCollection,
-                             List<PairedIntersection> pairedIntersections,
+                             List<PairedIntersectionTmp> pairedIntersections,
                              IntersectionUtil intersectionUtil) {
         this.intersectionUtil = intersectionUtil
         this.pairedIntersections = pairedIntersections
         this.parentCollection = parentCollection
         this.n = parentCollection.size()
-        this.intersectionMatrix = new PairedIntersection[n][n]
+        this.intersectionMatrix = new PairedIntersectionTmp[n][n]
         pairedIntersections.each {
             intersectionMatrix[it.parent.i][it.parent.j] = it
         }
     }
 
-    PairedIntersection getAt(int i, int j) {
+    PairedIntersectionTmp getAt(int i, int j) {
         if (i >= j || j >= n)
             throw new IllegalArgumentException("i < j < $n required")
         intersectionMatrix[i][j]
@@ -99,11 +99,11 @@ class PairedIntersectionMatrix {
     void print(PrintWriter pw, boolean header = true) {
         if (header)
             pw.println("#" +
-                    [PairedIntersection.HEADER,
+                    [PairedIntersectionTmp.HEADER,
                      parentCollection.metadataTable.columnHeader1,
                      parentCollection.metadataTable.columnHeader2].flatten().join("\t").trim())
 
-        pairedIntersections.each { PairedIntersection pairedIntersection ->
+        pairedIntersections.each { PairedIntersectionTmp pairedIntersection ->
             pw.println([pairedIntersection.toString(),
                         pairedIntersection.sample1.sampleMetadata.toString(),
                         pairedIntersection.sample2.sampleMetadata.toString()].join("\t").trim())

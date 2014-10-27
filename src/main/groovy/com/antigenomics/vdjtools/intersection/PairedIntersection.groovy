@@ -1,176 +1,160 @@
-/**
- Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- */
-
 package com.antigenomics.vdjtools.intersection
 
-import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.join.JointSample
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SamplePair
-import com.antigenomics.vdjtools.timecourse.DynamicClonotype
-import com.antigenomics.vdjtools.timecourse.TimeCourse
+import com.antigenomics.vdjtools.util.ExecUtil
 
+/**
+ * Created by mikesh on 10/26/14.
+ */
 class PairedIntersection {
-    final SamplePair parent
+    public static boolean VERBOSE = true
 
-    final int div12, count12, count21
-    final double freq, freq12, freq21, freq12e, freq21e, freq12p, freq21p
+    private final SamplePair samplePair
+    private final JointSample jointSample
+    private final IntersectionEvaluator intersectionEvaluator
+    private final Map<IntersectMetric, Double> intersectMetricCache
+    private final Collection<IntersectMetric> intersectMetrics
+    public final int div1, div2, div12, div21, count1, count2, count12, count21
+    public final double freq1, freq2, freq12, freq21
+    private final boolean store
+    private final String header1, header2,
+                         id1, id2, meta1, meta2
 
-    private final List<Clonotype> clonotypes12, clonotypes21
-    private final double r, vJSD
-
-    PairedIntersection(SamplePair parent,
-                       int div12, int count12, int count21,
-                       double freq,
-                       double freq12, double freq21,
-                       double freq12e, double freq21e,
-                       double freq12p, double freq21p,
-                       double r, double vJSD,
-                       List<Clonotype> clonotypes12, List<Clonotype> clonotypes21) {
-        this.parent = parent
+    private PairedIntersection(SamplePair samplePair, JointSample jointSample, IntersectionEvaluator intersectionEvaluator,
+                               Collection<IntersectMetric> intersectMetrics, Map<IntersectMetric, Double> intersectMetricCache,
+                               int div1, int div2, int div12, int div21,
+                               int count1, int count2, int count12, int count21,
+                               double freq1, double freq2, double freq12, double freq21,
+                               String header1, String header2, String id1, String id2, String meta1, String meta2,
+                               boolean store) {
+        this.samplePair = samplePair
+        this.jointSample = jointSample
+        this.intersectionEvaluator = intersectionEvaluator
+        this.intersectMetrics = intersectMetrics
+        this.intersectMetricCache = intersectMetricCache
+        this.div1 = div1
+        this.div2 = div2
         this.div12 = div12
+        this.div21 = div21
+        this.count1 = count1
+        this.count2 = count2
         this.count12 = count12
         this.count21 = count21
-        this.freq = freq
+        this.freq1 = freq1
+        this.freq2 = freq2
         this.freq12 = freq12
         this.freq21 = freq21
-        this.freq12e = freq12e
-        this.freq21e = freq21e
-        this.freq12p = freq12p
-        this.freq21p = freq21p
-        this.r = r
-        this.vJSD = vJSD
-        this.clonotypes12 = clonotypes12
-        this.clonotypes21 = clonotypes21
+        this.header1 = header1
+        this.header2 = header2
+        this.id1 = id1
+        this.id2 = id2
+        this.meta1 = meta1
+        this.meta2 = meta2
+        this.store = store
     }
 
-    /**
-     * Gets the correlation between log-frequencies of clonotypes that were detected in both samples
-     * @return correlation
-     */
-    double getR() {
-        r
-        // lazy compute
-        //r ?: (r = SampleUtil.correlation(clonotypes12, clonotypes21))
+    public PairedIntersection(SamplePair samplePair, IntersectionType intersectionType) {
+        this(samplePair, intersectionType, false)
     }
 
-    double getNormR() {
-        (1 + r) / 2
+    public PairedIntersection(SamplePair samplePair, IntersectionType intersectionType, boolean store) {
+        this(samplePair, intersectionType, store, IntersectMetric.values())
     }
 
-    /**
-     * Gets the sum of geometric means of clonotype frequencies in paired intersection
-     * @return normalized frequency
-     */
-    double getF() {
-        freq//Math.sqrt(freq12 * freq21)
+    public PairedIntersection(SamplePair samplePair,
+                       IntersectionType intersectionType,
+                       boolean store,
+                       Collection<IntersectMetric> intersectMetrics) {
+        this.store = store
+        this.samplePair = store ? samplePair : null
+        ExecUtil.report(this, "Intersecting samples #${samplePair.i} and ${samplePair.j}", VERBOSE)
+        def jointSample = new JointSample(intersectionType, [samplePair[0], samplePair[1]] as Sample[])
+        this.jointSample = store ? jointSample : null
+        this.intersectionEvaluator = new IntersectionEvaluator(jointSample)
+        this.intersectMetrics = intersectMetrics
+        this.intersectMetricCache = new HashMap<>()
+
+        intersectMetrics.each {
+            intersectMetricCache.put(it, intersectionEvaluator.computeIntersectionMetric(it))
+        }
+
+        this.div1 = samplePair[0].diversity
+        this.div2 = samplePair[1].diversity
+        this.div12 = jointSample.diversity
+        this.div21 = div12
+        this.count1 = samplePair[0].count
+        this.count2 = samplePair[1].count
+        this.count12 = jointSample.getIntersectionCount(0, 1)
+        this.count21 = jointSample.getIntersectionCount(1, 0)
+        this.freq1 = samplePair[0].freq
+        this.freq2 = samplePair[1].freq
+        this.freq12 = jointSample.getIntersectionFreq(0, 1)
+        this.freq21 = jointSample.getIntersectionFreq(1, 0)
+
+        this.header1 = samplePair[0].sampleMetadata.parent.columnHeader1
+        this.header2 = samplePair[0].sampleMetadata.parent.columnHeader2
+        this.id1 = samplePair[0].sampleMetadata.sampleId
+        this.id2 = samplePair[1].sampleMetadata.sampleId
+        this.meta1 = samplePair[0].sampleMetadata.toString()
+        this.meta2 = samplePair[1].sampleMetadata.toString()
     }
 
-    double getNormF() {
-        getF()
+    public double getMetricValue(IntersectMetric intersectMetric) {
+        def value = intersectMetricCache[intersectMetric]
+        if (!value) {
+            if (!store)
+                throw new Exception("Cannot provided value for ${intersectMetric.shortName} as " +
+                        "\$store=false and the value is not precomputed")
+            else
+                intersectMetricCache.put(intersectMetric,
+                        value = intersectionEvaluator.computeIntersectionMetric(intersectMetric))
+        }
+        value
     }
 
-    /**
-     * Gets the diversity of intersection, normalized to its expected value
-     * @return normalized diversity
-     */
-    double getD() {
-        div12 / Math.sqrt((double) div1 * (double) div2)
+    public Sample getSample1() {
+        if (!store)
+            throw new Exception("Cannot access this property as \$store=false")
+        samplePair[0]
     }
 
-    double getNormD() {
-        def maxValue = div1 < div2 ? Math.sqrt(div1 / div2) : Math.sqrt(div2 / div1)
-        getD() / maxValue
+    public Sample getSample2() {
+        if (!store)
+            throw new Exception("Cannot access this property as \$store=false")
+        samplePair[1]
     }
 
-    double getVJSD() {
-        vJSD
+    public JointSample getJointSample() {
+        if (!store)
+            throw new Exception("Cannot access this property as \$store=false")
+        jointSample
     }
 
-    double getNormVJSD() {
-        vJSD
+    public static final String[] OUTPUT_FIELDS = ["div1", "div2", "div12", "div21",
+                                                  "count1", "count2", "count12", "count21",
+                                                  "freq1", "freq2", "freq12", "freq21"]
+
+    public PairedIntersection getReverse() {
+        new PairedIntersection(store ? samplePair.reverse : null, store ? jointSample.reverse : null,
+                intersectionEvaluator, intersectMetrics, intersectMetricCache,
+                div2, div1, div21, div12,
+                count2, count1, count21, count12,
+                freq2, freq1, freq21, freq12,
+                header1, header2, id2, id1, meta2, meta1,
+                store)
     }
 
-    @Deprecated
-    TimeCourse asTimeCourse() {
-        def dynamicClonotypes = new ArrayList<DynamicClonotype>()
-        for (int i = 0; i < div12; i++)
-            dynamicClonotypes.add(new DynamicClonotype([clonotypes12[i], clonotypes21[i]] as Clonotype[]))
-        def samples = [sample1, sample2] as Sample[]
-        new TimeCourse(samples, dynamicClonotypes)
+    public String getHeader() {
+        ["#sample_id1", "sample_id2",
+         OUTPUT_FIELDS.collect(), intersectMetrics.collect { it.shortName },
+         header1, header2].flatten().join("\t")
     }
 
-    List<Clonotype> getClonotypes12() {
-        return clonotypes12
-    }
-
-    List<Clonotype> getClonotypes21() {
-        return clonotypes21
-    }
-
-    Sample getSample1() {
-        parent[0]
-    }
-
-    Sample getSample2() {
-        parent[1]
-    }
-
-    int getDiv1() {
-        sample1.diversity
-    }
-
-    int getDiv2() {
-        sample2.diversity
-    }
-
-    int getCount1() {
-        sample1.count
-    }
-
-    int getCount2() {
-        sample2.count
-    }
-
-    double getFreq1() {
-        sample1.freq
-    }
-
-    double getFreq2() {
-        sample2.freq
-    }
-
-    //
-    // Print
-    //
-
-    final static String HEADER = "1_sample_id\t2_sample_id\t" +
-            "div1\tdiv2\tdiv12\t" +
-            "count1\tcount2\tcount12\tcount21\t" +
-            "freq1\tfreq2\tfreq12\tfreq21\t" +
-            "freq12e\tfreq21e\tfreq12p\tfreq21p\t" +
-            "vJSD\tF\tD\tR"
-
-    @Override
-    String toString() {
-        [sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
-         div1, div2, div12,
-         count1, count2, count12, count21,
-         freq1, freq2, freq12, freq21,
-         freq12e, freq21e, freq12p, freq21p,
-         getNormVJSD(), getNormF(), getNormD(), getNormR()].join("\t")
+    public String getRow() {
+        [id1, id2,
+         OUTPUT_FIELDS.collect { this."$it" }, intersectMetrics.collect { intersectMetricCache[it] },
+         meta1, meta2].flatten().join("\t")
     }
 }

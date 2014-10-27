@@ -30,6 +30,17 @@ public class JointClonotype implements Comparable<JointClonotype> {
     private Clonotype representative = null;
     private double meanFreq = -1;
 
+    private JointClonotype(JointSample parent,
+                           List[] variantsBySample, int[] counts,
+                           int peak, Clonotype representative, double meanFreq) {
+        this.parent = parent;
+        this.variantsBySample = variantsBySample;
+        this.counts = counts;
+        this.peak = peak;
+        this.representative = representative;
+        this.meanFreq = meanFreq;
+    }
+
     public JointClonotype(JointSample parent) {
         this.parent = parent;
         this.variantsBySample = new List[parent.getNumberOfSamples()];
@@ -58,13 +69,14 @@ public class JointClonotype implements Comparable<JointClonotype> {
                 }
             }
         }
-        return peak;
+        return parent.getIndex(peak);
     }
 
     public Clonotype getRepresentative() {
         if (representative == null) {
             int max = 0;
-            for (Object o : variantsBySample[getPeak()]) {
+            getPeak();
+            for (Object o : variantsBySample[peak]) {
                 Clonotype clonotype = (Clonotype) o;
                 if (clonotype.getCount() > max) {
                     max = clonotype.getCount();
@@ -76,11 +88,11 @@ public class JointClonotype implements Comparable<JointClonotype> {
     }
 
     public int getNumberOfVariants(int sampleIndex) {
-        return variantsBySample[sampleIndex].size();
+        return variantsBySample[parent.getIndex(sampleIndex)].size();
     }
 
     public int getCount(int sampleIndex) {
-        return counts[sampleIndex];
+        return counts[parent.getIndex(sampleIndex)];
     }
 
     /**
@@ -142,7 +154,11 @@ public class JointClonotype implements Comparable<JointClonotype> {
     }
 
     public boolean present(int sampleIndex) {
-        return counts[sampleIndex] > 0;
+        return counts[parent.getIndex(sampleIndex)] > 0;
+    }
+
+    JointClonotype changeParent(JointSample newParent) {
+        return new JointClonotype(newParent, variantsBySample, counts, peak, representative, meanFreq);
     }
 
     @Override

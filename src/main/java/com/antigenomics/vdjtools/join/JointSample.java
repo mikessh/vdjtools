@@ -36,6 +36,31 @@ public class JointSample implements Iterable<JointClonotype> {
     private final int numberOfSamples;
     private final int count;
     private final IntersectionType intersectionType;
+    private final boolean reverse;
+
+    private JointSample(Sample[] samples,
+                        double[] intersectionFreq, double[][] intersectionFreqMatrix,
+                        long[] intersectionCount, long[][] intersectionCountMatrix,
+                        int[] intersectionDiv, int[][] intersectionDivMatrix,
+                        List<JointClonotype> jointClonotypes,
+                        double totalMeanFreq, double minMeanFreq,
+                        int numberOfSamples, int count,
+                        IntersectionType intersectionType, boolean reverse) {
+        this.samples = samples;
+        this.intersectionFreq = intersectionFreq;
+        this.intersectionFreqMatrix = intersectionFreqMatrix;
+        this.intersectionCount = intersectionCount;
+        this.intersectionCountMatrix = intersectionCountMatrix;
+        this.intersectionDiv = intersectionDiv;
+        this.intersectionDivMatrix = intersectionDivMatrix;
+        this.jointClonotypes = jointClonotypes;
+        this.totalMeanFreq = totalMeanFreq;
+        this.minMeanFreq = minMeanFreq;
+        this.numberOfSamples = numberOfSamples;
+        this.count = count;
+        this.intersectionType = intersectionType;
+        this.reverse = reverse;
+    }
 
     public JointSample(IntersectionType intersectionType, Sample[] samples) {
         this(intersectionType, samples, new OccurenceJoinFilter());
@@ -51,6 +76,7 @@ public class JointSample implements Iterable<JointClonotype> {
         this.intersectionCountMatrix = new long[numberOfSamples][numberOfSamples];
         this.intersectionDivMatrix = new int[numberOfSamples][numberOfSamples];
         this.intersectionType = intersectionType;
+        this.reverse = false;
 
         ClonotypeKeyGen clonotypeKeyGen = new ClonotypeKeyGen(intersectionType);
 
@@ -122,7 +148,7 @@ public class JointSample implements Iterable<JointClonotype> {
     }
 
     public Sample getSample(int sampleIndex) {
-        return samples[sampleIndex];
+        return samples[getIndex(sampleIndex)];
     }
 
     public double getFreq() {
@@ -138,11 +164,12 @@ public class JointSample implements Iterable<JointClonotype> {
     }
 
     public JointClonotype getAt(int index) {
-        return jointClonotypes.get(index);
+        JointClonotype jointClonotype = jointClonotypes.get(index);
+        return reverse ? jointClonotype.changeParent(this) : jointClonotype;
     }
 
     public int getIntersectionDiv(int sampleIndex) {
-        return intersectionDiv[sampleIndex];
+        return intersectionDiv[getIndex(sampleIndex)];
     }
 
     public int getIntersectionDiv(int sampleIndex1, int sampleIndex2) {
@@ -151,19 +178,19 @@ public class JointSample implements Iterable<JointClonotype> {
     }
 
     public double getIntersectionFreq(int sampleIndex) {
-        return intersectionFreq[sampleIndex];
+        return intersectionFreq[getIndex(sampleIndex)];
     }
 
     public double getIntersectionFreq(int sampleIndex1, int sampleIndex2) {
-        return intersectionFreqMatrix[sampleIndex1][sampleIndex2];
+        return intersectionFreqMatrix[getIndex(sampleIndex1)][getIndex(sampleIndex2)];
     }
 
     public long getIntersectionCount(int sampleIndex) {
-        return intersectionCount[sampleIndex];
+        return intersectionCount[getIndex(sampleIndex)];
     }
 
     public long getIntersectionCount(int sampleIndex1, int sampleIndex2) {
-        return intersectionCountMatrix[sampleIndex1][sampleIndex2];
+        return intersectionCountMatrix[getIndex(sampleIndex1)][getIndex(sampleIndex2)];
     }
 
     public IntersectionType getIntersectionType() {
@@ -182,6 +209,10 @@ public class JointSample implements Iterable<JointClonotype> {
         return (int) (freq / minMeanFreq);
     }
 
+    int getIndex(int sampleIndex) {
+        return reverse ? (numberOfSamples - sampleIndex - 1) : sampleIndex;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -189,16 +220,45 @@ public class JointSample implements Iterable<JointClonotype> {
 
         JointSample that = (JointSample) o;
 
-        return Arrays.equals(samples, that.samples);
+        return Arrays.equals(samples, that.samples) && reverse == that.reverse;
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(samples);
+        return 31 * Arrays.hashCode(samples) + Boolean.hashCode(reverse);
     }
 
     @Override
     public Iterator<JointClonotype> iterator() {
-        return jointClonotypes.iterator();
+        final Iterator<JointClonotype> iterator = jointClonotypes.iterator();
+
+        if (reverse) {
+            return new Iterator<JointClonotype>() {
+                @Override
+                public boolean hasNext() {
+                    return iterator.hasNext();
+                }
+
+                @Override
+                public JointClonotype next() {
+                    return iterator.next().changeParent(JointSample.this);
+                }
+            };
+        }
+
+        return iterator;
+    }
+
+    public JointSample getReverse() throws Exception {
+        if (reverse)
+            throw new Exception("Already reversed, for the sake of performance multiple reverse is disabled");
+
+        return new JointSample(samples,
+                intersectionFreq, intersectionFreqMatrix,
+                intersectionCount, intersectionCountMatrix,
+                intersectionDiv, intersectionDivMatrix,
+                jointClonotypes,
+                totalMeanFreq, minMeanFreq,
+                numberOfSamples, count, intersectionType, true);
     }
 }

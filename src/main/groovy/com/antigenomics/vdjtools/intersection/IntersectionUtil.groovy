@@ -18,14 +18,10 @@ package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.ClonotypeWrapper
-import com.antigenomics.vdjtools.basic.SegmentUsage
-import com.antigenomics.vdjtools.basic.Spectratype
-import com.antigenomics.vdjtools.join.JointSample
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.SamplePair
 import com.antigenomics.vdjtools.util.CommonUtil
-import com.antigenomics.vdjtools.util.MathUtil
 import groovyx.gpars.GParsPool
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
@@ -98,15 +94,15 @@ class IntersectionUtil {
         def pairs = sampleCollection.listPairs()
         def counter = new AtomicInteger()
 
-        Collection<PairedIntersection> results = null
+        Collection<PairedIntersectionTmp> results = null
 
         GParsPool.withPool CommonUtil.THREADS, {
-            results = (Collection<PairedIntersection>) pairs.collectParallel { SamplePair pair ->
+            results = (Collection<PairedIntersectionTmp>) pairs.collectParallel { SamplePair pair ->
                 def pairedIntersection = generatePairedIntersection(pair, storeIntersectedList, computeComplexMeasures)
 
                 println "[${new Date()} BatchIntersection] " +
                         "Intersected ${counter.incrementAndGet()} of ${pairs.size()} so far\n" +
-                        "Last result\n${PairedIntersection.HEADER}\n$pairedIntersection"
+                        "Last result\n${PairedIntersectionTmp.HEADER}\n$pairedIntersection"
 
                 pairedIntersection
             }
@@ -130,7 +126,7 @@ class IntersectionUtil {
      * @param computeComplexMeasures if true will compute complex measures such as correlation and overlap frequency P-values
      * @return an object holding information on paired intersection
      */
-    PairedIntersection generatePairedIntersection(Sample sample1, Sample sample2) {
+    PairedIntersectionTmp generatePairedIntersection(Sample sample1, Sample sample2) {
         generatePairedIntersection(sample1, sample2, true, true)
     }
 
@@ -148,7 +144,7 @@ class IntersectionUtil {
      * @param computeComplexMeasures if true will compute complex measures such as correlation and overlap frequency P-values
      * @return an object holding information on paired intersection
      */
-    PairedIntersection generatePairedIntersection(Sample sample1, Sample sample2,
+    PairedIntersectionTmp generatePairedIntersection(Sample sample1, Sample sample2,
                                                   boolean storeIntersectedList,
                                                   boolean computeComplexMeasures) {
         generatePairedIntersection(new SamplePair(sample1, sample2), storeIntersectedList, computeComplexMeasures)
@@ -165,7 +161,7 @@ class IntersectionUtil {
      * @param samplePair a pair of samples to intersect
      * @return an object holding information on paired intersection
      */
-    PairedIntersection generatePairedIntersection(SamplePair samplePair) {
+    PairedIntersectionTmp generatePairedIntersection(SamplePair samplePair) {
         generatePairedIntersection(samplePair, true, true)
     }
 
@@ -201,7 +197,7 @@ class IntersectionUtil {
      * @param computeComplexMeasures if true will compute complex measures such as correlation and overlap frequency P-values
      * @return an object holding information on paired intersection
      */
-    PairedIntersection generatePairedIntersection(SamplePair samplePair,
+    PairedIntersectionTmp generatePairedIntersection(SamplePair samplePair,
                                                   boolean storeIntersectedList,
                                                   boolean computeComplexMeasures) {
         def sample1 = samplePair[0], sample2 = samplePair[1]
@@ -338,7 +334,7 @@ class IntersectionUtil {
             freq21p = Double.NaN
         }
 
-        new PairedIntersection(
+        new PairedIntersectionTmp(
                 samplePair,
                 clones12,
                 count12, count21,

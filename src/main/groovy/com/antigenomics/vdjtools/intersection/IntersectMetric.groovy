@@ -27,7 +27,7 @@ enum IntersectMetric {
     }
 
     @Deprecated
-    double value(PairedIntersection pairedIntersection) {
+    double value(PairedIntersectionTmp pairedIntersection) {
         pairedIntersection."norm$shortName"
     }
 

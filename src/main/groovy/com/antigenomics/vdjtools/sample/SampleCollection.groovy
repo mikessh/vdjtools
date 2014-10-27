@@ -221,6 +221,7 @@ class SampleCollection implements Iterable<Sample> {
      * Only clonotypes met in at least two sequential samples are retained
      * @return clonotype abundance time course
      */
+    @Deprecated
     TimeCourse asTimeCourse() {
         // todo: REWRITE
         def clonotypeMap = new HashMap<String, Clonotype[]>()
@@ -253,6 +254,28 @@ class SampleCollection implements Iterable<Sample> {
         for (int i = 0; i < size(); i++)
             for (int j = i + 1; j < size(); j++)
                 samplePairs.add(this[i, j])
+
+        samplePairs
+    }
+
+    /**
+     * Lists all unique sample pairs for a given sample
+     * Pairs (i, j) are chosen such as j > i, no (i, i) pairs allowed
+     * Sample #i will be stored into memory
+     * @param i sample index.
+     * @return a list of sample pairs
+     */
+    List<SamplePair> listPairs(int i) {
+        def samplePairs = new ArrayList<SamplePair>()
+
+        if (i < size() - 1) {
+            // Load the sample (i.e. re-wrap to dummy connection)
+            def sample1conn = new DummySampleConnection(sampleMap[metadataTable.getRow(i).sampleId].sample)
+
+            for (int j = i + 1; j < size(); j++)
+                samplePairs.add(new SamplePair(sample1conn,
+                        sampleMap[metadataTable.getRow(j).sampleId]))
+        }
 
         samplePairs
     }

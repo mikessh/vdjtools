@@ -33,6 +33,7 @@ class SampleFileConnection implements SampleConnection {
     SampleFileConnection(String fileName, SampleMetadata sampleMetadata, Software software,
                            boolean lazy, boolean store) {
         this.fileName = fileName
+        // todo: make access to metadata as explicit as possible
         this.sampleMetadata = sampleMetadata
         this.software = software
         this.lazy = lazy

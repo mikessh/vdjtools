@@ -17,5 +17,6 @@
 package com.antigenomics.vdjtools.sample
 
 public interface SampleConnection {
+    // todo: this could be very time consuming!!
     public Sample getSample()
 }

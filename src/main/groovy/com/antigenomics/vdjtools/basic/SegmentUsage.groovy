@@ -19,8 +19,11 @@ package com.antigenomics.vdjtools.basic
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
+import com.antigenomics.vdjtools.util.ExecUtil
 
 class SegmentUsage {
+    public static boolean VERBOSE = true
+
     private final Map<String, double[]> vSegmentUsage = new HashMap<>(),
                                         jSegmentUsage = new HashMap<>(), vjSegmentUsage = new HashMap<>()
     private final Map<String, Integer> sampleIndex = new HashMap<>()
@@ -45,7 +48,7 @@ class SegmentUsage {
     }
 
     private void process(Sample sample, int index) {
-        println "[${new Date()} SegmentUsage] Processing sample ${sample.sampleMetadata.sampleId}"
+        ExecUtil.report(this, "[${new Date()} SegmentUsage] Processing sample ${sample.sampleMetadata.sampleId}", VERBOSE)
         sample.each { Clonotype clonotype ->
             def vArray = vSegmentUsage[clonotype.v],
                 jArray = jSegmentUsage[clonotype.j],

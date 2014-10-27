@@ -39,6 +39,11 @@ class SamplePair {
         this(sample1, sample2, 0, 1)
     }
 
+    public SamplePair getReverse() {
+        new SamplePair(sample2conn, sample1conn, j, i)
+    }
+
+
     Sample getAt(int index) {
         switch (index) {
             case 0:

@@ -26,7 +26,7 @@ import com.antigenomics.vdjtools.timecourse.TimeCourse
 
 class SequentialIntersection {
     private final Sample[] samples
-    private final PairedIntersection[] intersectionSequence
+    private final PairedIntersectionTmp[] intersectionSequence
     private final IntersectionUtil intersectionUtil
 
     /**
@@ -43,7 +43,7 @@ class SequentialIntersection {
 
         this.intersectionSequence = (0..(samples.length - 2)).collect { int i ->
             intersectionUtil.generatePairedIntersection(samples[i], samples[i + 1])
-        } as PairedIntersection[]
+        } as PairedIntersectionTmp[]
     }
 
     /**
@@ -60,7 +60,7 @@ class SequentialIntersection {
 
         this.intersectionSequence = (0..(samples.length - 2)).collect { int i ->
             intersectionUtil.generatePairedIntersection(sampleCollection[i, i + 1])
-        } as PairedIntersection[]
+        } as PairedIntersectionTmp[]
     }
 
     /**
@@ -70,7 +70,7 @@ class SequentialIntersection {
     SequentialIntersection(PairedIntersectionMatrix pairedIntersectionMatrix) {
         int n = pairedIntersectionMatrix.size() - 1
         this.samples = new Sample[n + 1]
-        this.intersectionSequence = new PairedIntersection[n]
+        this.intersectionSequence = new PairedIntersectionTmp[n]
         this.intersectionUtil = pairedIntersectionMatrix.intersectionUtil
 
         for (int i = 0; i < n; i++) {
@@ -90,7 +90,7 @@ class SequentialIntersection {
     TimeCourse asTimeCourse() {
         def clonotypeMap = new HashMap<String, Clonotype[]>()
 
-        intersectionSequence.eachWithIndex { PairedIntersection intersection, int sampleIndex ->
+        intersectionSequence.eachWithIndex { PairedIntersectionTmp intersection, int sampleIndex ->
             intersection.clonotypes12.eachWithIndex { Clonotype clonotype12, int i ->
                 def clonotype21 = intersection.clonotypes21[i]
 
@@ -114,7 +114,7 @@ class SequentialIntersection {
 
     void print(PrintWriter pw, boolean header = true) {
         if (header)
-            pw.println("#" + PairedIntersection.HEADER)
+            pw.println("#" + PairedIntersectionTmp.HEADER)
 
         pw.println(intersectionSequence.join("\n"))
     }

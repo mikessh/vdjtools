@@ -13,6 +13,8 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException
  * A helper class to compute various intersection metrics for joint intersection
  */
 class IntersectionEvaluator {
+    public static boolean VERBOSE = true
+
     private final JointSample jointSample
     private SegmentUsage segmentUsageCache
     private final Spectratype[] spectratypeCache
@@ -41,25 +43,26 @@ class IntersectionEvaluator {
         segmentUsageCache
     }
 
+    // all metrics are [0, 1] with 0 for equal samples and symmetric
     private double _computeIntersectionMetric(IntersectMetric metric,
                                               int i, int j) {
-        ExecUtil.report(this, "Computing $metric")
+        ExecUtil.report(this, "Computing $metric", VERBOSE)
         switch (metric) {
             case IntersectMetric.Diversity:
                 def div1 = jointSample.getSample(i).diversity,
                         div2 = jointSample.getSample(j).diversity,
                         div12 = jointSample.getIntersectionDiv(i, j)
-                return div12 / Math.sqrt(div1 * div2)
+                return 1-div12 / Math.sqrt(div1 * div2)
 
             case IntersectMetric.Frequency:
-                return jointSample.getIntersectionFreq(i, j) * jointSample.getIntersectionFreq(j, i)
+                return 1- Math.sqrt(jointSample.getIntersectionFreq(i, j) * jointSample.getIntersectionFreq(j, i))
 
             case IntersectMetric.Frequency2:
                 double F2 = 0;
                 jointSample.each {
                     F2 += Math.sqrt(it.getFreq(i) * it.getFreq(j))
                 }
-                return F2
+                return 1-F2
 
             case IntersectMetric.Correlation:
                 double R = Double.NaN
@@ -80,7 +83,7 @@ class IntersectionEvaluator {
 
                     R = new PearsonsCorrelation().correlation(x, y)
                 }
-                return (1 + R) / 2.0 // negative distance values are prohibited
+                return (1 - R) / 2.0 // negative distance values are prohibited
 
             case IntersectMetric.vJSD:
                 return MathUtil.JSD(

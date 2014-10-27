@@ -77,7 +77,7 @@ def sampleCollection = new SampleCollection([sample1FileName, sample2FileName], 
 
 println "[${new Date()} $scriptName] Intersecting"
 
-def pairedIntersection = new PairedIntersectionSummary(sampleCollection.listPairs()[0], intersectionType)
+def pairedIntersection = new PairedIntersection(sampleCollection.listPairs()[0], intersectionType, true)
 def jointSample = pairedIntersection.jointSample
 
 //
