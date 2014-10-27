@@ -24,6 +24,7 @@ import com.antigenomics.vdjtools.diversity.DownSample
 import com.antigenomics.vdjtools.intersection.BatchIntersectPair
 import com.antigenomics.vdjtools.intersection.BatchIntersectPairPlot
 import com.antigenomics.vdjtools.intersection.IntersectPair
+import com.antigenomics.vdjtools.intersection.IntersectSequential
 import com.antigenomics.vdjtools.util.ExecUtil
 
 import java.util.jar.JarFile
@@ -87,6 +88,8 @@ def getScript = { String scriptName ->
             return new BatchIntersectPair()
         case "BATCHINTERSECTPAIRPLOT":
             return new BatchIntersectPairPlot()
+        case "INTERSECTSEQUENTIAL":
+            return new IntersectSequential()
         case "SCANDATABASE":
             return new ScanDatabase()
         case "-H":

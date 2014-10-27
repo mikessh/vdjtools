@@ -31,7 +31,7 @@ enum IntersectionType {
     }
 
     static IntersectionType byName(String shortName) {
-        values().find { it.shortName == shortName }
+        values().find { it.shortName.toUpperCase() == shortName.toUpperCase() }
     }
 
     static String allowedNames = values().collect { it.shortName }.join(",")

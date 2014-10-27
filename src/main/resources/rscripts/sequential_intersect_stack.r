@@ -16,7 +16,8 @@ x <- apply(as.vector(read.table(text=points, sep=",")), 1, as.numeric)
 n <- length(x)
 
 # load data
-df <- data.frame(read.delim(file_in))
+#df <- data.frame(read.delim(file_in))
+df    <- read.table(file_in, comment="", sep = "\t", header = TRUE)
 xcols <- (ncol(df) - n + 1):ncol(df)
 fcols <- 1:(ncol(df) - n)
 xlbls <- colnames(df)[xcols]
@@ -24,10 +25,15 @@ xlbls <- colnames(df)[xcols]
 # convert abundance columns to numeric
 df[, xcols] <- apply(df[, xcols], 2, as.numeric)
 
+# set up Non-overlapping and Not-shown
+df$peak[nrow(df)-1] <- -1
+df$peak[nrow(df)] <- -2
+
 # for label placement
 cs <- cumsum(df[,xcols])
 peak <- df$peak + 1
 peak[peak < 1] <- NA
+lbl.peak <- as.vector(df[!is.na(peak), "peak"])
 lbl.txt <- as.vector(df[!is.na(peak), "cdr3aa"])
 lbl.x <- as.vector(na.omit(x[peak]))
 lbl.y <- sapply(as.vector(na.omit(cs[cbind(1:nrow(cs), peak)])), as.numeric)
@@ -60,11 +66,13 @@ ggplot() +
       ) +
    scale_x_continuous(expand = c(0,0), limit = c(min(x), max(x)), breaks = x) +
    scale_y_continuous(expand = c(0,0)) +
+   theme_bw() +
    xlab(label) +
    ylab("abundance") +
    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) +
-   geom_text(data = lbl, aes(x, y, label = txt, size = max), color = "gray10", hjust = 1, vjust = 0.5) +
+   geom_text(data = subset(lbl, peak == 1), aes(x, y, label = txt, size = max), color = "gray10", hjust = 0, vjust = 0.5) +
+   geom_text(data = subset(lbl, peak > 1 & peak < n), aes(x, y, label = txt, size = max), color = "gray10", hjust = 0.5, vjust = 0.5) +
+   geom_text(data = subset(lbl, peak == n), aes(x, y, label = txt, size = max), color = "gray10", hjust = 1, vjust = 0.5) +
    guides(size = FALSE)
-
 
 dev.off()

@@ -29,7 +29,9 @@ class SampleWriter {
 
     SampleWriter(Software software) {
         this.software = software
-        this.header = ("$software.name-header-blank\n" * (software.headerLineCount - 1)) + software.printFields.join("\t")
+        this.header = (software.headerLineCount > 1 ?
+                "$software.name-header-blank\n" * (software.headerLineCount - 1) : "") +
+                software.printFields.join("\t")
     }
 
     public void write(Sample sample, String fileName) {
