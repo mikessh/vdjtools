@@ -65,10 +65,11 @@ ggplot() +
     group = cdr3nt), colour = "grey25", size = 0.01, guide = "none", position="stack") +
     ylab("cumulative abundance") +
     xlab("") +
-    scale_x_discrete(expand = c(0,0), labels=c(sample1_id, sample2_id)) +
-    scale_y_continuous(expand = c(0,0)) +
+    scale_x_discrete(expand = c(0, 0), labels=c(sample1_id, sample2_id)) +
+    scale_y_continuous(expand = c(0, 0)) +
     scale_fill_manual(values = c("grey50", "grey25", gs.pal(n - 2))) +
-    theme(legend.position = "none", axis.text.x  = element_text(angle=90, vjust=0.5)) +
+    theme_bw() +
+    theme(legend.position = "none") + #, axis.text.x  = element_text(angle=90, vjust=0.5)) +
     geom_text(data = subset(df.0, peak == 0), aes(x = "s1", y = cum, label = cdr3aa, size = expr), hjust = 0, vjust = 1) +
     geom_text(data = subset(df.1, peak == 1), aes(x = "s2", y = cum, label = cdr3aa, size = expr), hjust = 1, vjust = 1)
 
