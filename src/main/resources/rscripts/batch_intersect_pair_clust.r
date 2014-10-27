@@ -159,6 +159,8 @@ my.plot <- function(hcl, ...) {
       }
    }
 
+   layout(matrix(1:2, ncol=2), width = c(2, 0.1), height = c(1, 1))
+
    par(fig = fig, mar = mar, xpd = NA) # this ensures labels are not cut
 
    plot(...)
@@ -167,10 +169,10 @@ my.plot <- function(hcl, ...) {
 my.legend <- function(hcl) {
    if (color_by_factor) {
       if (hcl) {
-         f <- 0
+         f <- 2
          fig <- c(0.85, 0.95, 0, 1.0)
       } else {
-         f <- 0.2
+         f <- 1.2
          fig <- c(0.8, 0.95, 0, 1.0)
       }
       par(fig = fig, mar = c(0, 0, 0, 0), xpd = NA, new=TRUE)
@@ -185,10 +187,15 @@ my.legend <- function(hcl) {
          cc1 <- cc1[!is.na(fu1)]
          fu1 <- fu1[!is.na(fu1)]
 
-         color.legend(-0.07, -0.1, 0.07 + f, 0.1,
+         ux <- grconvertX(c(0.4 - 0.05 * f, 0.4 + 0.05 * f), from = "npc", to = "user")
+         uy <- grconvertY(c(0.5 - 0.15, 0.5 + 0.15), from = "npc", to = "user")
+
+         color.legend( ux[1], uy[1], ux[2], uy[2],#-0.39, -0.4,  + 0.39, 0.4,#0.07 + f, 0.1,
                       legend = fu1[c(1, length(fu1)/2 + 1, length(fu1))],
                       rect.col = cc1, gradient = "y", align="rb")
-         text(0.0, 0.125, factor_name, adj = c(0.5, 0.0))
+
+         uy <- grconvertY(0.5 + 0.15 + 0.02, from = "npc", to = "user")
+         text(0.5, uy, factor_name, adj = c(0.5, 0.0))
 
          # old impl
          # rect(-0.075, -0.1, 0.075, 0.1)
@@ -253,12 +260,12 @@ my.legend(FALSE)
 
 dev.off()
 
-df.c <- data.frame(x = xy$x, y = xy$y, f = aux[match(row.names(as.matrix(df.d)), aux[, "id_col1"]), "factor_col1"])
+#df.c <- data.frame(x = xy$x, y = xy$y, f = aux[match(row.names(as.matrix(df.d)), aux[, "id_col1"]), "factor_col1"])
 
-write.table(df.c, "tmp.txt")
+#write.table(df.c, "tmp.txt")
 
-pdf("tmp.pdf")
+#pdf("tmp.pdf")
 
-ggplot() + stat_density2d(data = df.c, aes(x, y, weight = f), geom="tile", contour = FALSE)
+#ggplot() + stat_density2d(data = df.c, aes(x, y, weight = f), geom="tile", contour = FALSE)
 
-dev.off()
+#dev.off()
