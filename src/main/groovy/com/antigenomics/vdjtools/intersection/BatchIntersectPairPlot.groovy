@@ -21,8 +21,7 @@ import com.antigenomics.vdjtools.util.RUtil
 def cli = new CliBuilder(usage: "BatchIntersectPairPlot [options] input_file output_prefix")
 cli.h("display help message")
 cli.m(longOpt: "measure", argName: "string", args: 1,
-        "Distance measure to use, vJSD (variable segment Jensen-Shannon distance), " +
-                "F (frequency), D (diversity) or R (correlation). [default = F]")
+        "Distance measure to use, allowed values are ${IntersectMetric.allowedNames}")
 cli.f(longOpt: "factor", argName: "string", args: 1,
         "Column name, as in metadata. Factor used to color the plot. [default = no factor]")
 cli.n(longOpt: "num-factor", "Factor will be treated as numeric value and gradient plot coloring will be used. " +

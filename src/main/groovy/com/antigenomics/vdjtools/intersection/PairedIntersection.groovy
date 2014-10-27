@@ -147,7 +147,7 @@ class PairedIntersection {
     }
 
     public String getHeader() {
-        ["#sample_id1", "sample_id2",
+        ["#1_sample_id", "2_sample_id",
          OUTPUT_FIELDS.collect(), intersectMetrics.collect { it.shortName },
          header1, header2].flatten().join("\t")
     }

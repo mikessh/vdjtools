@@ -43,7 +43,7 @@ class IntersectionEvaluator {
         segmentUsageCache
     }
 
-    // all metrics are [0, 1] with 0 for equal samples and symmetric
+    // all metrics are [0, +inf] with 0 for equal samples and symmetric
     private double _computeIntersectionMetric(IntersectMetric metric,
                                               int i, int j) {
         ExecUtil.report(this, "Computing $metric", VERBOSE)
@@ -52,17 +52,17 @@ class IntersectionEvaluator {
                 def div1 = jointSample.getSample(i).diversity,
                         div2 = jointSample.getSample(j).diversity,
                         div12 = jointSample.getIntersectionDiv(i, j)
-                return 1-div12 / Math.sqrt(div1 * div2)
+                return -Math.log10(div12 / Math.sqrt(div1 * div2) + 1e-9)
 
             case IntersectMetric.Frequency:
-                return 1- Math.sqrt(jointSample.getIntersectionFreq(i, j) * jointSample.getIntersectionFreq(j, i))
+                return -Math.log10(Math.sqrt(jointSample.getIntersectionFreq(i, j) * jointSample.getIntersectionFreq(j, i)) + 1e-9)
 
             case IntersectMetric.Frequency2:
                 double F2 = 0;
                 jointSample.each {
                     F2 += Math.sqrt(it.getFreq(i) * it.getFreq(j))
                 }
-                return 1-F2
+                return -Math.log10(F2 + 1e-9)
 
             case IntersectMetric.Correlation:
                 double R = Double.NaN

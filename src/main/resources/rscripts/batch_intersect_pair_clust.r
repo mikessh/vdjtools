@@ -104,26 +104,9 @@ rownames(df.m) <- df.m[,1]
 df.m <- df.m[,2:ncol(df.m)]
 df.m <- df.m[order(rownames(df.m)), order(colnames(df.m))]
 
+# compute distance
 df.m <- apply(df.m, 2, as.numeric) # Don't ask me why
-
-write.table(df.sym, "temp.txt")
-
-# normalize
-#df.m <- log10(df.m * ncol(df.m) / sqrt(colSums(df.m, na.rm = TRUE)[col(df.m)] * rowSums(df.m, na.rm = TRUE)[row(df.m)]))
-
-# convert to true distance
-#df.m <- 1.0 - df.m
-
-df.m <- -log10(df.m)
-
-#a <- min(df.m, na.rm = TRUE)
-#b <- max(df.m, na.rm = TRUE)
-
-#df.m <- (df.m - a) / (b - a)
-
 diag(df.m) <- 0 # replace diag NAs with 0
-
-#write.table(df.m, "temp2.txt")
 df.d <- as.dist(df.m)
 
 ## HCL
