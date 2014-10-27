@@ -85,7 +85,7 @@ class PairedIntersectionBatch {
     }
 
     public String getHeader() {
-        ["#sample_id1", "sample_id2",
+        ["#1_sample_id", "2_sample_id",
          PairedIntersection.OUTPUT_FIELDS.collect(), intersectMetrics.collect { it.shortName },
          sampleCollection.metadataTable.columnHeader1,
          sampleCollection.metadataTable.columnHeader2].flatten().join("\t")
