@@ -23,7 +23,7 @@ import com.antigenomics.vdjtools.join.ClonotypeKeyGen
 import com.antigenomics.vdjtools.join.key.ClonotypeKey
 import com.antigenomics.vdjtools.sample.Sample
 
-class FrequencyTable {
+public class FrequencyTable {
     private final long min, max
     private final Map<Long, Long> frequencyMap = new HashMap<>()
     private final int diversity
@@ -97,11 +97,11 @@ class FrequencyTable {
         }
 
         long getClonotypeSize() {
-            return clonotypeSize
+            clonotypeSize
         }
 
         long getNumberOfClonotypes() {
-            return numberOfClonotypes
+            numberOfClonotypes
         }
     }
 }

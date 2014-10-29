@@ -226,7 +226,7 @@ public class JointSample implements Iterable<JointClonotype> {
 
     @Override
     public int hashCode() {
-        return 31 * Arrays.hashCode(samples) + Boolean.hashCode(reverse);
+        return 31 * Arrays.hashCode(samples) + (reverse ? 1231 : 1237);
     }
 
     @Override
@@ -243,6 +243,12 @@ public class JointSample implements Iterable<JointClonotype> {
                 @Override
                 public JointClonotype next() {
                     return iterator.next().changeParent(JointSample.this);
+                }
+
+                // todo: support java <1.8
+                @Override
+                public void remove() {
+                    throw new UnsupportedOperationException("remove");
                 }
             };
         }
