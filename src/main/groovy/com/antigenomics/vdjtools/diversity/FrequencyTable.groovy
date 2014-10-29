@@ -77,16 +77,16 @@ public class FrequencyTable {
         return max
     }
 
-    //public final Map<Long, Long> getInnerMap() {
-    //    Collections.unmodifiableMap(frequencyMap)
-    //}
+    public final List<BinInfo> getBins() {
+        frequencyMap.sort { it.key }.collect { new BinInfo(it.key, it.value) }
+    }
 
     //@Override
-    public Iterator<BinInfo> iterator() {
-        def innerIter = frequencyMap.entrySet().iterator()
-        [hasNext: { innerIter.hasNext() },
-         next   : { def entry = innerIter.next(); new BinInfo(entry.key, entry.value) }] as Iterator
-    }
+    //public Iterator<BinInfo> iterator() {
+    //    def innerIter = frequencyMap.entrySet().iterator()
+    //    [hasNext: { innerIter.hasNext() },
+    //     next   : { def entry = innerIter.next(); new BinInfo(entry.key, entry.value) }] as Iterator
+    //}
 
     public static class BinInfo {
         private final long clonotypeSize, numberOfClonotypes
