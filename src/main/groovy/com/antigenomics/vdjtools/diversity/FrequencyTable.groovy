@@ -25,7 +25,8 @@ import com.antigenomics.vdjtools.sample.Sample
 
 public class FrequencyTable {
     private final long min, max
-    private final Map<Long, Long> frequencyMap = new HashMap<>()
+    private final Map<Long, Long> frequencyMap = new HashMap<>(),
+            frequencyMapW = new HashMap<>()
     private final int diversity
 
     FrequencyTable(Sample sample, IntersectionType intersectionType) {
@@ -53,6 +54,7 @@ public class FrequencyTable {
         counters.each {
             long count = it.count
             frequencyMap.put(count, (frequencyMap[count] ?: 0L) + 1L)
+            frequencyMapW.put(count, (frequencyMap[count] ?: 0L) + count)
             min = Math.min(count, min)
             max = Math.max(count, max)
         }
@@ -69,6 +71,10 @@ public class FrequencyTable {
         frequencyMap[clonotypeSize] ?: 0
     }
 
+    public long getAtW(long clonotypeSize) {
+        frequencyMapW[clonotypeSize] ?: 0
+    }
+
     long getMin() {
         return min
     }
@@ -79,6 +85,10 @@ public class FrequencyTable {
 
     public final List<BinInfo> getBins() {
         frequencyMap.sort { it.key }.collect { new BinInfo(it.key, it.value) }
+    }
+
+    public final List<BinInfo> getBinsW() {
+        frequencyMapW.sort { it.key }.collect { new BinInfo(it.key, it.value) }
     }
 
     //@Override
