@@ -18,22 +18,26 @@ package com.antigenomics.vdjtools.diversity
 
 import com.antigenomics.vdjtools.Countable
 import com.antigenomics.vdjtools.Counter
-import com.antigenomics.vdjtools.intersection.IntersectionUtil
+import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.join.ClonotypeKeyGen
+import com.antigenomics.vdjtools.join.key.ClonotypeKey
 import com.antigenomics.vdjtools.sample.Sample
 
 class FrequencyTable {
+    private final long min, max
     private final Map<Long, Long> frequencyMap = new HashMap<>()
     private final int diversity
 
-    FrequencyTable(Sample sample, IntersectionUtil intersectionUtil) {
+    FrequencyTable(Sample sample, IntersectionType intersectionType) {
         Iterable<Countable> counters
 
         // collapse clonotypes by a specific key
+        def clonotypeKeyGen = new ClonotypeKeyGen(intersectionType)
 
-        def hashedCounts = new HashMap<String, Counter>()
+        def hashedCounts = new HashMap<ClonotypeKey, Counter>()
 
         sample.each {
-            def key = intersectionUtil.generateKey(it)
+            def key = clonotypeKeyGen.generateKey(it)
             def counter = hashedCounts[key]
             if (!counter)
                 hashedCounts.put(key, counter = new Counter())
@@ -44,18 +48,60 @@ class FrequencyTable {
         counters = hashedCounts.values()
 
         // compute frequency table
+        long min = Long.MAX_VALUE, max = -1
 
         counters.each {
             long count = it.count
             frequencyMap.put(count, (frequencyMap[count] ?: 0L) + 1L)
+            min = Math.min(count, min)
+            max = Math.max(count, max)
         }
+
+        this.min = min
+        this.max = max
     }
 
     public int getDiversity() {
         return diversity
     }
 
-    public long getAt(long count) {
-        frequencyMap[count] ?: 0
+    public long getAt(long clonotypeSize) {
+        frequencyMap[clonotypeSize] ?: 0
+    }
+
+    long getMin() {
+        return min
+    }
+
+    long getMax() {
+        return max
+    }
+
+    //public final Map<Long, Long> getInnerMap() {
+    //    Collections.unmodifiableMap(frequencyMap)
+    //}
+
+    //@Override
+    public Iterator<BinInfo> iterator() {
+        def innerIter = frequencyMap.entrySet().iterator()
+        [hasNext: { innerIter.hasNext() },
+         next   : { def entry = innerIter.next(); new BinInfo(entry.key, entry.value) }] as Iterator
+    }
+
+    public static class BinInfo {
+        private final long clonotypeSize, numberOfClonotypes
+
+        BinInfo(long clonotypeSize, long numberOfClonotypes) {
+            this.clonotypeSize = clonotypeSize
+            this.numberOfClonotypes = numberOfClonotypes
+        }
+
+        long getClonotypeSize() {
+            return clonotypeSize
+        }
+
+        long getNumberOfClonotypes() {
+            return numberOfClonotypes
+        }
     }
 }

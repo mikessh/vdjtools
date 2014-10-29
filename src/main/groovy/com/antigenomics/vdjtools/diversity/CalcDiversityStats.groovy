@@ -154,9 +154,8 @@ new File(outputPrefix + ".diversity.txt").withPrintWriter { pwDiv ->
         def diversityRow = [sample.sampleMetadata.sampleId, sample.sampleMetadata,
                             sample.count]
 
-        intersectionTypes.each { IntersectionType i ->
-            def intersectionUtil = new IntersectionUtil(i)
-            def diversityEstimator = new DiversityEstimator(sample, intersectionUtil)
+        intersectionTypes.each { IntersectionType intersectionType ->
+            def diversityEstimator = new DiversityEstimator(sample, intersectionType)
             def basediv = diversityEstimator.computeCollapsedSampleDiversity(),
                 normdiv = diversityEstimator.computeNormalizedSampleDiversity(effectiveSampleSize, nResamples),
                 efron = diversityEstimator.computeEfronThisted(efronDepth, efronCvThreshold),
@@ -169,7 +168,7 @@ new File(outputPrefix + ".diversity.txt").withPrintWriter { pwDiv ->
                                  chao.mean, chao.std])
 
             if (doRarefaction) {
-                println "[${new Date()} $scriptName] Bulding rarefaction curve for '${i.shortName}'"
+                println "[${new Date()} $scriptName] Bulding rarefaction curve for '${intersectionType.shortName}'"
 
                 for (int k = 0; k < nResamples; k++) {
                     def y = []
@@ -178,12 +177,12 @@ new File(outputPrefix + ".diversity.txt").withPrintWriter { pwDiv ->
                             y.add(R_EMPTY)
                         } else {
                             def subSample = diversityEstimator.downSampler.reSample(x)
-                            def subSampleDiversityEstimator = new DiversityEstimator(subSample, intersectionUtil)
+                            def subSampleDiversityEstimator = new DiversityEstimator(subSample, intersectionType)
                             y.add(subSampleDiversityEstimator.computeCollapsedSampleDiversity())
                         }
                     }
 
-                    new File(outputPrefix + ".rarefaction_${i.shortName}.txt").withWriterAppend { pwR ->
+                    new File(outputPrefix + ".rarefaction_${intersectionType.shortName}.txt").withWriterAppend { pwR ->
                         pwR.println([sample.sampleMetadata.sampleId, sample.sampleMetadata,
                                      sample.count, basediv.mean, y].flatten().join("\t"))
                     }

@@ -16,14 +16,14 @@
 
 package com.antigenomics.vdjtools.diversity
 
-import com.antigenomics.vdjtools.intersection.IntersectionUtil
+import com.antigenomics.vdjtools.intersection.IntersectionType
 import com.antigenomics.vdjtools.sample.Sample
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 import org.apache.commons.math3.util.CombinatoricsUtils
 
 class DiversityEstimator {
     private final Sample sample
-    private final IntersectionUtil intersectionUtil
+    private final IntersectionType intersectionType
     private FrequencyTable frequencyTable = null
     private DownSampler downSampler = null
 
@@ -31,10 +31,10 @@ class DiversityEstimator {
         downSampler ?: (downSampler = new DownSampler(sample))
     }
 
-    public DiversityEstimator(Sample sample, IntersectionUtil intersectionUtil) {
+    public DiversityEstimator(Sample sample, IntersectionType intersectionType) {
         this.sample = sample
-        this.intersectionUtil = intersectionUtil
-        this.frequencyTable = new FrequencyTable(sample, intersectionUtil)
+        this.intersectionType = intersectionType
+        this.frequencyTable = new FrequencyTable(sample, intersectionType)
     }
 
     public Diversity computeCollapsedSampleDiversity() {
@@ -52,7 +52,7 @@ class DiversityEstimator {
         def diversityValues = new double[resampleCount]
         for (int i = 0; i < resampleCount; i++) {
             def subSample = getDownSampler().reSample(sampleSize)
-            def newDiversityEstimator = new DiversityEstimator(subSample, this.intersectionUtil)
+            def newDiversityEstimator = new DiversityEstimator(subSample, this.intersectionType)
             diversityValues[i] = (double) newDiversityEstimator.computeCollapsedSampleDiversity().mean
         }
 
