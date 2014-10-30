@@ -57,6 +57,7 @@ df.1$cum <- (c(0, df.1$cum[0:(n-1)]) + df.1$cum) / 2
 gs.pal <- colorRampPalette(c("#2b8cbe", "#e0f3db", "#fdbb84"))
 
 # plotting
+emax <- max(df$expr)
 
 pdf(file_out)
 
@@ -70,7 +71,7 @@ ggplot() +
     scale_fill_manual(values = c("grey50", "grey25", gs.pal(n - 2))) +
     theme_bw() +
     theme(legend.position = "none") + #, axis.text.x  = element_text(angle=90, vjust=0.5)) +
-    geom_text(data = subset(df.0, peak == 0), aes(x = "s1", y = cum, label = cdr3aa, size = expr), hjust = 0, vjust = 1) +
-    geom_text(data = subset(df.1, peak == 1), aes(x = "s2", y = cum, label = cdr3aa, size = expr), hjust = 1, vjust = 1)
+    geom_text(data = subset(df.0, peak == 0), aes(x = "s1", y = cum, label = cdr3aa, size = expr, alpha = rank(expr)), hjust = 0, vjust = 1) +
+    geom_text(data = subset(df.1, peak == 1), aes(x = "s2", y = cum, label = cdr3aa, size = expr, alpha = rank(expr)), hjust = 1, vjust = 1)
 
 dev.off()

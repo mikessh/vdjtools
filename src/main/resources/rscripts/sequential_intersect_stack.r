@@ -70,9 +70,9 @@ ggplot() +
    xlab(label) +
    ylab("abundance") +
    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) +
-   geom_text(data = subset(lbl, peak == 1), aes(x, y, label = txt, size = max), color = "gray10", hjust = 0, vjust = 0.5) +
-   geom_text(data = subset(lbl, peak > 1 & peak < n), aes(x, y, label = txt, size = max), color = "gray10", hjust = 0.5, vjust = 0.5) +
-   geom_text(data = subset(lbl, peak == n), aes(x, y, label = txt, size = max), color = "gray10", hjust = 1, vjust = 0.5) +
-   guides(size = FALSE)
+   geom_text(data = subset(lbl, peak == 1), aes(x, y, label = txt, size = max, alpha = log10(max)), color = "gray10", hjust = 0, vjust = 0.5) +
+   geom_text(data = subset(lbl, peak > 1 & peak < n), aes(x, y, label = txt, size = max, alpha = log10(max)), color = "gray10", hjust = 0.5, vjust = 0.5) +
+   geom_text(data = subset(lbl, peak == n), aes(x, y, label = txt, size = max, alpha = log10(max)), color = "gray10", hjust = 1, vjust = 0.5) +
+   guides(size = FALSE, alpha = FALSE)
 
 dev.off()
