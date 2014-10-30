@@ -35,12 +35,12 @@ lbl<-as.character(as.expression(eq));
 pdf(file_out)
 
 ggplot() +
-    geom_ribbon(data = df, aes(x = compl_cdf, y = X.clonotype_size, ymin = clonotype_size_l, ymax = clonotype_size_u), alpha = 0.3) +
-    geom_line(data = df, aes(x = compl_cdf, y = X.clonotype_size)) +
+    geom_ribbon(data = df, aes(x = compl_cdf, y = X.clonotype_size, ymin = clonotype_size_l, ymax = clonotype_size_u), alpha = 0.3, fill="blue") +
+    geom_line(data = df, aes(x = compl_cdf, y = X.clonotype_size), color="blue") +
     scale_y_log10(expand = c(0,0), limits=c(1, max(df$X.clonotype_size))) + scale_x_log10(expand = c(0,0)) +
     theme_bw() + coord_flip() +
     xlab("1-CDF") + ylab("clonotype size") +
-    stat_smooth(data = df, aes(x = compl_cdf, y = X.clonotype_size, weight = number_of_clonotypes), method = 'lm', formula = y~x, se=FALSE) +
+    geom_line(stat="smooth",data = df, aes(x = compl_cdf, y = X.clonotype_size, weight = number_of_clonotypes), method = 'lm', formula = y~x, se=FALSE, linetype ="dashed", size = 1.0, color="black") +
     geom_text(aes(x = max(df$compl_cdf), y = max(df$X.clonotype_size), label = lbl), hjust=1.1, vjust=1.2, parse = TRUE)
 
 dev.off()
