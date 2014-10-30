@@ -178,7 +178,7 @@ new File(outputPrefix + ".diversity.txt").withPrintWriter { pwDiv ->
                         } else {
                             def subSample = diversityEstimator.downSampler.reSample(x)
                             def subSampleDiversityEstimator = new DiversityEstimator(subSample, intersectionType)
-                            y.add(subSampleDiversityEstimator.computeCollapsedSampleDiversity())
+                            y.add(subSampleDiversityEstimator.computeCollapsedSampleDiversity().mean)
                         }
                     }
 
