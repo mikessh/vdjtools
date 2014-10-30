@@ -29,8 +29,7 @@ cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
-                "Header is mandatory and will be used to assign column names for metadata." +
-                "If column named 'time' is present, it will be used to specify time point sequence.")
+                "Header is mandatory and will be used to assign column names for metadata.")
 cli.n(longOpt: "num-cells", argName: "integer", required: true, args: 1, "Number of reads/cDNAs to sample.")
 
 def opt = cli.parse(args)
@@ -90,9 +89,7 @@ sampleCollection.eachWithIndex { sample, ind ->
     def sampleWriter = new SampleWriter(software)
 
     // print output
-    new File(outputPrefix + "." + sample.sampleMetadata.sampleId + ".txt").withPrintWriter { pw ->
-        sampleWriter.write(sample, pw)
-    }
+    sampleWriter.write(newSample, outputPrefix + "." + sample.sampleMetadata.sampleId + ".txt")
 }
 
 println "[${new Date()} $scriptName] Finished"

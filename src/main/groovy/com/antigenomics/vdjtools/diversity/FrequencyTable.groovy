@@ -24,9 +24,8 @@ import com.antigenomics.vdjtools.join.key.ClonotypeKey
 import com.antigenomics.vdjtools.sample.Sample
 
 public class FrequencyTable {
-    private final long min, max
-    private final Map<Long, Long> frequencyMap = new HashMap<>(),
-            frequencyMapW = new HashMap<>()
+    private final long min, max, total
+    private final Map<Long, Long> frequencyMap = new HashMap<>()
     private final int diversity
 
     FrequencyTable(Sample sample, IntersectionType intersectionType) {
@@ -54,13 +53,13 @@ public class FrequencyTable {
         counters.each {
             long count = it.count
             frequencyMap.put(count, (frequencyMap[count] ?: 0L) + 1L)
-            frequencyMapW.put(count, (frequencyMap[count] ?: 0L) + count)
             min = Math.min(count, min)
             max = Math.max(count, max)
         }
 
         this.min = min
         this.max = max
+        this.total = sample.count
     }
 
     public int getDiversity() {
@@ -69,10 +68,6 @@ public class FrequencyTable {
 
     public long getAt(long clonotypeSize) {
         frequencyMap[clonotypeSize] ?: 0
-    }
-
-    public long getAtW(long clonotypeSize) {
-        frequencyMapW[clonotypeSize] ?: 0
     }
 
     long getMin() {
@@ -84,11 +79,11 @@ public class FrequencyTable {
     }
 
     public final List<BinInfo> getBins() {
-        frequencyMap.sort { it.key }.collect { new BinInfo(it.key, it.value) }
-    }
-
-    public final List<BinInfo> getBinsW() {
-        frequencyMapW.sort { it.key }.collect { new BinInfo(it.key, it.value) }
+        double s = 0
+        frequencyMap.sort { it.key }.collect {
+            s += it.value
+            new BinInfo(it.key, it.value, 1.0 - s / diversity, Math.sqrt(it.key * (1.0 - it.key / (double) total)))
+        }
     }
 
     //@Override
@@ -100,10 +95,17 @@ public class FrequencyTable {
 
     public static class BinInfo {
         private final long clonotypeSize, numberOfClonotypes
+        private final double complementaryCdf, cloneSizeStd
 
-        BinInfo(long clonotypeSize, long numberOfClonotypes) {
+        BinInfo(long clonotypeSize, long numberOfClonotypes, double complementaryCdf, double cloneSizeStd) {
             this.clonotypeSize = clonotypeSize
             this.numberOfClonotypes = numberOfClonotypes
+            this.complementaryCdf = complementaryCdf
+            this.cloneSizeStd = cloneSizeStd
+        }
+
+        double getCloneStd() {
+            cloneSizeStd
         }
 
         long getClonotypeSize() {
@@ -112,6 +114,30 @@ public class FrequencyTable {
 
         long getNumberOfClonotypes() {
             numberOfClonotypes
+        }
+
+        double getComplementaryCdf() {
+            return complementaryCdf
+        }
+
+        public static
+        final String HEADER = "#clonotype_size\tclonotype_size_l\tclonotype_size_u\tnumber_of_clonotypes\tcompl_cdf"
+
+        @Override
+        public String toString() {
+            [clonotypeSize, clonotypeSize - cloneSizeStd, clonotypeSize + cloneSizeStd, numberOfClonotypes, complementaryCdf].join("\t")
+        }
+
+    }
+
+    public static class Cdf {
+        private final Map<Long, Double> cdf
+
+        public Cdf(FrequencyTable frequencyTable) {
+            def sum = 0
+            frequencyTable.bins.each {
+
+            }
         }
     }
 }

@@ -19,6 +19,7 @@ package com.antigenomics.vdjtools
 
 import com.antigenomics.vdjtools.basic.*
 import com.antigenomics.vdjtools.db.ScanDatabase
+import com.antigenomics.vdjtools.diversity.BuildFrequencyTable
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.DownSample
 import com.antigenomics.vdjtools.intersection.BatchIntersectPair
@@ -92,6 +93,8 @@ def getScript = { String scriptName ->
             return new IntersectSequential()
         case "SCANDATABASE":
             return new ScanDatabase()
+        case "BUILDFREQUENCYTABLE":
+            return new BuildFrequencyTable()
         case "-H":
         case "H":
         case "-HELP":
