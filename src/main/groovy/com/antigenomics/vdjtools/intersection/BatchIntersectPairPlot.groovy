@@ -50,7 +50,8 @@ def inputFileName = opt.arguments()[0],
     hcFileName = opt.arguments()[1] + ".batch_intersect_hc.pdf",
     mdsFileName = opt.arguments()[1] + ".batch_intersect_mds.pdf",
     k = (opt.k ?: 3),
-    clustFileName = opt.arguments()[1] + ".batch_intersect_clusters${k}.txt"
+    clustFileName = opt.arguments()[1] + ".batch_intersect_clusters${k}.txt",
+    coordFileName = opt.arguments()[1] + ".batch_intersect_mdscoords.txt"
 
 def factorNameOrig = null
 if (factorName) {
@@ -108,8 +109,6 @@ if (numFactor && factorCol1Ind.toInteger() > 0) {
 
 println "[${new Date()} $scriptName] Plotting data"
 
-// todo: work on legend
-
 RUtil.execute("batch_intersect_pair_clust.r",
         inputFileName,
         idCol1Ind, idCol2Ind,
@@ -118,7 +117,7 @@ RUtil.execute("batch_intersect_pair_clust.r",
         labelCol1Ind, labelCol2Ind,
         factorNameOrig ?: "NA", numFactor ? "TRUE" : "FALSE",
         hcFileName, mdsFileName,
-        clustFileName, k.toString()
+        k.toString(), clustFileName, coordFileName
 )
 
 

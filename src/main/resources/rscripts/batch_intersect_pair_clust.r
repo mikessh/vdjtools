@@ -14,8 +14,9 @@ factor_name       = args[9]  #"Group"
 cont_factor       = args[10] #TRUE
 file_out_hc       = args[11]
 file_out_mds      = args[12]
-file_out_clust    = args[13]
-k_clust           = args[14]
+k_clust           = args[13]
+file_out_clust    = args[14]
+file_out_coord    = args[15]
 
 color_by_factor <- TRUE
 
@@ -259,6 +260,8 @@ text(xy$x, xy$y, labels = lbl, col = cc_final, cex=.5)
 my.legend(FALSE)
 
 dev.off()
+
+write.table(data.frame(lbl = lbl, x=xy$x, y=xy$y), file_out_coord, sep = "\t", quote = FALSE, row.names = FALSE)
 
 #df.c <- data.frame(x = xy$x, y = xy$y, f = aux[match(row.names(as.matrix(df.d)), aux[, "id_col1"]), "factor_col1"])
 
