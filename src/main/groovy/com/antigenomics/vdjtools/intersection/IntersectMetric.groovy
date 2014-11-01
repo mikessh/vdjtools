@@ -26,10 +26,5 @@ enum IntersectMetric {
         this.shortName = shortName
     }
 
-    @Deprecated
-    double value(PairedIntersectionTmp pairedIntersection) {
-        pairedIntersection."norm$shortName"
-    }
-
     static String allowedNames = values().collect { it.shortName }.join(",")
 }
