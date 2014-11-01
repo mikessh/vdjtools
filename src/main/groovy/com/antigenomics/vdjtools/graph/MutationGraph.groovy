@@ -16,9 +16,9 @@
 
 package com.antigenomics.vdjtools.graph
 
-import com.antigenomics.vdjtools.util.CommonUtil
 import com.antigenomics.vdjtools.Mutation
 import com.antigenomics.vdjtools.substitutions.ConnectivityCheck
+import com.antigenomics.vdjtools.util.ExecUtil
 import groovyx.gpars.GParsPool
 
 class MutationGraph {
@@ -79,7 +79,7 @@ class MutationGraph {
         // Mark redundant edge bundles
         //println "[${new Date()} GRAPH] Marking redundant edges for graph with ${subGraphs.size()} subgraphs"
         //def counter = new AtomicInteger()
-        GParsPool.withPool CommonUtil.THREADS, {
+        GParsPool.withPool ExecUtil.THREADS, {
             subGraphs.eachParallel { SubGraph subGraph ->
                 subGraph.markRedundant()
                 //println "[${new Date()} GRAPH] ${counter.incrementAndGet()} of ${subGraphs.size()} subgraphs processed"

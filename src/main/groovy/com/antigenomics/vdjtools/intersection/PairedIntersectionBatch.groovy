@@ -2,7 +2,6 @@ package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.SamplePair
-import com.antigenomics.vdjtools.util.CommonUtil
 import com.antigenomics.vdjtools.util.ExecUtil
 import groovyx.gpars.GParsPool
 
@@ -50,7 +49,7 @@ class PairedIntersectionBatch {
                     new PairedIntersection(pair, intersectionType, store, intersectMetrics)
             int progr
             if ((progr = progressCounter.incrementAndGet()) % 10 == 0) {
-                ExecUtil.report(this, "Processed $progr of $totalPairs pairs")
+                ExecUtil.report(this, "Processed $progr of $totalPairs pairs. " + ExecUtil.memoryFootprint())
             }
         }
 
@@ -64,7 +63,7 @@ class PairedIntersectionBatch {
         } else {
             def pairs = sampleCollection.listPairs()
 
-            GParsPool.withPool(CommonUtil.THREADS) {
+            GParsPool.withPool ExecUtil.THREADS, {
                 pairs.eachParallel(intersect)
             }
         }

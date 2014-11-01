@@ -64,15 +64,16 @@ class PairedIntersection {
     }
 
     public PairedIntersection(SamplePair samplePair,
-                       IntersectionType intersectionType,
-                       boolean store,
-                       Collection<IntersectMetric> intersectMetrics) {
+                              IntersectionType intersectionType,
+                              boolean store,
+                              Collection<IntersectMetric> intersectMetrics) {
         this.store = store
         this.samplePair = store ? samplePair : null
         ExecUtil.report(this, "Intersecting samples #${samplePair.i} and ${samplePair.j}", VERBOSE)
         def jointSample = new JointSample(intersectionType, [samplePair[0], samplePair[1]] as Sample[])
         this.jointSample = store ? jointSample : null
-        this.intersectionEvaluator = new IntersectionEvaluator(jointSample)
+        def intersectionEvaluator = new IntersectionEvaluator(jointSample)
+        this.intersectionEvaluator = store ? intersectionEvaluator : null
         this.intersectMetrics = intersectMetrics
         this.intersectMetricCache = new HashMap<>()
 

@@ -18,6 +18,18 @@ package com.antigenomics.vdjtools.util
 
 
 class ExecUtil {
+    static final int THREADS = Runtime.runtime.availableProcessors()
+
+    static String memoryFootprint() {
+        final factor = 1024 * 1024 * 1024
+
+        int maxMemory = Runtime.runtime.maxMemory() / factor,
+            allocatedMemory = Runtime.runtime.totalMemory() / factor,
+            freeMemory = Runtime.runtime.freeMemory() / factor
+
+        "Memory usage: $allocatedMemory of ${maxMemory + freeMemory} GB"
+    }
+
     static void report(Object me, String message) { // todo: use this everywhere
         report(me, message, true)
     }

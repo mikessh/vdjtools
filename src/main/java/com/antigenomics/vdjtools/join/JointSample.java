@@ -245,7 +245,6 @@ public class JointSample implements Iterable<JointClonotype> {
                     return iterator.next().changeParent(JointSample.this);
                 }
 
-                // todo: support java <1.8
                 @Override
                 public void remove() {
                     throw new UnsupportedOperationException("remove");
