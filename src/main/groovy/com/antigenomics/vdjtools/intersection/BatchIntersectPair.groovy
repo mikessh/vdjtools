@@ -19,6 +19,7 @@ package com.antigenomics.vdjtools.intersection
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.basic.SegmentUsage
 import com.antigenomics.vdjtools.sample.SampleCollection
+import com.antigenomics.vdjtools.util.ExecUtil
 
 def I_TYPE_DEFAULT = "aa"
 def cli = new CliBuilder(usage: "BatchIntersectPair [options] " +
@@ -35,7 +36,7 @@ cli.i(longOpt: "intersect-type", argName: "string", args: 1,
                 "Will use '$I_TYPE_DEFAULT' by default.")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
-// todo: option - redundant (i,j) , (j,i) output
+// todo: provide an option - redundant (i,j) , (j,i) output for the Großtable
 def opt = cli.parse(args)
 
 if (opt == null) {
@@ -61,8 +62,10 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 4)
     System.exit(-1)
 }
 
-def software = Software.byName(opt.S), outputFileName = opt.arguments()[-1],
+def software = Software.byName(opt.S), outputPrefix = opt.arguments()[-1],
     lowMem = (boolean) opt.'low-mem'
+
+ExecUtil.ensureDir(outputPrefix)
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -110,7 +113,7 @@ def pairedIntersectionBatch = new PairedIntersectionBatch(sampleCollection, inte
 
 println "[${new Date()} $scriptName] Writing results"
 
-new File(outputFileName + ".batch_intersect_" + intersectionType.shortName + ".txt").withPrintWriter { pw ->
+new File(outputPrefix + ".batch_intersect_" + intersectionType.shortName + ".txt").withPrintWriter { pw ->
     pw.println(pairedIntersectionBatch.header)
     pw.println(pairedIntersectionBatch.table)
     //pairedIntersectionMatrix.print(pw)

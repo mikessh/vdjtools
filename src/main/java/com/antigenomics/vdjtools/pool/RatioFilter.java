@@ -19,7 +19,6 @@
 package com.antigenomics.vdjtools.pool;
 
 import com.antigenomics.vdjtools.Clonotype;
-import com.antigenomics.vdjtools.intersection.IntersectionType;
 import com.antigenomics.vdjtools.sample.ClonotypeFilter;
 import com.antigenomics.vdjtools.sample.Sample;
 
@@ -27,13 +26,13 @@ public class RatioFilter extends ClonotypeFilter {
     private final PooledSample<MaxClonotypeAggregator> pooledSample;
     private final double thresholdRatio;
 
-    public RatioFilter(Sample[] samples, IntersectionType intersectionType, double thresholdRatio) {
-        this.pooledSample = new PooledSample<>(samples, intersectionType, new MaxClonotypeAggregatorFactory());
+    public RatioFilter(Sample[] samples, double thresholdRatio) {
+        this.pooledSample = new PooledSample<>(samples, new MaxClonotypeAggregatorFactory());
         this.thresholdRatio = thresholdRatio;
     }
 
     public RatioFilter(Sample[] samples) {
-        this(samples, IntersectionType.Strict, 20.0);
+        this(samples, 20.0);
     }
 
     @Override

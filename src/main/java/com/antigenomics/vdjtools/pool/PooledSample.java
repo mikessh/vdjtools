@@ -31,9 +31,15 @@ public class PooledSample<T extends ClonotypeAggregator> {
     private final Map<ClonotypeKey, T> innerMap = new HashMap<>();
     private final ClonotypeKeyGen clonotypeKeyGen;
 
+
     public PooledSample(Sample[] samples,
-                        IntersectionType intersectionType,
                         ClonotypeAggregatorFactory<T> clonotypeAggregatorFactory) {
+        this(samples, clonotypeAggregatorFactory, IntersectionType.Strict);
+    }
+
+    public PooledSample(Sample[] samples,
+                        ClonotypeAggregatorFactory<T> clonotypeAggregatorFactory,
+                        IntersectionType intersectionType) {
         this.clonotypeKeyGen = new ClonotypeKeyGen(intersectionType);
         for (Sample sample : samples) {
             for (Clonotype clonotype : sample) {

@@ -20,6 +20,7 @@ package com.antigenomics.vdjtools.sample;
 
 import com.antigenomics.vdjtools.Clonotype;
 import com.google.common.util.concurrent.AtomicDouble;
+import org.codehaus.groovy.util.StringUtil;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -50,27 +51,61 @@ public abstract class ClonotypeFilter {
 
     protected abstract boolean checkPass(Clonotype clonotype);
 
-    public int getPassedClonotypes() {
-        return passedClonotypes.get();
+    public ClonotypeFilterStats getStats() {
+        return new ClonotypeFilterStats(passedClonotypes.get(), totalClonotypes.get(),
+                passedCount.get(), totalCount.get(),
+                passedFreq.get(), totalFreq.get());
     }
 
-    public int getTotalClonotypes() {
-        return totalClonotypes.get();
+    public ClonotypeFilterStats getStatsAndFlush() {
+        ClonotypeFilterStats stats = getStats();
+        passedClonotypes.set(0);
+        totalClonotypes.set(0);
+        passedCount.set(0L);
+        totalCount.set(0L);
+        passedFreq.set(0.0);
+        totalFreq.set(0.0);
+        return stats;
     }
 
-    public long getPassedCount() {
-        return passedCount.get();
-    }
+    public class ClonotypeFilterStats {
+        private final int passedClonotypes, totalClonotypes;
+        private final long passedCount, totalCount;
+        private final double passedFreq, totalFreq;
 
-    public long getTotalCount() {
-        return totalCount.get();
-    }
+        public ClonotypeFilterStats(int passedClonotypes, int totalClonotypes,
+                                    long passedCount, long totalCount,
+                                    double passedFreq, double totalFreq) {
+            this.passedClonotypes = passedClonotypes;
+            this.totalClonotypes = totalClonotypes;
+            this.passedCount = passedCount;
+            this.totalCount = totalCount;
+            this.passedFreq = passedFreq;
+            this.totalFreq = totalFreq;
+        }
 
-    public double getPassedFreq() {
-        return passedFreq.get();
-    }
+        public int getPassedClonotypes() {
+            return passedClonotypes;
+        }
 
-    public double getTotalFreq() {
-        return totalFreq.get();
+        public int getTotalClonotypes() {
+            return totalClonotypes;
+        }
+
+        public long getPassedCount() {
+            return passedCount;
+        }
+
+        public long getTotalCount() {
+            return totalCount;
+        }
+
+        public double getPassedFreq() {
+            return passedFreq;
+        }
+
+        public double getTotalFreq() {
+            return totalFreq;
+        }
     }
 }

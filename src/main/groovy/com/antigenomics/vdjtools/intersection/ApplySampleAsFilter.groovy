@@ -21,6 +21,7 @@ import com.antigenomics.vdjtools.parser.SampleWriter
 import com.antigenomics.vdjtools.sample.IntersectionClonotypeFilter
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
+import com.antigenomics.vdjtools.util.ExecUtil
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -58,6 +59,8 @@ if (opt.arguments().size() < 3) {
 
 def sampleFileNames = opt.arguments()[0..-2],
     outputPrefix = opt.arguments()[-1]
+
+ExecUtil.ensureDir(outputPrefix)
 
 // Parameters
 
