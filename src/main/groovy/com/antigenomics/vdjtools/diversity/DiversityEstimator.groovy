@@ -99,4 +99,8 @@ class DiversityEstimator {
                 (long) Math.sqrt(F2 * (Math.pow(RF / 2, 4) + Math.pow(2 * RF, 3) + RF * RF)),
                 sample.count, true)
     }
+
+    FrequencyStat computeFrequencyDistributionStats() {
+        new FrequencyStat(frequencyTable)
+    }
 }

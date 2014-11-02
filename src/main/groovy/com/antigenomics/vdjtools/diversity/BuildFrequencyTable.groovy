@@ -1,3 +1,21 @@
+/*
+ * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Last modified on 2.11.2014 by mikesh
+ */
+
 package com.antigenomics.vdjtools.diversity
 
 import com.antigenomics.vdjtools.Software
@@ -5,10 +23,6 @@ import com.antigenomics.vdjtools.intersection.IntersectionType
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.ExecUtil
 import com.antigenomics.vdjtools.util.RUtil
-
-/**
- * Created by mikesh on 10/30/14.
- */
 
 def I_TYPE_DEFAULT = "strict"
 def cli = new CliBuilder(usage: "BuildFrequencyTable [options] input_name output_prefix")
@@ -19,8 +33,8 @@ cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Comma-separated list of intersection types to apply. " +
                 "Allowed values: $IntersectionType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
-cli.p(longOpt: "plot", "Plots rarefaction curves. " +
-        "(R installation with ggplot2 and reshape packages is reuqired).")
+cli.p(longOpt: "plot", "Plots log-log plot for frequency distribution. " +
+        "(R installation with ggplot2 and reshape packages is required).")
 
 def opt = cli.parse(args)
 

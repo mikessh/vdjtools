@@ -20,7 +20,6 @@ package com.antigenomics.vdjtools.sample;
 
 import com.antigenomics.vdjtools.Clonotype;
 import com.google.common.util.concurrent.AtomicDouble;
-import org.codehaus.groovy.util.StringUtil;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -68,7 +67,7 @@ public abstract class ClonotypeFilter {
         return stats;
     }
 
-    public class ClonotypeFilterStats {
+    public static class ClonotypeFilterStats {
         private final int passedClonotypes, totalClonotypes;
         private final long passedCount, totalCount;
         private final double passedFreq, totalFreq;

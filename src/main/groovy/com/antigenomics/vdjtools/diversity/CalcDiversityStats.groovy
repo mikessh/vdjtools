@@ -20,7 +20,6 @@ package com.antigenomics.vdjtools.diversity
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.intersection.IntersectionType
-import com.antigenomics.vdjtools.intersection.IntersectionUtil
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.ExecUtil
@@ -136,7 +135,8 @@ new File(outputPrefix + ".diversity.txt").withPrintWriter { pwDiv ->
             sampleCollection.metadataTable.columnHeader + "\t" +
             "cells\t" +
             intersectionTypes.collect { i ->
-                ["clones", "normdiv_m", "normdiv_s", "efron_m", "efron_s", "chao_m", "chao_s"].collect { m ->
+                ["clones", "normdiv_m", "normdiv_s", "efron_m", "efron_s", "chao_m", "chao_s",
+                 "alpha", "beta", "beta_conf"].collect { m ->
                     "${m}_$i.shortName"
                 }
             }.flatten().join("\t")
@@ -164,13 +164,15 @@ new File(outputPrefix + ".diversity.txt").withPrintWriter { pwDiv ->
             def basediv = diversityEstimator.computeCollapsedSampleDiversity(),
                 normdiv = diversityEstimator.computeNormalizedSampleDiversity(effectiveSampleSize, nResamples),
                 efron = diversityEstimator.computeEfronThisted(efronDepth, efronCvThreshold),
-                chao = diversityEstimator.computeChao1()
+                chao = diversityEstimator.computeChao1(),
+                freqStat = diversityEstimator.computeFrequencyDistributionStats()
 
 
             diversityRow.addAll([basediv.mean,
                                  normdiv.mean, normdiv.std,
                                  efron.mean, efron.std,
-                                 chao.mean, chao.std])
+                                 chao.mean, chao.std,
+                                 freqStat.alpha, freqStat.beta, freqStat.betaConf])
 
             if (doRarefaction) {
                 println "[${new Date()} $scriptName] Bulding rarefaction curve for '${intersectionType.shortName}'"
@@ -207,7 +209,7 @@ if (plot) {
     def datasets = []
 
     sampleCollection.metadataTable.sampleIterator.each {
-        for (int i =0;i<nResamples;i++)
+        for (int i = 0; i < nResamples; i++)
             datasets.add(it)
     }
 
