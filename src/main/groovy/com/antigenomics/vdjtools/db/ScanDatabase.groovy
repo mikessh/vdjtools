@@ -17,7 +17,6 @@
 package com.antigenomics.vdjtools.db
 
 import com.antigenomics.vdjtools.Software
-import com.antigenomics.vdjtools.basic.BasicStats
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.ExecUtil
@@ -29,6 +28,7 @@ cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.D(longOpt: "db-name", argName: "string", args: "1",
         "Database name, currently supported: trdb")
+cli.d(longOpt: "details", "Will output detailed DB query files.")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
@@ -60,6 +60,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 // Remaining arguments
 
 def software = Software.byName(opt.S), dbName = opt.D ?: "trdb", fuzzy = (boolean) opt.f,
+    details = (boolean) opt.d,
     outputFileName = opt.arguments()[-1]
 
 ExecUtil.ensureDir(outputFileName)
@@ -104,10 +105,12 @@ new File(outputFileName + ".annot.${dbName}.summary.txt").withPrintWriter { pwSu
         pwSummary.println([sampleId, sample.sampleMetadata, browserResult].join("\t"))
 
         // Write full summary
-        new File(outputFileName + ".annot.${dbName}.${sampleId}.txt").withPrintWriter { pwDetails ->
-            pwDetails.println("#" + CdrDatabaseMatch.HEADER + "\t" + database.HEADER) // todo: better header composition
-            browserResult.each { match ->
-                pwDetails.println(match)
+        if (details) {
+            new File(outputFileName + ".annot.${dbName}.${sampleId}.txt").withPrintWriter { pwDetails ->
+                pwDetails.println("#" + CdrDatabaseMatch.HEADER + "\t" + database.HEADER) // todo: better header composition
+                browserResult.each { match ->
+                    pwDetails.println(match)
+                }
             }
         }
 
