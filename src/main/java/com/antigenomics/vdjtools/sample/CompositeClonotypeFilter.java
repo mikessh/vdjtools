@@ -22,7 +22,7 @@ import com.antigenomics.vdjtools.Clonotype;
 
 import java.util.Collection;
 
-public class CompositeClonotypeFilter implements ClonotypeFilter {
+public class CompositeClonotypeFilter extends ClonotypeFilter {
     private final Collection<ClonotypeFilter> filters;
 
 
@@ -31,7 +31,7 @@ public class CompositeClonotypeFilter implements ClonotypeFilter {
     }
 
     @Override
-    public boolean pass(Clonotype clonotype) {
+    protected boolean checkPass(Clonotype clonotype) {
         for (ClonotypeFilter filter : filters)
             if (!filter.pass(clonotype))
                 return false;

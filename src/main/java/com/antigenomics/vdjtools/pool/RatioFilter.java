@@ -23,11 +23,12 @@ import com.antigenomics.vdjtools.intersection.IntersectionType;
 import com.antigenomics.vdjtools.sample.ClonotypeFilter;
 import com.antigenomics.vdjtools.sample.Sample;
 
-public class RatioFilter extends PooledSample<MaxClonotypeAggregator> implements ClonotypeFilter {
+public class RatioFilter extends ClonotypeFilter {
+    private final PooledSample<MaxClonotypeAggregator> pooledSample;
     private final double thresholdRatio;
 
     public RatioFilter(Sample[] samples, IntersectionType intersectionType, double thresholdRatio) {
-        super(samples, intersectionType, new MaxClonotypeAggregatorFactory());
+        this.pooledSample = new PooledSample<>(samples, intersectionType, new MaxClonotypeAggregatorFactory());
         this.thresholdRatio = thresholdRatio;
     }
 
@@ -36,7 +37,7 @@ public class RatioFilter extends PooledSample<MaxClonotypeAggregator> implements
     }
 
     @Override
-    public boolean pass(Clonotype clonotype) {
-        return getAt(clonotype).getMaxFreq() < clonotype.getFreq() * thresholdRatio;
+    protected boolean checkPass(Clonotype clonotype) {
+        return pooledSample.getAt(clonotype).getMaxFreq() < clonotype.getFreq() * thresholdRatio;
     }
 }

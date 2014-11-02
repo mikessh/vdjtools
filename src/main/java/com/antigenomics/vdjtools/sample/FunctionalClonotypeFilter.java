@@ -20,14 +20,14 @@ package com.antigenomics.vdjtools.sample;
 
 import com.antigenomics.vdjtools.Clonotype;
 
-public class FunctionalClonotypeFilter implements ClonotypeFilter {
+public class FunctionalClonotypeFilter extends ClonotypeFilter {
     private FunctionalClonotypeFilter() {
     }
 
     public static FunctionalClonotypeFilter INSTANCE = new FunctionalClonotypeFilter();
 
     @Override
-    public boolean pass(Clonotype clonotype) {
+    protected boolean checkPass(Clonotype clonotype) {
         return clonotype.isInFrame() && clonotype.isNoStop();
     }
 }

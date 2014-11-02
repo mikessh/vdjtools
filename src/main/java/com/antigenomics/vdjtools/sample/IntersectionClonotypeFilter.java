@@ -25,7 +25,7 @@ import com.antigenomics.vdjtools.join.key.ClonotypeKey;
 
 import java.util.Set;
 
-public class IntersectionClonotypeFilter implements ClonotypeFilter {
+public class IntersectionClonotypeFilter extends ClonotypeFilter {
     private final ClonotypeKeyGen clonotypeKeyGen;
     private final Set<ClonotypeKey> keySet;
     private final boolean negative;
@@ -37,7 +37,7 @@ public class IntersectionClonotypeFilter implements ClonotypeFilter {
     }
 
     @Override
-    public boolean pass(Clonotype clonotype) {
+    protected boolean checkPass(Clonotype clonotype) {
         return negative ^ keySet.contains(clonotypeKeyGen.generateKey(clonotype));
     }
 }

@@ -20,14 +20,14 @@ package com.antigenomics.vdjtools.sample;
 
 import com.antigenomics.vdjtools.Clonotype;
 
-public class BlankClonotypeFilter implements ClonotypeFilter {
+public class BlankClonotypeFilter extends ClonotypeFilter {
     private BlankClonotypeFilter() {
     }
 
     public static BlankClonotypeFilter INSTANCE = new BlankClonotypeFilter();
 
     @Override
-    public boolean pass(Clonotype clonotype) {
+    protected boolean checkPass(Clonotype clonotype) {
         return true;
     }
 }

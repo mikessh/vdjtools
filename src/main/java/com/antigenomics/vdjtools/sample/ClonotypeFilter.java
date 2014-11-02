@@ -19,7 +19,58 @@
 package com.antigenomics.vdjtools.sample;
 
 import com.antigenomics.vdjtools.Clonotype;
+import com.google.common.util.concurrent.AtomicDouble;
 
-public interface ClonotypeFilter {
-    public boolean pass(Clonotype clonotype);
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
+public abstract class ClonotypeFilter {
+    private final AtomicInteger passedClonotypes = new AtomicInteger(),
+            totalClonotypes = new AtomicInteger();
+    private final AtomicLong passedCount = new AtomicLong(),
+            totalCount = new AtomicLong();
+    private final AtomicDouble passedFreq = new AtomicDouble(),
+            totalFreq = new AtomicDouble();
+
+    public boolean pass(Clonotype clonotype) {
+        boolean pass = checkPass(clonotype);
+
+        if (pass) {
+            passedClonotypes.incrementAndGet();
+            passedCount.addAndGet(clonotype.getCount());
+            passedFreq.addAndGet(clonotype.getFreq());
+        }
+
+        totalClonotypes.incrementAndGet();
+        totalCount.addAndGet(clonotype.getCount());
+        totalFreq.addAndGet(clonotype.getFreq());
+
+        return pass;
+    }
+
+    protected abstract boolean checkPass(Clonotype clonotype);
+
+    public int getPassedClonotypes() {
+        return passedClonotypes.get();
+    }
+
+    public int getTotalClonotypes() {
+        return totalClonotypes.get();
+    }
+
+    public long getPassedCount() {
+        return passedCount.get();
+    }
+
+    public long getTotalCount() {
+        return totalCount.get();
+    }
+
+    public double getPassedFreq() {
+        return passedFreq.get();
+    }
+
+    public double getTotalFreq() {
+        return totalFreq.get();
+    }
 }
