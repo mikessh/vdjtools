@@ -13,28 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 26.10.2014 by mikesh
+ * Last modified on 2.11.2014 by mikesh
  */
 
-package com.antigenomics.vdjtools.join.key;
+package com.antigenomics.vdjtools.pool;
 
 import com.antigenomics.vdjtools.Clonotype;
 
-public class NtVJKey extends ClonotypeKey {
-    public NtVJKey(Clonotype clonotype) {
-        super(clonotype);
+public class MaxClonotypeAggregator implements ClonotypeAggregator {
+    private double maxFreq;
+
+    public MaxClonotypeAggregator() {
+        this(0.0);
+    }
+
+    public MaxClonotypeAggregator(double maxFreq) {
+        this.maxFreq = maxFreq;
     }
 
     @Override
-    public boolean equals(Clonotype other) {
-        return clonotype.getCdr3nt().equals(other.getCdr3nt()) &&
-                clonotype.getV().equals(other.getV()) &&
-                clonotype.getJ().equals(other.getJ());
+    public void combine(ClonotypeAggregator other) {
+        this.maxFreq = Math.max(((MaxClonotypeAggregator) other).maxFreq, maxFreq);
     }
 
     @Override
-    public int hashCode() {
-        return 31 * (clonotype.getCdr3nt().hashCode() * 31 + clonotype.getV().hashCode()) +
-                clonotype.getJ().hashCode();
+    public void combine(Clonotype other) {
+        this.maxFreq = Math.max(other.getFreq(), maxFreq);
+    }
+
+    public double getMaxFreq() {
+        return maxFreq;
     }
 }

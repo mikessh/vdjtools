@@ -28,7 +28,7 @@ eq <- substitute(italic(y) == a %.% italic(x)^b*","~~italic(r)^2~"="~r2,
      list(a = format(10 ^ coef(m)[1], digits = 2),
           b = format(coef(m)[2], digits = 2),
          r2 = format(summary(m)$r.squared, digits = 3)))
-lbl<-as.character(as.expression(eq));
+lbl<-as.character(as.expression(eq))
 
 #plot
 

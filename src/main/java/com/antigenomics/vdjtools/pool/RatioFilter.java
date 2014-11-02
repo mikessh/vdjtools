@@ -13,31 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 26.10.2014 by mikesh
+ * Last modified on 2.11.2014 by mikesh
  */
 
-package com.antigenomics.vdjtools.sample;
+package com.antigenomics.vdjtools.pool;
 
 import com.antigenomics.vdjtools.Clonotype;
 import com.antigenomics.vdjtools.intersection.IntersectionType;
-import com.antigenomics.vdjtools.join.ClonotypeKeyGen;
-import com.antigenomics.vdjtools.join.key.ClonotypeKey;
+import com.antigenomics.vdjtools.sample.ClonotypeFilter;
+import com.antigenomics.vdjtools.sample.Sample;
 
-import java.util.Set;
+public class RatioFilter extends PooledSample<MaxClonotypeAggregator> implements ClonotypeFilter {
+    private final double thresholdRatio;
 
-public class IntersectionClonotypeFilter implements ClonotypeFilter {
-    private final ClonotypeKeyGen clonotypeKeyGen;
-    private final Set<ClonotypeKey> keySet;
-    private final boolean negative;
+    public RatioFilter(Sample[] samples, IntersectionType intersectionType, double thresholdRatio) {
+        super(samples, intersectionType, new MaxClonotypeAggregatorFactory());
+        this.thresholdRatio = thresholdRatio;
+    }
 
-    public IntersectionClonotypeFilter(IntersectionType intersectionType, Sample sample, boolean negative) {
-        this.clonotypeKeyGen = new ClonotypeKeyGen(intersectionType);
-        this.keySet = new ClonotypeKeyGen(intersectionType).generateKeySet(sample);
-        this.negative = negative;
+    public RatioFilter(Sample[] samples) {
+        this(samples, IntersectionType.Strict, 20.0);
     }
 
     @Override
     public boolean pass(Clonotype clonotype) {
-        return negative ^ keySet.contains(clonotypeKeyGen.generateKey(clonotype));
+        return getAt(clonotype).getMaxFreq() < clonotype.getFreq() * thresholdRatio;
     }
 }

@@ -13,28 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 26.10.2014 by mikesh
+ * Last modified on 2.11.2014 by mikesh
  */
 
-package com.antigenomics.vdjtools.join.key;
+package com.antigenomics.vdjtools.pool;
 
 import com.antigenomics.vdjtools.Clonotype;
 
-public class NtVJKey extends ClonotypeKey {
-    public NtVJKey(Clonotype clonotype) {
-        super(clonotype);
-    }
-
-    @Override
-    public boolean equals(Clonotype other) {
-        return clonotype.getCdr3nt().equals(other.getCdr3nt()) &&
-                clonotype.getV().equals(other.getV()) &&
-                clonotype.getJ().equals(other.getJ());
-    }
-
-    @Override
-    public int hashCode() {
-        return 31 * (clonotype.getCdr3nt().hashCode() * 31 + clonotype.getV().hashCode()) +
-                clonotype.getJ().hashCode();
-    }
+public interface ClonotypeAggregator {
+    public void combine(ClonotypeAggregator other);
+    public void combine(Clonotype other);
 }

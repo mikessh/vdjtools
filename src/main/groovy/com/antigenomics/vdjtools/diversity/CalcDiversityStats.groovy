@@ -1,17 +1,19 @@
-/**
- Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+/*
+ * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Last modified on 2.11.2014 by mikesh
  */
 
 package com.antigenomics.vdjtools.diversity
@@ -24,8 +26,9 @@ import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.ExecUtil
 import com.antigenomics.vdjtools.util.RUtil
 
+// TODO ADD ALPHA!!
 def N_DEFAULT = "300000", R_STEP_DEFAULT = "100000", R_MAX_DEFAULT = "1000000",
-    I_TYPES_DEFAULT = [IntersectionType.AminoAcid, IntersectionType.Nucleotide]
+    I_TYPES_DEFAULT = [IntersectionType.AminoAcid, IntersectionType.Nucleotide, IntersectionType.Strict]
 def cli = new CliBuilder(usage: "CalcDiversityStats [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
@@ -117,7 +120,7 @@ def sampleCollection = metadataFileName ?
         new SampleCollection((String) metadataFileName, software) :
         new SampleCollection(opt.arguments()[0..-2], software)
 
-println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
+println "[${new Date()} $scriptName] ${sampleCollection.size()} samples to analyze"
 
 //
 // Compute and output diversity measures
@@ -151,6 +154,8 @@ new File(outputPrefix + ".diversity.txt").withPrintWriter { pwDiv ->
     }
 
     sampleCollection.each { Sample sample ->
+        println "[${new Date()} $scriptName] Analyzing $sample.sampleMetadata.sampleId"
+
         def diversityRow = [sample.sampleMetadata.sampleId, sample.sampleMetadata,
                             sample.count]
 

@@ -29,7 +29,6 @@ class CommonUtil {
                                'A', 'D', 'E', 'G']
 
 
-
     static final int nt2code(char nt) {
         switch (nt) {
             case 'A':
