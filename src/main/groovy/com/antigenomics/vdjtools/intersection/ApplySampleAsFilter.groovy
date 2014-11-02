@@ -1,17 +1,19 @@
-/**
- Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+/*
+ * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Last modified on 2.11.2014 by mikesh
  */
 
 package com.antigenomics.vdjtools.intersection
@@ -80,8 +82,7 @@ if (!intersectionType) {
 println "[${new Date()} $scriptName] Reading input samples & filter sample"
 
 def sampleCollection = new SampleCollection(sampleFileNames.flatten() as List<String>, software)
-def intersectionUtil = new IntersectionUtil(intersectionType)
-def clonotypeFilter = new IntersectionClonotypeFilter(intersectionUtil, sampleCollection[0], negative)
+def clonotypeFilter = new IntersectionClonotypeFilter(intersectionType, sampleCollection[0], negative)
 
 //
 // Filter samples
@@ -89,10 +90,10 @@ def clonotypeFilter = new IntersectionClonotypeFilter(intersectionUtil, sampleCo
 
 println "[${new Date()} $scriptName] Filtering (${negative ? "negative" : "positive"}) and writing output"
 
-def writer = new SampleWriter(software)
+def sw = new SampleWriter(software)
 
-new File("${outputPrefix}.filtersummary.txt").withPrintWriter { pwSummary ->
-    pwSummary.println("#sample_id\tcells_before\tdiversity_before\tcells_after\tdiversity_after")
+new File("${outputPrefix}.filtersummary.txt").withPrintWriter { pw ->
+    pw.println("#sample_id\tcells_before\tdiversity_before\tcells_after\tdiversity_after")
     (1..<sampleCollection.size()).each { int index ->
         def sample = sampleCollection[index]
 
@@ -101,14 +102,12 @@ new File("${outputPrefix}.filtersummary.txt").withPrintWriter { pwSummary ->
 
         println "[${new Date()} $scriptName] Processed ${index + 1}th sample."
 
-        pwSummary.println([sample.sampleMetadata.sampleId,
+        pw.println([sample.sampleMetadata.sampleId,
                            sample.count, sample.diversity,
                            filteredSample.count, filteredSample.diversity].join("\t"))
 
         // print output
-        new File("${outputPrefix}_${sample.sampleMetadata.sampleId}.txt").withPrintWriter { pw ->
-            writer.write(filteredSample, pw)
-        }
+        sw.write(filteredSample, "${outputPrefix}_${sample.sampleMetadata.sampleId}.txt")
     }
 }
 
