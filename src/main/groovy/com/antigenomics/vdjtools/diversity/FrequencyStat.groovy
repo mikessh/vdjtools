@@ -43,7 +43,7 @@ class FrequencyStat {
     }
 
     double getBetaConf() {
-        return betaConf
+        betaConf
     }
 
     double getAlpha() {

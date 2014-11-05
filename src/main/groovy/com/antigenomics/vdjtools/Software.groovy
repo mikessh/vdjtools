@@ -28,7 +28,6 @@ enum Software {
                                       "inFrame", "noStop", "complete",
                                       "blank", "blank", "blank",
                                       "blank"]), // todo : output mutations
-    CdrBlast("cdrblast", "\t", "#", 0, []),
     Simple("simple", "\t", "#", 0, ["count", "freq", "cdr3nt", "cdr3aa", "v", "d", "j"])
 
     final String name, delimiter, comment

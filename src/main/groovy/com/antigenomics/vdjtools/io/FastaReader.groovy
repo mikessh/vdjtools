@@ -50,12 +50,10 @@ class FastaReader implements Iterable<FastaRecord> {
             } else // sequence line
                 seq += line
         }
-
-
     }
 
     @Override
     Iterator iterator() {
-        return [ hasNext: { header != null}, next: { next() } ] as Iterator
+        return [hasNext: { header != null }, next: { next() }] as Iterator
     }
 }
