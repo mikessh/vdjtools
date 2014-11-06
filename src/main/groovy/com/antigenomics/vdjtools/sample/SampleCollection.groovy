@@ -16,13 +16,8 @@
 
 package com.antigenomics.vdjtools.sample
 
-import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Software
-import com.antigenomics.vdjtools.intersection.IntersectionType
-import com.antigenomics.vdjtools.intersection.IntersectionUtil
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
-import com.antigenomics.vdjtools.timecourse.DynamicClonotype
-import com.antigenomics.vdjtools.timecourse.TimeCourse
 import org.apache.commons.io.FilenameUtils
 
 /**
@@ -214,33 +209,6 @@ class SampleCollection implements Iterable<Sample> {
      */
     SampleCollection(String sampleMetadataFileName, Software software) {
         this(sampleMetadataFileName, software, false, true, true)
-    }
-
-    /**
-     * Generates a time course for a given sequential intersection.
-     * Only clonotypes met in at least two sequential samples are retained
-     * @return clonotype abundance time course
-     */
-    @Deprecated
-    TimeCourse asTimeCourse() {
-        // todo: REWRITE
-        def clonotypeMap = new HashMap<String, Clonotype[]>()
-
-        def intersectionUtil = new IntersectionUtil(IntersectionType.NucleotideV)
-
-        this.eachWithIndex { Sample sample, int sampleIndex ->
-            sample.eachWithIndex { Clonotype clonotype, int i ->
-
-                def key = intersectionUtil.generateKey(clonotype)
-                def entry = clonotypeMap[key]
-                if (!entry)
-                    clonotypeMap.put(key, entry = new Clonotype[size()])
-
-                entry[sampleIndex] = clonotype
-            }
-        }
-
-        new TimeCourse(sampleMap.values() as Sample[], clonotypeMap.values().collect { new DynamicClonotype(it) })
     }
 
     /**
