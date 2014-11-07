@@ -49,6 +49,7 @@ class IntersectionEvaluator {
         ExecUtil.report(this, "Computing $metric", VERBOSE)
         switch (metric) {
             case IntersectMetric.Diversity:
+                // todo: check this
                 def div1 = jointSample.getSample(i).diversity,
                         div2 = jointSample.getSample(j).diversity,
                         div12 = jointSample.getIntersectionDiv(i, j)

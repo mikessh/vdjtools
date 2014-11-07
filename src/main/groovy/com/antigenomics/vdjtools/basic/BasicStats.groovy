@@ -21,7 +21,7 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 
 class BasicStats {
     final Sample sample
-    private final DescriptiveStatistics cloneSize, cdr3ntLength, insertSize
+    private final DescriptiveStatistics cloneSize, cdr3ntLength, insertSize, ndnSize
     private int oofCount
     private double oofRatio
 
@@ -31,11 +31,13 @@ class BasicStats {
         this.cloneSize = new DescriptiveStatistics()
         this.cdr3ntLength = new DescriptiveStatistics()
         this.insertSize = new DescriptiveStatistics()
+        this.ndnSize = new DescriptiveStatistics()
 
         sample.each {
             cloneSize.addValue(it.freq)
             cdr3ntLength.addValue(it.cdr3nt.length())
-            insertSize.addValue(it.VJIns)
+            insertSize.addValue(it.insertSize)
+            ndnSize.addValue(it.NDNSize)
             if (!it.inFrame) {
                 oofCount++
                 oofRatio += it.freq
@@ -49,6 +51,10 @@ class BasicStats {
 
     double getMeanCdr3ntLength() {
         cdr3ntLength.mean
+    }
+
+    double getMeanNDNSize() {
+        ndnSize.mean
     }
 
     double getMeanInsertSize() {
@@ -69,14 +75,15 @@ class BasicStats {
 
     static final String HEADER = "cells\tdiversity\t" +
             "mean_clone_fraction\tmedian_clone_fraction\t" +
-            "oof_count\toof_fraction\tmean_cdr3nt_length\tmean_insert_size"
+            "oof_count\toof_fraction\t" +
+            "mean_cdr3nt_length\tmean_insert_size\tmean_ndn_size"
 
     @Override
     String toString() {
         [cells, diversity,
          meanCloneSize, medianCloneSize,
          oofCount, oofRatio,
-         meanCdr3ntLength, meanInsertSize
+         meanCdr3ntLength, meanInsertSize, meanNDNSize
         ].flatten().join("\t")
     }
 }

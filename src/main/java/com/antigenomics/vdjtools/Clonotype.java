@@ -183,10 +183,12 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
         return segmPoints[2] >= 0 ? segmPoints[3] - segmPoints[2] + 1 : -1;
     }
 
-    public int getVJIns() {
-        return segmPoints[1] >= 0 && segmPoints[2] >= 0 ?
-                getVDIns() + getDJIns() :
-                segmPoints[3] - segmPoints[1] + 1;
+    public int getInsertSize() {
+        return segmPoints[1] >= 0 && segmPoints[2] >= 0 ? getVDIns() + getDJIns() : -1;
+    }
+
+    public int getNDNSize() {
+        return segmPoints[3] - segmPoints[1] + 1;
     }
 
     public String getBlank() {
