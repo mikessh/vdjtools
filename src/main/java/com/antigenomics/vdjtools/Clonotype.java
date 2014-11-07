@@ -188,7 +188,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
     }
 
     public int getNDNSize() {
-        return segmPoints[3] - segmPoints[1] + 1;
+        return segmPoints[3] - segmPoints[0] + 1;
     }
 
     public String getBlank() {

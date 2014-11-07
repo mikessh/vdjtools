@@ -36,7 +36,11 @@ class BasicStats {
         sample.each {
             cloneSize.addValue(it.freq)
             cdr3ntLength.addValue(it.cdr3nt.length())
-            insertSize.addValue(it.insertSize)
+
+            def x = it.insertSize
+            if (x > -1)
+                insertSize.addValue(x)
+
             ndnSize.addValue(it.NDNSize)
             if (!it.inFrame) {
                 oofCount++
