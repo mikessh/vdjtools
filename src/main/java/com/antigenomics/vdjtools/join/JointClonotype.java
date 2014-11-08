@@ -19,6 +19,7 @@
 package com.antigenomics.vdjtools.join;
 
 import com.antigenomics.vdjtools.Clonotype;
+import com.antigenomics.vdjtools.Misc;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -27,7 +28,6 @@ public class JointClonotype implements Comparable<JointClonotype> {
     private final JointSample parent;
     private final List[] variantsBySample;
     private final int[] counts;
-    private static final double JITTER = 1e-9; // upper limit on current precision of RepSeq
     private int peak = -1;
     private Clonotype representative = null;
     private double meanFreq = -1;
@@ -126,7 +126,7 @@ public class JointClonotype implements Comparable<JointClonotype> {
         if (meanFreq < 0) {
             meanFreq = 1;
             for (int i = 0; i < parent.getNumberOfSamples(); i++) {
-                meanFreq *= (getFreq(i) + JITTER);
+                meanFreq *= (getFreq(i) + Misc.JITTER);
             }
             meanFreq = Math.pow(meanFreq, 1.0 / (double) parent.getNumberOfSamples());
         }

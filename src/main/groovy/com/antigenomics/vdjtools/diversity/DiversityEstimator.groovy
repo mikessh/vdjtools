@@ -17,9 +17,11 @@
 package com.antigenomics.vdjtools.diversity
 
 import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.pool.SampleAggregator
 import com.antigenomics.vdjtools.sample.Sample
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 import org.apache.commons.math3.util.CombinatoricsUtils
+import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 class DiversityEstimator {
     private final Sample sample
@@ -37,11 +39,20 @@ class DiversityEstimator {
         this.frequencyTable = new FrequencyTable(sample, intersectionType)
     }
 
+    public DiversityEstimator(SampleAggregator pool) {
+        this.sample = null
+        this.intersectionType = null
+        this.frequencyTable = new FrequencyTable(pool)
+    }
+
     public Diversity computeCollapsedSampleDiversity() {
-        new Diversity(frequencyTable.diversity, 0, sample.count, false)
+        new Diversity(frequencyTable.diversity, 0, frequencyTable.count, false)
     }
 
     Diversity computeNormalizedSampleDiversity(int sampleSize, int resampleCount) {
+        if (!sample)
+            throw new NotImplementedException()
+
         if (sampleSize >= sample.count) {
             // extrapolating
             def baseDiversity = computeCollapsedSampleDiversity()
@@ -89,7 +100,7 @@ class DiversityEstimator {
                 break
         }
 
-        new Diversity((long) S, (long) D, sample.count, true)
+        new Diversity((long) S, (long) D, frequencyTable.count, true)
     }
 
     Diversity computeChao1() {
@@ -97,10 +108,14 @@ class DiversityEstimator {
 
         new Diversity((long) (frequencyTable.diversity + F1 * RF),
                 (long) Math.sqrt(F2 * (Math.pow(RF / 2, 4) + Math.pow(2 * RF, 3) + RF * RF)),
-                sample.count, true)
+                frequencyTable.count, true)
     }
 
     FrequencyStat computeFrequencyDistributionStats() {
         new FrequencyStat(frequencyTable)
+    }
+
+    FrequencyTable getFrequencyTable() {
+        frequencyTable
     }
 }

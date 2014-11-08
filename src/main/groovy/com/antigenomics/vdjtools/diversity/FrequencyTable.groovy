@@ -23,12 +23,13 @@ import com.antigenomics.vdjtools.Counter
 import com.antigenomics.vdjtools.intersection.IntersectionType
 import com.antigenomics.vdjtools.join.ClonotypeKeyGen
 import com.antigenomics.vdjtools.join.key.ClonotypeKey
+import com.antigenomics.vdjtools.pool.ClonotypeAggregator
+import com.antigenomics.vdjtools.pool.SampleAggregator
 import com.antigenomics.vdjtools.sample.Sample
 
 public class FrequencyTable {
-    private final long min, max, total
+    private final long min, max, count, diversity
     private final Map<Long, Long> frequencyMap = new HashMap<>()
-    private final int diversity
 
     FrequencyTable(Sample sample, IntersectionType intersectionType) {
         Iterable<Countable> counters
@@ -61,10 +62,31 @@ public class FrequencyTable {
 
         this.min = min
         this.max = max
-        this.total = sample.count
+        this.count = sample.count
     }
 
-    public int getDiversity() {
+    FrequencyTable(SampleAggregator pool) {
+        long diversity = 0, count = 0
+
+        // compute frequency table
+        long min = Long.MAX_VALUE, max = -1
+
+        pool.each { ClonotypeAggregator it ->
+            long x = it.incidenceCount
+            frequencyMap.put(x, (frequencyMap[x] ?: 0L) + 1L)
+            min = Math.min(x, min)
+            max = Math.max(x, max)
+            diversity++
+            count += x
+        }
+
+        this.min = min
+        this.max = max
+        this.count = count
+        this.diversity = diversity
+    }
+
+    public long getDiversity() {
         return diversity
     }
 
@@ -84,7 +106,7 @@ public class FrequencyTable {
         double s = 0
         frequencyMap.sort { it.key }.collect {
             s += it.value
-            new BinInfo(it.key, it.value, 1.0 - s / diversity, Math.sqrt(it.key * (1.0 - it.key / (double) total)))
+            new BinInfo(it.key, it.value, 1.0 - s / diversity, Math.sqrt(it.key * (1.0 - it.key / (double) count)))
         }
     }
 
@@ -129,6 +151,5 @@ public class FrequencyTable {
         public String toString() {
             [clonotypeSize, clonotypeSize - cloneSizeStd, clonotypeSize + cloneSizeStd, numberOfClonotypes, complementaryCdf].join("\t")
         }
-
     }
 }

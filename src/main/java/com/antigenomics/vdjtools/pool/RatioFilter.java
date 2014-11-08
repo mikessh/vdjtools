@@ -23,20 +23,20 @@ import com.antigenomics.vdjtools.sample.ClonotypeFilter;
 import com.antigenomics.vdjtools.sample.Sample;
 
 public class RatioFilter extends ClonotypeFilter {
-    private final PooledSample<MaxClonotypeAggregator> pooledSample;
+    private final SampleAggregator<MaxClonotypeAggregator> sampleAggregator;
     private final double thresholdRatio;
 
-    public RatioFilter(Sample[] samples, double thresholdRatio) {
-        this.pooledSample = new PooledSample<>(samples, new MaxClonotypeAggregatorFactory());
+    public RatioFilter(Iterable<Sample> samples, double thresholdRatio) {
+        this.sampleAggregator = new SampleAggregator<>(samples, new MaxClonotypeAggregatorFactory());
         this.thresholdRatio = thresholdRatio;
     }
 
-    public RatioFilter(Sample[] samples) {
+    public RatioFilter(Iterable<Sample> samples) {
         this(samples, 20.0);
     }
 
     @Override
     protected boolean checkPass(Clonotype clonotype) {
-        return pooledSample.getAt(clonotype).getMaxFreq() < clonotype.getFreq() * thresholdRatio;
+        return sampleAggregator.getAt(clonotype).getMaxFreq() < clonotype.getFreq() * thresholdRatio;
     }
 }

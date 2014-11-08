@@ -13,32 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 2.11.2014 by mikesh
+ * Last modified on 7.11.2014 by mikesh
  */
 
 package com.antigenomics.vdjtools.pool;
 
 import com.antigenomics.vdjtools.Clonotype;
 
-public class MaxClonotypeAggregator extends ClonotypeAggregator {
-    private double maxFreq;
+public class StoringClonotypeAggregator extends MaxClonotypeAggregator {
+    private Clonotype clonotype;
 
-    public MaxClonotypeAggregator(Clonotype clonotype, int sampleId) {
+    public StoringClonotypeAggregator(Clonotype clonotype, int sampleId) {
         super(clonotype, sampleId);
-        this.maxFreq = clonotype.getFreq();
+        this.clonotype = clonotype;
     }
 
     @Override
-    protected boolean _combine(Clonotype other, int sampleId) {
-        double freq = other.getFreq();
-        if (maxFreq < freq) {
-            this.maxFreq = freq;
+    protected boolean _combine(Clonotype clonotype, int sampleId) {
+        if(super._combine(clonotype, sampleId)){
+            this.clonotype = clonotype;
             return true;
         }
         return false;
     }
 
-    public double getMaxFreq() {
-        return maxFreq;
+    public Clonotype getClonotype() {
+        return clonotype;
     }
 }

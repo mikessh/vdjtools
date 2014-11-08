@@ -20,7 +20,51 @@ package com.antigenomics.vdjtools.pool;
 
 import com.antigenomics.vdjtools.Clonotype;
 
-public interface ClonotypeAggregator {
-    public void combine(ClonotypeAggregator other);
-    public void combine(Clonotype other);
+public abstract class ClonotypeAggregator {
+    private int sampleId;
+    private int incidenceCount, count;
+    //private double freq, freqRem = 0;
+
+    public ClonotypeAggregator(Clonotype clonotype, int sampleId) {
+        this.incidenceCount = 1;
+        //this.freq = Math.log10(clonotype.getFreq());
+        this.count = clonotype.getCount();
+        this.sampleId = sampleId;
+    }
+
+    public final void combine(Clonotype other, int sampleId) {
+        if (this.sampleId != sampleId) {
+            incidenceCount++;
+            this.sampleId = sampleId;
+            //freq += freqRem > 0 ? Math.log10(freqRem) : 0;  // add remainder
+            //freqRem = other.getFreq();                      // start accumulating freq
+        } //else
+        //freqRem += other.getFreq();                     // continue accumulating freq
+
+        count += other.getCount();
+        _combine(other, sampleId);
+    }
+
+    protected abstract boolean _combine(Clonotype other, int sampleId);
+
+    public int getIncidenceCount() {
+        return incidenceCount;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    /*
+    public double getFreqLogSum() {
+        return freq + (freqRem > 0 ? Math.log10(freqRem) : 0);
+    }
+
+    public double getFreqGeomMean() {
+        return Math.pow(10.0, getFreqLogSum() / incidenceCount);
+    }
+
+    public double getFreqGeomMean(int numberOfSamples) {
+        return Math.pow(10.0, (getFreqLogSum() + (numberOfSamples - incidenceCount) * Misc.JITTER_LOG10) / numberOfSamples);
+    }*/
 }

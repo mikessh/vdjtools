@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 2.11.2014 by mikesh
+ * Last modified on 8.11.2014 by mikesh
  */
 
-package com.antigenomics.vdjtools.pool;
+package com.antigenomics.vdjtools;
 
-import com.antigenomics.vdjtools.Clonotype;
-
-public class MaxClonotypeAggregatorFactory implements ClonotypeAggregatorFactory<MaxClonotypeAggregator> {
-    @Override
-    public MaxClonotypeAggregator create(Clonotype clonotype, int sampleId) {
-        return new MaxClonotypeAggregator(clonotype, sampleId);
-    }
+public class Misc {
+    /**
+     * Upper limit on current precision of RepSeq
+     */
+    public static final double JITTER = 1e-9, JITTER_LOG10 = Math.log10(JITTER);
 }

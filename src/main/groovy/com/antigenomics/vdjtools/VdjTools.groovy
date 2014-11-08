@@ -1,17 +1,19 @@
-/**
- Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+/*
+ * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Last modified on 8.11.2014 by mikesh
  */
 
 
@@ -22,10 +24,7 @@ import com.antigenomics.vdjtools.db.ScanDatabase
 import com.antigenomics.vdjtools.diversity.BuildFrequencyTable
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.DownSample
-import com.antigenomics.vdjtools.intersection.BatchIntersectPair
-import com.antigenomics.vdjtools.intersection.BatchIntersectPairPlot
-import com.antigenomics.vdjtools.intersection.IntersectPair
-import com.antigenomics.vdjtools.intersection.IntersectSequential
+import com.antigenomics.vdjtools.intersection.*
 import com.antigenomics.vdjtools.util.ExecUtil
 
 import java.util.jar.JarFile
@@ -34,7 +33,7 @@ def version = (getClass().classLoader.findResource(JarFile.MANIFEST_NAME).text =
         /Implementation-Version: (.+)/)[0][1]
 
 def printHelp = {
-    println "VdjTools V$version"
+    println "VDJtools V$version"
     println ""
     println "Run as \$java -jar vdjtools-${version}.jar ROUTINE_NAME arguments"
     println ""
@@ -50,11 +49,14 @@ def printHelp = {
     println "[Sample diversity]"
     println "CalcDiversityStats"
     println "DownSample"
+    println "BuildFrequencyTable"
     println ""
     println "[Cross-sample analysis]"
     println "IntersectPair"
     println "BatchIntersectPair"
     println "BatchIntersectPairPlot"
+    println "IntersectSequential"
+    println "PoolSamples"
     println ""
     println "[Sample annotation]"
     println "ScanDatabase"
@@ -95,6 +97,8 @@ def getScript = { String scriptName ->
             return new ScanDatabase()
         case "BUILDFREQUENCYTABLE":
             return new BuildFrequencyTable()
+        case "POOLSAMPLES":
+            return new PoolSamples()
         case "-H":
         case "H":
         case "-HELP":

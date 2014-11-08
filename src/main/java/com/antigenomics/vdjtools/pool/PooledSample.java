@@ -13,53 +13,64 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 2.11.2014 by mikesh
+ * Last modified on 8.11.2014 by mikesh
  */
 
 package com.antigenomics.vdjtools.pool;
 
 import com.antigenomics.vdjtools.Clonotype;
-import com.antigenomics.vdjtools.intersection.IntersectionType;
-import com.antigenomics.vdjtools.join.ClonotypeKeyGen;
-import com.antigenomics.vdjtools.join.key.ClonotypeKey;
-import com.antigenomics.vdjtools.sample.Sample;
+import com.antigenomics.vdjtools.ClonotypeContainer;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
-public class PooledSample<T extends ClonotypeAggregator> {
-    private final Map<ClonotypeKey, T> innerMap = new HashMap<>();
-    private final ClonotypeKeyGen clonotypeKeyGen;
+public class PooledSample implements ClonotypeContainer {
+    private final List<Clonotype> clonotypes;
+    private final long count;
 
+    public PooledSample(SampleAggregator<StoringClonotypeAggregator> sampleAggregator) {
+        this.clonotypes = new ArrayList<>(sampleAggregator.getDiversity());
 
-    public PooledSample(Sample[] samples,
-                        ClonotypeAggregatorFactory<T> clonotypeAggregatorFactory) {
-        this(samples, clonotypeAggregatorFactory, IntersectionType.Strict);
-    }
+        long count = 0;
 
-    public PooledSample(Sample[] samples,
-                        ClonotypeAggregatorFactory<T> clonotypeAggregatorFactory,
-                        IntersectionType intersectionType) {
-        this.clonotypeKeyGen = new ClonotypeKeyGen(intersectionType);
-        for (Sample sample : samples) {
-            for (Clonotype clonotype : sample) {
-                ClonotypeKey clonotypeKey = clonotypeKeyGen.generateKey(clonotype);
-
-                ClonotypeAggregator clonotypeAggregator = getAt(clonotypeKey);
-                if (clonotypeAggregator == null) {
-                    innerMap.put(clonotypeKey, clonotypeAggregatorFactory.create(clonotype));
-                } else {
-                    clonotypeAggregator.combine(clonotype);
-                }
-            }
+        for (StoringClonotypeAggregator clonotypeAggregator : sampleAggregator) {
+            int x = clonotypeAggregator.getCount();
+            count += x;
+            clonotypes.add(new Clonotype(clonotypeAggregator.getClonotype(),
+                    this,
+                    x));
         }
+
+        this.count = count;
+
+        Collections.sort(clonotypes);
     }
 
-    private T getAt(ClonotypeKey clonotypeKey) {
-        return innerMap.get(clonotypeKey);
+
+    @Override
+    public double getFreq() {
+        return 1.0;
     }
 
-    public T getAt(Clonotype clonotype) {
-        return getAt(clonotypeKeyGen.generateKey(clonotype));
+    @Override
+    public long getCount() {
+        return count;
+    }
+
+    @Override
+    public int getDiversity() {
+        return clonotypes.size();
+    }
+
+    @Override
+    public Clonotype getAt(int index) {
+        return clonotypes.get(index);
+    }
+
+    @Override
+    public Iterator<Clonotype> iterator() {
+        return clonotypes.iterator();
     }
 }

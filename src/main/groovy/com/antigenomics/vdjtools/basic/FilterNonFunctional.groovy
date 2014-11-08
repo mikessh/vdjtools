@@ -72,8 +72,8 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 println "[${new Date()} $scriptName] Reading sample(s)"
 
 def sampleCollection = metadataFileName ?
-        new SampleCollection((String) metadataFileName, software) :
-        new SampleCollection(opt.arguments()[0..-2], software)
+        new SampleCollection((String) metadataFileName, software, false, true) :
+        new SampleCollection(opt.arguments()[0..-2], software, false, true)
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded"
 
@@ -89,9 +89,7 @@ sampleCollection.eachWithIndex { sample, ind ->
     println "[${new Date()} $scriptName] Processed ${ind + 1} sample(s).."
 
     // print output
-    new File(outputPrefix + "." + sample.sampleMetadata.sampleId + ".txt").withPrintWriter { pw ->
-        writer.write(filteredSample, pw)
-    }
+    writer.write(filteredSample, outputPrefix + "." + sample.sampleMetadata.sampleId + ".txt")
 }
 
 println "[${new Date()} $scriptName] Finished"

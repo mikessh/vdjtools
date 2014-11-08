@@ -19,10 +19,8 @@
 package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Software
-import com.antigenomics.vdjtools.pool.MaxClonotypeAggregator
-import com.antigenomics.vdjtools.pool.MaxClonotypeAggregatorFactory
-
-import com.antigenomics.vdjtools.pool.PooledSample
+import com.antigenomics.vdjtools.io.SampleWriter
+import com.antigenomics.vdjtools.pool.*
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.ExecUtil
 
@@ -105,9 +103,9 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
 println "[${new Date()} $scriptName] Pooling with $intersectionType .. this may take a while"
 
-def cloneAggrFact = writeCloneset ? new MaxClonotypeAggregatorWithMemFactory() : new MaxClonotypeAggregatorFactory()
+def cloneAggrFact = writeCloneset ? new StoringClonotypeAggregatorFactory() : new MaxClonotypeAggregatorFactory()
 
-def pool = new PooledSample(sampleCollection, cloneAggrFact, intersectionType)
+def sampleAggr = new SampleAggregator(sampleCollection, cloneAggrFact, intersectionType)
 
 //
 // Build frequency table for statistics
@@ -117,14 +115,16 @@ println "[${new Date()} $scriptName] Computing frequency tables for stats"
 //def diversityEstimator = new DiversityEstimator(pool)
 
 new File(outputPrefix + ".poolfreqs.txt").withPrintWriter { pwFreq ->
-    pwFreq.println("#sample_count\tmax_freq")
-    pool.each { MaxClonotypeAggregator aggr ->
-        pwFreq.println(aggr.count + "\t" + aggr.maxFreq)
+    pwFreq.println("#incidence_count\tread_count")
+    sampleAggr.each { MaxClonotypeAggregator cloneAggr ->
+        pwFreq.println(cloneAggr.incidenceCount + "\t" + cloneAggr.count)
     }
 }
 
 if (writeCloneset) {
-
+    println "[${new Date()} $scriptName] Normalizing and sorting pooled clonotypes. Writing output"
+    def writer = new SampleWriter(software)
+    writer.write(new PooledSample(sampleAggr), outputPrefix + ".clonetable.txt")
 }
 
 
