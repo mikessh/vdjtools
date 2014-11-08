@@ -17,7 +17,8 @@ df <- df[1:(nrow(df)-1), ]
 
 # For label plotting, source: http://goo.gl/K4yh
 
-x <- log10(df$X.clonotype_size)
+#x <- log10(df$X.clonotype_size)
+x <- log10(df$clonotype_freq)
 y <- log10(df$compl_cdf)
 w <- df$number_of_clonotypes
 
@@ -34,13 +35,22 @@ lbl<-as.character(as.expression(eq))
 
 pdf(file_out)
 
+#ggplot() +
+#    geom_ribbon(data = df, aes(x = compl_cdf, y = X.clonotype_size, ymin = clonotype_size_l, ymax = clonotype_size_u), alpha = 0.3, fill="blue") +
+#    geom_line(data = df, aes(x = compl_cdf, y = X.clonotype_size), color="blue") +
+#    scale_y_log10(expand = c(0,0), limits=c(1, max(df$X.clonotype_size))) + scale_x_log10(expand = c(0,0)) +
+#    theme_bw() + coord_flip() +
+#    xlab("1-CDF") + ylab("clonotype size") +
+#    geom_line(stat="smooth",data = df, aes(x = compl_cdf, y = X.clonotype_size, weight = number_of_clonotypes), method = 'lm', formula = y~x, se=FALSE, linetype ="dashed", size = 1.0, color="black") +
+#    geom_text(aes(x = max(df$compl_cdf), y = max(df$X.clonotype_size), label = lbl), hjust=1.1, vjust=1.2, parse = TRUE)
+
 ggplot() +
-    geom_ribbon(data = df, aes(x = compl_cdf, y = X.clonotype_size, ymin = clonotype_size_l, ymax = clonotype_size_u), alpha = 0.3, fill="blue") +
-    geom_line(data = df, aes(x = compl_cdf, y = X.clonotype_size), color="blue") +
-    scale_y_log10(expand = c(0,0), limits=c(1, max(df$X.clonotype_size))) + scale_x_log10(expand = c(0,0)) +
+    geom_ribbon(data = df, aes(x = compl_cdf, y = clonotype_freq, ymin = clonotype_freq_l, ymax = clonotype_freq_u), alpha = 0.3, fill="blue") +
+    geom_line(data = df, aes(x = compl_cdf, y = clonotype_freq), color="blue") +
+    scale_y_log10(expand = c(0,0), limits=c(min(df$clonotype_freq), max(df$clonotype_freq)), oob=scales::rescale_none) + scale_x_log10(expand = c(0,0), oob=scales::rescale_none) +
     theme_bw() + coord_flip() +
-    xlab("1-CDF") + ylab("clonotype size") +
-    geom_line(stat="smooth",data = df, aes(x = compl_cdf, y = X.clonotype_size, weight = number_of_clonotypes), method = 'lm', formula = y~x, se=FALSE, linetype ="dashed", size = 1.0, color="black") +
-    geom_text(aes(x = max(df$compl_cdf), y = max(df$X.clonotype_size), label = lbl), hjust=1.1, vjust=1.2, parse = TRUE)
+    xlab("1-CDF") + ylab("clonotype frequency") +
+    geom_line(stat="smooth",data = df, aes(x = compl_cdf, y = clonotype_freq), method = 'lm', formula = y~x, se=FALSE, linetype ="dashed", size = 1.0, color="black") +
+    geom_text(aes(x = max(df$compl_cdf), y = max(df$clonotype_freq), label = lbl), hjust=1.1, vjust=1.2, parse = TRUE)
 
 dev.off()

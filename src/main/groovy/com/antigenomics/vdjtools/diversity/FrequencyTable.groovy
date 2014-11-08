@@ -106,26 +106,27 @@ public class FrequencyTable {
         double s = 0
         frequencyMap.sort { it.key }.collect {
             s += it.value
-            new BinInfo(it.key, it.value, 1.0 - s / diversity, Math.sqrt(it.key * (1.0 - it.key / (double) count)))
+            double std = Math.sqrt(it.key * (1.0 - it.key / (double) count))
+
+            new BinInfo(it.key, (long) std,
+                    it.key / count, std / count,
+                    it.value, 1.0 - s / diversity)
         }
     }
 
-    //@Override
-    //public Iterator<BinInfo> iterator() {
-    //    def innerIter = frequencyMap.entrySet().iterator()
-    //    [hasNext: { innerIter.hasNext() },
-    //     next   : { def entry = innerIter.next(); new BinInfo(entry.key, entry.value) }] as Iterator
-    //}
-
     public static class BinInfo {
-        private final long clonotypeSize, numberOfClonotypes
-        private final double complementaryCdf, cloneSizeStd
+        private final long clonotypeSize, numberOfClonotypes, cloneSizeStd
+        private final double complementaryCdf, clonotypeFreq, clonotypeFreqStd
 
-        BinInfo(long clonotypeSize, long numberOfClonotypes, double complementaryCdf, double cloneSizeStd) {
+        BinInfo(long clonotypeSize, long cloneSizeStd,
+                double clonotypeFreq, double clonotypeFreqStd,
+                long numberOfClonotypes, double complementaryCdf) {
             this.clonotypeSize = clonotypeSize
             this.numberOfClonotypes = numberOfClonotypes
             this.complementaryCdf = complementaryCdf
             this.cloneSizeStd = cloneSizeStd
+            this.clonotypeFreq = clonotypeFreq
+            this.clonotypeFreqStd = clonotypeFreqStd
         }
 
         double getCloneStd() {
@@ -141,15 +142,26 @@ public class FrequencyTable {
         }
 
         double getComplementaryCdf() {
-            return complementaryCdf
+            complementaryCdf
         }
 
-        public static
-        final String HEADER = "#clonotype_size\tclonotype_size_l\tclonotype_size_u\tnumber_of_clonotypes\tcompl_cdf"
+        double getClonotypeFreq() {
+            return clonotypeFreq
+        }
+
+        double getClonotypeFreqStd() {
+            return clonotypeFreqStd
+        }
+
+        public static final String HEADER = "#clonotype_size\tclonotype_size_l\tclonotype_size_u\t" +
+                "clonotype_freq\tclonotype_freq_l\tclonotype_freq_u\t" +
+                "number_of_clonotypes\tcompl_cdf"
 
         @Override
         public String toString() {
-            [clonotypeSize, clonotypeSize - cloneSizeStd, clonotypeSize + cloneSizeStd, numberOfClonotypes, complementaryCdf].join("\t")
+            [clonotypeSize, clonotypeSize - cloneSizeStd, clonotypeSize + cloneSizeStd,
+             clonotypeFreq, clonotypeFreq - clonotypeFreqStd, clonotypeFreq + clonotypeFreqStd,
+             numberOfClonotypes, complementaryCdf].join("\t")
         }
     }
 }

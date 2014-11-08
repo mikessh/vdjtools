@@ -29,7 +29,7 @@ public class MaxClonotypeAggregator extends ClonotypeAggregator {
     }
 
     @Override
-    protected boolean _combine(Clonotype other, int sampleId) {
+    protected boolean tryReplace(Clonotype other, int sampleId) {
         double freq = other.getFreq();
         if (maxFreq < freq) {
             this.maxFreq = freq;

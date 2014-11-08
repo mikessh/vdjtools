@@ -29,7 +29,7 @@ class FrequencyStat {
         def lm = new SimpleRegression()
         binInfoList.each {
             if (it.complementaryCdf > 0)
-                lm.addData(Math.log10(it.clonotypeSize), Math.log10(it.complementaryCdf))
+                lm.addData(Math.log10(it.clonotypeFreq), Math.log10(it.complementaryCdf))
         }
 
         this.alpha = Math.pow(10, lm.intercept)

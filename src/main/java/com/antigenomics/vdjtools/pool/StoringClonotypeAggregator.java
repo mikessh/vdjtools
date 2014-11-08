@@ -29,8 +29,8 @@ public class StoringClonotypeAggregator extends MaxClonotypeAggregator {
     }
 
     @Override
-    protected boolean _combine(Clonotype clonotype, int sampleId) {
-        if(super._combine(clonotype, sampleId)){
+    protected boolean tryReplace(Clonotype clonotype, int sampleId) {
+        if(super.tryReplace(clonotype, sampleId)){
             this.clonotype = clonotype;
             return true;
         }
