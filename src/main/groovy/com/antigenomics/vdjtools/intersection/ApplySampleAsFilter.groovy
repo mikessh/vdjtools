@@ -19,7 +19,7 @@
 package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Software
-import com.antigenomics.vdjtools.parser.SampleWriter
+import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.sample.IntersectionClonotypeFilter
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection

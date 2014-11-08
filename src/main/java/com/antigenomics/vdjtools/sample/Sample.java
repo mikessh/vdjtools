@@ -19,14 +19,15 @@
 package com.antigenomics.vdjtools.sample;
 
 import com.antigenomics.vdjtools.Clonotype;
+import com.antigenomics.vdjtools.ClonotypeContainer;
 import com.antigenomics.vdjtools.Software;
-import com.antigenomics.vdjtools.parser.ClonotypeStreamParser;
+import com.antigenomics.vdjtools.io.parser.ClonotypeStreamParser;
 import com.antigenomics.vdjtools.sample.metadata.SampleMetadata;
 
 import java.io.InputStream;
 import java.util.*;
 
-public class Sample implements Iterable<Clonotype> {
+public class Sample implements ClonotypeContainer {
     private final List<Clonotype> clonotypes = new ArrayList<>();
     private final SampleMetadata sampleMetadata;
     private long count = 0;
@@ -35,10 +36,10 @@ public class Sample implements Iterable<Clonotype> {
         this.sampleMetadata = sampleMetadata;
     }
 
-    public Sample(Sample toClone, HashMap<Clonotype, Integer> samplerMap) {
-        this.sampleMetadata = toClone.sampleMetadata;
+    public Sample(Sample toCopy, HashMap<Clonotype, Integer> samplerMap) {
+        this.sampleMetadata = toCopy.sampleMetadata;
 
-        for (Clonotype clonotype : toClone.clonotypes) {
+        for (Clonotype clonotype : toCopy.clonotypes) {
             Integer newCount = samplerMap.get(clonotype);
 
             if (newCount != null)
@@ -48,10 +49,10 @@ public class Sample implements Iterable<Clonotype> {
         Collections.sort(clonotypes);
     }
 
-    public Sample(Sample toClone, ClonotypeFilter filter, int top) {
-        this.sampleMetadata = toClone.sampleMetadata;
+    public Sample(Sample toCopy, ClonotypeFilter filter, int top) {
+        this.sampleMetadata = toCopy.sampleMetadata;
 
-        for (Clonotype clonotype : toClone.clonotypes) {
+        for (Clonotype clonotype : toCopy.clonotypes) {
             if (top > -1 && this.getDiversity() == top)
                 break;
 
@@ -103,18 +104,22 @@ public class Sample implements Iterable<Clonotype> {
         return sampleMetadata;
     }
 
+    @Override
     public double getFreq() {
         return 1.0;
     }
 
+    @Override
     public long getCount() {
         return count;
     }
 
+    @Override
     public int getDiversity() {
         return clonotypes.size();
     }
 
+    @Override
     public Clonotype getAt(int index) {
         if (index < 0 || index >= clonotypes.size())
             throw new IndexOutOfBoundsException();

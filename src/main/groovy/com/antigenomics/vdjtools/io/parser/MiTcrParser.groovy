@@ -1,4 +1,4 @@
-package com.antigenomics.vdjtools.parser
+package com.antigenomics.vdjtools.io.parser
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Software
@@ -20,51 +20,35 @@ import com.antigenomics.vdjtools.util.CommonUtil
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-class MiGecParser extends ClonotypeStreamParser {
-    MiGecParser(Iterator<String> innerIter, Software software, Sample sample) {
+class MiTcrParser extends ClonotypeStreamParser {
+    MiTcrParser(Iterator<String> innerIter, Software software, Sample sample) {
         super(innerIter, software, sample)
     }
 
     @Override
     protected Clonotype parse(String clonotypeString) {
-        /*
-             0  Count
-             1  Percentage
-             2  CDR3 nucleotide sequence
-             3  CDR3 amino acid sequence
-             4  V segments
-             5  J segments
-             6  D segments
-             7  Last V nucleotide position
-             8  First D nucleotide position
-             9  Last D nucleotide position
-             10 First J nucleotide position
-             11 Good events
-             12 Total events
-             13 Good reads
-             14 Total reads
-          */
-
-        def splitString = clonotypeString.split("\t")
+        def splitString = clonotypeString.split(software.delimiter)
 
         def count = splitString[0].toInteger()
         def freq = splitString[1].toDouble()
 
         String cdr1nt = null, cdr2nt = null, cdr3nt, cdr1aa = null, cdr2aa = null, cdr3aa
+
         cdr3nt = splitString[2]
-        cdr3aa = splitString[3]
+        cdr3aa = splitString[5]
 
 
-        String v, j, d
-        (v, j, d) = CommonUtil.extractVDJ(splitString[4..6])
+        String v, d, j
+        (v, d, j) = CommonUtil.extractVDJ(splitString[[7, 11, 9]])
 
-        boolean inFrame = !cdr3aa.contains("~"), noStop = !cdr3aa.contains("*"), isComplete = true
+        def segmPoints = [splitString[12].toInteger(),
+                          splitString[13].isInteger() ? splitString[13].toInteger() : -1,
+                          splitString[14].isInteger() ? splitString[14].toInteger() : -1,
+                          splitString[15].toInteger()] as int[]
 
-        def segmPoints = [
-                splitString[7].toInteger(),
-                splitString[8].isInteger() ? splitString[8].toInteger() : -1,
-                splitString[9].isInteger() ? splitString[9].toInteger() : -1,
-                splitString[10].toInteger()] as int[]
+        boolean inFrame = !cdr3aa.contains('~'),
+                noStop = !cdr3aa.contains('*'),
+                isComplete = true
 
         new Clonotype(sample, count, freq,
                 segmPoints, v, d, j,

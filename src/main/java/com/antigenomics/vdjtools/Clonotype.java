@@ -18,14 +18,12 @@
 
 package com.antigenomics.vdjtools;
 
-import com.antigenomics.vdjtools.sample.Sample;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 public class Clonotype implements Comparable<Clonotype>, Countable {
-    private final Sample parent;
+    private final ClonotypeContainer parent;
     private final int count;
     private final double freq;
     private final String key;
@@ -39,7 +37,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
 
     private final Set<Mutation> mutations;
 
-    public Clonotype(Sample parent, int count, double freq,
+    public Clonotype(ClonotypeContainer parent, int count, double freq,
                      int[] segmPoints, String v, String d, String j,
                      String cdr1nt, String cdr2nt, String cdr3nt,
                      String cdr1aa, String cdr2aa, String cdr3aa,
@@ -77,24 +75,24 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
         this.key = key.toString();
     }
 
-    public Clonotype(Clonotype toClone) {
-        this(toClone, toClone.parent, toClone.count);
+    public Clonotype(Clonotype toCopy) {
+        this(toCopy, toCopy.parent, toCopy.count);
     }
 
-    public Clonotype(Clonotype toClone, Sample newParent) {
-        this(toClone, newParent, toClone.count);
+    public Clonotype(Clonotype toCopy, ClonotypeContainer newParent) {
+        this(toCopy, newParent, toCopy.count);
     }
 
-    public Clonotype(Clonotype toClone, Sample newParent, int newCount) {
-        this(newParent, newCount, toClone.freq,
-                toClone.segmPoints, toClone.v, toClone.d, toClone.j,
-                toClone.cdr1nt, toClone.cdr2nt, toClone.cdr3nt,
-                toClone.cdr1aa, toClone.cdr2aa, toClone.cdr3aa,
-                toClone.inFrame, toClone.isComplete, toClone.noStop,
-                toClone.mutations != null ? new HashSet<Mutation>() : null);
+    public Clonotype(Clonotype toCopy, ClonotypeContainer newParent, int newCount) {
+        this(newParent, newCount, toCopy.freq,
+                toCopy.segmPoints, toCopy.v, toCopy.d, toCopy.j,
+                toCopy.cdr1nt, toCopy.cdr2nt, toCopy.cdr3nt,
+                toCopy.cdr1aa, toCopy.cdr2aa, toCopy.cdr3aa,
+                toCopy.inFrame, toCopy.isComplete, toCopy.noStop,
+                toCopy.mutations != null ? new HashSet<Mutation>() : null);
 
-        if (toClone.mutations != null)
-            for (Mutation mutation : toClone.mutations)
+        if (toCopy.mutations != null)
+            for (Mutation mutation : toCopy.mutations)
                 mutations.add(mutation.reassignParent(this));
     }
 
@@ -195,7 +193,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
         return ".";
     }
 
-    public Sample getParent() {
+    public ClonotypeContainer getParent() {
         return parent;
     }
 
@@ -216,9 +214,6 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
         Clonotype that = (Clonotype) o;
 
         return key.equals(that.key) && parent.equals(that.parent);

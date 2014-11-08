@@ -14,8 +14,20 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools
+package com.antigenomics.vdjtools.io
 
-public interface ClonotypeWrapper {
-    Clonotype getClonotype()
+import com.antigenomics.vdjtools.io.SampleConnection
+import com.antigenomics.vdjtools.sample.Sample
+
+class DummySampleConnection implements SampleConnection {
+    private final Sample sample
+
+    DummySampleConnection(Sample sample) {
+        this.sample = sample
+    }
+
+    @Override
+    Sample getSample() {
+        sample
+    }
 }

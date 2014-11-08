@@ -16,6 +16,9 @@
 
 package com.antigenomics.vdjtools.sample
 
+import com.antigenomics.vdjtools.io.DummySampleConnection
+import com.antigenomics.vdjtools.io.SampleConnection
+
 class SamplePair {
     private final SampleConnection sample1conn, sample2conn
     final int i, j

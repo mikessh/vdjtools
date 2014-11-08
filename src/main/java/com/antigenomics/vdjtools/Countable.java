@@ -13,29 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 26.10.2014 by mikesh
+ * Last modified on 7.11.2014 by mikesh
  */
 
-package com.antigenomics.vdjtools.join.key;
+package com.antigenomics.vdjtools;
 
-import com.antigenomics.vdjtools.Clonotype;
-
-public abstract class ClonotypeKey {
-    // todo: optimize memory usage
-    protected final Clonotype clonotype;
-
-    public ClonotypeKey(Clonotype clonotype) {
-        this.clonotype = clonotype;
-    }
-
-    abstract boolean equals(Clonotype other);
-
-    @Override
-    public abstract int hashCode();
-
-    @Override
-    public boolean equals(Object o) {
-        // no it shouldn't
-        return this.equals(((ClonotypeKey) o).clonotype);
-    }
+public interface Countable {
+    public int getCount();
 }

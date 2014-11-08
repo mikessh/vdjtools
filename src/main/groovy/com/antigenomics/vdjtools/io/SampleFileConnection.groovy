@@ -14,9 +14,11 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools.sample
+package com.antigenomics.vdjtools.io
 
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.io.SampleConnection
+import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.metadata.SampleMetadata
 import com.antigenomics.vdjtools.util.CommonUtil
 import com.antigenomics.vdjtools.util.ExecUtil

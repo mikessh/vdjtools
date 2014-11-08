@@ -1,4 +1,4 @@
-package com.antigenomics.vdjtools.parser
+package com.antigenomics.vdjtools.io.parser
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Mutation

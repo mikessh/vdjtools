@@ -14,11 +14,11 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools.parser
+package com.antigenomics.vdjtools.io
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.join.JointSample
-import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.ClonotypeContainer
 
 /**
  * Base class for providing output of Sample and JointSample
@@ -34,11 +34,11 @@ class SampleWriter {
                 software.printFields.join("\t")
     }
 
-    public void write(Sample sample, String fileName) {
+    public void write(ClonotypeContainer sample, String fileName) {
         write(sample, fileName, -1, false)
     }
 
-    public void write(Sample sample, String fileName, int top, boolean collapse) {
+    public void write(ClonotypeContainer sample, String fileName, int top, boolean collapse) {
         new File(fileName).withPrintWriter { printWriter ->
             top = top > sample.diversity || top < 0 ? sample.diversity : top
             printWriter.println(header)

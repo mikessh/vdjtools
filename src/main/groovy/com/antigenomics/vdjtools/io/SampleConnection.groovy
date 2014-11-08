@@ -14,7 +14,9 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools.sample
+package com.antigenomics.vdjtools.io
+
+import com.antigenomics.vdjtools.sample.Sample
 
 public interface SampleConnection {
     // todo: this could be very time consuming!!

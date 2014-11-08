@@ -14,12 +14,11 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools.parser
+package com.antigenomics.vdjtools.io.parser
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
-import groovy.transform.PackageScope
 
 /**
  * Base class for providing parsing of various RepSeq software output

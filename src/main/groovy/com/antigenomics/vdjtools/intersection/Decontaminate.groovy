@@ -19,7 +19,7 @@
 package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Software
-import com.antigenomics.vdjtools.parser.SampleWriter
+import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.pool.RatioFilter
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
@@ -83,10 +83,6 @@ def sampleCollection = metadataFileName ?
         new SampleCollection((String) metadataFileName, software, false, true) :
         new SampleCollection(opt.arguments()[0..-2], software, false, true)
 
-def nSamples = sampleCollection.size()
-
-def metadataTable = sampleCollection.metadataTable
-
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples prepared"
 
 //
@@ -95,7 +91,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples prepared
 
 println "[${new Date()} $scriptName] Creating sample pool for filtering"
 
-def ratioFilter = new RatioFilter(sampleCollection.collect() as Sample[], ratio)
+def ratioFilter = new RatioFilter(sampleCollection, ratio)
 
 //
 // Go through all sample once more and perform freq-based filtering

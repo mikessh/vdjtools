@@ -17,6 +17,9 @@
 package com.antigenomics.vdjtools.sample
 
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.io.DummySampleConnection
+import com.antigenomics.vdjtools.io.SampleConnection
+import com.antigenomics.vdjtools.io.SampleFileConnection
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 import org.apache.commons.io.FilenameUtils
 
@@ -253,9 +256,9 @@ class SampleCollection implements Iterable<Sample> {
      * @param sampleId sample id
      * @return sample
      */
-    Sample getAt(String sampleId) {
-        sampleMap[sampleId]
-    }
+    //Sample getAt(String sampleId) {
+    //    sampleMap[sampleId]
+    //}
 
     /**
      * Get sample by index, according to current ordering
