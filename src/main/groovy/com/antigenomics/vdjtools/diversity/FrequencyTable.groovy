@@ -108,7 +108,7 @@ public class FrequencyTable {
             s += it.value
             double std = Math.sqrt(it.key * (1.0 - it.key / (double) count))
 
-            new BinInfo(it.key, (long) std,
+            new BinInfo(it.key, Math.round(std),
                     it.key / count, std / count,
                     it.value, 1.0 - s / diversity)
         }
@@ -122,11 +122,11 @@ public class FrequencyTable {
                 double clonotypeFreq, double clonotypeFreqStd,
                 long numberOfClonotypes, double complementaryCdf) {
             this.clonotypeSize = clonotypeSize
-            this.numberOfClonotypes = numberOfClonotypes
-            this.complementaryCdf = complementaryCdf
             this.cloneSizeStd = cloneSizeStd
             this.clonotypeFreq = clonotypeFreq
             this.clonotypeFreqStd = clonotypeFreqStd
+            this.numberOfClonotypes = numberOfClonotypes
+            this.complementaryCdf = complementaryCdf
         }
 
         double getCloneStd() {
