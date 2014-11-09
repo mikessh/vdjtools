@@ -17,27 +17,7 @@
 package com.antigenomics.vdjtools.util
 
 class MathUtil {
-    static void normalizeDistanceMatrix(double[][] matrix) {
-        int n = matrix.length
-        double[] rowSum = new double[n], colSum = new double[n]
-        for (int i = 0; i < n; i++) {
-            for (int j = i + 1; j < n; j++) {
-                double val1 = matrix[i][j], val2 = matrix[j][i]
-                rowSum[i] += val1
-                rowSum[j] += val2
-                colSum[i] += val2
-                colSum[j] += val1
-            }
-        }
-
-        for (int i = 0; i < n; i++) {
-            for (int j = i + 1; j < n; j++) {
-                matrix[i][j] /= (rowSum[i] * colSum[j])
-                matrix[j][i] /= (rowSum[j] * colSum[i])
-            }
-        }
-    }
-
+    // todo: to complex math
     public static double JSD(double[] pArr, double[] qArr) {
         int n = pArr.length
 
