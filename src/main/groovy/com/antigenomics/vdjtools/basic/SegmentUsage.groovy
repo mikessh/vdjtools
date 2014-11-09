@@ -48,7 +48,7 @@ class SegmentUsage {
     }
 
     private void process(Sample sample, int index) {
-        ExecUtil.report(this, "[${new Date()} SegmentUsage] Processing sample ${sample.sampleMetadata.sampleId}", VERBOSE)
+        ExecUtil.report(this, "Processing sample ${sample.sampleMetadata.sampleId}", VERBOSE)
         sample.each { Clonotype clonotype ->
             def vArray = vSegmentUsage[clonotype.v],
                 jArray = jSegmentUsage[clonotype.j],

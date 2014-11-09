@@ -58,7 +58,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 def software = Software.byName(opt.S),
     outputFileName = opt.arguments()[-1],
-    aminoAcid = opt.a, unweighted = opt.u
+    aminoAcid = (boolean)opt.a, unweighted = (boolean)opt.u
 
 ExecUtil.ensureDir(outputFileName)
 
@@ -104,4 +104,3 @@ new File(outputFileName + ".spectratype" +
 }
 
 println "[${new Date()} $scriptName] Finished"
-

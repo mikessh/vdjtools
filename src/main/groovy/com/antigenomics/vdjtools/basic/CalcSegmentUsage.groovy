@@ -19,6 +19,7 @@ package com.antigenomics.vdjtools.basic
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.ExecUtil
+import com.antigenomics.vdjtools.util.RUtil
 
 def cli = new CliBuilder(usage: "CalcSegmentUsage [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
@@ -29,6 +30,10 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
 cli.u(longOpt: "unweighted", "Will count each clonotype only once, apart from conventional frequency-weighted histogram.")
+cli.p(longOpt: "plot", "Plot V usage heatmap")
+cli.n(longOpt: "num-factor", "Numeric factor variable")
+cli.l(longOpt: "label", argName: "string", args: 1, "Metadata entry used to annotate the heatmap")
+cli.f(longOpt: "factor", argName: "string", args: 1, "Metadata entry used to color samples in the heatmap")
 
 def opt = cli.parse(args)
 
@@ -54,10 +59,11 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 }
 
 def software = Software.byName(opt.S),
-    outputFileName = opt.arguments()[-1],
-    unweighted = opt.u
+    outputPrefix = opt.arguments()[-1],
+    unweighted = opt.u,
+    plot = (boolean) opt.p
 
-ExecUtil.ensureDir(outputFileName)
+ExecUtil.ensureDir(outputPrefix)
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -80,8 +86,10 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
 def segmentUsage = new SegmentUsage(sampleCollection, unweighted)
 
-new File(outputFileName + ".segments" + (unweighted ? ".unweighted" : "") + ".V.txt").withPrintWriter { pwV ->
-    new File(outputFileName + ".segments" + (unweighted ? ".unweighted" : "") + ".J.txt").withPrintWriter { pwJ ->
+def outputFilePrefixExt = outputPrefix + ".segments" + (unweighted ? ".unweighted" : "")
+
+new File(outputFilePrefixExt + ".V.txt").withPrintWriter { pwV ->
+    new File(outputFilePrefixExt + ".J.txt").withPrintWriter { pwJ ->
         def header = "#sample_id\t" + sampleCollection.metadataTable.columnHeader
 
         pwV.println(header + "\t" + segmentUsage.vUsageHeader().join("\t"))
@@ -93,6 +101,27 @@ new File(outputFileName + ".segments" + (unweighted ? ".unweighted" : "") + ".V.
             pwJ.println(sampleString + "\t" + segmentUsage.jUsageVector(sampleId).collect().join("\t"))
         }
     }
+}
+
+
+if (plot) {
+    RUtil.execute("vexpr_plot.r",
+            outputFilePrefixExt + ".V.txt",
+            segmentUsage.vUsageHeader().length.toString(),
+            opt.l ? (metadataTable.getColumnIndex(opt.l) + 2).toString() : "0", // first column is sample id
+            opt.f ? (metadataTable.getColumnIndex(opt.f) + 2).toString() : "0",
+            opt.n ? "TRUE" : "FALSE",
+            outputFilePrefixExt + ".V.pdf"
+    )
+
+    RUtil.execute("vexpr_plot.r",
+            outputFilePrefixExt + ".J.txt",
+            segmentUsage.jUsageHeader().length.toString(),
+            opt.l ? (metadataTable.getColumnIndex(opt.l) + 2).toString() : "0",
+            opt.f ? (metadataTable.getColumnIndex(opt.f) + 2).toString() : "0",
+            opt.n ? "TRUE" : "FALSE",
+            outputFilePrefixExt + ".J.pdf"
+    )
 }
 
 println "[${new Date()} $scriptName] Finished"

@@ -162,6 +162,11 @@ class MetadataTable {
             throw new IllegalArgumentException("Column $columnId doesn't exist")
     }
 
+    public int getColumnIndex(String columnId) {
+        columnId = columnId.toUpperCase()
+        columnIds.findIndexOf { it.toUpperCase() == columnId }
+    }
+
     /**
      * Check if metadata table contains given column
      * @param columnId specific column

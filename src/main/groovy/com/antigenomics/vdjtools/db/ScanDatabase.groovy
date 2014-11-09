@@ -90,7 +90,7 @@ println "[${new Date()} $scriptName] Annotating sample(s) & writing results"
 
 new File(outputFileName + ".annot.${dbName}.summary.txt").withPrintWriter { pwSummary ->
     def header = "#sample_id\t" +
-            sampleCollection.metadataTable.columnHeader + "\t" +
+            sampleCollection.metadataTable.columnHeader + "\tdiversity\t" +
             BrowserResult.HEADER
 
     pwSummary.println(header)
@@ -102,7 +102,7 @@ new File(outputFileName + ".annot.${dbName}.summary.txt").withPrintWriter { pwSu
         println "[${new Date()} $scriptName] ${ind + 1} sample(s) prepared"
 
         // Global stats
-        pwSummary.println([sampleId, sample.sampleMetadata, browserResult].join("\t"))
+        pwSummary.println([sampleId, sample.sampleMetadata, sample.diversity, browserResult].join("\t"))
 
         // Write full summary
         if (details) {
