@@ -25,8 +25,7 @@ import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.ExecUtil
 import com.antigenomics.vdjtools.util.RUtil
 
-// TODO ADD ALPHA!!
-def N_DEFAULT = "300000", R_STEP_DEFAULT = "100000", R_MAX_DEFAULT = "1000000",
+def N_DEFAULT = "100000", R_STEP_DEFAULT = "50000", R_MAX_DEFAULT = "500000",
     I_TYPES_DEFAULT = [IntersectionType.AminoAcid, IntersectionType.Nucleotide, IntersectionType.Strict]
 def cli = new CliBuilder(usage: "CalcDiversityStats [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
@@ -48,7 +47,7 @@ cli._(longOpt: "r-step", argName: "integer", args: 1,
 cli._(longOpt: "r-max", argName: "integer", args: 1,
         "Rarefaction curve maximum depth. [default = $R_MAX_DEFAULT]")
 cli.p(longOpt: "plot", "Plots rarefaction curves. " +
-        "(R installation with ggplot2 and reshape packages is reuqired).")
+        "(R installation with ggplot2 and reshape packages is required).")
 
 def opt = cli.parse(args)
 
