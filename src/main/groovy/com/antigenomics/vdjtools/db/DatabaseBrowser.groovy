@@ -4,7 +4,6 @@ import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.util.CommonUtil
 import com.google.common.util.concurrent.AtomicDouble
-import groovyx.gpars.GParsPool
 
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -13,10 +12,10 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 class DatabaseBrowser {
     private final boolean vMatch, jMatch
-    private final SubstitutionGenerator substitutionGenerator
+    private final SubstitutionFactory substitutionGenerator
 
     public DatabaseBrowser(boolean vMatch, boolean jMatch,
-                           SubstitutionGenerator substitutionGenerator) {
+                           SubstitutionFactory substitutionGenerator) {
         this.vMatch = vMatch
         this.jMatch = jMatch
         this.substitutionGenerator = substitutionGenerator
@@ -25,7 +24,7 @@ class DatabaseBrowser {
     public DatabaseBrowser(boolean vMatch, boolean jMatch, boolean fuzzy) {
         this.vMatch = vMatch
         this.jMatch = jMatch
-        this.substitutionGenerator = fuzzy ? new BasicSubstitutionGenerator() : null
+        this.substitutionGenerator = fuzzy ? new BasicSubstitutionFactory() : null
     }
 
     BrowserResult query(Sample sample, CdrDatabase cdrDatabase) {

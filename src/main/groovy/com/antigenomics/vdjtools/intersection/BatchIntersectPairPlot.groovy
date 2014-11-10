@@ -44,14 +44,14 @@ if (opt.h || opt.arguments().size() < 2) {
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
-def inputFileName = opt.arguments()[0],
+def inputFileName = opt.arguments()[0], outputPrefix = opt.arguments()[1],
     sampleId = "sample_id".toUpperCase(), factorName = opt.f, numFactor = opt.n,
     measureName = (opt.m ?: "F").toUpperCase(), labelName = (opt.l ?: "sample_id").toUpperCase(),
-    hcFileName = opt.arguments()[1] + ".batch_intersect_hc.pdf",
-    mdsFileName = opt.arguments()[1] + ".batch_intersect_mds.pdf",
+    hcFileName = outputPrefix + ".batch_intersect_hc.pdf",
+    mdsFileName = outputPrefix + ".batch_intersect_mds.pdf",
     k = (opt.k ?: 3),
-    clustFileName = opt.arguments()[1] + ".batch_intersect_clusters${k}.txt",
-    coordFileName = opt.arguments()[1] + ".batch_intersect_mdscoords.txt"
+    clustFileName = outputPrefix + ".batch_intersect_clusters${k}.txt",
+    coordFileName = outputPrefix + ".batch_intersect_mdscoords.txt"
 
 def factorNameOrig = null
 if (factorName) {
@@ -84,7 +84,8 @@ if (measureColInd.toInteger() < 1) {
 }
 
 // Check if we can map factor to gradient scale
-if (numFactor && factorCol1Ind.toInteger() > 0) {
+boolean specifiedFactor = factorCol1Ind.toInteger() > 0
+if (numFactor && specifiedFactor) {
     int fcol1 = factorCol1Ind.toInteger() - 1, fcol2 = factorCol2Ind.toInteger() - 1
     def fValues = new HashSet<Double>()
 
@@ -107,7 +108,7 @@ if (numFactor && factorCol1Ind.toInteger() > 0) {
 }
 // Plot
 
-println "[${new Date()} $scriptName] Plotting data"
+println "[${new Date()} $scriptName] Clustering and plotting data"
 
 RUtil.execute("batch_intersect_pair_clust.r",
         inputFileName,
@@ -120,4 +121,15 @@ RUtil.execute("batch_intersect_pair_clust.r",
         k.toString(), clustFileName, coordFileName
 )
 
-
+if (specifiedFactor) {
+    if (numFactor) {
+        // todo: finish with distance correlation
+    } else {
+        new FactorClusterStats(coordFileName).performPermutations(10000,
+                outputPrefix + ".batch_intersect_mds_perm.txt")
+        RUtil.execute("batch_intersect_pair_perm_f.r",
+                outputPrefix + ".batch_intersect_mds_perm.txt",
+                outputPrefix + ".batch_intersect_mds_perm.pdf"
+        )
+    }
+}

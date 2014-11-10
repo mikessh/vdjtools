@@ -19,7 +19,7 @@
 package com.antigenomics.vdjtools.math;
 
 public class ComplexMath {
-    public double distanceCorrealtion(double[][] x, double[][] y) {
+    public double distanceCorrelation(double[][] x, double[][] y) {
         int n = x.length;
         if (n != y.length)
             throw new IndexOutOfBoundsException("x and y should be of same length");

@@ -262,7 +262,8 @@ my.legend(FALSE)
 
 dev.off()
 
-write.table(data.frame(lbl = lbl, factor = fac, x=xy$x, y=xy$y), file_out_coord, sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(data.frame(id = aux[, "id_col1"], lbl = lbl, factor = fac, x=xy$x, y=xy$y),
+   file_out_coord, sep = "\t", quote = FALSE, row.names = FALSE)
 
 #df.c <- data.frame(x = xy$x, y = xy$y, f = aux[match(row.names(as.matrix(df.d)), aux[, "id_col1"]), "factor_col1"])
 
