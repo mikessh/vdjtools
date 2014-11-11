@@ -31,8 +31,7 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
 cli._(longOpt: "low-mem", "Will process all sample pairs sequentially, avoiding" +
         " loading all of them into memory. Slower but memory-efficient mode.")
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
-        "Comma-separated list of intersection types to apply. " +
-                "Allowed values: $IntersectionType.allowedNames. " +
+        "Intersection rule to apply. Allowed values: $IntersectionType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")

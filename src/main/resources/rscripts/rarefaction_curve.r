@@ -34,7 +34,7 @@ if (num_fac) {
 df.m[ ,"sk"] <- NA
 for (d in unique(df.m$dataset)) {
     ind <- df.m[,"dataset"]==d
-    df.m[ind,"sk"][which.max(df.m[ind,"value"])] <- 1
+    df.m[ind,"sk"][which.max(df.m[ind,"variable"]+df.m[ind,"value"])] <- 1
 }
 
 g<-ggplot(df.m,aes(x=variable, y=value, colour=fac, group=dataset)) +

@@ -27,8 +27,7 @@ cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
-        "Comma-separated list of intersection types to apply. " +
-                "Allowed values: $IntersectionType.allowedNames. " +
+        "Intersection rule to apply. Allowed values: $IntersectionType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
 cli.c(longOpt: "collapse", argName: "int", args: 1,
         "Generate a collapsed overlap table for visualization purposes with a specified number of top clones.")

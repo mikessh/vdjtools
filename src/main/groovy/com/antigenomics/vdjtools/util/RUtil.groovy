@@ -24,6 +24,12 @@ class RUtil {
         value.isNaN() ? "NA" : value.toString()
     }
 
+    public static String logical(smth) {
+        smth ? "T" : "F"
+    }
+
+    public static final String NA = "NA"
+
     static void execute(String scriptName, String... params) {
         // Create a temp file to store the script
         def scriptRes = CommonUtil.resourceStreamReader("rscripts/$scriptName")
