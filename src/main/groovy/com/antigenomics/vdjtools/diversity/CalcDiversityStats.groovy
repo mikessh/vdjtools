@@ -23,7 +23,6 @@ import com.antigenomics.vdjtools.intersection.IntersectionType
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.ExecUtil
-import com.antigenomics.vdjtools.util.RUtil
 
 def N_DEFAULT = "100000", I_TYPES_DEFAULT = [IntersectionType.AminoAcidVJ, IntersectionType.Strict]
 def cli = new CliBuilder(usage: "CalcDiversityStats [options] " +
@@ -116,8 +115,7 @@ intersectionTypes.each { maxCells.put(it, 0) }
 
 new File(outputPrefix + ".diversity.txt").withPrintWriter { pwDiv ->
     def headerDiv = "#sample_id\t" +
-            sampleCollection.metadataTable.columnHeader + "\t" +
-            "cells\t" +
+            sampleCollection.metadataTable.columnHeader + "\treads\t" +
             intersectionTypes.collect { i ->
                 ["clones", "normdiv_m", "normdiv_s", "efron_m", "efron_s", "chao_m", "chao_s",
                  "alpha", "beta", "beta_conf"].collect { m ->

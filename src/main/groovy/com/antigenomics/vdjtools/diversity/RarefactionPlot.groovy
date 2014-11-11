@@ -107,10 +107,10 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples to analy
 //
 // Estimating rarefaction steps
 //
-int maxCount
+def maxCount = 0
 
-sampleCollection.each { //Sorry we'll have to do it
-    maxCount = Math.max(maxCount, it.count)
+sampleCollection.each { // Sorry we'll have to do it
+    maxCount = (int)Math.max(maxCount, it.count)
 }
 
 def rSteps = []
@@ -118,7 +118,7 @@ def rSteps = []
 if (logSteps) {
     rSteps.add(0)
     for (int k = 0; k < steps; k++)
-        rSteps.add(maxCount * Math.pow(2, k - steps))
+        rSteps.add((int)(maxCount * Math.pow(2, k - steps)))
     rSteps.add(maxCount)
 } else {
     def rStep = maxCount / steps

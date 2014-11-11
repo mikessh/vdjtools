@@ -39,7 +39,7 @@ for (d in unique(df.m$dataset)) {
 
 g<-ggplot(df.m,aes(x=variable, y=value, colour=fac, group=dataset)) +
      geom_point(aes(x = sk * variable)) +
-     geom_smooth(size = 1) +
+     stat_smooth(level = 0.99, fullrange = TRUE) +
 	 xlab("Sample size") + ylab("Diveristy") +
 	 labs(colour=fac_name) +
 	 scale_x_continuous(expand = c(0, 0)) +

@@ -24,6 +24,7 @@ import com.antigenomics.vdjtools.db.ScanDatabase
 import com.antigenomics.vdjtools.diversity.BuildFrequencyTable
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.DownSample
+import com.antigenomics.vdjtools.diversity.RarefactionPlot
 import com.antigenomics.vdjtools.intersection.*
 import com.antigenomics.vdjtools.util.ExecUtil
 
@@ -48,6 +49,7 @@ def printHelp = {
     println ""
     println "[Sample diversity]"
     println "CalcDiversityStats"
+    println "RarefactionPlot"
     println "DownSample"
     println "BuildFrequencyTable"
     println ""
@@ -99,10 +101,13 @@ def getScript = { String scriptName ->
             return new BuildFrequencyTable()
         case "POOLSAMPLES":
             return new PoolSamples()
+        case "RAREFACTIONPLOT":
+            return new RarefactionPlot()
         case "-H":
         case "H":
         case "-HELP":
         case "HELP":
+        case "":
             printHelp()
             println ""
             System.exit(-1)
