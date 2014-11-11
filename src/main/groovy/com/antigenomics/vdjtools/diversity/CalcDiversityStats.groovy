@@ -26,7 +26,7 @@ import com.antigenomics.vdjtools.util.ExecUtil
 import com.antigenomics.vdjtools.util.RUtil
 
 def N_DEFAULT = "100000", R_STEP_DEFAULT = "50000", R_MAX_DEFAULT = "500000",
-    I_TYPES_DEFAULT = [IntersectionType.AminoAcid, IntersectionType.Nucleotide, IntersectionType.Strict]
+    I_TYPES_DEFAULT = [IntersectionType.AminoAcidVJ, IntersectionType.Strict]
 def cli = new CliBuilder(usage: "CalcDiversityStats [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
@@ -46,8 +46,13 @@ cli._(longOpt: "r-step", argName: "integer", args: 1,
         "Rarefaction curve step. [default = $R_STEP_DEFAULT]")
 cli._(longOpt: "r-max", argName: "integer", args: 1,
         "Rarefaction curve maximum depth. [default = $R_MAX_DEFAULT]")
-cli.p(longOpt: "plot", "Plots rarefaction curves. " +
-        "(R installation with ggplot2 and reshape packages is required).")
+cli._(longOpt: "plot-label", argName: "string", args: 1,
+        "Name of metadata column which should be used as label")
+cli._(longOpt: "plot-factor", argName: "string", args: 1,
+        "Name of metadata column which should be used as a coloring factor")
+cli._(longOpt: "plot-factor-numeric",
+        "Treat factor values as numeric and use a gradient color scale")
+cli.p(longOpt: "plot", "Plots rarefaction curves.")
 
 def opt = cli.parse(args)
 
@@ -203,8 +208,6 @@ new File(outputPrefix + ".diversity.txt").withPrintWriter { pwDiv ->
 if (plot) {
     println "[${new Date()} $scriptName] Plotting data"
 
-    // todo: label and color selection, consider not allowing
-
     def datasets = []
 
     sampleCollection.metadataTable.sampleIterator.each {
@@ -212,10 +215,29 @@ if (plot) {
             datasets.add(it)
     }
 
+
+    def optL = (String) opt."plot-label", optF = (String) opt."plot-factor",
+        numeric = opt."plot-factor-numeric" ? "T" : "F", addLbl = optL ? "T" : "F"
+
+    int lblCol = optL ? sampleCollection.metadataTable.getColumnIndex(optL) : 0,
+        facCol = optF ? sampleCollection.metadataTable.getColumnIndex(optF) : 0
+
+    if (facCol < 0) {
+        numeric = "F"
+    } else {
+        if (sampleCollection.metadataTable.getInfo(optF).numericSamples < 3 && numeric == "T") {
+            println "Switching off numeric option, there were <3 numeric values in corresponding column"
+            numeric = "F"
+        }
+    }
+
     intersectionTypes.each { IntersectionType i ->
         RUtil.execute("rarefaction_curve.r",
-                datasets.flatten().join(","), rSteps.join(","),
                 outputPrefix + ".rarefaction_${i.shortName}.txt",
+                (lblCol + 2).toString(),
+                (facCol + 2).toString(),
+                numeric,
+                addLbl,
                 outputPrefix + ".rarefaction_${i.shortName}.pdf"
         )
     }

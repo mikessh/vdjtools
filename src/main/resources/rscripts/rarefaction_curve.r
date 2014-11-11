@@ -1,36 +1,61 @@
 args<-commandArgs(TRUE)
 
-datasets <- args[1] # "A4-i127\tA4-i127\tA4-i127\tA4-i118\tA4-i118\tA4-i118\tA4-i122\tA4-i122\tA4-i122\tA3-i145\tA3-i145\tA3-i145\tA3-i150\tA3-i150\tA3-i150"
-points   <- args[2] # "0\t100000\t200000\t300000\t400000\t500000\t600000\t700000\t800000\t900000\t1000000"
-input    <- args[3] # "4.rarefaction_aa.txt"
-file_out <- args[4]
+require(reshape); require(ggplot2)
 
-require(ggplot2); require(reshape)
+file_in  <- args[1]
+lbl_col  <- as.integer(args[2])#"1"
+fac_col  <- as.integer(args[3])#"3"
+num_fac  <- as.logical(args[4])#"T"
+add_lbl  <- as.logical(args[5])#"T"
+file_out <- args[6]
 
-# read data & do some pre-processing
-df <- read.table(input, sep ="\t")
-labels <- sapply(read.table(text=datasets, sep=","), as.character)
-x <- apply(as.vector(read.table(text=points, sep=",")), 1, as.numeric)
+df<-read.table(file_in, comment="",header=F,sep="\t",stringsAsFactor=F)
 
-# strip unnescessary columns and conver to numeric
-df.s <- df[,(ncol(df) - length(x) + 1):ncol(df)]
-df.s[, 1:ncol(df.s)] <- apply(df.s[, 1:ncol(df.s)], 2, as.numeric)
+# get name of label and factor
+lbl_name<-df[1,lbl_col]
+fac_name<-df[1,fac_col]
 
-# format to a suitable data frame
-df.f <- data.frame(x=x, series=t(df.s))
-names(df.f) <- c("ss", labels)
-df.m <- melt(df.f, id="ss")
+nums <- sapply(df, is.numeric) # sampling points
+x<-as.integer(df[1,nums])
+df<-df[2:nrow(df),]
+m<-nrow(df)
 
-# plot
+df.m <- melt(df, id.vars=paste("V",(1:ncol(df))[!nums],sep=""))
+df.m$variable <- rep(x,1,each=m)
+
+df.m <- data.frame(value = df.m$value, variable = df.m$variable,
+                   dataset = df.m[,1], fac = df.m[,fac_col], lbl = df.m[,lbl_col])
+
+if (num_fac) {
+   df.m$fac <- as.numeric(as.character(df.m$fac))
+}
+
+# selecting last points only using a skipping variable
+df.m[ ,"sk"] <- NA
+for (d in unique(df.m$dataset)) {
+    ind <- df.m[,"dataset"]==d
+    df.m[ind,"sk"][which.max(df.m[ind,"value"])] <- 1
+}
+
+g<-ggplot(df.m,aes(x=variable, y=value, colour=fac, group=dataset)) +
+     geom_point(aes(x = sk * variable)) +
+     geom_smooth(size = 1) +
+	 xlab("Sample size") + ylab("Diveristy") +
+	 labs(colour=fac_name) +
+	 scale_x_continuous(expand = c(0, 0)) +
+	 scale_y_continuous(expand = c(0, 0)) +
+	 theme_bw()
+
+if (add_lbl) {
+   g <- g + geom_text(aes(x = sk * variable, label=lbl), color="black", vjust=1.0, hjust=1.0)
+}
 
 pdf(file_out)
 
-ggplot(df.m,aes(x=ss, y=value, colour=variable, group=variable)) +
-	xlab("Sample size") +
-	ylab("Diveristy") +
-	labs(colour="Dataset") +
-	scale_x_continuous(expand = c(0, 0)) +
-	scale_y_continuous(expand = c(0, 0)) +
-	geom_smooth()
+if (num_fac) {
+   g + scale_colour_gradient2(low="#feb24c", mid="#31a354", high="#2b8cbe", midpoint=(max(df.m$fac) + min(df.m$fac))/2)
+} else {
+   g
+}
 
 dev.off()
