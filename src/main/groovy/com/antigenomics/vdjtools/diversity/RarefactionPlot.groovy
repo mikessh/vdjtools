@@ -110,7 +110,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples to analy
 def maxCount = 0
 
 sampleCollection.each { // Sorry we'll have to do it
-    maxCount = (int)Math.max(maxCount, it.count)
+    maxCount = (int) Math.max(maxCount, it.count)
 }
 
 def rSteps = []
@@ -118,7 +118,7 @@ def rSteps = []
 if (logSteps) {
     rSteps.add(0)
     for (int k = 0; k < steps; k++)
-        rSteps.add((int)(maxCount * Math.pow(2, k - steps)))
+        rSteps.add((int) (maxCount * Math.pow(10, k - steps)))
     rSteps.add(maxCount)
 } else {
     def rStep = maxCount / steps
@@ -131,7 +131,7 @@ if (logSteps) {
 // Rarefaction analysis
 //
 
-def headerR = ["#sample_id", sampleCollection.metadataTable.columnHeader, rSteps].flatten().join("\t")
+def headerR = ["#sample_id", sampleCollection.metadataTable.columnHeader, "count", "diversity", rSteps].flatten().join("\t")
 
 new File(outputPrefix + ".txt").withPrintWriter { pwR ->
     pwR.println(headerR)
@@ -157,7 +157,7 @@ new File(outputPrefix + ".txt").withPrintWriter { pwR ->
                 }
             }
 
-            pwR.println([sampleId, sample.sampleMetadata, y].flatten().join("\t"))
+            pwR.println([sampleId, sample.sampleMetadata, sample.count, sample.diversity, y].flatten().join("\t"))
         }
     }
 }
