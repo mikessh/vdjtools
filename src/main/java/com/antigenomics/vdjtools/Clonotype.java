@@ -174,11 +174,11 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
     }
 
     public int getVDIns() {
-        return segmPoints[1] >= 0 ? segmPoints[1] - segmPoints[0] + 1 : -1;
+        return segmPoints[1] >= 0 ? segmPoints[1] - segmPoints[0] - 1 : -1;
     }
 
     public int getDJIns() {
-        return segmPoints[2] >= 0 ? segmPoints[3] - segmPoints[2] + 1 : -1;
+        return segmPoints[2] >= 0 ? segmPoints[3] - segmPoints[2] - 1 : -1;
     }
 
     public int getInsertSize() {
@@ -186,7 +186,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
     }
 
     public int getNDNSize() {
-        return segmPoints[3] - segmPoints[0] + 1;
+        return segmPoints[3] - segmPoints[0] - 1;
     }
 
     public String getBlank() {
