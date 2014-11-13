@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 2.11.2014 by mikesh
+ * Last modified on 13.11.2014 by mikesh
  */
 
 package com.antigenomics.vdjtools.diversity
@@ -46,8 +46,6 @@ cli.r(longOpt: "resamples", argName: "int", args: 1,
                 "[default=$RESAMPLES_DEFAULT]")
 cli.s(longOpt: "steps", argName: "int", args: 1, "Number of steps (points) in the rarefaction curve. " +
         "[default=$RESAMPLES_DEFAULT]")
-cli.o(longOpt: "steps-log", "Set logarithmic scale for rarefaction curve steps")
-
 
 cli.l(longOpt: "label", argName: "string", args: 1,
         "Name of metadata column which should be used as label")
@@ -84,9 +82,8 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 def software = Software.byName(opt.S),
     intersectionType = opt.i ? IntersectionType.byName((String) opt.i) : I_TYPE_DEFAULT,
     steps = (opt.s ?: STEPS_DEFAULT).toInteger(), resamples = (opt.r ?: RESAMPLES_DEFAULT).toInteger(),
-    logSteps = (boolean) opt.o,
     optL = (String) opt.'l', optF = (String) opt.'f', numericFactor = (boolean) opt.'n',
-    outputPrefix = opt.arguments()[-1] + ".rarefaction_${intersectionType.shortName}"
+    outputPrefix = opt.arguments()[-1] + ".rarefaction.$intersectionType.shortName"
 
 ExecUtil.ensureDir(outputPrefix)
 
@@ -107,38 +104,47 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples to analy
 //
 // Estimating rarefaction steps
 //
-def maxCount = 0
 
-sampleCollection.each { // Sorry we'll have to do it
+def maxCount = 0, minCount = 0
+
+sampleCollection.eachWithIndex { it, ind -> // Sorry we'll have to do it
     maxCount = (int) Math.max(maxCount, it.count)
+    minCount = (int) Math.min(minCount, it.count)
 }
 
 def rSteps = []
 
-if (logSteps) {
-    rSteps.add(0)
-    for (int k = 0; k < steps; k++)
-        rSteps.add((int) (maxCount * Math.pow(10, k - steps)))
-    rSteps.add(maxCount)
-} else {
-    def rStep = maxCount / steps
-    for (int i = 0; i < maxCount; i += rStep)
-        rSteps.add(i)
-    rSteps.add(maxCount)
-}
+def rStep = minCount / steps
+
+for (int x = 0; x < minCount; x += rStep)
+    rSteps.add(x)
+
+rStep = maxCount / steps
+for (int x = 0; x < maxCount; x += rStep)
+    if (!rSteps.contains(x))
+        rSteps.add(x)
 
 //
 // Rarefaction analysis
 //
 
-def headerR = ["#sample_id", sampleCollection.metadataTable.columnHeader, "count", "diversity", rSteps].flatten().join("\t")
+def getDiv = { DiversityEstimator diversityEstimator, int x ->
+    def subSample = diversityEstimator.downSampler.reSample(x)
+    def subSampleDiversityEstimator = new DiversityEstimator(subSample, intersectionType)
+    subSampleDiversityEstimator.computeCollapsedSampleDiversity().mean
+}
 
-new File(outputPrefix + ".txt").withPrintWriter { pwR ->
-    pwR.println(headerR)
+def header = ["#sample_id", sampleCollection.metadataTable.columnHeader,
+              "count", "diversity", rSteps].flatten().join("\t")
 
-    sampleCollection.each { Sample sample ->
+new File(outputPrefix + ".txt").withPrintWriter { pw ->
+    pw.println(header)
+
+    sampleCollection.eachWithIndex { Sample sample, int i ->
         def sampleId = sample.sampleMetadata.sampleId
         def diversityEstimator = new DiversityEstimator(sample, intersectionType)
+
+        def divMax = getDiv(diversityEstimator, (int) sample.count)
 
         println "[${new Date()} $scriptName] Bulding rarefaction curve for $sampleId"
 
@@ -151,13 +157,11 @@ new File(outputPrefix + ".txt").withPrintWriter { pwR ->
                 } else if (x == 0) {
                     y.add(0)
                 } else {
-                    def subSample = diversityEstimator.downSampler.reSample(x)
-                    def subSampleDiversityEstimator = new DiversityEstimator(subSample, intersectionType)
-                    y.add(subSampleDiversityEstimator.computeCollapsedSampleDiversity().mean)
+                    y.add(getDiv(diversityEstimator, x))
                 }
             }
 
-            pwR.println([sampleId, sample.sampleMetadata, sample.count, sample.diversity, y].flatten().join("\t"))
+            pw.println([sampleId, sample.sampleMetadata, sample.count, divMax, y].flatten().join("\t"))
         }
     }
 }
