@@ -105,7 +105,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples to analy
 // Estimating rarefaction steps
 //
 
-def maxCount = 0, minCount = 0
+def maxCount = 0, minCount = Integer.MAX_VALUE
 
 sampleCollection.eachWithIndex { it, ind -> // Sorry we'll have to do it
     maxCount = (int) Math.max(maxCount, it.count)
