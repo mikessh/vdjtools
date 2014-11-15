@@ -19,11 +19,13 @@
 package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.io.SampleFileConnection
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.sample.IntersectionClonotypeFilter
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.util.ExecUtil
+
+import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -62,8 +64,6 @@ if (opt.arguments().size() < 3) {
 def sampleFileNames = opt.arguments()[0..-2],
     outputPrefix = opt.arguments()[-1]
 
-ExecUtil.ensureDir(outputPrefix)
-
 // Parameters
 
 def software = Software.byName(opt.S), intersectionType = IntersectionType.byName((opt.i ?: "strict")),
@@ -81,8 +81,9 @@ if (!intersectionType) {
 
 println "[${new Date()} $scriptName] Reading input samples & filter sample"
 
-def sampleCollection = new SampleCollection(sampleFileNames.flatten() as List<String>, software)
-def clonotypeFilter = new IntersectionClonotypeFilter(intersectionType, sampleCollection[0], negative)
+def sampleCollection = new SampleCollection(sampleFileNames[1..-1].flatten() as List<String>, software)
+def filterSample = SampleFileConnection.load(sampleFileNames[0], software)
+def clonotypeFilter = new IntersectionClonotypeFilter(intersectionType, filterSample, negative)
 
 //
 // Filter samples
@@ -92,24 +93,25 @@ println "[${new Date()} $scriptName] Filtering (${negative ? "negative" : "posit
 
 def sw = new SampleWriter(software)
 
-new File("${outputPrefix}.filtersummary.txt").withPrintWriter { pw ->
+new File(formOutputPath(outputPrefix, "asaf", "summary")).withPrintWriter { pw ->
     pw.println("#sample_id\tcells_before\tdiversity_before\tcells_after\tdiversity_after")
-    (1..<sampleCollection.size()).each { int index ->
-        def sample = sampleCollection[index]
-
+    sampleCollection.each { Sample sample ->
         // Filter
         def filteredSample = new Sample(sample, clonotypeFilter)
 
-        println "[${new Date()} $scriptName] Processed ${index + 1}th sample."
+        println "[${new Date()} $scriptName] Processed $sample.sampleMetadata.sampleId sample."
 
         pw.println([sample.sampleMetadata.sampleId,
-                           sample.count, sample.diversity,
-                           filteredSample.count, filteredSample.diversity].join("\t"))
+                    sample.count, sample.diversity,
+                    filteredSample.count, filteredSample.diversity].join("\t"))
 
         // print output
-        sw.write(filteredSample, "${outputPrefix}_${sample.sampleMetadata.sampleId}.txt")
+        sw.writeConventional(filteredSample, outputPrefix)
     }
 }
+
+sampleCollection.metadataTable.storeWithOutput(outputPrefix,
+        "asaf:$filterSample.sampleMetadata.sampleId:${negative ? "-" : "+"}:$intersectionType.shortName")
 
 println "[${new Date()} $scriptName] Finished"
 

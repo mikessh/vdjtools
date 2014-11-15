@@ -23,7 +23,8 @@ import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.pool.RatioFilter
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.util.ExecUtil
+
+import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
 def DEFAULT_CONT_RATIO = "20"
 
@@ -66,10 +67,10 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 3)
 }
 
 def software = Software.byName(opt.S), outputFilePrefix = opt.arguments()[-1],
-    lowMem = (boolean) opt.'low-mem'
-ratio = (opt.r ?: DEFAULT_CONT_RATIO).toDouble()
-
-ExecUtil.ensureDir(outputFilePrefix)
+// todo: implement low-mem version
+// this will lead eventually to the problem of removing Clonotype ref from dynamic clonotype
+    lowMem = (boolean) opt.'low-mem',
+    ratio = (opt.r ?: DEFAULT_CONT_RATIO).toDouble()
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -97,16 +98,15 @@ def ratioFilter = new RatioFilter(sampleCollection, ratio)
 // Go through all sample once more and perform freq-based filtering
 //
 def sw = new SampleWriter(software)
-// todo: also output new metadata table
 
-new File(outputFilePrefix + ".summary.txt").withPrintWriter { pw ->
+new File(formOutputPath(outputFilePrefix, "dec", "summary")).withPrintWriter { pw ->
     pw.println("#sample_id\tpassed_clones\ttotal_clones\tpassed_count\ttotal_count\tpassed_freq\ttotal_freq")
     sampleCollection.each { sample ->
         def sampleId = sample.sampleMetadata.sampleId
         println "[${new Date()} $scriptName] Filtering $sampleId"
         def newSample = new Sample(sample, ratioFilter)
 
-        sw.write(newSample, outputFilePrefix + "." + sampleId + ".txt")
+        sw.writeConventional(newSample, outputFilePrefix)
 
         def stats = ratioFilter.getStatsAndFlush()
 
@@ -115,6 +115,8 @@ new File(outputFilePrefix + ".summary.txt").withPrintWriter { pw ->
                                       stats.passedFreq, stats.totalFreq].join("\t"))
     }
 }
+
+sampleCollection.metadataTable.storeWithOutput(outputFilePrefix, "dec:$ratio")
 
 println "[${new Date()} $scriptName] Finished"
 

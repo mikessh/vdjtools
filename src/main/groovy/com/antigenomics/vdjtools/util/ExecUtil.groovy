@@ -17,8 +17,9 @@
  */
 
 
-
 package com.antigenomics.vdjtools.util
+
+import com.antigenomics.vdjtools.sample.Sample
 
 import java.nio.file.FileSystems
 import java.nio.file.Path
@@ -130,11 +131,39 @@ class ExecUtil {
      * Gets the output path according to VDJtools convention, with file name parts joined by '.'
      * @param outputPrefix output prefix, either directory name or directory name + prefix
      * @param outputSuffix one or more output suffices
-     * @return output/prefix.suffix1.suffix2 or outputPrefix/suffix1.suffix2
+     * @return output/prefix.suffix1.suffix2.txt or outputPrefix/suffix1.suffix2.txt
      */
     public static String formOutputPath(String outputPrefix,
-                                    String... outputSuffix) {
+                                        String... outputSuffix) {
+        if (outputSuffix.any { it.contains(File.pathSeparator) })
+            throw new IOException("Output suffices should not contain path separator")
+        ensureDir(outputPrefix)
         def s = outputSuffix.join(".")
-        outputPrefix.endsWith(File.pathSeparator) ? (outputPrefix + s) : (outputPrefix + "." + s)
+        if (outputPrefix == ".")
+            outputPrefix = "./"
+        (outputPrefix.endsWith(File.pathSeparator) ? (outputPrefix + s) : (outputPrefix + "." + s)) + ".txt"
+    }
+
+    /**
+     * Gets the output path for sample output according to VDJtools convention
+     * @param outputPrefix output prefix, either directory name or directory name + prefix
+     * @param sample sample object
+     * @return
+     */
+    public static String formOutputPath(String outputPrefix, Sample sample) {
+        formOutputPath(outputPrefix, sample.sampleMetadata.sampleId)
+    }
+
+    /**
+     * Gets the metadata file output path according to VDJtools convention
+     * @param outputPrefix output prefix, either directory name or directory name + prefix
+     * @return
+     */
+    public static String formMetadataPath(String outputPrefix) {
+        if (!new File(outputPrefix).isDirectory()) { // leave only directory in output prefix
+            outputPrefix = getPath(outputPrefix).parent.toString()
+        }
+        outputPrefix += File.pathSeparator
+        formOutputPath(outputPrefix, "metadata.txt")
     }
 }

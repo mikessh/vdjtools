@@ -20,7 +20,6 @@ package com.antigenomics.vdjtools.diversity
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.util.ExecUtil
 
 def cli = new CliBuilder(usage: "DownSample [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
@@ -60,8 +59,6 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 def software = Software.byName(opt.S), n = (int) opt.n.toInteger(),
     outputPrefix = opt.arguments()[-1]
 
-ExecUtil.ensureDir(outputPrefix)
-
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 //
@@ -71,8 +68,8 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 println "[${new Date()} $scriptName] Reading sample(s)"
 
 def sampleCollection = metadataFileName ?
-        new SampleCollection((String) metadataFileName, software, false, true) :
-        new SampleCollection(opt.arguments()[0..-2], software, true)
+        new SampleCollection((String) metadataFileName, software) :
+        new SampleCollection(opt.arguments()[0..-2], software)
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded"
 
@@ -89,7 +86,9 @@ sampleCollection.eachWithIndex { sample, ind ->
     def sampleWriter = new SampleWriter(software)
 
     // print output
-    sampleWriter.write(newSample, outputPrefix + "." + sample.sampleMetadata.sampleId + ".txt")
+    sampleWriter.writeConventional(newSample, outputPrefix)
 }
+
+sampleCollection.metadataTable.storeWithOutput(outputPrefix, "ds:$n")
 
 println "[${new Date()} $scriptName] Finished"

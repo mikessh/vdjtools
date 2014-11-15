@@ -21,7 +21,7 @@ import com.antigenomics.vdjtools.io.DummySampleConnection
 import com.antigenomics.vdjtools.io.SampleConnection
 import com.antigenomics.vdjtools.io.SampleFileConnection
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
-import org.apache.commons.io.FilenameUtils
+import com.antigenomics.vdjtools.sample.metadata.MetadataUtil
 
 /**
  * Base class to store and handle collections of samples in VDJtools
@@ -79,9 +79,9 @@ class SampleCollection implements Iterable<Sample> {
         this.metadataTable = new MetadataTable()
         sampleFileNames.each { String fileName ->
             if (new File(fileName).exists()) {
-                def sampleId = FilenameUtils.getBaseName(FilenameUtils.getBaseName(fileName)) // for gzip
+                def sampleId = MetadataUtil.fileName2id(fileName)
                 def sampleMetadata = metadataTable.createRow(sampleId)
-                sampleMap.put(sampleId, new SampleFileConnection(fileName, sampleMetadata, software, lazy, store))
+                sampleMap.put(sampleId, new SampleFileConnection(fileName, software, sampleMetadata, lazy, store))
             } else if (strict) {
                 throw new FileNotFoundException("Missing sample file $fileName")
             } else {
@@ -163,7 +163,7 @@ class SampleCollection implements Iterable<Sample> {
 
                     if (new File(fileName).exists()) {
                         def sampleMetadata = metadataTable.createRow(sampleId, entries)
-                        sampleMap.put(sampleId, new SampleFileConnection(fileName, sampleMetadata, software, lazy, store))
+                        sampleMap.put(sampleId, new SampleFileConnection(fileName, software, sampleMetadata, lazy, store))
                     } else if (strict) {
                         throw new FileNotFoundException("Missing sample file $fileName")
                     } else {

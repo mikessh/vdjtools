@@ -16,14 +16,24 @@
 
 package com.antigenomics.vdjtools.sample.metadata
 
-class MetadataEntry {
-    final MetadataTable parent
-    final String columnId, value
+import groovy.transform.PackageScope
 
-    MetadataEntry(MetadataTable parent, String columnId, String value) {
+class MetadataEntry {
+    public final MetadataTable grandParent
+    public final SampleMetadata parent
+    public final String columnId
+    public String value
+
+    MetadataEntry(MetadataTable grandParent, SampleMetadata parent, String columnId, String value) {
+        this.grandParent = grandParent
         this.parent = parent
         this.columnId = columnId
         this.value = value
+    }
+
+    @PackageScope
+    public MetadataEntry changeParent(MetadataTable grandParent, SampleMetadata parent) {
+        new MetadataEntry(grandParent, parent, columnId, value)
     }
 
     boolean isNumeric() {

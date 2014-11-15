@@ -17,11 +17,13 @@
 package com.antigenomics.vdjtools.io
 
 import com.antigenomics.vdjtools.Software
-import com.antigenomics.vdjtools.io.SampleConnection
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.metadata.SampleMetadata
 import com.antigenomics.vdjtools.util.CommonUtil
 import com.antigenomics.vdjtools.util.ExecUtil
+
+import static com.antigenomics.vdjtools.sample.metadata.MetadataUtil.createSampleMetadata
+import static com.antigenomics.vdjtools.sample.metadata.MetadataUtil.fileName2id
 
 /**
  A semi-internal class to provide lazy-loading support for SampleCollection
@@ -33,20 +35,36 @@ class SampleFileConnection implements SampleConnection {
     private Sample _sample = null
     private final boolean lazy, store
 
-    SampleFileConnection(String fileName, SampleMetadata sampleMetadata, Software software,
+    public static Sample load(String fileName, Software software) {
+        new SampleFileConnection(fileName, software)._load()
+    }
+
+    public static Sample load(String fileName, Software software, SampleMetadata sampleMetadata) {
+        new SampleFileConnection(fileName, software, sampleMetadata)._load()
+    }
+
+    SampleFileConnection(String fileName, Software software) {
+        this(fileName, software, createSampleMetadata(fileName2id(fileName)))
+    }
+
+    SampleFileConnection(String fileName, Software software, SampleMetadata sampleMetadata) {
+        this(fileName, software, sampleMetadata, false, true)
+    }
+
+    SampleFileConnection(String fileName, Software software, SampleMetadata sampleMetadata,
                          boolean lazy, boolean store) {
         this.fileName = fileName
-        // todo: make access to metadata as explicit as possible
+        // todo: make access to metadata as explicit as possible??
         this.sampleMetadata = sampleMetadata
         this.software = software
         this.lazy = lazy
         this.store = store
 
         if (!lazy)
-            _sample = load()
+            _sample = _load()
     }
 
-    private Sample load() {
+    private Sample _load() {
         println "[${new Date()} SampleStreamConnection] Loading sample $sampleMetadata.sampleId"
         def inputStream = CommonUtil.getFileStream(fileName)
         def sample = Sample.fromInputStream(inputStream, sampleMetadata, software)
@@ -56,6 +74,6 @@ class SampleFileConnection implements SampleConnection {
     }
 
     public Sample getSample() {
-        _sample ?: (store ? (_sample = load()) : load())
+        _sample ?: (store ? (_sample = _load()) : _load())
     }
 }

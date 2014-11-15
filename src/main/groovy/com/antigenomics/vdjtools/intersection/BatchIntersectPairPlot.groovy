@@ -84,6 +84,7 @@ if (measureColInd.toInteger() < 1) {
 }
 
 // Check if we can map factor to gradient scale
+// we do it manually here as we have no access to metadata :(
 boolean specifiedFactor = factorCol1Ind.toInteger() > 0
 if (numFactor && specifiedFactor) {
     int fcol1 = factorCol1Ind.toInteger() - 1, fcol2 = factorCol2Ind.toInteger() - 1

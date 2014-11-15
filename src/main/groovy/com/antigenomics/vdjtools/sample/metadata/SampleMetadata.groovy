@@ -23,6 +23,12 @@ class SampleMetadata {
     final ArrayList<MetadataEntry> entries
     final MetadataTable parent
 
+    private SampleMetadata(String sampleId, MetadataTable parent) {
+        this.sampleId = sampleId
+        this.entries = new ArrayList<>()
+        this.parent = parent
+    }
+
     private SampleMetadata(String sampleId, ArrayList<MetadataEntry> entries, MetadataTable parent) {
         this.sampleId = sampleId
         this.entries = entries
@@ -34,12 +40,24 @@ class SampleMetadata {
     }
 
     @PackageScope
+    public SampleMetadata changeParent(MetadataTable parent) {
+        def sampleMetadata = new SampleMetadata(sampleId, parent)
+        this.entries.each { sampleMetadata.addEntry(it) }
+    }
+
+    @PackageScope
     static SampleMetadata predefined(String sampleId, ArrayList<MetadataEntry> entries, MetadataTable parent) {
         new SampleMetadata(sampleId, entries, parent)
     }
 
-    static SampleMetadata create(String sampleId) {
-        MetadataTable.GENERIC_METADATA_TABLE.createRow(sampleId, new ArrayList<String>())
+    @PackageScope
+    void addEntry(String columnId, String value) {
+        entries.add(new MetadataEntry(parent, this, columnId, value))
+    }
+
+    @PackageScope
+    void addEntry(MetadataEntry metadataEntry) {
+        addEntry(metadataEntry.columnId, metadataEntry.value)
     }
 
     @Override

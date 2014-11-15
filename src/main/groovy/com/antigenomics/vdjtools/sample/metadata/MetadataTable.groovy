@@ -18,14 +18,17 @@ package com.antigenomics.vdjtools.sample.metadata
 
 import groovy.transform.PackageScope
 
+import static com.antigenomics.vdjtools.util.ExecUtil.*
+
 /**
  * Base class to handle sample metadata
  */
-class MetadataTable {
+class MetadataTable implements Iterable<SampleMetadata> {
     /**
      * Generic metadata table. All externally created SampleMetadata objects are internally dependent on it
      */
-    static final MetadataTable GENERIC_METADATA_TABLE = new MetadataTable()
+    @PackageScope
+    public static final MetadataTable GENERIC_METADATA_TABLE = new MetadataTable()
 
     private final HashMap<String, Integer> id2index = new HashMap<>()
     private final List<String> columnIds
@@ -52,6 +55,18 @@ class MetadataTable {
 
             id2index.put(it, ind)
         }
+    }
+
+    /**
+     * Creates a deep copy of this metadata
+     * @return
+     */
+    public MetadataTable copy() {
+        def metadataTable = new MetadataTable(columnIds.collect())
+        this.each {
+            metadataTable.addSample(it.changeParent(metadataTable))
+        }
+        metadataTable
     }
 
     /**
@@ -117,7 +132,20 @@ class MetadataTable {
         addColumnId(columnId)
 
         sampleOrder.eachWithIndex { it, ind ->
-            metadataBySample[it].entries.add(new MetadataEntry(this, columnId, values[ind]))
+            metadataBySample[it].addEntry(columnId, values[ind])
+        }
+    }
+
+    /**
+     * Add metadata column
+     * @param columnId name of column
+     * @param value value used to fill the column
+     */
+    void addColumn(String columnId, String value) {
+        addColumnId(columnId)
+
+        sampleOrder.eachWithIndex { it, ind ->
+            metadataBySample[it].addEntry(columnId, value)
         }
     }
 
@@ -136,7 +164,7 @@ class MetadataTable {
 
         sample2value.each {
             if (metadataBySample.containsKey(it.key)) {
-                metadataBySample[it.key].entries.add(new MetadataEntry(this, columnId, it.value))
+                metadataBySample[it.key].addEntry(columnId, it.value)
             } else if (strict) {
                 throw new Exception("Unknown sample $it.key")
             }
@@ -146,7 +174,7 @@ class MetadataTable {
         if (!strict) {
             metadataBySample.keySet().each {
                 if (!sample2value.containsKey(it)) {
-                    metadataBySample[it].entries.add(new MetadataEntry(this, columnId, "NA"))
+                    metadataBySample[it].addEntry(columnId, "NA")
                 }
             }
         }
@@ -186,11 +214,11 @@ class MetadataTable {
         // Create metadata entries, assign current metadata as parent
         def entries = new ArrayList<MetadataEntry>()
 
-        rowValues.eachWithIndex { String value, int i ->
-            entries.add(new MetadataEntry(this, columnIds[i], value))
-        }
-
         def sampleMetadata = SampleMetadata.predefined(sampleId, entries, this)
+
+        rowValues.eachWithIndex { String value, int i ->
+            entries.add(new MetadataEntry(this, sampleMetadata, columnIds[i], value))
+        }
 
         // Record sample to metadata if all is fine
 
@@ -232,6 +260,39 @@ class MetadataTable {
             if (rowValue != metadataValue)
                 throw new Exception("Bad metadata row - ${i}th column don't match between row " +
                         "($rowValue) and parent metadata ($metadataValue)")
+        }
+    }
+
+    /**
+     * Will write a new metadata table assuming that an 1<->1 sample output, e.g.
+     * from Decontaminate, ApplySampleAsFilter or Downsample will be produced to the same directory.
+     * @param outputPrefix
+     * @param filters list of filter names applied to data this time
+     */
+    public void storeWithOutput(String outputPrefix, String... filters) {
+        def metadataPath = formMetadataPath(outputPrefix)
+
+        def metadataTableCopy = this.copy()
+
+        filters.each { filter ->
+            if (metadataTableCopy.containsColumn("..filter..")) {
+                metadataTableCopy.getColumn("..filter..").eachWithIndex {
+                    it.value += ",$filter"
+                }
+            } else {
+                metadataTableCopy.addColumn("..filter..", filter)
+            }
+        }
+
+        new File(metadataPath).withPrintWriter { pw ->
+            pw.println("#file_name\tsample_id\t" + metadataTableCopy.columnHeader)
+            metadataTableCopy.metadataBySample.each {
+                def sampleOutputPath = formOutputPath(outputPrefix, it.key)
+
+                pw.println([relativeSamplePath(metadataPath, sampleOutputPath),
+                            it.key,
+                            it.value.toString()].join("\t"))
+            }
         }
     }
 
@@ -350,5 +411,11 @@ class MetadataTable {
     String toString() {
         "\t" + columnIds.collect().join("\t") + "\n" +
                 metadataBySample.collect { it.key + "\t" + it.value.entries.collect() }.join("\n")
+    }
+
+    @Override
+    Iterator<SampleMetadata> iterator() {
+        def orderIter = sampleOrder.iterator()
+        [hasNext: { orderIter.hasNext() }, next: { metadataBySample[orderIter.next()] }] as Iterator
     }
 }

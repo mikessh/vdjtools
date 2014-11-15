@@ -19,6 +19,8 @@ package com.antigenomics.vdjtools.io
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.join.JointSample
 import com.antigenomics.vdjtools.ClonotypeContainer
+import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.util.ExecUtil
 
 /**
  * Base class for providing output of Sample and JointSample
@@ -32,6 +34,14 @@ class SampleWriter {
         this.header = (software.headerLineCount > 1 ?
                 "$software.name-header-blank\n" * (software.headerLineCount - 1) : "") +
                 software.printFields.join("\t")
+    }
+
+    public void writeConventional(Sample sample, String outputPrefix) {
+        write(sample, ExecUtil.formOutputPath(outputPrefix, sample))
+    }
+
+    public void writeConventional(Sample sample, String outputPrefix, int top, boolean collapse) {
+        write(sample, ExecUtil.formOutputPath(outputPrefix, sample), top, collapse)
     }
 
     public void write(ClonotypeContainer sample, String fileName) {
