@@ -24,6 +24,7 @@ import com.antigenomics.vdjtools.sample.Sample
 import java.nio.file.FileSystems
 import java.nio.file.Path
 
+import static java.io.File.separator
 
 class ExecUtil {
     // todo: use this everywhere
@@ -70,7 +71,10 @@ class ExecUtil {
      * @param path
      */
     public static void ensureDir(String path) {
-        new File(path).absoluteFile.parentFile.mkdirs()
+        if (path.endsWith(separator))
+            new File(path).mkdirs()
+        else
+            new File(path).absoluteFile.parentFile.mkdirs()
     }
 
     /**
@@ -111,7 +115,7 @@ class ExecUtil {
      * @return
      */
     public static String relativeSamplePath(String metadataPath, String samplePath) {
-        getAbsolutePath(metadataPath).relativize(getAbsolutePath(samplePath)).toString()
+        getAbsolutePath(metadataPath).parent.relativize(getAbsolutePath(samplePath)).toString()
     }
 
     /**
@@ -121,7 +125,7 @@ class ExecUtil {
      * @return
      */
     public static String absoluteSamplePath(String metadataPath, String samplePath) {
-        if (new File(samplePath).isAbsolute()) {
+        if (getPath(samplePath).absolute) {
             return samplePath
         }
         getAbsolutePath(metadataPath).parent.resolve(samplePath).normalize().toAbsolutePath().toString()
@@ -135,13 +139,23 @@ class ExecUtil {
      */
     public static String formOutputPath(String outputPrefix,
                                         String... outputSuffix) {
-        if (outputSuffix.any { it.contains(File.pathSeparator) })
+        if (outputSuffix.any { it.contains(separator) })
             throw new IOException("Output suffices should not contain path separator")
-        ensureDir(outputPrefix)
-        def s = outputSuffix.join(".")
+
         if (outputPrefix == ".")
-            outputPrefix = "./"
-        (outputPrefix.endsWith(File.pathSeparator) ? (outputPrefix + s) : (outputPrefix + "." + s)) + ".txt"
+            outputPrefix += separator
+
+        boolean dir = outputPrefix.endsWith(separator)
+        if (new File(outputPrefix).isDirectory() && !dir) {
+            dir = true
+            outputPrefix += separator
+        }
+
+        ensureDir(outputPrefix)
+
+        def s = outputSuffix.join(".")
+
+        (dir ? (outputPrefix + s) : (outputPrefix + "." + s)) + ".txt"
     }
 
     /**
@@ -163,7 +177,7 @@ class ExecUtil {
         if (!new File(outputPrefix).isDirectory()) { // leave only directory in output prefix
             outputPrefix = getPath(outputPrefix).parent.toString()
         }
-        outputPrefix += File.pathSeparator
-        formOutputPath(outputPrefix, "metadata.txt")
+
+        formOutputPath(outputPrefix, "metadata")
     }
 }

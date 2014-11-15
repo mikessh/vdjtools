@@ -1,17 +1,19 @@
-/**
- Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+/*
+ * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Last modified on 15.11.2014 by mikesh
  */
 
 package com.antigenomics.vdjtools.sample.metadata
@@ -25,10 +27,10 @@ import static com.antigenomics.vdjtools.util.ExecUtil.*
  */
 class MetadataTable implements Iterable<SampleMetadata> {
     /**
-     * Generic metadata table. All externally created SampleMetadata objects are internally dependent on it
+     * Generic metadata table. All statically created SampleMetadata objects are internally dependent on it
      */
     @PackageScope
-    public static final MetadataTable GENERIC_METADATA_TABLE = new MetadataTable()
+    static final MetadataTable GENERIC_METADATA_TABLE = new MetadataTable()
 
     private final HashMap<String, Integer> id2index = new HashMap<>()
     private final List<String> columnIds
@@ -276,7 +278,7 @@ class MetadataTable implements Iterable<SampleMetadata> {
 
         filters.each { filter ->
             if (metadataTableCopy.containsColumn("..filter..")) {
-                metadataTableCopy.getColumn("..filter..").eachWithIndex {
+                metadataTableCopy.getColumn("..filter..").each {
                     it.value += ",$filter"
                 }
             } else {
