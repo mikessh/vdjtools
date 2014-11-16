@@ -90,13 +90,30 @@ class MetadataTable implements Iterable<SampleMetadata> {
     }
 
     /**
+     * Sorts samples in metadata according to sample id.
+     */
+    void sort() {
+        sampleOrder.sort()
+    }
+
+    /**
+     * Sorts samples in metadata according to a given column in ascending order.
+     * Sorting is performed according to column type (Factor/Numeric/Semi-Numeric).
+     * NaNs for numeric columns are always put last
+     * @param columnId column identifier
+     */
+    void sort(String columnId) {
+        sort(columnId, true)
+    }
+
+    /**
      * Sorts samples in metadata according to a given column.
      * Sorting is performed according to column type (Factor/Numeric/Semi-Numeric).
      * NaNs for numeric columns are always put last
      * @param columnId column identifier
-     * @param descending true for descending, false for ascending sort
+     * @param ascending true for ascending, false for descending sort
      */
-    void sort(String columnId, boolean descending) {
+    void sort(String columnId, boolean ascending) {
         checkColumnId(columnId)
 
         def columnInfo = getInfo(columnId)
@@ -107,15 +124,15 @@ class MetadataTable implements Iterable<SampleMetadata> {
                 sampleOrder.sort {
                     def value = this[it, columnId].asNumeric()
                     Double.isNaN(value) ?
-                            (descending ? Double.MAX_VALUE : Double.MIN_VALUE) :
-                            (descending ? -value : value)
+                            (ascending ? Double.MIN_VALUE : Double.MAX_VALUE) :
+                            (ascending ? value : -value)
                 }
                 break
             case MetadataColumnType.Factor:
                 sampleOrder.sort(true, new Comparator<String>() {
                     @Override
                     int compare(String o1, String o2) {
-                        descending ? -o1.compareTo(o2) : o1.compareTo(o2)
+                        ascending ? o1.compareTo(o2) : -o1.compareTo(o2)
                     }
                 })
                 break

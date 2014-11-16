@@ -91,6 +91,7 @@ class SampleCollection implements Iterable<Sample> {
                 println "[${new Date()} SampleCollection] WARNING: File $fileName not found, skipping"
             }
         }
+        metadataTable.sort()
     }
 
     /**
@@ -145,7 +146,7 @@ class SampleCollection implements Iterable<Sample> {
         this.lazy = lazy
         this.strict = strict
 
-        def metadataTable = null
+        MetadataTable metadataTable = null
 
         new File(sampleMetadataFileName).withReader { reader ->
             def headerLine = reader.readLine()
@@ -177,6 +178,8 @@ class SampleCollection implements Iterable<Sample> {
                 }
             }
         }
+
+        metadataTable.sort()
 
         this.metadataTable = metadataTable
     }

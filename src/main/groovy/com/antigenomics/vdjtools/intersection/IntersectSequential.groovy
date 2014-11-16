@@ -120,10 +120,10 @@ int n = timePoints.size()
 
 if (!metadataTable.containsColumn("time")) {
     // add corresponding column to metadata
-    metadataTable.addColumn("time", timePoints)
+    metadataTable.addColumn("time", timePoints as List<String>)
 }
 
-metadataTable.sort("time", false)
+metadataTable.sort("time")
 
 // Take sorted values from metadata
 timePoints = metadataTable.getColumn("time").collect { it.asNumeric().toString() }

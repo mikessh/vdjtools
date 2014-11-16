@@ -112,7 +112,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples to analy
 def maxCells = new HashMap<IntersectionType, Long>()
 intersectionTypes.each { maxCells.put(it, 0) }
 
-new File(formOutputPath(outputPrefix, "divstats")).withPrintWriter { pwDiv ->
+new File(formOutputPath(outputPrefix, "diversity")).withPrintWriter { pwDiv ->
     def headerDiv = "#sample_id\t" +
             sampleCollection.metadataTable.columnHeader + "\treads\t" +
             intersectionTypes.collect { i ->
