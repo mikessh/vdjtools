@@ -156,7 +156,7 @@ class ExecUtil {
         def s = outputSuffix.join(".")
 
         (dir ? (outputPrefix + s) : (outputPrefix + "." + s)) +
-                ((s.contains(".txt") || s.contains(".pdf")) ? ".txt" : "")
+                ((s.endsWith(".txt") || s.endsWith(".pdf")) ? "" : ".txt")
     }
 
     public static String toPlotPath(String outputPath) {
