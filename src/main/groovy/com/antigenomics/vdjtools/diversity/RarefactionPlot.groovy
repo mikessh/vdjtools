@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 13.11.2014 by mikesh
+ * Last modified on 16.11.2014 by mikesh
  */
 
 package com.antigenomics.vdjtools.diversity
@@ -22,7 +22,7 @@ import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.intersection.IntersectionType
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.util.ExecUtil
+import static com.antigenomics.vdjtools.util.ExecUtil.*
 import com.antigenomics.vdjtools.util.RUtil
 
 def STEPS_DEFAULT = "10", RESAMPLES_DEFAULT = "1"
@@ -83,9 +83,7 @@ def software = Software.byName(opt.S),
     intersectionType = opt.i ? IntersectionType.byName((String) opt.i) : I_TYPE_DEFAULT,
     steps = (opt.s ?: STEPS_DEFAULT).toInteger(), resamples = (opt.r ?: RESAMPLES_DEFAULT).toInteger(),
     optL = (String) opt.'l', optF = (String) opt.'f', numericFactor = (boolean) opt.'n',
-    outputPrefix = opt.arguments()[-1] + ".rarefaction.$intersectionType.shortName"
-
-ExecUtil.ensureDir(outputPrefix)
+    outputPrefix = opt.arguments()[-1]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -137,7 +135,9 @@ def getDiv = { DiversityEstimator diversityEstimator, int x ->
 def header = ["#sample_id", sampleCollection.metadataTable.columnHeader,
               "count", "diversity", rSteps].flatten().join("\t")
 
-new File(outputPrefix + ".txt").withPrintWriter { pw ->
+def outputTablePath = formOutputPath(outputPrefix, "rarefaction", intersectionType.shortName)
+
+new File(outputTablePath).withPrintWriter { pw ->
     pw.println(header)
 
     sampleCollection.eachWithIndex { Sample sample, int i ->
@@ -187,12 +187,12 @@ if (facCol < 0) {
 }
 
 RUtil.execute("rarefaction_curve.r",
-        outputPrefix + ".txt",
+        outputTablePath,
         (lblCol + 2).toString(),
         (facCol + 2).toString(),
         numeric,
         addLbl,
-        outputPrefix + ".pdf"
+        toPlotPath(outputTablePath)
 )
 
 println "[${new Date()} $scriptName] Finished"

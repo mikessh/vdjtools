@@ -155,7 +155,12 @@ class ExecUtil {
 
         def s = outputSuffix.join(".")
 
-        (dir ? (outputPrefix + s) : (outputPrefix + "." + s)) + ".txt"
+        (dir ? (outputPrefix + s) : (outputPrefix + "." + s)) +
+                (s.contains(".txt") || s.contains(".pdf")) ? ".txt" : ""
+    }
+
+    public static String toPlotPath(String outputPath) {
+        outputPath[-4] == "." ? (outputPath[0..-5] + ".pdf") : (outputPath + ".pdf")
     }
 
     /**

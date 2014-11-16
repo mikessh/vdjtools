@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 2.11.2014 by mikesh
+ * Last modified on 16.11.2014 by mikesh
  */
 
 package com.antigenomics.vdjtools.diversity
@@ -22,7 +22,8 @@ import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.intersection.IntersectionType
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.util.ExecUtil
+
+import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
 def N_DEFAULT = "100000", I_TYPES_DEFAULT = [IntersectionType.AminoAcidVJ, IntersectionType.Strict]
 def cli = new CliBuilder(usage: "CalcDiversityStats [options] " +
@@ -87,8 +88,6 @@ if (opt.i) {
     intersectionTypes = I_TYPES_DEFAULT
 }
 
-ExecUtil.ensureDir(outputPrefix)
-
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 // Defaults
@@ -113,7 +112,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples to analy
 def maxCells = new HashMap<IntersectionType, Long>()
 intersectionTypes.each { maxCells.put(it, 0) }
 
-new File(outputPrefix + ".diversity.txt").withPrintWriter { pwDiv ->
+new File(formOutputPath(outputPrefix, "divstats")).withPrintWriter { pwDiv ->
     def headerDiv = "#sample_id\t" +
             sampleCollection.metadataTable.columnHeader + "\treads\t" +
             intersectionTypes.collect { i ->

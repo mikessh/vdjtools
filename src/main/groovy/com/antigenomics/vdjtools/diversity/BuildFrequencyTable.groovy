@@ -16,12 +16,14 @@
  * Last modified on 2.11.2014 by mikesh
  */
 
+
+
 package com.antigenomics.vdjtools.diversity
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.intersection.IntersectionType
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.util.ExecUtil
+import static com.antigenomics.vdjtools.util.ExecUtil.*
 import com.antigenomics.vdjtools.util.RUtil
 
 def I_TYPE_DEFAULT = "strict"
@@ -48,8 +50,6 @@ if (opt.h || opt.arguments().size() != 2) {
 
 def software = Software.byName(opt.S), plot = opt.p,
     outputPrefix = opt.arguments()[1]
-
-ExecUtil.ensureDir(outputPrefix)
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -80,7 +80,9 @@ def frequencyTable = new FrequencyTable(sample, intersectionType)
 
 println "[${new Date()} $scriptName] Writing output"
 
-new File(outputPrefix + ".freqtable.txt").withPrintWriter { pw ->
+def outputTablePath = formOutputPath(outputPrefix, "freqtable")
+
+new File(outputTablePath).withPrintWriter { pw ->
     pw.println(FrequencyTable.BinInfo.HEADER)
     frequencyTable.bins.each {
         pw.println(it)
@@ -91,8 +93,8 @@ if (plot) {
     println "[${new Date()} $scriptName] Plotting data"
 
     RUtil.execute("freqtable_plot.r",
-            outputPrefix + ".freqtable.txt",
-            outputPrefix + ".freqtable.pdf"
+            outputTablePath,
+            toPlotPath(outputTablePath)
     )
 }
 
