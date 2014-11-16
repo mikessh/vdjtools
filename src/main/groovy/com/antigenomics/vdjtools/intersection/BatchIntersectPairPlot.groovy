@@ -18,10 +18,17 @@ package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.util.RUtil
 
-def cli = new CliBuilder(usage: "BatchIntersectPairPlot [options] input_file output_prefix")
+import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
+
+def MEASURE_DEFAULT = "F2", I_TYPE_DEFAULT = "aa"
+def cli = new CliBuilder(usage: "BatchIntersectPairPlot [options] input_prefix [output_prefix]\n" +
+        "input_prefix should be the same as the output_prefix" +
+        "specified during BatchIntersectPair execution")
 cli.h("display help message")
 cli.m(longOpt: "measure", argName: "string", args: 1,
-        "Distance measure to use, allowed values are ${IntersectMetric.allowedNames}")
+        "Distance measure to use, allowed values are ${IntersectMetric.allowedNames}. " +
+                "[default = $MEASURE_DEFAULT]")
 cli.f(longOpt: "factor", argName: "string", args: 1,
         "Column name, as in metadata. Factor used to color the plot. [default = no factor]")
 cli.n(longOpt: "num-factor", "Factor will be treated as numeric value and gradient plot coloring will be used. " +
@@ -31,27 +38,50 @@ cli.l(longOpt: "label", argName: "string", args: 1,
         "Column name, as in metadata. Row values will be used as sample labels. [default = sample_id]")
 cli.k(longOpt: "hcl-cutoff", argName: "int, >0", args: 1,
         "Number of clusters to cut the dendrogram into. No output is generated for values <1. [default = 3]")
+cli.i(longOpt: "intersect-type", argName: "string", args: 1,
+        "Intersection rule, as used in BatchIntersectPairPlot." +
+                "Allowed values: $IntersectionType.allowedNames. " +
+                "Will use '$I_TYPE_DEFAULT' by default.")
 
 def opt = cli.parse(args)
 
 if (opt == null)
-    System.exit(-1)
+    System.exit(0)
 
-if (opt.h || opt.arguments().size() < 2) {
+if (opt.h || opt.arguments().size() < 1) {
     cli.usage()
-    System.exit(-1)
+    System.exit(0)
 }
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
-def inputFileName = opt.arguments()[0], outputPrefix = opt.arguments()[1],
+def iName = opt.i ?: I_TYPE_DEFAULT
+def intersectionType = IntersectionType.byName(iName)
+
+if (!intersectionType) {
+    println "[ERROR] Bad intersection type specified ($iName). " +
+            "Allowed values are: $IntersectionType.allowedNames"
+    System.exit(-1)
+}
+
+def inputPrefix = opt.arguments()[0],
+    inputFileName = formOutputPath(inputPrefix, "intersect", "batch", intersectionType.shortName)
+
+if (!new File(inputFileName).exists()) {
+    println "[ERROR] Input file $inputFileName not found"
+    System.exit(-1)
+}
+
+intersectionType = intersectionType.shortName
+
+def outputPrefix = opt.arguments().size() > 1 ? opt.arguments()[1] : inputPrefix,
     sampleId = "sample_id".toUpperCase(), factorName = opt.f, numFactor = opt.n,
-    measureName = (opt.m ?: "F").toUpperCase(), labelName = (opt.l ?: "sample_id").toUpperCase(),
-    hcFileName = outputPrefix + ".batch_intersect_hc.pdf",
-    mdsFileName = outputPrefix + ".batch_intersect_mds.pdf",
+    measureName = (opt.m ?: MEASURE_DEFAULT).toUpperCase(), labelName = (opt.l ?: "sample_id").toUpperCase(),
+    hcFileName = formOutputPath(outputPrefix, "hc", intersectionType, measureName, "pdf"),
+    mdsFileName = formOutputPath(outputPrefix, "mds", intersectionType, measureName, "pdf"),
     k = (opt.k ?: 3),
-    clustFileName = outputPrefix + ".batch_intersect_clusters${k}.txt",
-    coordFileName = outputPrefix + ".batch_intersect_mdscoords.txt"
+    clustFileName = formOutputPath(outputPrefix, "hc", "cut$k", intersectionType, measureName),
+    coordFileName = formOutputPath(outputPrefix, "mds", "coords", intersectionType, measureName)
 
 def factorNameOrig = null
 if (factorName) {
@@ -123,14 +153,15 @@ RUtil.execute("batch_intersect_pair_clust.r",
 )
 
 if (specifiedFactor) {
+    def permsOutputPath = formOutputPath(outputPrefix, "mds", "perms", intersectionType, measureName)
     if (numFactor) {
         // todo: finish with distance correlation
     } else {
         new FactorClusterStats(coordFileName).performPermutations(10000,
-                outputPrefix + ".batch_intersect_mds_perm.txt")
+                permsOutputPath)
         RUtil.execute("batch_intersect_pair_perm_f.r",
-                outputPrefix + ".batch_intersect_mds_perm.txt",
-                outputPrefix + ".batch_intersect_mds_perm.pdf"
+                permsOutputPath,
+                toPlotPath(permsOutputPath)
         )
     }
 }

@@ -19,7 +19,8 @@ package com.antigenomics.vdjtools.intersection
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.basic.SegmentUsage
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.util.ExecUtil
+
+import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
 def I_TYPE_DEFAULT = "aa"
 def cli = new CliBuilder(usage: "BatchIntersectPair [options] " +
@@ -64,8 +65,6 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 4)
 def software = Software.byName(opt.S), outputPrefix = opt.arguments()[-1],
     lowMem = (boolean) opt.'low-mem'
 
-ExecUtil.ensureDir(outputPrefix)
-
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 // Select intersection type
@@ -100,10 +99,6 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
 println "[${new Date()} $scriptName] Intersecting by $intersectionType"
 
-//def intersectionUtil = new IntersectionUtil(intersectionType)
-
-//def pairedIntersectionMatrix = intersectionUtil.intersectWithinCollection(sampleCollection, false, true)
-
 SegmentUsage.VERBOSE = false
 PairedIntersection.VERBOSE = false
 IntersectionEvaluator.VERBOSE = false
@@ -112,8 +107,7 @@ def pairedIntersectionBatch = new PairedIntersectionBatch(sampleCollection, inte
 
 println "[${new Date()} $scriptName] Writing results"
 
-new File(outputPrefix + ".batch_intersect_" + intersectionType.shortName + ".txt").withPrintWriter { pw ->
+new File(formOutputPath(outputPrefix, "intersect", "batch", intersectionType.shortName)).withPrintWriter { pw ->
     pw.println(pairedIntersectionBatch.header)
     pw.println(pairedIntersectionBatch.table)
-    //pairedIntersectionMatrix.print(pw)
 }
