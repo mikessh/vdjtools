@@ -21,13 +21,13 @@ import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.ExecUtil
 
+// todo: organize CLI for database usage
 def cli = new CliBuilder(usage: "ScanDatabase [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
-cli.D(longOpt: "db-name", argName: "string", args: "1",
-        "Database name, currently supported: trdb")
+cli.D(longOpt: "database", argName: "string", args: "1", "Path to an external database file.")
 cli.d(longOpt: "details", "Will output detailed DB query files.")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
@@ -59,7 +59,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 // Remaining arguments
 
-def software = Software.byName(opt.S), dbName = opt.D ?: "trdb", fuzzy = (boolean) opt.f,
+def software = Software.byName(opt.S), dbName = opt.D, fuzzy = (boolean) opt.f,
     details = (boolean) opt.d,
     outputFileName = opt.arguments()[-1]
 
@@ -83,7 +83,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 // Annotation
 //
 
-def database = new CdrDatabase(dbName)
+def database = dbName ? new CdrDatabase(dbName) : new CdrDatabase()
 def databaseBrowser = new DatabaseBrowser(false, false, fuzzy) // todo: more options
 
 println "[${new Date()} $scriptName] Annotating sample(s) & writing results"

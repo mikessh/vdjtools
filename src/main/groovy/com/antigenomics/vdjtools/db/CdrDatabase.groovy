@@ -22,8 +22,15 @@ class CdrDatabase {
     public final String[] header
     private final HashMap<String, List<CdrDatabaseEntry>> entriesByCdr = new HashMap<>()
 
-    public CdrDatabase(String dbName) {
-        def dbReader = CommonUtil.resourceStreamReader("db/${dbName}.txt")
+    public CdrDatabase(){
+        this(CommonUtil.resourceStreamReader("vdjdb/data/vdjdb.txt"))
+    }
+
+    public CdrDatabase(String fileName){
+        this(new InputStreamReader(new FileInputStream(fileName)))
+    }
+
+    public CdrDatabase(InputStreamReader dbReader) {
         header = dbReader.readLine().split("\t")[3..-1]
         HEADER = header.join("\t")
         def line

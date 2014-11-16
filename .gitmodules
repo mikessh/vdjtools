@@ -1,0 +1,3 @@
+[submodule "src/main/resources/vdjdb"]
+	path = src/main/resources/vdjdb
+	url = https://github.com/mikessh/vdjdb/
