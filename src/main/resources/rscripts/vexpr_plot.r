@@ -31,7 +31,7 @@ if (fac_col > 0) {
     } else {
        df[, fac_col] <- as.factor(df[, fac_col])
        nlevels <- length(levels(df[, fac_col]))
-       scol <- colorRampPalette(brewer.pal(nlevels, "Set1"))(nlevels)[df[,fac_col]]
+       scol <- colorRampPalette(brewer.pal(nlevels, "Set2"))(nlevels)[df[,fac_col]]
     }
 }
 

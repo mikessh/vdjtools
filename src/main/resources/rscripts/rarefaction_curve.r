@@ -83,7 +83,7 @@ if (num_fac) {
    g <- g + scale_colour_gradient2(low="#feb24c", mid="#31a354", high="#2b8cbe", midpoint=(max(df.m$fac) + min(df.m$fac))/2)
    grid.arrange(g, ncol=1, nrow=2)
 } else {
-   g <- g + scale_colour_brewer(palette="Set1")
+   g <- g + scale_colour_brewer(palette="Set2")
    grid.arrange(g, ncol=1, nrow=2)
 }
 

@@ -32,7 +32,7 @@ if(lbl_col1_index < 1) {
    lbl_col2_index = id_col2_index
 }
 
-require(ape); require(reshape2); require(ggplot2); require(MASS); require(plotrix) #require(SDMTools)
+require(ape); require(reshape2); require(ggplot2); require(MASS); require(plotrix); require(RColorBrewer)
 
 # read data
 tbl  <- read.delim(file_in)
@@ -82,9 +82,15 @@ if (color_by_factor) {
     }
 
     # design a palette to color by unique factor levels
-    pal <- colorRampPalette(c("#feb24c", "#31a354", "#2b8cbe"))
-    fu <- unique(aux[, "factor_col1"])
-    cc <- pal(length(fu))
+    if (cont_factor) {
+       pal <- colorRampPalette(c("#feb24c", "#31a354", "#2b8cbe"))
+       fu <- unique(aux[, "factor_col1"])
+       cc <- pal(length(fu))
+    } else {
+       fu <- levels(aux[, "factor_col1"])
+       pal <- rep(brewer.pal(8, "Set2"), length(fu)/8 + 1)
+       cc <- pal[1:length(fu)]
+    }
 
     # for nan
     cc[is.na(fu)] <- "grey"
