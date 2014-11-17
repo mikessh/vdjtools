@@ -27,8 +27,4 @@ public interface ClonotypeContainer extends Iterable<Clonotype> {
     public int getDiversity();
 
     public Clonotype getAt(int index);
-
-    public Clonotype get(int index);
-
-    public int size();
 }

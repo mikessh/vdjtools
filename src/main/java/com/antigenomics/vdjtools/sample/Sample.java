@@ -120,16 +120,6 @@ public class Sample implements ClonotypeContainer {
     }
 
     @Override
-    public int size() {
-        return clonotypes.size();
-    }
-
-    @Override
-    public Clonotype get(int index) {
-        return clonotypes.get(index);
-    }
-
-    @Override
     public Clonotype getAt(int index) {
         if (index < 0 || index >= clonotypes.size())
             throw new IndexOutOfBoundsException();
