@@ -1,24 +1,26 @@
-/**
- Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+/*
+ * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Last modified on 9.11.2014 by mikesh
  */
 
 package com.antigenomics.vdjtools.basic
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.util.ExecUtil
+import static com.antigenomics.vdjtools.util.ExecUtil.*
 import com.antigenomics.vdjtools.util.RUtil
 
 def cli = new CliBuilder(usage: "CalcSegmentUsage [options] " +
@@ -63,8 +65,6 @@ def software = Software.byName(opt.S),
     unweighted = opt.u,
     plot = (boolean) opt.p
 
-ExecUtil.ensureDir(outputPrefix)
-
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 //
@@ -86,10 +86,10 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
 def segmentUsage = new SegmentUsage(sampleCollection, unweighted)
 
-def outputFilePrefixExt = outputPrefix + ".segments" + (unweighted ? ".unweighted" : "")
-
-new File(outputFilePrefixExt + ".V.txt").withPrintWriter { pwV ->
-    new File(outputFilePrefixExt + ".J.txt").withPrintWriter { pwJ ->
+def outputPathV = formOutputPath(outputPrefix, "segments", unweighted ? "unw" : "w" ,"V"),
+        outputPathJ = formOutputPath(outputPrefix, "segments", unweighted ? "unw" : "w" ,"J")
+new File(outputPathV).withPrintWriter { pwV ->
+    new File(outputPathJ).withPrintWriter { pwJ ->
         def header = "#sample_id\t" + sampleCollection.metadataTable.columnHeader
 
         pwV.println(header + "\t" + segmentUsage.vUsageHeader().join("\t"))
@@ -106,21 +106,21 @@ new File(outputFilePrefixExt + ".V.txt").withPrintWriter { pwV ->
 
 if (plot) {
     RUtil.execute("vexpr_plot.r",
-            outputFilePrefixExt + ".V.txt",
+            outputPathV,
             segmentUsage.vUsageHeader().length.toString(),
             opt.l ? (metadataTable.getColumnIndex(opt.l) + 2).toString() : "0", // first column is sample id
             opt.f ? (metadataTable.getColumnIndex(opt.f) + 2).toString() : "0",
             opt.n ? "TRUE" : "FALSE",
-            outputFilePrefixExt + ".V.pdf"
+            toPlotPath(outputPathV)
     )
 
     RUtil.execute("vexpr_plot.r",
-            outputFilePrefixExt + ".J.txt",
+            outputPathJ,
             segmentUsage.jUsageHeader().length.toString(),
             opt.l ? (metadataTable.getColumnIndex(opt.l) + 2).toString() : "0",
             opt.f ? (metadataTable.getColumnIndex(opt.f) + 2).toString() : "0",
             opt.n ? "TRUE" : "FALSE",
-            outputFilePrefixExt + ".J.pdf"
+            toPlotPath(outputPathJ)
     )
 }
 

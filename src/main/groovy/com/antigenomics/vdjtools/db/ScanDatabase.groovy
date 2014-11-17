@@ -1,18 +1,22 @@
-/**
- Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+/*
+ * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Last modified on 17.11.2014 by mikesh
  */
+
+
 
 package com.antigenomics.vdjtools.db
 
@@ -27,7 +31,9 @@ def cli = new CliBuilder(usage: "ScanDatabase [options] " +
 cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
-cli.D(longOpt: "database", argName: "string", args: "1", "Path to an external database file.")
+cli.D(longOpt: "database", argName: "string", args: 1, "Path to an external database file.")
+cli._(longOpt: "filter", argName: "logical expression(__field__,...)", args: 1,
+        "Logical filter on database columns. Supports Regex, .contains(), .startsWith(), etc")
 cli.d(longOpt: "details", "Will output detailed DB query files.")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
@@ -36,8 +42,9 @@ cli.f(longOpt: "fuzzy", "Will query database allowing a fuzzy match containing a
 
 def opt = cli.parse(args)
 
-if (opt == null)
+if (opt == null) {
     System.exit(-1)
+}
 
 if (opt.h || opt.arguments().size() == 0) {
     cli.usage()
@@ -59,8 +66,8 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 // Remaining arguments
 
-def software = Software.byName(opt.S), dbName = opt.D, fuzzy = (boolean) opt.f,
-    details = (boolean) opt.d,
+def software = Software.byName(opt.S), dbName = (String) (opt.D ?: null), fuzzy = (boolean) opt.f,
+    details = (boolean) opt.d, filter = (String) (opt.'filter' ?: null),
     outputFileName = opt.arguments()[-1]
 
 ExecUtil.ensureDir(outputFileName)
@@ -83,12 +90,12 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 // Annotation
 //
 
-def database = dbName ? new CdrDatabase(dbName) : new CdrDatabase()
+def database = dbName ? new CdrDatabase(dbName, filter) : new CdrDatabase(filter)
 def databaseBrowser = new DatabaseBrowser(false, false, fuzzy) // todo: more options
 
 println "[${new Date()} $scriptName] Annotating sample(s) & writing results"
 
-new File(outputFileName + ".annot.${dbName}.summary.txt").withPrintWriter { pwSummary ->
+new File(outputFileName + ".annot.${dbName ?: "default"}.summary.txt").withPrintWriter { pwSummary ->
     def header = "#sample_id\t" +
             sampleCollection.metadataTable.columnHeader + "\tdiversity\t" +
             BrowserResult.HEADER
