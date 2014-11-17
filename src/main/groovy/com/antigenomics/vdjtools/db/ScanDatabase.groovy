@@ -17,7 +17,6 @@
  */
 
 
-
 package com.antigenomics.vdjtools.db
 
 import com.antigenomics.vdjtools.Software
@@ -96,7 +95,8 @@ def databaseBrowser = new DatabaseBrowser(false, false, fuzzy) // todo: more opt
 println "[${new Date()} $scriptName] Annotating sample(s) & writing results"
 
 new File(outputFileName + ".annot.${dbName ?: "default"}.summary.txt").withPrintWriter { pwSummary ->
-    def header = "#sample_id\t" +
+    def header = "##FILTER=\"$filter\"\n"
+    header += "#sample_id\t" +
             sampleCollection.metadataTable.columnHeader + "\tdiversity\t" +
             BrowserResult.HEADER
 
@@ -114,7 +114,7 @@ new File(outputFileName + ".annot.${dbName ?: "default"}.summary.txt").withPrint
         // Write full summary
         if (details) {
             new File(outputFileName + ".annot.${dbName}.${sampleId}.txt").withPrintWriter { pwDetails ->
-                pwDetails.println("#" + CdrDatabaseMatch.HEADER + "\t" + database.HEADER) // todo: better header composition
+                pwDetails.println("#" + CdrDatabaseMatch.HEADER + "\t" + database.ANNOTATION_HEADER) // todo: better header composition
                 browserResult.each { match ->
                     pwDetails.println(match)
                 }

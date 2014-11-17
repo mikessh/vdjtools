@@ -17,7 +17,6 @@
  */
 
 
-
 package com.antigenomics.vdjtools.db
 
 import com.antigenomics.vdjtools.util.CommonUtil
@@ -25,8 +24,8 @@ import com.antigenomics.vdjtools.util.CommonUtil
 class CdrDatabase {
     public static final String FILTER_MARK = "__"
     private final HashMap<String, List<CdrDatabaseEntry>> entriesByCdr = new HashMap<>()
-    public final String[] header
-    public final String HEADER
+    public final String[] annotationHeader
+    public final String ANNOTATION_HEADER
 
     public CdrDatabase(String filter) {
         this(CommonUtil.resourceStreamReader("vdjdb/data/vdjdb.txt"), filter)
@@ -37,19 +36,47 @@ class CdrDatabase {
     }
 
     public CdrDatabase(InputStreamReader dbReader, String filter) {
-        def header = dbReader.readLine().split("\t")
+        def headerLine = dbReader.readLine()
+        if (!headerLine.startsWith("#"))
+            throw new Exception("Header line SHOULD start with '#'")
+        headerLine = headerLine[1..-1]
+        def header = headerLine.split("\t")
 
         if (filter) {
             filter.split(FILTER_MARK).each { token ->
-                println token
                 def columnIndex = header.findIndexOf { it.toUpperCase() == token.toUpperCase() }
                 if (columnIndex >= 0)
                     filter = filter.replaceAll("$FILTER_MARK$token$FILTER_MARK", "x[$columnIndex]")
             }
         }
 
-        this.header = header[3..-1]
-        this.HEADER = header.join("\t")
+        def cdr3aaInd = -1, vInd = -1, jInd = -1
+        def annotationHeader = new ArrayList<String>()
+        def annotationIndices = new ArrayList<Integer>()
+
+        header.eachWithIndex { String it, int ind ->
+            switch (it.toUpperCase()) {
+                case "CDR3AA":
+                    cdr3aaInd = ind
+                    break
+                case "V":
+                    vInd = ind
+                    break
+                case "J":
+                    jInd = ind
+                    break
+                default:
+                    annotationHeader.add(it)
+                    annotationIndices.add(ind)
+                    break
+            }
+        }
+
+        if (cdr3aaInd < 0 || vInd < 0 || jInd < 0)
+            throw new Exception("The following columns are MANDATORY: cdr3aa, v and j columns")
+
+        this.annotationHeader = annotationHeader as String[]
+        this.ANNOTATION_HEADER = annotationHeader.join("\t")
 
         def line
         while ((line = dbReader.readLine()) != null) {
@@ -58,14 +85,13 @@ class CdrDatabase {
             if (filter && !Eval.x(splitLine, filter))
                 continue
 
-            // todo: more flexible v/j/cdr3 column search
-            String cdr3aa = splitLine[0], v, j
-            (v, j) = CommonUtil.extractVDJ(splitLine[1..2])
+            String cdr3aa = splitLine[cdr3aaInd], v, j
+            (v, j) = CommonUtil.extractVDJ(splitLine[[vInd, jInd]])
 
             def entryList = entriesByCdr[cdr3aa]
             if (!entryList)
                 entriesByCdr.put(cdr3aa, entryList = new ArrayList<CdrDatabaseEntry>())
-            entryList.add(new CdrDatabaseEntry(cdr3aa, v, j, splitLine[3..-1] as String[], this))
+            entryList.add(new CdrDatabaseEntry(cdr3aa, v, j, splitLine[annotationIndices] as String[], this))
         }
     }
 
