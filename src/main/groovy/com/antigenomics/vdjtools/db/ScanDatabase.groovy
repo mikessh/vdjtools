@@ -22,7 +22,8 @@ package com.antigenomics.vdjtools.db
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.util.ExecUtil
+
+import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
 // todo: organize CLI for database usage
 def cli = new CliBuilder(usage: "ScanDatabase [options] " +
@@ -69,8 +70,6 @@ def software = Software.byName(opt.S), dbName = (String) (opt.D ?: null), fuzzy 
     details = (boolean) opt.d, filter = (String) (opt.'filter' ?: null),
     outputFileName = opt.arguments()[-1]
 
-ExecUtil.ensureDir(outputFileName)
-
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 //
@@ -94,7 +93,7 @@ def databaseBrowser = new DatabaseBrowser(false, false, fuzzy) // todo: more opt
 
 println "[${new Date()} $scriptName] Annotating sample(s) & writing results"
 
-new File(outputFileName + ".annot.${dbName ?: "default"}.summary.txt").withPrintWriter { pwSummary ->
+new File(formOutputPath(outputFileName, "annot", dbName ?: "default", "summary")).withPrintWriter { pwSummary ->
     def header = "##FILTER=\"$filter\"\n"
     header += "#sample_id\t" +
             sampleCollection.metadataTable.columnHeader + "\tdiversity\t" +
@@ -113,7 +112,7 @@ new File(outputFileName + ".annot.${dbName ?: "default"}.summary.txt").withPrint
 
         // Write full summary
         if (details) {
-            new File(outputFileName + ".annot.${dbName}.${sampleId}.txt").withPrintWriter { pwDetails ->
+            new File(formOutputPath(outputFileName, "annot", dbName ?: "default", sampleId)).withPrintWriter { pwDetails ->
                 pwDetails.println("#" + CdrDatabaseMatch.HEADER + "\t" + database.ANNOTATION_HEADER) // todo: better header composition
                 browserResult.each { match ->
                     pwDetails.println(match)

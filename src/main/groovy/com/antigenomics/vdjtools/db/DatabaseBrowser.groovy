@@ -21,7 +21,9 @@ package com.antigenomics.vdjtools.db
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.util.CommonUtil
+import com.antigenomics.vdjtools.util.ExecUtil
 import com.google.common.util.concurrent.AtomicDouble
+import groovyx.gpars.GParsPool
 
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -50,8 +52,8 @@ class DatabaseBrowser {
         // number of query clones matched and their frequency sum
         def matchDivQ = new AtomicInteger(), matchFreqQ = new AtomicDouble()
 
-        //GParsPool.withPool CommonUtil.THREADS, { // todo: parallel, for this its necessary to reformat Sample class
-            sample.each { Clonotype clonotype ->
+        GParsPool.withPool ExecUtil.THREADS, { // todo: parallel, for this its necessary to reformat Sample class
+            sample.eachParallel { Clonotype clonotype ->
                 def matches = new LinkedList<CdrDatabaseMatch>()
 
                 // find exact match
@@ -95,7 +97,7 @@ class DatabaseBrowser {
 
                 matchContainer.addAll(matches)
             }
-        //}
+        }
 
         // number of subject clones matched
         def matchDivS = new HashSet<CdrDatabaseEntry>(matchContainer.collect { it.subject }).size()
