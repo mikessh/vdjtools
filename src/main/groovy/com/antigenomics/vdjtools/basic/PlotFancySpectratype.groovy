@@ -1,24 +1,26 @@
-/**
- Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+/*
+ * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Last modified on 18.10.2014 by mikesh
  */
 
 package com.antigenomics.vdjtools.basic
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.util.ExecUtil
+import static com.antigenomics.vdjtools.util.ExecUtil.*
 import com.antigenomics.vdjtools.util.RUtil
 
 def cli = new CliBuilder(usage: "PlotFancySpectratype [options] input_name output_prefix")
@@ -46,8 +48,6 @@ if (top > 20) {
     println "[ERROR] Specified number of top clonotypes should not exceed 20"
     System.exit(-1)
 }
-
-ExecUtil.ensureDir(outputPrefix)
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -94,12 +94,14 @@ for (int i = 0; i < spectratype.len; i++) {
 
 println "[${new Date()} $scriptName] Writing output and plotting data"
 
-new File(outputPrefix + ".fancyspectra.txt").withPrintWriter { pw ->
+def outputFileName = formOutputPath(outputPrefix, "fancyspectra")
+
+new File(outputFileName).withPrintWriter { pw ->
     pw.println(table)
 }
 
 RUtil.execute("fancy_spectratype.r",
-        table, outputPrefix + ".fancyspectra.pdf", "Clonotype", "TRUE"
+        table, toPlotPath(outputFileName), "Clonotype", "TRUE"
 )
 
 println "[${new Date()} $scriptName] Finished"

@@ -1,24 +1,26 @@
-/**
- Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+/*
+ * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Last modified on 17.10.2014 by mikesh
  */
 
 package com.antigenomics.vdjtools.basic
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.util.ExecUtil
+import static com.antigenomics.vdjtools.util.ExecUtil.*
 import com.antigenomics.vdjtools.util.RUtil
 
 def cli = new CliBuilder(usage: "PlotFancyVJUsage [options] input_name output_prefix")
@@ -41,8 +43,6 @@ def software = Software.byName(opt.S),
     unweighted = opt.u,
     outputPrefix = opt.arguments()[1]
 
-ExecUtil.ensureDir(outputPrefix)
-
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 //
@@ -61,7 +61,9 @@ def segmentUsage = new SegmentUsage(sampleCollection, unweighted)
 // Output and plotting
 println "[${new Date()} $scriptName] Writing output"
 
-new File(outputPrefix + ".fancyvj.txt").withPrintWriter { pw ->
+def outputFileName = formOutputPath(outputPrefix, "fancyvj")
+
+new File(outputFileName).withPrintWriter { pw ->
     pw.println(".\t" + segmentUsage.vUsageHeader().collect().join("\t"))
     def vjMatrix = segmentUsage.vjUsageMatrix(sampleId)
     vjMatrix.eachWithIndex { double[] vVectorByJ, int i ->
@@ -72,7 +74,7 @@ new File(outputPrefix + ".fancyvj.txt").withPrintWriter { pw ->
 println "[${new Date()} $scriptName] Plotting data (be patient, complex graphics)"
 
 RUtil.execute("table_circ.r",
-        outputPrefix + ".fancyvj.txt", outputPrefix + ".fancyvj.pdf"
+        outputFileName, toPlotPath(outputFileName)
 )
 
 

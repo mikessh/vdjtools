@@ -1,17 +1,19 @@
-/**
- Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+/*
+ * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Last modified on 9.11.2014 by mikesh
  */
 
 package com.antigenomics.vdjtools.basic
@@ -19,7 +21,8 @@ package com.antigenomics.vdjtools.basic
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.util.ExecUtil
+
+import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
 def cli = new CliBuilder(usage: "CalcSpectratype [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
@@ -57,10 +60,9 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 }
 
 def software = Software.byName(opt.S),
-    outputFileName = opt.arguments()[-1],
-    aminoAcid = (boolean)opt.a, unweighted = (boolean)opt.u
+    outputPrefix = opt.arguments()[-1],
+    aminoAcid = (boolean) opt.a, unweighted = (boolean) opt.u
 
-ExecUtil.ensureDir(outputFileName)
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -80,10 +82,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 // Compute and output diversity measures, spectratype, etc
 //
 
-new File(outputFileName + ".spectratype" +
-        (aminoAcid ? ".aa" : ".nt") +
-        (unweighted ? ".unweighted" : "") +
-        ".txt").withPrintWriter { pw ->
+new File(formOutputPath(outputPrefix, "spectratype", (aminoAcid ? "aa" : "nt"), (unweighted ? "unwt" : "wt"))).withPrintWriter { pw ->
     def spectratype = new Spectratype(aminoAcid, unweighted)
 
     def header = "#sample_id\t" + sampleCollection.metadataTable.columnHeader + "\t" + spectratype.HEADER

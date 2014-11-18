@@ -82,7 +82,7 @@ def sampleCollection = metadataFileName ?
         new SampleCollection((String) metadataFileName, software) :
         new SampleCollection(opt.arguments()[0..-2], software)
 
-println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded"
+println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) to process"
 
 //
 // Annotation

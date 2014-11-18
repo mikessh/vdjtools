@@ -1,17 +1,19 @@
-/**
- Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+/*
+ * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Last modified on 8.11.2014 by mikesh
  */
 
 
@@ -22,7 +24,6 @@ import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.sample.FunctionalClonotypeFilter
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.util.ExecUtil
 
 def cli = new CliBuilder(usage: "FilterNonFunctional [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
@@ -61,8 +62,6 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 def software = Software.byName(opt.S),
     outputPrefix = opt.arguments()[-1]
 
-ExecUtil.ensureDir(outputPrefix)
-
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 //
@@ -72,8 +71,8 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 println "[${new Date()} $scriptName] Reading sample(s)"
 
 def sampleCollection = metadataFileName ?
-        new SampleCollection((String) metadataFileName, software, false, true) :
-        new SampleCollection(opt.arguments()[0..-2], software, false, true)
+        new SampleCollection((String) metadataFileName, software) :
+        new SampleCollection(opt.arguments()[0..-2], software)
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded"
 
@@ -89,7 +88,7 @@ sampleCollection.eachWithIndex { sample, ind ->
     println "[${new Date()} $scriptName] Processed ${ind + 1} sample(s).."
 
     // print output
-    writer.write(filteredSample, outputPrefix + "." + sample.sampleMetadata.sampleId + ".txt")
+    writer.writeConventional(filteredSample, outputPrefix)
 }
 
 println "[${new Date()} $scriptName] Finished"
