@@ -27,6 +27,10 @@ class CdrDatabase {
     public final String[] annotationHeader
     public final String ANNOTATION_HEADER
 
+    public CdrDatabase() {
+        this(null)
+    }
+
     public CdrDatabase(String filter) {
         this(CommonUtil.resourceStreamReader("vdjdb/data/vdjdb.txt"), filter)
     }
