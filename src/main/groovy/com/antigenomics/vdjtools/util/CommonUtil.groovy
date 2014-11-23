@@ -28,8 +28,101 @@ class CommonUtil {
                                'T', 'N', 'K', 'V',
                                'A', 'D', 'E', 'G']
 
+    static final byte aa2code(char aa) {
+        switch (aa) {
+            case 'F':
+                return 0
+            case 'L':
+                return 1
+            case 'S':
+                return 2
+            case 'Y':
+                return 3
+            case 'C':
+                return 4
+            case 'W':
+                return 5
+            case 'P':
+                return 6
+            case 'H':
+                return 7
+            case 'Q':
+                return 8
+            case 'R':
+                return 9
+            case 'I':
+                return 10
+            case 'M':
+                return 11
+            case 'T':
+                return 12
+            case 'N':
+                return 13
+            case 'K':
+                return 14
+            case 'V':
+                return 15
+            case 'A':
+                return 16
+            case 'D':
+                return 17
+            case 'E':
+                return 18
+            case 'G':
+                return 19
+            default:
+                return -1
+        }
+    }
 
-    static final int nt2code(char nt) {
+    static final char code2aa(byte code) {
+        switch (code) {
+            case 0:
+                return 'F'
+            case 1:
+                return 'L'
+            case 2:
+                return 'S'
+            case 3:
+                return 'Y'
+            case 4:
+                return 'C'
+            case 5:
+                return 'W'
+            case 6:
+                return 'P'
+            case 7:
+                return 'H'
+            case 8:
+                return 'Q'
+            case 9:
+                return 'R'
+            case 10:
+                return 'I'
+            case 11:
+                return 'M'
+            case 12:
+                return 'T'
+            case 13:
+                return 'N'
+            case 14:
+                return 'K'
+            case 15:
+                return 'V'
+            case 16:
+                return 'A'
+            case 17:
+                return 'D'
+            case 18:
+                return 'E'
+            case 19:
+                return 'G'
+            default:
+                return 'X'
+        }
+    }
+
+    static final byte nt2code(char nt) {
         switch (nt) {
             case 'A':
                 return 0
@@ -44,7 +137,7 @@ class CommonUtil {
         }
     }
 
-    static final char code2nt(int code) {
+    static final char code2nt(byte code) {
         switch (code) {
             case 0:
                 return 'A'
@@ -73,7 +166,6 @@ class CommonUtil {
                 return 'N'
         }
     }
-
 
     static String rc(String seq) {
         def chars = seq.reverse().toCharArray()
