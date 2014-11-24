@@ -217,7 +217,7 @@ my.legend <- function(hcl) {
 # draw dendrogram
 pdf(file_out_hc)
 
-my.plot(TRUE, phylo, type = "fan", tip.color = cc_final)
+my.plot(TRUE, phylo, tip.color = cc_final)#, type = "fan")
 my.legend(TRUE)
 
 dev.off()
@@ -260,23 +260,14 @@ if (color_by_factor) {
 lbl  <- sapply(aux[match(row.names(as.matrix(df.d)), aux[, "id_col1"]), "lbl_col1"], as.character)
 fac  <- sapply(aux[match(row.names(as.matrix(df.d)), aux[, "id_col1"]), "factor_col1"], as.character)
 
-pdf(file_out_mds)
+pdf(file_out_mds, useDingbats=FALSE)
 
 my.plot(FALSE, xy$x, xy$y, xlab="mds1", ylab="mds2", type = "n")
 text(xy$x, xy$y, labels = lbl, col = cc_final, cex=.5)
+#points(xy$x, xy$y, col = cc_final, pch = 19)
 my.legend(FALSE)
 
 dev.off()
 
 write.table(data.frame(id = aux[, "id_col1"], lbl = lbl, factor = fac, x=xy$x, y=xy$y),
    file_out_coord, sep = "\t", quote = FALSE, row.names = FALSE)
-
-#df.c <- data.frame(x = xy$x, y = xy$y, f = aux[match(row.names(as.matrix(df.d)), aux[, "id_col1"]), "factor_col1"])
-
-#write.table(df.c, "tmp.txt")
-
-#pdf("tmp.pdf")
-
-#ggplot() + stat_density2d(data = df.c, aes(x, y, weight = f), geom="tile", contour = FALSE)
-
-#dev.off()
