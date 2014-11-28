@@ -38,18 +38,22 @@ class CdrPwm implements Iterable<Row> {
     }
 
     private int index(int pos, byte aa) {
-        if (pos < 0 || pos >= N || aa < 0 || aa >= M)
-            throw new IndexOutOfBoundsException()
+        if (pos < 0 || pos >= N)
+            throw new IndexOutOfBoundsException("Bad position $pos")
+        else if (aa < 0 || aa >= M)
+            throw new IndexOutOfBoundsException("Bad code $aa")
         aa * N + pos
     }
 
     public void update(Clonotype clonotype) {
-        double freq = clonotype.freq
-        totalFreq.addAndGet(freq)
-        clonotype.cdr3aa.toCharArray().eachWithIndex { char aa, int pos ->
-            pwm.addAndGet(index(pos, CommonUtil.aa2code(aa)), freq)
+        if (clonotype.coding) {
+            double freq = clonotype.freq
+            totalFreq.addAndGet(freq)
+            clonotype.cdr3aa.toCharArray().eachWithIndex { char aa, int pos ->
+                pwm.addAndGet(index(pos, CommonUtil.aa2code(aa)), freq)
+            }
+            count.incrementAndGet()
         }
-        count.incrementAndGet()
     }
 
     public double getAt(int pos, char aa) {

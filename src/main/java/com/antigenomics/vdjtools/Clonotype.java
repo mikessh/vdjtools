@@ -157,6 +157,10 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
         return noStop;
     }
 
+    public boolean isCoding() {
+        return noStop && inFrame;
+    }
+
     public int getVEnd() {
         return segmPoints[0];
     }
