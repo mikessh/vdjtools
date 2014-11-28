@@ -46,7 +46,7 @@ class CdrPwm implements Iterable<Row> {
     public void update(Clonotype clonotype) {
         double freq = clonotype.freq
         totalFreq.addAndGet(freq)
-        clonotype.cdr3aa.eachWithIndex { char aa, int pos ->
+        clonotype.cdr3aa.toCharArray().eachWithIndex { char aa, int pos ->
             pwm.addAndGet(index(pos, CommonUtil.aa2code(aa)), freq)
         }
         count.incrementAndGet()

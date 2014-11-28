@@ -39,8 +39,12 @@ class CdrPwmGrid {
         pwm
     }
 
+    public CdrPwm getAt(Cell cell) {
+        pwmGrid[cell]
+    }
+
     public CdrPwm getAt(String v, int length) {
-        pwmGrid[new Cell(v, length)]
+        getAt(new Cell(v, length))
     }
 
     public Collection<CdrPwm> getAt(String v) {
