@@ -125,7 +125,7 @@ class CdrPwmGrid {
         }
     }
 
-    public static final String HEADER = "#v\tlen\tpos\tuniq\tfreq" + CommonUtil.AAS.collect().join("\t")
+    public static final String HEADER = "#v\tlen\tpos\tuniq\tfreq\t" + CommonUtil.AAS.collect().join("\t")
 
     public String toString(int minCount, double freqThreshold) {
         filterCells(minCount, freqThreshold).collect { Cell cell ->

@@ -69,7 +69,7 @@ class CdrPwm implements Iterable<Row> {
     }
 
     public double getAt(int pos, char aa) {
-        this[pos, CommonUtil.aa2code(aa)] / freq.get()
+        this[pos, CommonUtil.aa2code(aa)]
     }
 
     public double getAt(int pos, byte aaCode) {
@@ -99,7 +99,7 @@ class CdrPwm implements Iterable<Row> {
     public double[] getNormalizedFreqs(int pos) {
         def freqs = CommonUtil.AAS.collect { getAt(pos, it) }
         def e = 9.5 / Math.log(2) / getDiv(),
-            h = (double) freqs.sum { double f -> f > 0 ? -f * Math.log(f) / Math.log(2) : 0 },
+            h = -(double) freqs.sum { double f -> f > 0 ? f * Math.log(f) / Math.log(2) : 0 },
             R = Math.log(20) / Math.log(2) - e - h
 
         freqs.collect { it * R } as double[]

@@ -74,7 +74,7 @@ def sampleCollection = metadataFileName ?
         new SampleCollection((String) metadataFileName, software) :
         new SampleCollection(opt.arguments()[0..-2], software)
 
-println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded"
+println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) prepared"
 
 //
 // Compute and output diversity measures, spectratype, etc

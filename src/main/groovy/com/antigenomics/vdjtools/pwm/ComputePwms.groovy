@@ -78,7 +78,7 @@ def sampleCollection = metadataFileName ?
         new SampleCollection(opt.arguments()[0..-2], software)
 def metadataTable = sampleCollection.metadataTable
 
-println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
+println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) prepared"
 
 //
 // Check factor exists
@@ -106,11 +106,15 @@ sampleCollection.each { Sample sample ->
         pwmGridMap.put(factorName, pwmGrid = new CdrPwmGrid())
 
     pwmGrid.update(sample)
+
+    println "[${new Date()} $scriptName] Updated PWM grid for subset '$factorName'"
 }
 
 //
 // Report those pwms
 //
+
+println "[${new Date()} $scriptName] Writing PWM grid(s)"
 
 pwmGridMap.each {
     new File(formOutputPath(outputPrefix, "pwmgrid", it.key)).withPrintWriter { pw ->
@@ -118,3 +122,5 @@ pwmGridMap.each {
         pw.println(it.value)
     }
 }
+
+println "[${new Date()} $scriptName] Finished"
