@@ -24,7 +24,7 @@ import com.antigenomics.vdjtools.sample.SampleCollection
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
-
+def DEFAULT_MIN_COUNT = "1", DEFAULT_MIN_FREQ = "0.01"
 def cli = new CliBuilder(usage: "ComputePwms [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
@@ -33,6 +33,15 @@ cli.S(longOpt: "software", argName: "string", required: true, args: 1,
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
+cli._(longOpt: "correct", "Will correct PWMs having a small number of underlying clonotypes")
+cli.n(longOpt: "normalize", "Will normalize PWMs with respect to a pre-built control " +
+        "(n=70+ healthy subjects of various sexes and ages)")
+cli._(longOpt: "min-count", argName: "integer", args: 1,
+        "Minimal number of clonotypes in a PWM grid cell for it to be reported. " +
+                "[default = $DEFAULT_MIN_COUNT]")
+cli._(longOpt: "min-freq", argName: "double", args: 1,
+        "Minimal overall frequency of clonotypes in a PWM grid cell for it to be reported. " +
+                "[default = $DEFAULT_MIN_FREQ]")
 cli.p(longOpt: "plot", "Plot matrices with PWMs")
 cli.f(longOpt: "factor", argName: "string", args: 1, "Metadata entry used to split samples. " +
         "Factor values will be interpreted as a discrete set.")
@@ -63,6 +72,10 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 def software = Software.byName(opt.S),
     outputPrefix = opt.arguments()[-1],
     factor = (String) (opt.f ?: null),
+    minCount = (opt.'min-count' ?: DEFAULT_MIN_COUNT).toInteger(),
+    minFreq = (opt.'min-freq' ?: DEFAULT_MIN_FREQ).toDouble(),
+    correct = (boolean) opt.'correct',
+    normalize = (boolean) opt.n,
     plot = (boolean) opt.p
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
@@ -99,7 +112,7 @@ if (factor) {
 
 def pwmGridMap = new HashMap<String, CdrPwmGrid>()
 sampleCollection.each { Sample sample ->
-    def factorName = factor ? sample.sampleMetadata[factor] : "all"
+    def factorName = factor ? (String) sample.sampleMetadata[factor] : "all"
 
     def pwmGrid = pwmGridMap[factorName]
     if (!pwmGrid)
@@ -119,7 +132,7 @@ println "[${new Date()} $scriptName] Writing PWM grid(s)"
 pwmGridMap.each {
     new File(formOutputPath(outputPrefix, "pwmgrid", it.key)).withPrintWriter { pw ->
         pw.println(CdrPwmGrid.HEADER)
-        pw.println(it.value)
+        pw.println(it.value.toString(minCount, minFreq, normalize, correct))
     }
 }
 

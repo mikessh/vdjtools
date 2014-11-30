@@ -42,7 +42,7 @@ class CdrPwmGrid {
                         pwm[i][j] = it.toDouble()
                     }
                 }
-                def cdrPwm = new CdrPwm(pwm, uniq, freq)
+                def cdrPwm = new CdrPwm(cell, pwm, uniq, freq)
                 cdrPwmGrid.pwmGrid.put(cell, cdrPwm)
             }
         }
@@ -62,7 +62,7 @@ class CdrPwmGrid {
         def cell = new Cell(v, length)
         def pwm = pwmGrid[cell]
         if (!pwm)
-            pwmGrid.put(cell, pwm = new CdrPwm(length))
+            pwmGrid.put(cell, pwm = new CdrPwm(cell))
         pwm
     }
 
@@ -127,17 +127,19 @@ class CdrPwmGrid {
 
     public static final String HEADER = "#v\tlen\tpos\tuniq\tfreq\t" + CommonUtil.AAS.collect().join("\t")
 
-    public String toString(int minCount, double freqThreshold) {
+    public String toString(int minCount, double freqThreshold, boolean normalize, boolean correct) {
         filterCells(minCount, freqThreshold).collect { Cell cell ->
             def pwm = pwmGrid[cell]
-            pwm.collect { CdrPwm.Row row ->
-                [cell.v, cell.length, row.pos, pwm.div, pwm.freq, row.freqsNorm.collect()].flatten().join("\t")
+            (0..<cell.length).collect { int pos ->
+                [cell.v, cell.length, pos,
+                 pwm.div, pwm.freq,
+                 pwm.getNormalizedFreqs(pos, normalize ? CONTROL : null, correct)].flatten().join("\t")
             }.join("\n")
         }.join("\n")
     }
 
     @Override
     public String toString() {
-        toString(0, 0)
+        toString(1, 0.01, true, false)
     }
 }

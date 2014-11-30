@@ -26,13 +26,13 @@ import com.google.common.util.concurrent.AtomicDoubleArray
 import java.util.concurrent.atomic.AtomicInteger
 
 class CdrPwm implements Iterable<Row> {
+    private final CdrPwmGrid.Cell cell
     private final AtomicDoubleArray pwm
     private final AtomicDouble freq = new AtomicDouble()
     private final AtomicInteger div = new AtomicInteger()
-    private final int length, aaCount
 
-    CdrPwm(double[][] pwm, int div, double freq) {
-        this(pwm.length)
+    CdrPwm(CdrPwmGrid.Cell cell, double[][] pwm, int div, double freq) {
+        this(cell)
         for (int i = 0; i < pwm.length; i++)
             for (byte j = 0; j < pwm[0].length; i++) {
                 this.pwm.set(index(i, j), pwm[i][j])
@@ -41,18 +41,17 @@ class CdrPwm implements Iterable<Row> {
         this.freq.set(freq)
     }
 
-    public CdrPwm(int length) {
-        this.length = length
-        this.aaCount = CommonUtil.AAS.length
-        this.pwm = new AtomicDoubleArray(length * aaCount)
+    public CdrPwm(CdrPwmGrid.Cell cell) {
+        this.cell = cell
+        this.pwm = new AtomicDoubleArray(cell.length * CommonUtil.AAS.length)
     }
 
     private int index(int pos, byte aa) {
-        if (pos < 0 || pos >= length)
+        if (pos < 0 || pos >= cell.length)
             throw new IndexOutOfBoundsException("Bad position, $pos")
-        else if (aa < 0 || aa >= aaCount)
+        else if (aa < 0 || aa >= CommonUtil.AAS.length)
             throw new IndexOutOfBoundsException("Bad amino acid code, $aa")
-        aa * length + pos
+        aa * cell.length + pos
     }
 
     public void update(Clonotype clonotype) {
@@ -77,13 +76,13 @@ class CdrPwm implements Iterable<Row> {
     }
 
     public MajorVariant getMajorVariant(int pos) {
-        def freqs = (0..<aaCount).collect { byte aaCode -> this[pos, aaCode] }
+        def freqs = (0..<CommonUtil.AAS.length).collect { byte aaCode -> this[pos, aaCode] }
         def majorFreq = freqs.max(), majorCode = (byte) freqs.findIndexOf { it == majorFreq }
         new MajorVariant(pos, majorCode, majorFreq)
     }
 
     public CdrPattern extractConsensus(double positionalFrequencyThreshold) {
-        def pattern = (0..<aaCount).collect { int pos ->
+        def pattern = (0..<CommonUtil.AAS.length).collect { int pos ->
             def major = getMajorVariant(pos)
             major.freq >= positionalFrequencyThreshold ? major.aa : "X"
         }.join("")
@@ -92,25 +91,66 @@ class CdrPwm implements Iterable<Row> {
 
     /**
      * Gets a normalized vector of character frequencies,
-     * according to WebLogo paradigm, i.e. scaled to information content
-     * @param pos
+     * according to WebLogo paradigm, i.e. scaled to information content,
+     * also subtracts a corresponding pre-built (healthy donors, n=70+ subjects) control pwm
+     * @param pos position in CDR3
      * @return vector of frequencies, ordered according to CommonUtil.AAS
      */
     public double[] getNormalizedFreqs(int pos) {
-        def freqs = CommonUtil.AAS.collect { getAt(pos, it) }
-        def e = 9.5 / Math.log(2) / getDiv(),
-            h = -(double) freqs.sum { double f -> f > 0 ? f * Math.log(f) / Math.log(2) : 0 },
-            R = Math.log(20) / Math.log(2) - e - h
+        getNormalizedFreqs(pos, CdrPwmGrid.CONTROL)
+    }
 
-        freqs.collect { it * R } as double[]
+    /**
+     * Gets a normalized vector of character frequencies,
+     * according to WebLogo paradigm, i.e. scaled to information content
+     * @param pos position in CDR3
+     * @param control a pwm grid that will be subtracted from resulting frequencies
+     * @return vector of frequencies, ordered according to CommonUtil.AAS
+     */
+    public double[] getNormalizedFreqs(int pos, CdrPwmGrid control) {
+        getNormalizedFreqs(pos, control, false)
+    }
+
+    /**
+     * Gets a normalized vector of character frequencies,
+     * according to WebLogo paradigm, i.e. scaled to information content
+     * @param pos position in CDR3
+     * @param control a pwm grid that will be subtracted from resulting frequencies
+     * @param correct whether to correct for small number of clonotypes
+     * @return vector of frequencies, ordered according to CommonUtil.AAS
+     */
+    public double[] getNormalizedFreqs(int pos, CdrPwmGrid control, boolean correct) {
+        // In case we want to subtract control frequencies
+        def controlPwm = control ? control[cell] : null
+        def controlFreqs = controlPwm ? controlPwm.getFreqs(pos) : null
+
+        // Sequence logo stuff
+        def freqs = CommonUtil.AAS.collect { getAt(pos, it) }
+        def e = correct ? 9.5 / getDiv() : 0, // correction for small number of cases
+            h = -(double) freqs.sum { double f -> f > 0 ? f * Math.log(f) : 0 },
+            R = (Math.log(20) - e - h) / Math.log(2)
+
+        // Calculate result
+        def result = new double[CommonUtil.AAS.length]
+
+        for (int i = 0; i < CommonUtil.AAS.length; i++) {
+            double x = freqs[i] * R
+
+            if (controlFreqs)
+                x -= controlFreqs[i]
+
+            result[i] = x < 0 ? 0 : x
+        }
+
+        result
     }
 
     public double[] getFreqs(int pos) {
         CommonUtil.AAS.collect { getAt(pos, it) }
     }
 
-    public int getN() {
-        return length
+    public CdrPwmGrid.Cell getCell() {
+        cell
     }
 
     public double getFreq() {
@@ -123,11 +163,12 @@ class CdrPwm implements Iterable<Row> {
 
     @Override
     Iterator<Row> iterator() {
-        def innerIter = (0..<length).iterator()
+        def innerIter = (0..<cell.length).iterator()
         [hasNext: { innerIter.hasNext() },
          next   : { def pos = innerIter.next(); new Row(pos, getFreqs(pos), getNormalizedFreqs(pos)) }] as Iterator
     }
 
+    @Deprecated
     class Row {
         final int pos
         final double[] freqs, freqsNorm
