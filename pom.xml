@@ -22,6 +22,7 @@
                     <include>segments/*</include>
                     <include>rscripts/*</include>
                     <include>vdjdb/data/*</include>
+                    <include>pwm/*</include>
                 </includes>
             </resource>
         </resources>

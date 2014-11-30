@@ -24,10 +24,37 @@ import com.antigenomics.vdjtools.util.CommonUtil
 class CdrPwmGrid {
     private final Map<Cell, CdrPwm> pwmGrid = Collections.synchronizedMap(new HashMap<>())
 
+    public static CdrPwmGrid CONTROL = fromInputStream(CommonUtil.resourceStreamReader("pwm/healthy70.txt"))
+
+    public static CdrPwmGrid fromInputStream(InputStreamReader reader) {
+        def cdrPwmGrid = new CdrPwmGrid()
+        def firstLine
+        while ((firstLine = reader.readLine())) {
+            if (!firstLine.startsWith("#")) {
+                def splitLine = firstLine.split("\t")
+                def v = splitLine[0], length = splitLine[1].toInteger(),
+                    uniq = splitLine[2].toInteger(), freq = splitLine[3].toDouble()
+                def cell = new Cell(v, length)
+                def pwm = new double[length][CommonUtil.AAS.length]
+                for (int i = 0; i < length; i++) {
+                    splitLine = reader.readLine().split("\t")
+                    splitLine[3..-1].eachWithIndex { it, j -> // exclude v/len/pos cols
+                        pwm[i][j] = it.toDouble()
+                    }
+                }
+                def cdrPwm = new CdrPwm(pwm, uniq, freq)
+                cdrPwmGrid.pwmGrid.put(cell, cdrPwm)
+            }
+        }
+        cdrPwmGrid
+    }
+
     public void update(ClonotypeContainer clonotypes) {
         clonotypes.each {
-            def pwm = getAtOrCreate(it.v, it.cdr3aa.length())
-            pwm.update(it)
+            if (it.coding) {
+                def pwm = getAtOrCreate(it.v, it.cdr3aa.length())
+                pwm.update(it)
+            }
         }
     }
 
@@ -51,9 +78,21 @@ class CdrPwmGrid {
         pwmGrid.findAll { it.key.v == v }.values()
     }
 
+    public Collection<Cell> collectCells() {
+        Collections.unmodifiableCollection(pwmGrid.keySet())
+    }
+
+    public Set<String> getVSegments() {
+        new HashSet<String>(collectCells().collect { it.v })
+    }
+
+    public Set<Integer> getLengths() {
+        new HashSet<Integer>(collectCells().collect { it.length })
+    }
+
     public Collection<Cell> filterCells(int minCount,
                                         double freqThreshold) {
-        pwmGrid.findAll { it.value.count >= minCount && it.value.totalFreq >= freqThreshold }.keySet()
+        pwmGrid.findAll { it.value.div >= minCount && it.value.freq >= freqThreshold }.keySet()
     }
 
     public Map<Cell, CdrPattern> compilePatterns(int minCount,
@@ -64,7 +103,7 @@ class CdrPwmGrid {
         }
     }
 
-    class Cell {
+    static class Cell {
         public final int length
         public final String v
 
@@ -86,14 +125,13 @@ class CdrPwmGrid {
         }
     }
 
-
-    public static final String HEADER = "#v\tlen\tpos\t" + CommonUtil.AAS.collect().join("\t")
+    public static final String HEADER = "#v\tlen\tpos\tuniq\tfreq" + CommonUtil.AAS.collect().join("\t")
 
     public String toString(int minCount, double freqThreshold) {
         filterCells(minCount, freqThreshold).collect { Cell cell ->
             def pwm = pwmGrid[cell]
             pwm.collect { CdrPwm.Row row ->
-                [cell.v, cell.length, row.pos, row.freqsNorm.collect()].flatten().join("\t")
+                [cell.v, cell.length, row.pos, pwm.div, pwm.freq, row.freqsNorm.collect()].flatten().join("\t")
             }.join("\n")
         }.join("\n")
     }

@@ -26,6 +26,7 @@ import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.DownSample
 import com.antigenomics.vdjtools.diversity.RarefactionPlot
 import com.antigenomics.vdjtools.intersection.*
+import com.antigenomics.vdjtools.pwm.ComputePwms
 import com.antigenomics.vdjtools.util.ExecUtil
 
 import java.util.jar.JarFile
@@ -62,6 +63,7 @@ def printHelp = {
     println ""
     println "[Sample annotation]"
     println "ScanDatabase"
+    println "ComputePwms"
 }
 
 def getScript = { String scriptName ->
@@ -103,6 +105,8 @@ def getScript = { String scriptName ->
             return new PoolSamples()
         case "RAREFACTIONPLOT":
             return new RarefactionPlot()
+        case "COMPUTEPWMS":
+            return new ComputePwms()
         case "-H":
         case "H":
         case "-HELP":
