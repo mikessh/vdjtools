@@ -33,6 +33,7 @@ cli.S(longOpt: "software", argName: "string", required: true, args: 1,
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
+cli._(longOpt: "raw", "Will output raw frequencies, so the matrix could be loaded and further re-used")
 cli._(longOpt: "correct", "Will correct PWMs having a small number of underlying clonotypes")
 cli.n(longOpt: "normalize", "Will normalize PWMs with respect to a pre-built control " +
         "(n=70+ healthy subjects of various sexes and ages)")
@@ -75,6 +76,7 @@ def software = Software.byName(opt.S),
     minCount = (opt.'min-count' ?: DEFAULT_MIN_COUNT).toInteger(),
     minFreq = (opt.'min-freq' ?: DEFAULT_MIN_FREQ).toDouble(),
     correct = (boolean) opt.'correct',
+    raw = (boolean) opt.'raw',
     normalize = (boolean) opt.n,
     plot = (boolean) opt.p
 
@@ -132,7 +134,8 @@ println "[${new Date()} $scriptName] Writing PWM grid(s)"
 pwmGridMap.each {
     new File(formOutputPath(outputPrefix, "pwmgrid", it.key)).withPrintWriter { pw ->
         pw.println(CdrPwmGrid.HEADER)
-        pw.println(it.value.toString(minCount, minFreq, normalize, correct))
+        pw.println(raw ? it.value.toStringRaw() :
+                it.value.toString(minCount, minFreq, normalize, correct))
     }
 }
 

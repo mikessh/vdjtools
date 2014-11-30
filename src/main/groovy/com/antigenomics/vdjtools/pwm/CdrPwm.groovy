@@ -33,8 +33,8 @@ class CdrPwm implements Iterable<Row> {
 
     CdrPwm(CdrPwmGrid.Cell cell, double[][] pwm, int div, double freq) {
         this(cell)
-        for (int i = 0; i < pwm.length; i++)
-            for (byte j = 0; j < pwm[0].length; i++) {
+        for (int i = 0; i < cell.length; i++)
+            for (byte j = 0; j < CommonUtil.AAS.length; j++) {
                 this.pwm.set(index(i, j), pwm[i][j])
             }
         this.div.set(div)
@@ -122,13 +122,13 @@ class CdrPwm implements Iterable<Row> {
     public double[] getNormalizedFreqs(int pos, CdrPwmGrid control, boolean correct) {
         // In case we want to subtract control frequencies
         def controlPwm = control ? control[cell] : null
-        def controlFreqs = controlPwm ? controlPwm.getFreqs(pos) : null
+        def controlNormFreqs = controlPwm ? controlPwm.getNormalizedFreqs(pos, null, true) : null
 
         // Sequence logo stuff
         def freqs = CommonUtil.AAS.collect { getAt(pos, it) }
-        def e = correct ? 9.5 / getDiv() : 0, // correction for small number of cases
-            h = -(double) freqs.sum { double f -> f > 0 ? f * Math.log(f) : 0 },
-            R = (Math.log(20) - e - h) / Math.log(2)
+        def e = correct ? (9.5 / getDiv()) : 0.0, // correction for small number of cases
+               h = -(double) freqs.sum { double f -> f > 0 ? f * Math.log(f) : 0 },
+               R = (Math.log(20) - e - h) / Math.log(2)
 
         // Calculate result
         def result = new double[CommonUtil.AAS.length]
@@ -136,8 +136,8 @@ class CdrPwm implements Iterable<Row> {
         for (int i = 0; i < CommonUtil.AAS.length; i++) {
             double x = freqs[i] * R
 
-            if (controlFreqs)
-                x -= controlFreqs[i]
+            if (controlNormFreqs)
+                x -= controlNormFreqs[i]
 
             result[i] = x < 0 ? 0 : x
         }

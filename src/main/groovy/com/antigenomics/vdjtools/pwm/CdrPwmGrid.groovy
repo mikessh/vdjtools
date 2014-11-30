@@ -34,17 +34,25 @@ class CdrPwmGrid {
         def firstLine
         while ((firstLine = reader.readLine())) {
             if (!firstLine.startsWith("#")) {
+                // #v	len	pos	uniq	freq
                 def splitLine = firstLine.split("\t")
                 def v = splitLine[0], length = splitLine[1].toInteger(),
-                    uniq = splitLine[2].toInteger(), freq = splitLine[3].toDouble()
+                    uniq = splitLine[3].toInteger(), freq = splitLine[4].toDouble()
                 def cell = new Cell(v, length)
                 def pwm = new double[length][CommonUtil.AAS.length]
-                for (int i = 0; i < length; i++) {
+
+                // first line
+                splitLine[5..-1].eachWithIndex { String it, int j -> // exclude v/len/pos cols
+                    pwm[0][j] = it.toDouble()
+                }
+
+                for (int i = 1; i < length; i++) {
                     splitLine = reader.readLine().split("\t")
-                    splitLine[3..-1].eachWithIndex { it, j -> // exclude v/len/pos cols
+                    splitLine[5..-1].eachWithIndex { String it, int j -> // exclude v/len/pos cols
                         pwm[i][j] = it.toDouble()
                     }
                 }
+
                 def cdrPwm = new CdrPwm(cell, pwm, uniq, freq)
                 cdrPwmGrid.pwmGrid.put(cell, cdrPwm)
             }
@@ -139,6 +147,18 @@ class CdrPwmGrid {
                 [cell.v, cell.length, pos,
                  pwm.div, pwm.freq,
                  pwm.getNormalizedFreqs(pos, normalize ? CONTROL : null, correct)].flatten().join("\t")
+            }.join("\n")
+        }.join("\n")
+    }
+
+    public String toStringRaw() {
+        pwmGrid.collect {
+            def cell = it.key
+            def pwm = it.value
+            (0..<cell.length).collect { int pos ->
+                [cell.v, cell.length, pos,
+                 pwm.div, pwm.freq,
+                 pwm.getFreqs(pos)].flatten().join("\t")
             }.join("\n")
         }.join("\n")
     }
