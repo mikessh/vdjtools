@@ -41,7 +41,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
                      int[] segmPoints, String v, String d, String j,
                      String cdr1nt, String cdr2nt, String cdr3nt,
                      String cdr1aa, String cdr2aa, String cdr3aa,
-                     boolean inFrame, boolean isComplete, boolean noStop,
+                     boolean inFrame, boolean noStop, boolean isComplete,
                      Set<Mutation> mutations) {
         this.parent = parent;
         this.count = count;
@@ -88,7 +88,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
                 toCopy.segmPoints, toCopy.v, toCopy.d, toCopy.j,
                 toCopy.cdr1nt, toCopy.cdr2nt, toCopy.cdr3nt,
                 toCopy.cdr1aa, toCopy.cdr2aa, toCopy.cdr3aa,
-                toCopy.inFrame, toCopy.isComplete, toCopy.noStop,
+                toCopy.inFrame, toCopy.noStop, toCopy.isComplete,
                 toCopy.mutations != null ? new HashSet<Mutation>() : null);
 
         if (toCopy.mutations != null)
