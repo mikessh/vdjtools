@@ -38,6 +38,8 @@ class SampleMetadata {
     }
 
     public MetadataEntry getAt(String columnId) {
+        if (columnId == MetadataTable.SAMPLE_ID_COLUMN)
+            return new MetadataEntry(parent, this, MetadataTable.SAMPLE_ID_COLUMN, sampleId)
         parent[sampleId, columnId]
     }
 

@@ -23,6 +23,7 @@ import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.pool.RatioFilter
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
+import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
@@ -100,7 +101,10 @@ def ratioFilter = new RatioFilter(sampleCollection, ratio)
 def sw = new SampleWriter(software)
 
 new File(formOutputPath(outputFilePrefix, "dec", "summary")).withPrintWriter { pw ->
-    pw.println("#sample_id\tpassed_clones\ttotal_clones\tpassed_count\ttotal_count\tpassed_freq\ttotal_freq")
+    pw.println("#$MetadataTable.SAMPLE_ID_COLUMN\t" +
+            "passed_clones\ttotal_clones\t" +
+            "passed_count\ttotal_count\t" +
+            "passed_freq\ttotal_freq")
     sampleCollection.each { sample ->
         def sampleId = sample.sampleMetadata.sampleId
         println "[${new Date()} $scriptName] Filtering $sampleId"

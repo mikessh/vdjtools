@@ -22,6 +22,8 @@ import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.intersection.IntersectionType
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
+import com.antigenomics.vdjtools.sample.metadata.MetadataTable
+
 import static com.antigenomics.vdjtools.util.ExecUtil.*
 import com.antigenomics.vdjtools.util.RUtil
 
@@ -132,7 +134,7 @@ def getDiv = { DiversityEstimator diversityEstimator, int x ->
     subSampleDiversityEstimator.computeCollapsedSampleDiversity().mean
 }
 
-def header = ["#sample_id", sampleCollection.metadataTable.columnHeader,
+def header = ["#$MetadataTable.SAMPLE_ID_COLUMN", sampleCollection.metadataTable.columnHeader,
               "count", "diversity", rSteps].flatten().join("\t")
 
 def outputTablePath = formOutputPath(outputPrefix, "rarefaction", intersectionType.shortName)

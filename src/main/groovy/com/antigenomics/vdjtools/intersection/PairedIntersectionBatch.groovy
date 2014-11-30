@@ -2,6 +2,7 @@ package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.SamplePair
+import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 import com.antigenomics.vdjtools.util.ExecUtil
 import groovyx.gpars.GParsPool
 
@@ -84,7 +85,7 @@ class PairedIntersectionBatch {
     }
 
     public String getHeader() {
-        ["#1_sample_id", "2_sample_id",
+        ["#1_$MetadataTable.SAMPLE_ID_COLUMN", "2_$MetadataTable.SAMPLE_ID_COLUMN",
          PairedIntersection.OUTPUT_FIELDS.collect(), intersectMetrics.collect { it.shortName },
          sampleCollection.metadataTable.columnHeader1,
          sampleCollection.metadataTable.columnHeader2].flatten().join("\t")

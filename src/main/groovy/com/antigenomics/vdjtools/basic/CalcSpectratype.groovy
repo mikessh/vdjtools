@@ -21,6 +21,7 @@ package com.antigenomics.vdjtools.basic
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
+import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
@@ -85,7 +86,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 new File(formOutputPath(outputPrefix, "spectratype", (aminoAcid ? "aa" : "nt"), (unweighted ? "unwt" : "wt"))).withPrintWriter { pw ->
     def spectratype = new Spectratype(aminoAcid, unweighted)
 
-    def header = "#sample_id\t" + sampleCollection.metadataTable.columnHeader + "\t" + spectratype.HEADER
+    def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" + sampleCollection.metadataTable.columnHeader + "\t" + spectratype.HEADER
 
     pw.println(header)
 

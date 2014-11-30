@@ -304,7 +304,7 @@ class MetadataTable implements Iterable<SampleMetadata> {
         }
 
         new File(metadataPath).withPrintWriter { pw ->
-            pw.println("#file_name\tsample_id\t" + metadataTableCopy.columnHeader)
+            pw.println("#$FILE_NAME_COLUMN\t$SAMPLE_ID_COLUMN\t" + metadataTableCopy.columnHeader)
             metadataTableCopy.metadataBySample.each {
                 def sampleOutputPath = formOutputPath(outputPrefix, it.key)
 
@@ -330,6 +330,10 @@ class MetadataTable implements Iterable<SampleMetadata> {
      * @return metadata entries
      */
     List<MetadataEntry> getColumn(String columnId) {
+        if (columnId == SAMPLE_ID_COLUMN) {
+            return sampleOrder.collect { new MetadataEntry(this, getRow(it), SAMPLE_ID_COLUMN, it) }
+        }
+
         checkColumnId(columnId)
 
         int index = id2index[columnId]
@@ -410,6 +414,8 @@ class MetadataTable implements Iterable<SampleMetadata> {
     int getSampleCount() {
         metadataBySample.size()
     }
+
+    public static final String SAMPLE_ID_COLUMN = "sample_id", FILE_NAME_COLUMN = "file_name"
 
     @PackageScope
     String getColumnHeader() {

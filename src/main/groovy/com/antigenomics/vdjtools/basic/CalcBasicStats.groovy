@@ -21,6 +21,7 @@ package com.antigenomics.vdjtools.basic
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
+import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
@@ -80,7 +81,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 //
 
 new File(formOutputPath(outputPrefix, "basicstats")).withPrintWriter { pw ->
-    def header = "#sample_id\t" +
+    def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\t" +
             BasicStats.HEADER
 

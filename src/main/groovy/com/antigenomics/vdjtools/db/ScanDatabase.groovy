@@ -22,6 +22,7 @@ package com.antigenomics.vdjtools.db
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
+import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
@@ -95,7 +96,7 @@ println "[${new Date()} $scriptName] Annotating sample(s) & writing results"
 
 new File(formOutputPath(outputFileName, "annot", dbName ?: "default", "summary")).withPrintWriter { pwSummary ->
     def header = "##FILTER=\"$filter\"\n"
-    header += "#sample_id\t" +
+    header += "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\tdiversity\t" +
             BrowserResult.HEADER
 

@@ -22,6 +22,7 @@ import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.intersection.IntersectionType
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
+import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
@@ -113,7 +114,7 @@ def maxCells = new HashMap<IntersectionType, Long>()
 intersectionTypes.each { maxCells.put(it, 0) }
 
 new File(formOutputPath(outputPrefix, "diversity")).withPrintWriter { pwDiv ->
-    def headerDiv = "#sample_id\t" +
+    def headerDiv = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\treads\t" +
             intersectionTypes.collect { i ->
                 ["clones", "normdiv_m", "normdiv_s", "efron_m", "efron_s", "chao_m", "chao_s",

@@ -22,6 +22,7 @@ import com.antigenomics.vdjtools.join.OccurenceJoinFilter
 import com.antigenomics.vdjtools.join.SampleSpecificJoinFilter
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
+import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 import com.antigenomics.vdjtools.util.RUtil
 
 def I_TYPE_DEFAULT = "strict"
@@ -159,7 +160,8 @@ if (top >= 0)
 println "[${new Date()} $scriptName] Writing output"
 
 new File(outputFilePrefix + ".summary.txt").withPrintWriter { pw ->
-    pw.println("#1_sample_id\t2_sample_id\tvalue\tmetric\t" +
+    pw.println("#1_$MetadataTable.SAMPLE_ID_COLUMN\t2_$MetadataTable.SAMPLE_ID_COLUMN\t" +
+            "value\tmetric\t" +
             sampleCollection.metadataTable.columnHeader1 + "\t" +
             sampleCollection.metadataTable.columnHeader2)
 

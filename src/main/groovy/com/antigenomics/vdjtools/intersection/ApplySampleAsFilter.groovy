@@ -24,6 +24,7 @@ import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.sample.IntersectionClonotypeFilter
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
+import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
@@ -94,7 +95,7 @@ println "[${new Date()} $scriptName] Filtering (${negative ? "negative" : "posit
 def sw = new SampleWriter(software)
 
 new File(formOutputPath(outputPrefix, "asaf", "summary")).withPrintWriter { pw ->
-    pw.println("#sample_id\tcells_before\tdiversity_before\tcells_after\tdiversity_after")
+    pw.println("#$MetadataTable.SAMPLE_ID_COLUMN\tcells_before\tdiversity_before\tcells_after\tdiversity_after")
     sampleCollection.each { Sample sample ->
         // Filter
         def filteredSample = new Sample(sample, clonotypeFilter)

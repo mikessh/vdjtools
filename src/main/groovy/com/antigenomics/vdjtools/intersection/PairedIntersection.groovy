@@ -3,6 +3,7 @@ package com.antigenomics.vdjtools.intersection
 import com.antigenomics.vdjtools.join.JointSample
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SamplePair
+import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 import com.antigenomics.vdjtools.util.ExecUtil
 
 /**
@@ -148,7 +149,7 @@ class PairedIntersection {
     }
 
     public String getHeader() {
-        ["#1_sample_id", "2_sample_id",
+        ["#1_$MetadataTable.SAMPLE_ID_COLUMN", "2_$MetadataTable.SAMPLE_ID_COLUMN",
          OUTPUT_FIELDS.collect(), intersectMetrics.collect { it.shortName },
          header1, header2].flatten().join("\t")
     }

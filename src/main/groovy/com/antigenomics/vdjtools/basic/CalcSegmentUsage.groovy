@@ -20,6 +20,8 @@ package com.antigenomics.vdjtools.basic
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
+import com.antigenomics.vdjtools.sample.metadata.MetadataTable
+
 import static com.antigenomics.vdjtools.util.ExecUtil.*
 import com.antigenomics.vdjtools.util.RUtil
 
@@ -90,7 +92,7 @@ def outputPathV = formOutputPath(outputPrefix, "segments", unweighted ? "unw" : 
         outputPathJ = formOutputPath(outputPrefix, "segments", unweighted ? "unw" : "w" ,"J")
 new File(outputPathV).withPrintWriter { pwV ->
     new File(outputPathJ).withPrintWriter { pwJ ->
-        def header = "#sample_id\t" + sampleCollection.metadataTable.columnHeader
+        def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" + sampleCollection.metadataTable.columnHeader
 
         pwV.println(header + "\t" + segmentUsage.vUsageHeader().join("\t"))
         pwJ.println(header + "\t" + segmentUsage.jUsageHeader().join("\t"))

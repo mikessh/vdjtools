@@ -16,6 +16,7 @@
 
 package com.antigenomics.vdjtools.intersection
 
+import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 import com.antigenomics.vdjtools.util.RUtil
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
@@ -75,8 +76,8 @@ if (!new File(inputFileName).exists()) {
 intersectionType = intersectionType.shortName
 
 def outputPrefix = opt.arguments().size() > 1 ? opt.arguments()[1] : inputPrefix,
-    sampleId = "sample_id".toUpperCase(), factorName = opt.f, numFactor = opt.n,
-    measureName = (opt.m ?: MEASURE_DEFAULT).toUpperCase(), labelName = (opt.l ?: "sample_id").toUpperCase(),
+    sampleId = MetadataTable.SAMPLE_ID_COLUMN.toUpperCase(), factorName = opt.f, numFactor = opt.n,
+    measureName = (opt.m ?: MEASURE_DEFAULT).toUpperCase(), labelName = (opt.l ?: MetadataTable.SAMPLE_ID_COLUMN).toUpperCase(),
     hcFileName = formOutputPath(outputPrefix, "hc", intersectionType, measureName, "pdf"),
     mdsFileName = formOutputPath(outputPrefix, "mds", intersectionType, measureName, "pdf"),
     k = (opt.k ?: 3),
