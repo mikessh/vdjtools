@@ -18,8 +18,11 @@
 
 package com.antigenomics.vdjtools.pwm
 
+import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.ClonotypeContainer
 import com.antigenomics.vdjtools.util.CommonUtil
+import com.antigenomics.vdjtools.util.ExecUtil
+import groovyx.gpars.GParsPool
 
 class CdrPwmGrid {
     private final Map<Cell, CdrPwm> pwmGrid = Collections.synchronizedMap(new HashMap<>())
@@ -50,10 +53,12 @@ class CdrPwmGrid {
     }
 
     public void update(ClonotypeContainer clonotypes) {
-        clonotypes.each {
-            if (it.coding) {
-                def pwm = getAtOrCreate(it.v, it.cdr3aa.length())
-                pwm.update(it)
+        GParsPool.withPool ExecUtil.THREADS, {
+            clonotypes.eachParallel { Clonotype clonotype ->
+                if (clonotype.coding) {
+                    def pwm = getAtOrCreate(clonotype.v, clonotype.cdr3aa.length())
+                    pwm.update(clonotype)
+                }
             }
         }
     }
