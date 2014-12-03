@@ -127,6 +127,11 @@ public class Sample implements ClonotypeContainer {
     }
 
     @Override
+    public boolean isSorted() {
+        return true;
+    }
+
+    @Override
     public Iterator<Clonotype> iterator() {
         return clonotypes.iterator();
     }
