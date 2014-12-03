@@ -24,7 +24,7 @@ import com.antigenomics.vdjtools.sample.SampleCollection
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
-def DEFAULT_MIN_COUNT = "1", DEFAULT_MIN_FREQ = "0.01"
+def DEFAULT_MIN_COUNT = "1", DEFAULT_MIN_FREQ = "0.001"
 def cli = new CliBuilder(usage: "ComputePwms [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")

@@ -25,35 +25,54 @@ import com.antigenomics.vdjtools.util.ExecUtil
 import groovyx.gpars.GParsPool
 
 class CdrPwmGrid {
+    private double freq = 0
+    private int div = 0
     private final Map<Cell, CdrPwm> pwmGrid = Collections.synchronizedMap(new HashMap<>())
 
     public static CdrPwmGrid CONTROL = fromInputStream(CommonUtil.resourceStreamReader("pwm/healthy70.txt"))
+
+    private static double convertFreq(String s) {
+        double x = s.toDouble()
+
+        if (x > 1.001 || x < -0.001) {
+            println "[ERROR] It is highly likely that you're trying to load a PWM grid " +
+                    "that was created without --raw parameter. In such case entropy-scaled " +
+                    "values are saved, which would not be properly handled by current routines. " +
+                    "Aborting..."
+            System.exit(-1)
+        }
+
+        x
+    }
 
     public static CdrPwmGrid fromInputStream(InputStreamReader reader) {
         def cdrPwmGrid = new CdrPwmGrid()
         def firstLine
         while ((firstLine = reader.readLine())) {
             if (!firstLine.startsWith("#")) {
-                // #v	len	pos	uniq	freq
+                // #v	len	pos	div	freq
                 def splitLine = firstLine.split("\t")
                 def v = splitLine[0], length = splitLine[1].toInteger(),
-                    uniq = splitLine[3].toInteger(), freq = splitLine[4].toDouble()
+                    div = splitLine[3].toInteger(), freq = splitLine[4].toDouble()
                 def cell = new Cell(v, length)
                 def pwm = new double[length][CommonUtil.AAS.length]
 
+                cdrPwmGrid.freq += freq
+                cdrPwmGrid.div += div
+
                 // first line
                 splitLine[5..-1].eachWithIndex { String it, int j -> // exclude v/len/pos cols
-                    pwm[0][j] = it.toDouble()
+                    pwm[0][j] = convertFreq(it) * freq
                 }
 
                 for (int i = 1; i < length; i++) {
                     splitLine = reader.readLine().split("\t")
                     splitLine[5..-1].eachWithIndex { String it, int j -> // exclude v/len/pos cols
-                        pwm[i][j] = it.toDouble()
+                        pwm[i][j] = convertFreq(it) * freq
                     }
                 }
 
-                def cdrPwm = new CdrPwm(cell, pwm, uniq, freq)
+                def cdrPwm = new CdrPwm(cdrPwmGrid, cell, pwm, div, freq)
                 cdrPwmGrid.pwmGrid.put(cell, cdrPwm)
             }
         }
@@ -61,6 +80,8 @@ class CdrPwmGrid {
     }
 
     public void update(ClonotypeContainer clonotypes) {
+        this.freq += clonotypes.freq
+        this.div += clonotypes.diversity
         GParsPool.withPool ExecUtil.THREADS, {
             clonotypes.eachParallel { Clonotype clonotype ->
                 if (clonotype.coding) {
@@ -75,7 +96,7 @@ class CdrPwmGrid {
         def cell = new Cell(v, length)
         def pwm = pwmGrid[cell]
         if (!pwm)
-            pwmGrid.put(cell, pwm = new CdrPwm(cell))
+            pwmGrid.put(cell, pwm = new CdrPwm(this, cell))
         pwm
     }
 
@@ -116,6 +137,14 @@ class CdrPwmGrid {
         }
     }
 
+    double getFreq() {
+        freq
+    }
+
+    int getDiv() {
+        div
+    }
+
     static class Cell {
         public final int length
         public final String v
@@ -138,7 +167,7 @@ class CdrPwmGrid {
         }
     }
 
-    public static final String HEADER = "#v\tlen\tpos\tuniq\tfreq\t" + CommonUtil.AAS.collect().join("\t")
+    public static final String HEADER = "#v\tlen\tpos\tdiv\tfreq\t" + CommonUtil.AAS.collect().join("\t")
 
     public String toString(int minCount, double freqThreshold, boolean normalize, boolean correct) {
         filterCells(minCount, freqThreshold).collect { Cell cell ->
@@ -165,6 +194,6 @@ class CdrPwmGrid {
 
     @Override
     public String toString() {
-        toString(1, 0.01, true, false)
+        toString(1, 0.001, true, false)
     }
 }

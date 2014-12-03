@@ -25,14 +25,15 @@ import com.google.common.util.concurrent.AtomicDoubleArray
 
 import java.util.concurrent.atomic.AtomicInteger
 
-class CdrPwm implements Iterable<Row> {
+class CdrPwm {
+    private final CdrPwmGrid parent
     private final CdrPwmGrid.Cell cell
     private final AtomicDoubleArray pwm
     private final AtomicDouble freq = new AtomicDouble()
     private final AtomicInteger div = new AtomicInteger()
 
-    CdrPwm(CdrPwmGrid.Cell cell, double[][] pwm, int div, double freq) {
-        this(cell)
+    CdrPwm(CdrPwmGrid parent, CdrPwmGrid.Cell cell, double[][] pwm, int div, double freq) {
+        this(parent, cell)
         for (int i = 0; i < cell.length; i++)
             for (byte j = 0; j < CommonUtil.AAS.length; j++) {
                 this.pwm.set(index(i, j), pwm[i][j])
@@ -41,7 +42,8 @@ class CdrPwm implements Iterable<Row> {
         this.freq.set(freq)
     }
 
-    public CdrPwm(CdrPwmGrid.Cell cell) {
+    public CdrPwm(CdrPwmGrid parent, CdrPwmGrid.Cell cell) {
+        this.parent = parent
         this.cell = cell
         this.pwm = new AtomicDoubleArray(cell.length * CommonUtil.AAS.length)
     }
@@ -58,10 +60,10 @@ class CdrPwm implements Iterable<Row> {
         if (clonotype.coding) {
             double freq = clonotype.freq
             this.freq.addAndGet(freq)
+            this.div.incrementAndGet()
             clonotype.cdr3aa.toCharArray().eachWithIndex { char aa, int pos ->
                 pwm.addAndGet(index(pos, CommonUtil.aa2code(aa)), freq)
             }
-            div.incrementAndGet()
         } else {
             throw new Exception("Can only use clonotypes with coding CDR3")
         }
@@ -120,26 +122,40 @@ class CdrPwm implements Iterable<Row> {
      * @return vector of frequencies, ordered according to CommonUtil.AAS
      */
     public double[] getNormalizedFreqs(int pos, CdrPwmGrid control, boolean correct) {
-        // In case we want to subtract control frequencies
-        def controlPwm = control ? control[cell] : null
-        def controlNormFreqs = controlPwm ? controlPwm.getNormalizedFreqs(pos, null, true) : null
-
-        // Sequence logo stuff
-        def freqs = CommonUtil.AAS.collect { getAt(pos, it) }
-        def e = correct ? (9.5 / getDiv()) : 0.0, // correction for small number of cases
-               h = -(double) freqs.sum { double f -> f > 0 ? f * Math.log(f) : 0 },
-               R = (Math.log(20) - e - h) / Math.log(2)
-
-        // Calculate result
         def result = new double[CommonUtil.AAS.length]
 
-        for (int i = 0; i < CommonUtil.AAS.length; i++) {
-            double x = freqs[i] * R
+        // In case we want to normalize by control frequencies
+        def controlPwm = control ? control[cell] : null
+        def controlFreqs = controlPwm ? controlPwm.getFreqs(pos) : null,
+            controlNormFreqs = controlPwm ? controlPwm.getNormalizedFreqs(pos, null, true) : null
 
-            if (controlNormFreqs)
-                x -= controlNormFreqs[i]
+        def sum = 0
+        for (byte i = 0; i < CommonUtil.AAS.length; i++) {
+            result[i] = getAt(pos, i)
 
-            result[i] = x < 0 ? 0 : x
+            if (controlFreqs) {
+                result[i] /= (controlFreqs[i] > 0 ? controlFreqs[i] : 1e-9)
+                sum += result[i]
+            }
+        }
+
+        if (controlFreqs)
+            (0..<CommonUtil.AAS.length).each { int aaCode -> result[aaCode] /= sum }
+
+        def freqs = result.collect()
+
+        // Sequence logo stuff
+        def e = correct ? (9.5 / getDiv()) : 0.0, // correction for small number of cases
+            h = -(double) freqs.sum { double f -> f > 0 ? (f * Math.log(f)) : 0 },
+            R = (Math.log(20) - e - h) / Math.log(2)
+
+        (0..<CommonUtil.AAS.length).each { int aaCode ->
+            result[aaCode] *= R
+            if (controlNormFreqs) {
+                result[aaCode] -= controlNormFreqs[aaCode]
+                if (result[aaCode] < 0)
+                    result[aaCode] = 0
+            }
         }
 
         result
@@ -154,30 +170,11 @@ class CdrPwm implements Iterable<Row> {
     }
 
     public double getFreq() {
-        freq.get()
+        freq.get() / parent.freq
     }
 
     public int getDiv() {
         div.get()
-    }
-
-    @Override
-    Iterator<Row> iterator() {
-        def innerIter = (0..<cell.length).iterator()
-        [hasNext: { innerIter.hasNext() },
-         next   : { def pos = innerIter.next(); new Row(pos, getFreqs(pos), getNormalizedFreqs(pos)) }] as Iterator
-    }
-
-    @Deprecated
-    class Row {
-        final int pos
-        final double[] freqs, freqsNorm
-
-        Row(int pos, double[] freqs, double[] freqsNorm) {
-            this.pos = pos
-            this.freqs = freqs
-            this.freqsNorm = freqsNorm
-        }
     }
 
     class MajorVariant {
