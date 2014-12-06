@@ -85,7 +85,7 @@ class QuantileStats {
         return numberOfQuantiles
     }
 
-    public double getFrequency(int quantile) {
+    public double getQuantileFrequency(int quantile) {
         if (quantile < 0 || quantile >= numberOfQuantiles)
             throw new IndexOutOfBoundsException()
         quantileFreqs.get(quantile) / totalFreq
@@ -108,6 +108,6 @@ class QuantileStats {
 
     @Override
     String toString() {
-        [singletonFreq, doubletonFreq, (0..<numberOfQuantiles).collect { getFrequency(it) }].flatten().join("\t")
+        [singletonFreq, doubletonFreq, (0..<numberOfQuantiles).collect { getQuantileFrequency(it) }].flatten().join("\t")
     }
 }
