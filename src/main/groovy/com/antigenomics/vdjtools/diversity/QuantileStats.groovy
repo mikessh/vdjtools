@@ -18,7 +18,6 @@
 
 package com.antigenomics.vdjtools.diversity
 
-import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.ClonotypeContainer
 import com.google.common.util.concurrent.AtomicDouble
 import com.google.common.util.concurrent.AtomicDoubleArray
@@ -27,7 +26,10 @@ import com.google.common.util.concurrent.AtomicDoubleArray
 class QuantileStats {
     private final int numberOfQuantiles
     private final AtomicDoubleArray quantileFreqs
-    private final AtomicDouble sumFreq = new AtomicDouble(0)
+    private final AtomicDouble highOrderFreq = new AtomicDouble(),
+                               doubletonFreq = new AtomicDouble(),
+                               singletonFreq = new AtomicDouble()
+    private final double totalFreq
 
     public QuantileStats(ClonotypeContainer clonotypeContainer, int numberOfQuantiles) {
         this.numberOfQuantiles = numberOfQuantiles
@@ -35,6 +37,8 @@ class QuantileStats {
 
         if (!clonotypeContainer.isSorted())
             throw new Exception("Clonotype container should be sorted to be used as input for this statistic")
+
+        this.totalFreq = clonotypeContainer.freq
 
         update(clonotypeContainer)
     }
@@ -44,13 +48,36 @@ class QuantileStats {
     }
 
     private void update(ClonotypeContainer clonotypeContainer) {
-        final int n = clonotypeContainer.diversity
+        int n = clonotypeContainer.diversity, m = n
 
-        clonotypeContainer.eachWithIndex { Clonotype clonotype, int ind ->
-            int q = (ind * numberOfQuantiles) / n
-            double freq = clonotype.freq
+        for (int i = n - 1; i >= 0; i--) {
+            def clonotype = clonotypeContainer[i]
+            def count = clonotype.getCount(),
+                freq = clonotype.getFreq()
+            boolean highOrderFlag = false
+            switch (count) {
+                case 1:
+                    singletonFreq.addAndGet(freq)
+                    break
+                case 2:
+                    doubletonFreq.addAndGet(freq)
+                    break
+                default:
+                    highOrderFlag = true
+                    break
+            }
+            if (highOrderFlag) {
+                m = i
+                break
+            }
+        }
+
+        for (int i = 0; i <= m; i++) {
+            int q = (i * numberOfQuantiles) / (m + 1)
+            def clonotype = clonotypeContainer[i]
+            def freq = clonotype.getFreq()
+            highOrderFreq.addAndGet(freq)
             quantileFreqs.addAndGet(q, freq)
-            sumFreq.addAndGet(freq)
         }
     }
 
@@ -61,13 +88,26 @@ class QuantileStats {
     public double getFrequency(int quantile) {
         if (quantile < 0 || quantile >= numberOfQuantiles)
             throw new IndexOutOfBoundsException()
-        quantileFreqs.get(quantile) / sumFreq.get()
+        quantileFreqs.get(quantile) / totalFreq
     }
 
-    public final String HEADER = (1..numberOfQuantiles).collect { "Q$it" }.join("\t")
+    public double getSingletonFreq() {
+        singletonFreq.get() / totalFreq
+    }
+
+    public double getDoubletonFreq() {
+        doubletonFreq.get() / totalFreq
+    }
+
+    public double getHighOrderFreq() {
+        highOrderFreq.get() / totalFreq
+    }
+
+    public final String HEADER = "singleton\tdoubleton\t" +
+            (1..numberOfQuantiles).collect { "high_order_Q$it" }.join("\t")
 
     @Override
     String toString() {
-        (0..<numberOfQuantiles).collect { getFrequency(it) }.join("\t")
+        [singletonFreq, doubletonFreq, (0..<numberOfQuantiles).collect { getFrequency(it) }].flatten().join("\t")
     }
 }
