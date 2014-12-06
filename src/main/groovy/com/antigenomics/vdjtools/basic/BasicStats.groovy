@@ -16,22 +16,31 @@
 
 package com.antigenomics.vdjtools.basic
 
+import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.join.ClonotypeKeyGen
+import com.antigenomics.vdjtools.join.key.ClonotypeKey
 import com.antigenomics.vdjtools.sample.Sample
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 
 class BasicStats {
-    final Sample sample
     private final DescriptiveStatistics cloneSize, cdr3ntLength, insertSize, ndnSize
     private int oofCount
     private double oofRatio
+    private final long count
+    private final int diversity
+    private final double convergence
 
     BasicStats(Sample sample) {
-        this.sample = sample
+        this.count = sample.count
+        this.diversity = sample.diversity
 
         this.cloneSize = new DescriptiveStatistics()
         this.cdr3ntLength = new DescriptiveStatistics()
         this.insertSize = new DescriptiveStatistics()
         this.ndnSize = new DescriptiveStatistics()
+
+        def clonotypeKeyGen = new ClonotypeKeyGen(IntersectionType.AminoAcidVJ)
+        def aaSet = new HashSet<ClonotypeKey>()
 
         sample.each {
             cloneSize.addValue(it.freq)
@@ -46,7 +55,11 @@ class BasicStats {
                 oofCount++
                 oofRatio += it.freq
             }
+
+            aaSet.add(clonotypeKeyGen.generateKey(it))
         }
+
+        this.convergence = diversity / (double) aaSet.size() - 1
     }
 
     double getMeanCloneSize() {
@@ -69,25 +82,31 @@ class BasicStats {
         cloneSize.getPercentile(50)
     }
 
-    long getCells() {
-        sample.count
+    long getCount() {
+        count
     }
 
     int getDiversity() {
-        sample.diversity
+        diversity
     }
 
-    static final String HEADER = "cells\tdiversity\t" +
+    double getConvergence() {
+        return convergence
+    }
+
+    static final String HEADER = "count\tdiversity\t" +
             "mean_clone_fraction\tmedian_clone_fraction\t" +
             "oof_count\toof_fraction\t" +
-            "mean_cdr3nt_length\tmean_insert_size\tmean_ndn_size"
+            "mean_cdr3nt_length\tmean_insert_size\tmean_ndn_size\t" +
+            "convergence"
 
     @Override
     String toString() {
-        [cells, diversity,
+        [count, diversity,
          meanCloneSize, medianCloneSize,
          oofCount, oofRatio,
-         meanCdr3ntLength, meanInsertSize, meanNDNSize
+         meanCdr3ntLength, meanInsertSize, meanNDNSize,
+         convergence
         ].flatten().join("\t")
     }
 }
