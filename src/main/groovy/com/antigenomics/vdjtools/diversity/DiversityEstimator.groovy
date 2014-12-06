@@ -104,11 +104,20 @@ class DiversityEstimator {
     }
 
     Diversity computeChao1() {
-        double F1 = frequencyTable[1], F2 = frequencyTable[2], RF = F1 / F2 / 2
+        double Sobs = frequencyTable.diversity,
+               F1 = frequencyTable[1], F2 = frequencyTable[2]
 
-        new Diversity((long) (frequencyTable.diversity + F1 * RF),
-                (long) Math.sqrt(F2 * (Math.pow(RF / 2, 4) + Math.pow(2 * RF, 3) + RF * RF)),
-                frequencyTable.count, true)
+        double delta = F1 * (F1 - 1) / 2 / (F2 + 1)
+
+        new Diversity(
+                (long) (Sobs + delta),
+                (long) Math.sqrt(
+                        delta +
+                        F1 * (2 * F1 - 1) * (2 * F1 - 1) / 4 / (F2 + 1) / (F2 + 1) +
+                        F1 * F1 * F2 * (F1 - 1) * (F1 - 1) / 4 / (F2 + 1) / (F2 + 1) / (F2 + 1) / (F2 + 1)
+                ),
+                frequencyTable.count,
+                true)
     }
 
     FrequencyStat computeFrequencyDistributionStats() {
