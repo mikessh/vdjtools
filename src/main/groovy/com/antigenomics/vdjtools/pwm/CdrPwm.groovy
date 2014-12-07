@@ -26,6 +26,8 @@ import com.google.common.util.concurrent.AtomicDoubleArray
 import java.util.concurrent.atomic.AtomicInteger
 
 class CdrPwm {
+    public static final boolean SKIP_CYS_PHE = true
+
     private final CdrPwmGrid parent
     private final CdrPwmGrid.Cell cell
     private final AtomicDoubleArray pwm
@@ -124,39 +126,35 @@ class CdrPwm {
     public double[] getNormalizedFreqs(int pos, CdrPwmGrid control, boolean correct) {
         def result = new double[CommonUtil.AAS.length]
 
+        if (SKIP_CYS_PHE && (pos == 0 || pos == cell.length - 1))
+            return result
+
         // In case we want to normalize by control frequencies
         def controlPwm = control ? control[cell] : null
-        def controlFreqs = controlPwm ? controlPwm.getFreqs(pos) : null,
-            controlNormFreqs = controlPwm ? controlPwm.getNormalizedFreqs(pos, null, true) : null
+        def controlFreqs = controlPwm ? controlPwm.getFreqs(pos) : null
 
-        def sum = 0
+        double h = controlFreqs ? 0 : Math.log(20)
         for (byte i = 0; i < CommonUtil.AAS.length; i++) {
-            result[i] = getAt(pos, i)
-
-            if (controlFreqs) {
-                result[i] /= (controlFreqs[i] > 0 ? controlFreqs[i] : 1e-9)
-                sum += result[i]
-            }
+            double f = getAt(pos, i),
+                   F = controlFreqs ? (controlFreqs[i] + 1e-9) : 1 // add jitter just in case
+            // As suggested in
+            // Stormo, G.D. DNA binding sites: representation and discovery
+            // Bioinformatics 16, 16–23 (2000)
+            h += (f > 0 ? (f * Math.log(f / F)) : 0)
+            result[i] = f
         }
 
-        if (controlFreqs)
-            (0..<CommonUtil.AAS.length).each { int aaCode -> result[aaCode] /= sum }
+        double e = correct ? (9.5 / getDiv()) : 0.0,
+               R = h - e
 
-        def freqs = result.collect()
+        // Protect from overflow, not sure what happens when using KL div for h
+        //if (R > Math.log(20))
+        //    R = Math.log(20)
 
-        // Sequence logo stuff
-        def e = correct ? (9.5 / getDiv()) : 0.0, // correction for small number of cases
-            h = -(double) freqs.sum { double f -> f > 0 ? (f * Math.log(f)) : 0 },
-            R = (Math.log(20) - e - h) / Math.log(2)
+        R /= Math.log(2) // to bits
 
-        (0..<CommonUtil.AAS.length).each { int aaCode ->
-            result[aaCode] *= R
-            if (controlNormFreqs) {
-                result[aaCode] -= controlNormFreqs[aaCode]
-                if (result[aaCode] < 0)
-                    result[aaCode] = 0
-            }
-        }
+        for (int i = 0; i < CommonUtil.AAS.length; i++)
+            result[i] *= R
 
         result
     }
