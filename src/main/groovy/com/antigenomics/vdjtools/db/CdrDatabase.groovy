@@ -21,7 +21,7 @@ package com.antigenomics.vdjtools.db
 
 import com.antigenomics.vdjtools.util.CommonUtil
 
-class CdrDatabase {
+class CdrDatabase implements Iterable<CdrDatabaseEntry> {
     public static final String FILTER_MARK = "__"
     private final HashMap<String, List<CdrDatabaseEntry>> entriesByCdr = new HashMap<>()
     public final String[] annotationHeader
@@ -101,5 +101,10 @@ class CdrDatabase {
 
     public List<CdrDatabaseEntry> getAt(String cdr3aa) {
         entriesByCdr[cdr3aa] ?: []
+    }
+
+    @Override
+    Iterator iterator() {
+        entriesByCdr.values().iterator()
     }
 }
