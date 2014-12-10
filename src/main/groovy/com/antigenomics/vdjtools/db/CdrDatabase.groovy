@@ -104,7 +104,7 @@ class CdrDatabase implements Iterable<CdrDatabaseEntry> {
     }
 
     @Override
-    Iterator iterator() {
-        entriesByCdr.values().iterator()
+    public Iterator iterator() {
+        entriesByCdr.values().collect().flatten().iterator()
     }
 }
