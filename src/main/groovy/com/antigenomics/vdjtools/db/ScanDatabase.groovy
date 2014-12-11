@@ -19,6 +19,7 @@
 
 package com.antigenomics.vdjtools.db
 
+import com.antigenomics.vdjdb.core.db.CdrDatabase
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
@@ -114,7 +115,7 @@ new File(formOutputPath(outputFileName, "annot", dbName ?: "default", "summary")
         // Write full summary
         if (details) {
             new File(formOutputPath(outputFileName, "annot", dbName ?: "default", sampleId)).withPrintWriter { pwDetails ->
-                pwDetails.println("#" + CdrDatabaseMatch.HEADER + "\t" + database.ANNOTATION_HEADER) // todo: better header composition
+                pwDetails.println("#" + CdrMatch.HEADER + "\t" + database.ANNOTATION_HEADER) // todo: better header composition
                 browserResult.each { match ->
                     pwDetails.println(match)
                 }

@@ -18,89 +18,74 @@
 
 package com.antigenomics.vdjtools.db
 
+import com.antigenomics.vdjdb.core.db.CdrDatabase
+import com.antigenomics.vdjdb.core.query.CdrDatabaseSearcher
+import com.antigenomics.vdjdb.core.query.CdrSearchResult
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
-import com.antigenomics.vdjtools.util.CommonUtil
 import com.antigenomics.vdjtools.util.ExecUtil
 import com.google.common.util.concurrent.AtomicDouble
+import com.milaboratory.core.tree.TreeSearchParameters
 import groovyx.gpars.GParsPool
 
 import java.util.concurrent.atomic.AtomicInteger
 
-
 class DatabaseBrowser {
     private final boolean vMatch, jMatch
-    private final SubstitutionFactory substitutionGenerator
+    private final TreeSearchParameters treeSearchParameters
 
     public DatabaseBrowser(boolean vMatch, boolean jMatch,
-                           SubstitutionFactory substitutionGenerator) {
+                           TreeSearchParameters treeSearchParameters) {
         this.vMatch = vMatch
         this.jMatch = jMatch
-        this.substitutionGenerator = substitutionGenerator
+        this.treeSearchParameters = treeSearchParameters
     }
 
     public DatabaseBrowser(boolean vMatch, boolean jMatch, boolean fuzzy) {
         this.vMatch = vMatch
         this.jMatch = jMatch
-        this.substitutionGenerator = fuzzy ? new BasicSubstitutionFactory() : null
+        this.treeSearchParameters = fuzzy ? new TreeSearchParameters(2, 1, 1, 2) : null
     }
 
     BrowserResult query(Sample sample, CdrDatabase cdrDatabase) {
-        def matchList = new LinkedList<CdrDatabaseMatch>()
+        def dbSearch = new CdrDatabaseSearcher(cdrDatabase, treeSearchParameters)
+        def matchList = new LinkedList<CdrMatch>()
         def matchContainer = Collections.synchronizedCollection(matchList)
 
         // number of query clones matched and their frequency sum
         def matchDivQ = new AtomicInteger(), matchFreqQ = new AtomicDouble()
 
+        def add = { Clonotype clonotype, CdrSearchResult result ->
+            matchContainer.addAll(CdrMatch.collectMatches(clonotype, result, vMatch, jMatch))
+        }
+
         GParsPool.withPool ExecUtil.THREADS, { // todo: parallel, for this its necessary to reformat Sample class
             sample.eachParallel { Clonotype clonotype ->
-                def matches = new LinkedList<CdrDatabaseMatch>()
+                boolean found
 
-                // find exact match
-                def exactMatchEntries = cdrDatabase[clonotype.cdr3aa]
-                exactMatchEntries.each {
-                    matches.add(new CdrDatabaseMatch(clonotype, it,
-                            it.v == clonotype.v, it.j == clonotype.j))
-                }
-
-                // fuzzy matches
-                if (substitutionGenerator) {
-                    char[] cdr3aaSeq = clonotype.cdr3aa.toCharArray()
-                    for (int i = 0; i < cdr3aaSeq.length; i++) {
-                        char oldChar = cdr3aaSeq[i]
-
-                        CommonUtil.AAS.each { char newChar ->
-                            def substitution = substitutionGenerator.create(clonotype, i, oldChar, newChar)
-                            if (substitution) {
-                                cdr3aaSeq[i] = newChar
-                                def fuzzyMatchEntries = cdrDatabase[new String(cdr3aaSeq)]
-                                fuzzyMatchEntries.each {
-                                    matches.add(new CdrDatabaseMatch(clonotype, it,
-                                            it.v == clonotype.v, it.j == clonotype.j,
-                                            [substitution]))
-                                }
-                            }
-                        }
-
-                        cdr3aaSeq[i] = oldChar
+                if (treeSearchParameters) {
+                    // search with mismatches
+                    dbSearch.search(clonotype.cdr3aa).each {
+                        found |= add(clonotype, it)
                     }
+                } else {
+                    // exact match (can also contain several associated entries)
+                    found = add(clonotype, dbSearch.exact(clonotype.cdr3aa))
                 }
 
-                matches = matches.findAll {
-                    (!vMatch || it.vMatch) && (!jMatch || it.jMatch)
-                }
 
-                if (matches.size() > 0) {
+                if (found) {
+                    // number of query clones matched
                     matchDivQ.incrementAndGet()
+
+                    // match frequency
                     matchFreqQ.addAndGet(clonotype.freq)
                 }
-
-                matchContainer.addAll(matches)
             }
         }
 
         // number of subject clones matched
-        def matchDivS = new HashSet<CdrDatabaseEntry>(matchContainer.collect { it.subject }).size()
+        def matchDivS = matchList.collectEntries { [(it.subject): 0] }.size()
 
         new BrowserResult(matchDivQ.get(), matchDivS, matchFreqQ.get(), matchList)
     }

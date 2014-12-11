@@ -18,12 +18,12 @@
 
 package com.antigenomics.vdjtools.db
 
-class BrowserResult implements Iterable<CdrDatabaseMatch> {
+class BrowserResult implements Iterable<CdrMatch> {
     public final int sampleDiversity, databaseDiversity
     public final double sampleFreq
-    private final List<CdrDatabaseMatch> matches
+    private final List<CdrMatch> matches
 
-    BrowserResult(int sampleDiversity, int databaseDiversity, double sampleFreq, List<CdrDatabaseMatch> matches) {
+    BrowserResult(int sampleDiversity, int databaseDiversity, double sampleFreq, List<CdrMatch> matches) {
         this.sampleDiversity = sampleDiversity
         this.databaseDiversity = databaseDiversity
         this.sampleFreq = sampleFreq
@@ -35,7 +35,7 @@ class BrowserResult implements Iterable<CdrDatabaseMatch> {
     }
 
     @Override
-    Iterator<CdrDatabaseMatch> iterator() {
+    Iterator<CdrMatch> iterator() {
         matches.iterator()
     }
 
