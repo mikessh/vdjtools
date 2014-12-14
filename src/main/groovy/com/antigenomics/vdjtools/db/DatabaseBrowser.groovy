@@ -59,27 +59,29 @@ class DatabaseBrowser {
             matchContainer.addAll(CdrMatch.collectMatches(clonotype, result, vMatch, jMatch))
         }
 
-        GParsPool.withPool ExecUtil.THREADS, { // todo: parallel, for this its necessary to reformat Sample class
+        GParsPool.withPool ExecUtil.THREADS, {
             sample.eachParallel { Clonotype clonotype ->
-                boolean found
+                if (clonotype.coding) { // a mandatory internal check
+                    boolean found = false
 
-                if (treeSearchParameters) {
-                    // search with mismatches
-                    dbSearch.search(clonotype.cdr3aa).each {
-                        found |= add(clonotype, it)
+                    if (treeSearchParameters) {
+                        // search with mismatches
+                        dbSearch.search(clonotype.cdr3aa).each {
+                            found |= add(clonotype, it)
+                        }
+                    } else {
+                        // exact match (can also contain several associated entries)
+                        found = add(clonotype, dbSearch.exact(clonotype.cdr3aa))
                     }
-                } else {
-                    // exact match (can also contain several associated entries)
-                    found = add(clonotype, dbSearch.exact(clonotype.cdr3aa))
-                }
 
 
-                if (found) {
-                    // number of query clones matched
-                    matchDivQ.incrementAndGet()
+                    if (found) {
+                        // number of query clones matched
+                        matchDivQ.incrementAndGet()
 
-                    // match frequency
-                    matchFreqQ.addAndGet(clonotype.freq)
+                        // match frequency
+                        matchFreqQ.addAndGet(clonotype.freq)
+                    }
                 }
             }
         }
