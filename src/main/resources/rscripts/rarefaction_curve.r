@@ -2,89 +2,72 @@ args<-commandArgs(TRUE)
 
 require(reshape); require(ggplot2); require(gridExtra); require(FField)
 
-file_in  <- args[1]
-lbl_col  <- as.integer(args[2])#"1"
-fac_col  <- as.integer(args[3])#"3"
-num_fac  <- as.logical(args[4])#"T"
-add_lbl  <- as.logical(args[5])#"T"
-file_out <- args[6]
+file_in  <- args[1] #"rarefaction.strict.txt"
+lbl_col  <- as.integer(args[2]) #4
+fac_col  <- as.integer(args[3]) #5
+num_fac  <- as.logical(args[4]) #"F"
+add_lbl  <- as.logical(args[5]) #"T"
+wide     <- as.logical(args[6]) #"F"
+file_out <- args[7] # "rarefaction.strict.pdf"
 
-df<-read.table(file_in, comment="",header=F,sep="\t",stringsAsFactor=F)
+df <- read.table(file_in,header=T,comment="")
 
 # get name of label and factor
 lbl_name<-df[1,lbl_col]
 fac_name<-df[1,fac_col]
 
-# last point
-count_col<-which(df[1,]=="count")
-div_col<-which(df[1,]=="diversity")
-
-# sampling points
-nums <- sapply(df, is.numeric) # sampling points
-x<-as.integer(df[1,nums])
-df<-df[2:nrow(df),]
-m<-nrow(df)
-
-# melt data
-
-## firsty select last points
-df.L <- data.frame(value = as.integer(df[, div_col]), variable = as.integer(df[, count_col]),
-                   dataset = df[,1], fac = df[,fac_col], lbl = df[,lbl_col])
-df.L[ ,"sk"] <- 1
-df.L[ ,"sk1"] <- 1e100
-
-## select sampling points
-df.m <- melt(df, id.vars=paste("V",(1:ncol(df))[!nums],sep=""))
-df.m$variable <- rep(x,1,each=m)
-
-df.m <- data.frame(value = df.m$value, variable = df.m$variable,
-                   dataset = df.m[,1], fac = df.m[,fac_col], lbl = df.m[,lbl_col])
-df.m[ ,"sk"] <- NA
-df.m[ ,"sk1"] <- -1e100
-
-df.m <- rbind(df.m, df.L)
-
+# make sure that we parse numeric factor as needed
 if (num_fac) {
-   df.m$fac <- as.numeric(as.character(df.m$fac))
+   df[,fac_col] <- as.numeric(as.character(df[,fac_col]))
 }
+
+# rename columns so we can access them
+# this is done as some column names could be quite complex to pass by command line,
+# e.g. #1_label will be converted to X1.label, etc
+names(df)[c(1, fac_col, lbl_col)] <- c("dataset", "fac", "lbl")
+
+# those are the last points with observed diversity
+# we'll highlight them with point and (if required) a label
+df.p <- subset(df, last>0)
 
 if (add_lbl) {
-   x.fact <- 100 / max(df.m$variable)
-   yy <- df.m$value
-   yy[which(is.na(yy))] <- -1e100
-   y.fact <- 100 / max(yy)
-   coords <- FFieldPtRep(coords = cbind(pmin(df.m$variable, df.m$sk1) * x.fact, pmin(yy, df.m$sk1) * y.fact))
-   df.m <- cbind(df.m, data.frame(lbl.x = df.m$sk * coords$x / x.fact, lbl.y = df.m$sk * coords$y / y.fact))
+   df.l <- df.p
+   # We absolutely sure need this trick as labels are going to overlap leading to huge mess..
+   x.fact <- 100 / max(df.l$x)
+   y.fact <- 100 / max(df.l$mean)
+   coords <- FFieldPtRep(coords = cbind(df.l$x * x.fact, df.l$mean * y.fact))
+   df.l$x <- coords$x / x.fact
+   df.l$mean <- coords$y / y.fact
+} else {
+   df.l <- df.l[0, ]
 }
 
-# selecting last points only using a skipping variable
-#df.m[ ,"sk"] <- NA
-#for (d in unique(df.m$dataset)) {
-#    ind <- df.m[,"dataset"]==d
-#    df.m[ind,"sk"][which.max(df.m[ind,"variable"]+df.m[ind,"value"])] <- 1
-#}
-
-g<-ggplot(df.m,aes(x=variable, y=value, colour=fac, group=dataset)) +
-     geom_point(aes(x = sk * variable)) +
-     stat_smooth(level = 0.99, fullrange = TRUE) +
+g <- ggplot(df, aes(x=x, y=mean, group=dataset)) +
+     geom_point(data=df.p, aes(colour=fac)) +
+     geom_line(aes(colour=fac)) +
+     geom_ribbon(aes(ymin=ciL, ymax=ciU), alpha=0.2) +
 	 xlab("Sample size") + ylab("Diveristy") +
 	 labs(colour=fac_name) +
-	 scale_x_continuous(expand = c(0, 0)) +
-	 scale_y_continuous(expand = c(0, 0)) +
+	 #scale_x_continuous(limits = c(0, max(df$x)), oob=scales::rescale_none) +
+	 #scale_y_continuous(limits = c(0, max(df$y)), oob=scales::rescale_none) +
 	 theme_bw()
 
-if (add_lbl) {
-   g <- g + geom_text(aes(x = lbl.x, y = lbl.y, label=lbl), color="black", fontface = "plain", vjust=1.0, hjust=1.0, cex = 5)
+# add corresponding fancy axis
+if (num_fac) {
+   g <- g + scale_colour_gradient2(low="#feb24c", mid="#31a354", high="#2b8cbe", midpoint=(max(df.m$fac) + min(df.m$fac))/2)
+} else {
+   g <- g + scale_colour_brewer(palette="Set2")
 }
+
+g <- g + geom_text(data=df.l, aes(label=lbl), color="black", fontface = "plain", cex=2.5)
 
 pdf(file_out)
 
-if (num_fac) {
-   g <- g + scale_colour_gradient2(low="#feb24c", mid="#31a354", high="#2b8cbe", midpoint=(max(df.m$fac) + min(df.m$fac))/2)
+if (wide) {
+   # wide plot layout
    grid.arrange(g, ncol=1, nrow=2)
 } else {
-   g <- g + scale_colour_brewer(palette="Set2")
-   grid.arrange(g, ncol=1, nrow=2)
+   g
 }
 
 dev.off()

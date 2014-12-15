@@ -16,9 +16,11 @@
  * Last modified on 10.11.2014 by mikesh
  */
 
-package com.antigenomics.vdjtools.math;
+package com.antigenomics.vdjtools.util;
 
-public class ComplexMath {
+import java.util.Random;
+
+public class MathUtil {
     public double distanceCorrelation(double[][] x, double[][] y) {
         int n = x.length;
         if (n != y.length)
@@ -83,5 +85,38 @@ public class ComplexMath {
         }
 
         return Math.sqrt(dist);
+    }
+
+    public static <T> void shuffle(T[] arr) {
+        Random rnd = new Random();
+        for (int i = arr.length - 1; i > 0; i--) {
+            int index = rnd.nextInt(i + 1);
+            T tmp = arr[index];
+            arr[index] = arr[i];
+            arr[i] = tmp;
+        }
+    }
+
+    public static double JSD(double[] pArr, double[] qArr) throws Exception {
+        int n = pArr.length;
+
+        if (n != qArr.length)
+            throw new Exception("Input histograms must be of same length");
+
+        double pSum = 0, qSum = 0;
+
+        for (int i = 0; i < n; i++) {
+            pSum += pArr[i];
+            qSum += qArr[i];
+        }
+
+        double jsd = 0;
+        for (int i = 0; i < n; i++) {
+            double p = pArr[i] / pSum, q = qArr[i] / qSum,
+                    m = (p + q) / 2.0;
+            jsd += (p > 0 ? (Math.log(p / m) * p) : 0d) + (q > 0 ? (Math.log(q / m) * q) : 0d);
+        }
+
+        return jsd / 2.0 / Math.log(2.0);
     }
 }

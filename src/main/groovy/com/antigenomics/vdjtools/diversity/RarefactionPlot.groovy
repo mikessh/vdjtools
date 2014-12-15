@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 16.11.2014 by mikesh
+ * Last modified on 15.12.2014 by mikesh
  */
 
 package com.antigenomics.vdjtools.diversity
@@ -23,15 +23,18 @@ import com.antigenomics.vdjtools.intersection.IntersectionType
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
-
-import static com.antigenomics.vdjtools.util.ExecUtil.*
 import com.antigenomics.vdjtools.util.RUtil
 
-def STEPS_DEFAULT = "10", RESAMPLES_DEFAULT = "1"
-I_TYPE_DEFAULT = IntersectionType.Strict
+import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
+
+def STEPS_DEFAULT = "101", RESAMPLES_DEFAULT = "3",
+    I_TYPE_DEFAULT = IntersectionType.Strict
 def cli = new CliBuilder(usage: "RarefactionPlot [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
+
+// general
 
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
@@ -39,15 +42,18 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
 
+// algorithm
+
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Intersection rule to apply. Allowed values: $IntersectionType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
-
 cli.r(longOpt: "resamples", argName: "int", args: 1,
         "Number of times down-sampling will be performed for each point in rarefaction curve. " +
                 "[default=$RESAMPLES_DEFAULT]")
-cli.s(longOpt: "steps", argName: "int", args: 1, "Number of steps (points) in the rarefaction curve. " +
-        "[default=$RESAMPLES_DEFAULT]")
+cli.s(longOpt: "steps", argName: "int", args: 1, "Number of steps (points) in the rarefaction curve " +
+        "(including total diversity). [default=$RESAMPLES_DEFAULT]")
+
+// plotting:
 
 cli.l(longOpt: "label", argName: "string", args: 1,
         "Name of metadata column which should be used as label")
@@ -55,6 +61,7 @@ cli.f(longOpt: "factor", argName: "string", args: 1,
         "Name of metadata column which should be used as a coloring factor")
 cli.n(longOpt: "factor-numeric",
         "Treat factor values as numeric and use a gradient color scale")
+cli._(longOpt: "wide-plot", "Will use wide layout for plot")
 
 def opt = cli.parse(args)
 
@@ -84,7 +91,8 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 def software = Software.byName(opt.S),
     intersectionType = opt.i ? IntersectionType.byName((String) opt.i) : I_TYPE_DEFAULT,
     steps = (opt.s ?: STEPS_DEFAULT).toInteger(), resamples = (opt.r ?: RESAMPLES_DEFAULT).toInteger(),
-    optL = (String) opt.'l', optF = (String) opt.'f', numericFactor = (boolean) opt.'n',
+    optL = opt.'l', optF = opt.'f', numericFactor = (boolean) opt.'n',
+    widePlot = (boolean) opt.'wide-plot',
     outputPrefix = opt.arguments()[-1]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
@@ -102,29 +110,6 @@ def sampleCollection = metadataFileName ?
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples to analyze"
 
 //
-// Estimating rarefaction steps
-//
-
-def maxCount = 0, minCount = Integer.MAX_VALUE
-
-sampleCollection.eachWithIndex { it, ind -> // Sorry we'll have to do it
-    maxCount = (int) Math.max(maxCount, it.count)
-    minCount = (int) Math.min(minCount, it.count)
-}
-
-def rSteps = []
-
-def rStep = minCount / steps
-
-for (int x = 0; x < minCount; x += rStep)
-    rSteps.add(x)
-
-rStep = maxCount / steps
-for (int x = 0; x < maxCount; x += rStep)
-    if (!rSteps.contains(x))
-        rSteps.add(x)
-
-//
 // Rarefaction analysis
 //
 
@@ -135,7 +120,7 @@ def getDiv = { DiversityEstimator diversityEstimator, int x ->
 }
 
 def header = ["#$MetadataTable.SAMPLE_ID_COLUMN", sampleCollection.metadataTable.columnHeader,
-              "count", "diversity", rSteps].flatten().join("\t")
+              RarefactionCurve.RarefactionPoint.HEADER].flatten().join("\t")
 
 def outputTablePath = formOutputPath(outputPrefix, "rarefaction", intersectionType.shortName)
 
@@ -144,26 +129,15 @@ new File(outputTablePath).withPrintWriter { pw ->
 
     sampleCollection.eachWithIndex { Sample sample, int i ->
         def sampleId = sample.sampleMetadata.sampleId
-        def diversityEstimator = new DiversityEstimator(sample, intersectionType)
 
-        def divMax = getDiv(diversityEstimator, (int) sample.count)
+        println "[${new Date()} $scriptName] Flattening $sampleId"
+        def rarefaction = new Rarefaction(sample)
 
         println "[${new Date()} $scriptName] Bulding rarefaction curve for $sampleId"
+        def rarefactionCurve = rarefaction.build(intersectionType, resamples, steps)
 
-        for (int k = 0; k < resamples; k++) {
-            def y = []
-
-            rSteps.each { int x ->
-                if (x > sample.count) {
-                    y.add(RUtil.NA)
-                } else if (x == 0) {
-                    y.add(0)
-                } else {
-                    y.add(getDiv(diversityEstimator, x))
-                }
-            }
-
-            pw.println([sampleId, sample.sampleMetadata, sample.count, divMax, y].flatten().join("\t"))
+        (0..<steps).each {
+            pw.println([sampleId, sample.sampleMetadata, rarefactionCurve[it]].join("\t"))
         }
     }
 }
@@ -194,6 +168,7 @@ RUtil.execute("rarefaction_curve.r",
         (facCol + 2).toString(),
         numeric,
         addLbl,
+        RUtil.logical(widePlot),
         toPlotPath(outputTablePath)
 )
 
