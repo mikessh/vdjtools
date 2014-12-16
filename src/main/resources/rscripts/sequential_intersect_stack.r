@@ -48,6 +48,8 @@ df.m <- melt(df, id = fcols)
 ind <- match(df.m$variable, xlbls)
 df.m$variable <- x[ind]
 
+df.m$sign <- paste(df.m$cdr3nt, df.m$v, df.m$d, df.m$j, sep="_")
+
 pal <- colorRampPalette(c("#2b8cbe", "#e0f3db", "#fdbb84"))
 
 # plot
@@ -56,7 +58,7 @@ pdf(file_out)
 
 ggplot() +
    geom_area(data = df.m,
-             aes(variable, value, group = cdr3nt, fill = factor(peak)),
+             aes(variable, value, group = sign, fill = factor(peak)),
              colour = "gray25", position = 'stack', size = 0.1) +
    scale_fill_manual(
       name   = "Peak position",
