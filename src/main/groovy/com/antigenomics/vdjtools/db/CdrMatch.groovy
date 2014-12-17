@@ -31,8 +31,8 @@ class CdrMatch {
     private final Alignment<AminoAcidSequence> alignment
 
     public static List<CdrMatch> collectMatches(Clonotype query,
-                                                       CdrSearchResult cdrSearchResult,
-                                                       boolean requireVMatch, boolean requireJMatch) {
+                                                CdrSearchResult cdrSearchResult,
+                                                boolean requireVMatch, boolean requireJMatch) {
         requireVMatch = !requireVMatch
         requireJMatch = !requireJMatch
         def result = new ArrayList<CdrMatch>()
@@ -45,7 +45,7 @@ class CdrMatch {
     }
 
     public CdrMatch(CdrEntry subject, Clonotype query,
-                           Alignment<AminoAcidSequence> alignment) {
+                    Alignment<AminoAcidSequence> alignment) {
         this.subject = subject
         this.query = query
         this.vMatch = query.v == subject.v //todo: re-implement V stuff
@@ -53,16 +53,12 @@ class CdrMatch {
         this.alignment = alignment
     }
 
-    CdrEntry getSubject() {
-        return subject
+    public CdrEntry getSubject() {
+        subject
     }
 
     public Clonotype getQuery() {
         query
-    }
-
-    public CdrEntry getCdrEntry() {
-        subject
     }
 
     public boolean getvMatch() {
@@ -73,6 +69,9 @@ class CdrMatch {
         jMatch
     }
 
+    public Alignment<AminoAcidSequence> getAlignment() {
+        alignment
+    }
     public static final String HEADER = "score\tquery_cdr3aa\tquery_v\tquery_j\t" +
             "subject_cdr3aa\tsubject_v\tsubject_j\t" +
             "v_match\tj_match\tsubstitutions"
