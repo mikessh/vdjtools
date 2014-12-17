@@ -35,7 +35,7 @@ if (add_lbl) {
    # We absolutely sure need this trick as labels are going to overlap leading to huge mess..
    x.fact <- 100 / max(df.l$x)
    y.fact <- 100 / max(df.l$mean)
-   coords <- FFieldPtRep(coords = cbind(df.l$x * x.fact, df.l$mean * y.fact))
+   coords <- FFieldPtRep(coords = cbind(df.l$x * x.fact, df.l$mean * y.fact), iter.max = 1000)
    df.l$x <- coords$x / x.fact
    df.l$mean <- coords$y / y.fact
 } else {
@@ -49,12 +49,12 @@ g <- ggplot(df, aes(x=x, y=mean, group=dataset)) +
 	 xlab("Sample size") + ylab("Diveristy") +
 	 labs(colour=fac_name) +
 	 #scale_x_continuous(limits = c(0, max(df$x)), oob=scales::rescale_none) +
-	 #scale_y_continuous(limits = c(0, max(df$y)), oob=scales::rescale_none) +
+	 #scale_y_continuous(limits = c(0, max(df$mean)), oob=scales::rescale_none) +
 	 theme_bw()
 
 # add corresponding fancy axis
 if (num_fac) {
-   g <- g + scale_colour_gradient2(low="#feb24c", mid="#31a354", high="#2b8cbe", midpoint=(max(df.m$fac) + min(df.m$fac))/2)
+   g <- g + scale_colour_gradient2(low="#feb24c", mid="#31a354", high="#2b8cbe", midpoint=(max(df$fac) + min(df$fac))/2)
 } else {
    g <- g + scale_colour_brewer(palette="Set2")
 }
