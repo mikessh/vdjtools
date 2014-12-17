@@ -316,7 +316,9 @@ class SampleCollection implements Iterable<Sample> {
      * @return
      */
     public SampleStatistics getSampleStatistics() {
-        int minCount, maxCount, minFreq, maxFreq, minDiversity, maxDiversity
+        def minCount = Long.MAX_VALUE, maxCount = 0,
+                minFreq = Double.MAX_VALUE, maxFreq = 0,
+                minDiversity = Integer.MAX_VALUE, maxDiversity = 0
         println "[${new Date()} SampleCollection] Collecting sample statistics"
         sampleMap.each {
             def sample = it.value.haveAGlance()

@@ -20,9 +20,13 @@ package com.antigenomics.vdjtools.sample
 
 
 class SampleStatistics {
-    public final int minCount, maxCount, minFreq, maxFreq, minDiversity, maxDiversity
+    public final long minCount, maxCount
+    public final double minFreq, maxFreq
+    public final int minDiversity, maxDiversity
 
-    SampleStatistics(int minCount, int maxCount, int minFreq, int maxFreq, int minDiversity, int maxDiversity) {
+    SampleStatistics(long minCount, long maxCount,
+                     double minFreq, double maxFreq,
+                     int minDiversity, int maxDiversity) {
         this.minCount = minCount
         this.maxCount = maxCount
         this.minFreq = minFreq
@@ -31,27 +35,27 @@ class SampleStatistics {
         this.maxDiversity = maxDiversity
     }
 
-    public int getMinCount() {
+    public long getMinCount() {
         minCount
     }
 
-    public int getMaxCount() {
-         maxCount
+    public long getMaxCount() {
+        maxCount
     }
 
-    public int getMinFreq() {
-         minFreq
+    public double getMinFreq() {
+        minFreq
     }
 
-    public     int getMaxFreq() {
-         maxFreq
+    public double getMaxFreq() {
+        maxFreq
     }
 
     public int getMinDiversity() {
-         minDiversity
+        minDiversity
     }
 
     public int getMaxDiversity() {
-         maxDiversity
+        maxDiversity
     }
 }

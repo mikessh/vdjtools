@@ -48,4 +48,12 @@ class MetadataColumnInfo {
         this.numericSamples = numericSamples
         this.factorSamples = factorSamples
     }
+
+    @Override
+    public String toString() {
+        "Info($columnId):\n" +
+                "columnType=$metadataColumnType;\n" +
+                "numericSamples=$numericSamples,factorSamples=$factorSamples;\n" +
+                "uniqueEntries=${uniqueEntries.join(",")}"
+    }
 }
