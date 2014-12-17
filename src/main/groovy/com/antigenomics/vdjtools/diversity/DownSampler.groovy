@@ -18,32 +18,33 @@ package com.antigenomics.vdjtools.diversity
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.util.MathUtil
 
 class DownSampler {
-    private final List<Clonotype> flattenedClonotypes
+    private final Clonotype[] flattenedClonotypes
     private final Sample sample
 
     public DownSampler(Sample sample) {
         if (sample.count > Integer.MAX_VALUE)
             throw new RuntimeException("Couldn't downsample samples with > ${Integer.MAX_VALUE} cells")
 
-        this.flattenedClonotypes = new ArrayList<>((int) sample.count)
+        this.sample = sample
+        this.flattenedClonotypes = new Clonotype[sample.count]
 
+        int counter = 0
         sample.each {
             for (int i = 0; i < it.count; i++)
-                flattenedClonotypes.add(it)
+                flattenedClonotypes[counter++] = it
         }
-
-        this.sample = sample
     }
 
     public Sample reSample(int count) {
         if (count >= sample.count) {
             return new Sample(sample)
         } else {
-            Collections.shuffle(flattenedClonotypes)
+            MathUtil.shuffle(flattenedClonotypes)
 
-            def countMap = new HashMap<Clonotype, Integer>()
+            def countMap = new HashMap<Clonotype, Integer>() // same as with strict intersection
 
             for (int i = 0; i < count; i++) {
                 def clonotype = flattenedClonotypes[i]

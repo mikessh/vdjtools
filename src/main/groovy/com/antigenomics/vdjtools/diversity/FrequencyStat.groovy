@@ -20,6 +20,10 @@ package com.antigenomics.vdjtools.diversity
 
 import org.apache.commons.math3.stat.regression.SimpleRegression
 
+/**
+ * Deprecated as it has not proven to be really useful, use QuantileStats instead
+ */
+@Deprecated()
 class FrequencyStat {
     private final List<FrequencyTable.BinInfo> binInfoList
     private final double beta, betaConf, alpha, r

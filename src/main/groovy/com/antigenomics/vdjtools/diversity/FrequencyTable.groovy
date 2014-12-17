@@ -27,6 +27,11 @@ import com.antigenomics.vdjtools.pool.ClonotypeAggregator
 import com.antigenomics.vdjtools.pool.SampleAggregator
 import com.antigenomics.vdjtools.sample.Sample
 
+/**
+ * A base class for providing info on the frequencies of rare (singletons, doubletons)
+ * and abundant clonotypes.
+ * The class is a wrapper for frequency -> number of clonotypes with a given frequency table
+ */
 public class FrequencyTable {
     private final long min, max, count, diversity
     private final Map<Long, Long> frequencyMap = new HashMap<>()
@@ -92,6 +97,14 @@ public class FrequencyTable {
 
     public long getCount() {
         count
+    }
+
+    public long getSingletons() {
+        frequencyMap[1]
+    }
+
+    public long getDoubletons() {
+        frequencyMap[2]
     }
 
     public long getAt(long clonotypeSize) {
