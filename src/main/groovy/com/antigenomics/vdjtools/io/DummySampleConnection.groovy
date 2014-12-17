@@ -16,7 +16,6 @@
 
 package com.antigenomics.vdjtools.io
 
-import com.antigenomics.vdjtools.io.SampleConnection
 import com.antigenomics.vdjtools.sample.Sample
 
 class DummySampleConnection implements SampleConnection {
@@ -27,12 +26,12 @@ class DummySampleConnection implements SampleConnection {
     }
 
     @Override
-    Sample getSample() {
+    public Sample getSample() {
         sample
     }
 
     @Override
-    Sample haveAGlance() {
+    public Sample haveAGlance() {
         sample
     }
 }

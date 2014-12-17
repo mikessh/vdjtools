@@ -17,12 +17,10 @@
 package com.antigenomics.vdjtools.io
 
 import com.antigenomics.vdjtools.sample.Sample
-import groovy.transform.PackageScope
 
 public interface SampleConnection {
     // todo: this could be very time consuming!!
     public Sample getSample()
 
-    @PackageScope
     public Sample haveAGlance()
 }
