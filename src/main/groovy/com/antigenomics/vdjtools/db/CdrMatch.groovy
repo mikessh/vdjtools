@@ -81,7 +81,7 @@ class CdrMatch {
         [alignment.score,
          query.cdr3aa, query.v, query.j,
          subject.cdr3aa, subject.v, subject.j,
-         vMatch, jMatch, alignment.absoluteMutations.toString(),
-         subject.annotation].flatten().join("\t")
+         vMatch, jMatch, alignment.absoluteMutations.toString()
+        ].flatten().join("\t")
     }
 }

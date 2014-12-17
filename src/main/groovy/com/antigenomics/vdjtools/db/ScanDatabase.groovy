@@ -91,7 +91,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) to pro
 //
 
 def database = dbName ? new CdrDatabase(dbName, filter) : new CdrDatabase(filter)
-def databaseBrowser = new DatabaseBrowser(false, false, fuzzy) // todo: more options
+def databaseBrowser = new DatabaseBrowser(false, false, fuzzy)
 
 println "[${new Date()} $scriptName] Annotating sample(s) & writing results"
 
@@ -115,9 +115,9 @@ new File(formOutputPath(outputFileName, "annot", dbName ?: "default", "summary")
         // Write full summary
         if (details) {
             new File(formOutputPath(outputFileName, "annot", dbName ?: "default", sampleId)).withPrintWriter { pwDetails ->
-                pwDetails.println("#" + CdrMatch.HEADER + "\t" + database.ANNOTATION_HEADER) // todo: better header composition
+                pwDetails.println("#" + CdrMatch.HEADER + "\t" + database.ANNOTATION_HEADER)
                 browserResult.each { match ->
-                    pwDetails.println(match)
+                    pwDetails.println(match + "\t" + match.subject.annotation)
                 }
             }
         }
