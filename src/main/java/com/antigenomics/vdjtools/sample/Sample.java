@@ -30,7 +30,9 @@ import java.util.*;
 public class Sample implements ClonotypeContainer {
     private final List<Clonotype> clonotypes = new ArrayList<>();
     private final SampleMetadata sampleMetadata;
+    private double frequency = 0;
     private long count = 0;
+    private int diversity = 0;
 
     private Sample(SampleMetadata sampleMetadata) {
         this.sampleMetadata = sampleMetadata;
@@ -72,7 +74,7 @@ public class Sample implements ClonotypeContainer {
     public static Sample fromInputStream(InputStream inputStream,
                                          SampleMetadata sampleMetadata,
                                          Software software,
-                                         int top) {
+                                         int top, boolean store) {
         Sample sample = new Sample(sampleMetadata);
 
         ClonotypeStreamParser clonotypeStreamParser = ClonotypeStreamParser.create(inputStream, software, sample);
@@ -81,7 +83,7 @@ public class Sample implements ClonotypeContainer {
             if (top > -1 && sample.getDiversity() == top)
                 break;
 
-            sample.addClonotype(clonotype);
+            sample.addClonotype(clonotype, store);
         }
 
         Collections.sort(sample.clonotypes);
@@ -92,12 +94,19 @@ public class Sample implements ClonotypeContainer {
     public static Sample fromInputStream(InputStream inputStream,
                                          SampleMetadata sampleMetadata,
                                          Software software) {
-        return fromInputStream(inputStream, sampleMetadata, software, -1);
+        return fromInputStream(inputStream, sampleMetadata, software, -1, true);
     }
 
     private void addClonotype(Clonotype clonotype) {
+        addClonotype(clonotype, true);
+    }
+
+    private void addClonotype(Clonotype clonotype, boolean store) {
         count += clonotype.getCount();
-        clonotypes.add(clonotype);
+        diversity++;
+        frequency += clonotype.getFreqAsInInput();
+        if (store)
+            clonotypes.add(clonotype);
     }
 
     public SampleMetadata getSampleMetadata() {
@@ -106,7 +115,7 @@ public class Sample implements ClonotypeContainer {
 
     @Override
     public double getFreq() {
-        return 1.0;
+        return frequency;
     }
 
     @Override
@@ -116,7 +125,7 @@ public class Sample implements ClonotypeContainer {
 
     @Override
     public int getDiversity() {
-        return clonotypes.size();
+        return diversity;
     }
 
     @Override

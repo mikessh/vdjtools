@@ -311,6 +311,26 @@ class SampleCollection implements Iterable<Sample> {
     }
 
     /**
+     * Quickly reads all samples collecting various statistics, such as min/max read count.
+     * Do not store samples in memory
+     * @return
+     */
+    public SampleStatistics getSampleStatistics() {
+        int minCount, maxCount, minFreq, maxFreq, minDiversity, maxDiversity
+        println "[${new Date()} SampleCollection] Collecting sample statistics"
+        sampleMap.each {
+            def sample = it.value.haveAGlance()
+            minCount = Math.min(sample.count, minCount)
+            maxCount = Math.max(sample.count, maxCount)
+            minFreq = Math.min(sample.freq, minFreq)
+            maxFreq = Math.max(sample.freq, maxFreq)
+            minDiversity = Math.min(sample.diversity, minDiversity)
+            maxDiversity = Math.max(sample.diversity, maxDiversity)
+        }
+        new SampleStatistics(minCount, maxCount, minFreq, maxFreq, minDiversity, maxDiversity)
+    }
+
+    /**
      * Gets the number of samples
      * @return number of samples
      */

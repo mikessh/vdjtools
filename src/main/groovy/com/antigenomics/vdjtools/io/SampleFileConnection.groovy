@@ -75,7 +75,13 @@ class SampleFileConnection implements SampleConnection {
         sample
     }
 
+    @Override
     public Sample getSample() {
         _sample ?: (store ? (_sample = _load()) : _load())
+    }
+
+    @Override
+    public Sample haveAGlance() {
+        _sample ?: Sample.fromInputStream(CommonUtil.getFileStream(fileName), null, software, -1, false)
     }
 }

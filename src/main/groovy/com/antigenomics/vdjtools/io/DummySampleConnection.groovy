@@ -30,4 +30,9 @@ class DummySampleConnection implements SampleConnection {
     Sample getSample() {
         sample
     }
+
+    @Override
+    Sample haveAGlance() {
+        sample
+    }
 }
