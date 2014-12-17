@@ -87,19 +87,23 @@ public class FrequencyTable {
     }
 
     public long getDiversity() {
-        return diversity
+        diversity
+    }
+
+    public long getCount() {
+        count
     }
 
     public long getAt(long clonotypeSize) {
         frequencyMap[clonotypeSize] ?: 0
     }
 
-    long getMin() {
-        return min
+    public long getMin() {
+        min
     }
 
-    long getMax() {
-        return max
+    public long getMax() {
+        max
     }
 
     public final List<BinInfo> getBins() {

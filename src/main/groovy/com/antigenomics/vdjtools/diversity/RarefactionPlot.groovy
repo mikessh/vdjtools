@@ -113,12 +113,6 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples to analy
 // Rarefaction analysis
 //
 
-def getDiv = { DiversityEstimator diversityEstimator, int x ->
-    def subSample = diversityEstimator.downSampler.reSample(x)
-    def subSampleDiversityEstimator = new DiversityEstimator(subSample, intersectionType)
-    subSampleDiversityEstimator.computeCollapsedSampleDiversity().mean
-}
-
 def header = ["#$MetadataTable.SAMPLE_ID_COLUMN", sampleCollection.metadataTable.columnHeader,
               RarefactionCurve.RarefactionPoint.HEADER].flatten().join("\t")
 
