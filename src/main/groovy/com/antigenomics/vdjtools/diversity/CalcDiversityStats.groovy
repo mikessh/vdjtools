@@ -26,7 +26,7 @@ import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
-def N_DEFAULT = "100000", I_TYPES_DEFAULT = [IntersectionType.AminoAcidVJ, IntersectionType.Strict]
+def I_TYPE_DEFAULT = IntersectionType.Strict
 def cli = new CliBuilder(usage: "CalcDiversityStats [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
@@ -35,12 +35,15 @@ cli.S(longOpt: "software", argName: "string", required: true, args: 1,
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
-cli.n(longOpt: "num-reads", argName: "integer", args: 1,
-        "Number of reads to take for normalized sample diversity estimate. [default = $N_DEFAULT]")
-cli.i(longOpt: "intersect-type", argName: "string1,string2,..", args: 1,
-        "Comma-separated list of intersection types to apply. " +
-                "Allowed values: $IntersectionType.allowedNames. " +
-                "Will use '${I_TYPES_DEFAULT.collect { it.shortName }.join(",")}' by default.")
+cli.n(longOpt: "n-downsample", argName: "integer", args: 1,
+        "Number of reads to take for down-sampled sample diversity estimate." +
+                "[default=number of reads in the smallest sample]")
+cli.N(longOpt: "n-extrapolate", argName: "integer", args: 1,
+        "Number of reads to take for extrapolated sample diversity estimate." +
+                "[default=number of reads in the largest sample]")
+cli.i(longOpt: "intersect-type", argName: "string", args: 1,
+        "Intersection rule to apply. Allowed values: $IntersectionType.allowedNames. " +
+                "Will use '$I_TYPE_DEFAULT' by default.")
 
 def opt = cli.parse(args)
 
@@ -67,33 +70,15 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 // Other arguments
 
-def software = Software.byName(opt.S), effectiveSampleSize = (opt.n ?: N_DEFAULT).toInteger(),
+def software = Software.byName(opt.S),
+    intersectionType = opt.i ? IntersectionType.byName((String) opt.i) : I_TYPE_DEFAULT,
     outputPrefix = opt.arguments()[-1]
-
-// Build a list of intersection types to apply
-
-def intersectionTypes
-
-if (opt.i) {
-    intersectionTypes = (opt.i as String).split(",").collect {
-        def shortName = it.trim()
-        def intersectionType = IntersectionType.byName(shortName)
-        if (!intersectionType) {
-            println "[ERROR] Bad intersection type specified ($shortName). " +
-                    "Allowed values are: $IntersectionType.allowedNames"
-            System.exit(-1)
-        }
-        intersectionType
-    }
-} else {
-    intersectionTypes = I_TYPES_DEFAULT
-}
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 // Defaults
 
-def nResamples = 3, efronDepth = 20, efronCvThreshold = 0.05
+//def nResamples = 3 todo: default resamples
 
 //
 // Batch load all samples (lazy)
@@ -108,48 +93,37 @@ def sampleCollection = metadataFileName ?
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples to analyze"
 
 //
+// Set up downsample/extrapolate read counts
+//
+
+def sampleStats = sampleCollection.sampleStatistics
+def minReads = (opt.n ?: "$sampleStats.minCount").toInteger(),
+    maxReads = (opt.N ?: "$sampleStats.maxCount").toInteger()
+
+//
 // Compute and output diversity measures
 //
-def maxCells = new HashMap<IntersectionType, Long>()
-intersectionTypes.each { maxCells.put(it, 0) }
+
+def headerBase = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
+        sampleCollection.metadataTable.columnHeader + "\treads\tdiversity_strict"
 
 new File(formOutputPath(outputPrefix, "diversity")).withPrintWriter { pwDiv ->
-    def headerDiv = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
-            sampleCollection.metadataTable.columnHeader + "\treads\t" +
-            intersectionTypes.collect { i ->
-                ["clones", "normdiv_m", "normdiv_s", "efron_m", "efron_s", "chao_m", "chao_s",
-                 "alpha", "beta", "beta_conf"].collect { m ->
-                    "${m}_$i.shortName"
-                }
-            }.flatten().join("\t")
+    new File(formOutputPath(outputPrefix, "diversity", "resampled")).withPrintWriter { pwDivRes ->
+        pwDiv.println(headerBase + "\textrapolate_reads\t" + DiversityEstimates.HEADER)
+        pwDivRes.println(headerBase + "\tresample_reads\t" + DiversityEstimatesResampled.HEADER)
 
-    pwDiv.println(headerDiv)
+        sampleCollection.each { Sample sample ->
+            println "[${new Date()} $scriptName] Analyzing $sample.sampleMetadata.sampleId"
 
-    sampleCollection.each { Sample sample ->
-        println "[${new Date()} $scriptName] Analyzing $sample.sampleMetadata.sampleId"
+            def rowBase = [sample.sampleMetadata.sampleId, sample.sampleMetadata,
+                           sample.count, sample.diversity].join("\t")
 
-        def diversityRow = [sample.sampleMetadata.sampleId, sample.sampleMetadata,
-                            sample.count]
+            def diversityEstimates = new DiversityEstimates(sample, intersectionType, maxReads),
+                diversityEstimatesResampled = new DiversityEstimatesResampled(sample, intersectionType, (int) minReads)
 
-        intersectionTypes.each { IntersectionType intersectionType ->
-            def diversityEstimator = new DiversityEstimator(sample, intersectionType)
-            def basediv = diversityEstimator.computeCollapsedSampleDiversity(),
-                normdiv = diversityEstimator.computeNormalizedSampleDiversity(effectiveSampleSize, nResamples),
-                efron = diversityEstimator.computeEfronThisted(efronDepth, efronCvThreshold),
-                chao = diversityEstimator.computeChao1(),
-                freqStat = diversityEstimator.computeFrequencyDistributionStats()
-
-
-            diversityRow.addAll([basediv.mean,
-                                 normdiv.mean, normdiv.std,
-                                 efron.mean, efron.std,
-                                 chao.mean, chao.std,
-                                 freqStat.alpha, freqStat.beta, freqStat.betaConf])
-
-            maxCells.put(intersectionType, Math.max((long) maxCells[intersectionType], sample.count))
+            pwDiv.println(rowBase + "\t" + maxReads + "\t" + diversityEstimates)
+            pwDivRes.println(rowBase + "\t" + minReads + "\t" + diversityEstimatesResampled)
         }
-
-        pwDiv.println(diversityRow.join("\t"))
     }
 }
 

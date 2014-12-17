@@ -17,19 +17,28 @@
 package com.antigenomics.vdjtools.diversity
 
 class Diversity {
-    final long mean, std
-    final double n
-    final boolean extrapolated
+    public final long mean, std, n
+    public final boolean extrapolated, resampled
+    public final String estimatorName
 
-    Diversity(long mean, long std, long n, boolean extrapolated) {
+    Diversity(double mean, double std, long n, boolean extrapolated, boolean resampled, String estimatorName) {
+        this((long) mean, (long) std, n, extrapolated, resampled, estimatorName)
+    }
+
+    Diversity(long mean, long std, long n, boolean extrapolated, boolean resampled, String estimatorName) {
         this.mean = mean
         this.std = std
         this.n = n
+        this.resampled = resampled
         this.extrapolated = extrapolated
+        this.estimatorName = estimatorName
+        this.HEADER = [estimatorName + "_mean", estimatorName + "_std"]
     }
 
+    public final String HEADER
+
     @Override
-    String toString() {
+    public String toString() {
         [mean, std].join("\t")
     }
 }
