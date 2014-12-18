@@ -25,6 +25,9 @@ import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 import com.antigenomics.vdjtools.util.RUtil
 
+import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
+
 def I_TYPE_DEFAULT = "strict"
 def cli = new CliBuilder(usage: "IntersectSequential [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
@@ -92,7 +95,7 @@ def software = Software.byName(opt.S),
     trackSample = (opt.x ?: "-1").toInteger(),
     top = (int) ((opt.c ?: "-1").toInteger()), plot = opt.p,
     timeLabel = opt."time-label" ?: "time",
-    outputFilePrefix = opt.arguments()[-1]
+    outputPrefix = opt.arguments()[-1]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -114,6 +117,8 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 // Sort samples
 //
 
+def timeCourse = metadataTable.containsColumn("time") || opt.t
+
 def timePoints = opt.t ? (opt.t.toString())[1..-2].split(",").collect() : // [-10,0.5,1,20]
         (0..<sampleCollection.size()).collect { it.toString() } // value provided with argument or uniform
 
@@ -127,10 +132,19 @@ if (!metadataTable.containsColumn("time")) {
 metadataTable.sort("time")
 
 // Take sorted values from metadata
-timePoints = metadataTable.getColumn("time").collect { it.asNumeric().toString() }
+if (timeCourse) {
+    timePoints = metadataTable.getColumn("time").collect { it.asNumeric().toString() }
 
-println "[${new Date()} $scriptName] Time points and samples to be processed:\n" +
-        "${timePoints.join(",")}\n${metadataTable.sampleIterator.collect().join(",")}"
+    println "[${new Date()} $scriptName] Time points and samples to be processed:\n" +
+            "${timePoints.join(",")}\n${metadataTable.sampleIterator.collect().join(",")}"
+} else {
+    if (timeCourse) {
+        timePoints = metadataTable.getColumn("time").collect { it.asNumeric().toString() }
+
+        println "[${new Date()} $scriptName] Samples to be processed:\n" +
+                "${timePoints.join(",")}\n${metadataTable.sampleIterator.collect().join(",")}"
+    }
+}
 
 //
 // Join samples
@@ -148,10 +162,11 @@ def jointSample = new JointSample(intersectionType, sampleCollection.collect() a
 println "[${new Date()} $scriptName] Writing tabular output"
 
 def sampleWriter = new SampleWriter(software)
-sampleWriter.write(jointSample, outputFilePrefix + ".table.txt")
+sampleWriter.write(jointSample, formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "table"))
 
+def tableCollapsedOutputPath = formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "table", "collapsed")
 if (top >= 0)
-    sampleWriter.write(jointSample, outputFilePrefix + ".table_collapsed.txt", top, true)
+    sampleWriter.write(jointSample, tableCollapsedOutputPath, top, true)
 
 //
 // Write summary output
@@ -159,7 +174,8 @@ if (top >= 0)
 
 println "[${new Date()} $scriptName] Writing output"
 
-new File(outputFilePrefix + ".summary.txt").withPrintWriter { pw ->
+def summaryOutputPath = formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "summary")
+new File(summaryOutputPath).withPrintWriter { pw ->
     pw.println("#1_$MetadataTable.SAMPLE_ID_COLUMN\t2_$MetadataTable.SAMPLE_ID_COLUMN\t" +
             "value\tmetric\t" +
             sampleCollection.metadataTable.columnHeader1 + "\t" +
@@ -229,22 +245,23 @@ println "[${new Date()} $scriptName] Writing plots"
 if (plot) {
     // Plot all the heatmaps
     RUtil.execute("sequential_intersect_similarity_map.r",
-            outputFilePrefix + ".summary.txt",
-            outputFilePrefix + ".summary.pdf")
+            summaryOutputPath,
+            toPlotPath(summaryOutputPath))
 
     if (top >= 0) {
         // Plot a stack plot of top X clonotype abundances
         RUtil.execute("sequential_intersect_stack.r",
                 timeLabel,
                 timePoints.join(","),
-                outputFilePrefix + ".table_collapsed.txt",
-                outputFilePrefix + ".stackplot.pdf")
+                RUtil.logical(timeCourse),
+                tableCollapsedOutputPath,
+                formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "stackplot", ".pdf"))
 
         // Plot a "heatcourse" plot of top X clonotype abundances
         RUtil.execute("sequential_intersect_heatcourse.r",
                 timeLabel,
                 timePoints.join(","),
-                outputFilePrefix + ".table_collapsed.txt",
-                outputFilePrefix + ".heatcourse.pdf")
+                tableCollapsedOutputPath,
+                formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "heatplot", ".pdf"))
     }
 }

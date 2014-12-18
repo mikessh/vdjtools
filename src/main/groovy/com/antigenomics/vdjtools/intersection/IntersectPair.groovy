@@ -21,6 +21,9 @@ import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.RUtil
 
+import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
+
 def I_TYPE_DEFAULT = "aa"
 def cli = new CliBuilder(usage: "IntersectPair [options] sample1 sample2 output_prefix")
 cli.h("display help message")
@@ -47,7 +50,7 @@ if (opt.h || opt.arguments().size() < 3) {
 
 def software = Software.byName(opt.S), top = (int) ((opt.c ?: "-1").toInteger()),
     sample1FileName = opt.arguments()[0], sample2FileName = opt.arguments()[1],
-    outputFilePrefix = opt.arguments()[2]
+    outputPrefix = opt.arguments()[2]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -85,16 +88,18 @@ def jointSample = pairedIntersection.jointSample
 
 println "[${new Date()} $scriptName] Writing output"
 
-new File(outputFilePrefix + ".summary.txt").withPrintWriter { pw ->
+new File(outputPrefix + ".summary.txt").withPrintWriter { pw ->
     pw.println(pairedIntersection.header)
     pw.println(pairedIntersection.row)
 }
 
-def sampleWriter = new SampleWriter(software)
-sampleWriter.write(jointSample, outputFilePrefix + ".table.txt")
 
+def sampleWriter = new SampleWriter(software)
+sampleWriter.write(jointSample, formOutputPath(outputPrefix, "paired", intersectionType.shortName, "table"))
+
+def tableCollapsedOutputPath = formOutputPath(outputPrefix, "paired", intersectionType.shortName, "table", "collapsed")
 if (top >= 0)
-    sampleWriter.write(jointSample, outputFilePrefix + ".table_collapsed.txt", top, true)
+    sampleWriter.write(jointSample, tableCollapsedOutputPath, top, true)
 
 if (opt.p) {
     println "[${new Date()} $scriptName] Plotting"
@@ -107,7 +112,7 @@ if (opt.p) {
     }
 
     // todo: remake completely
-    def xyFile = new File(outputFilePrefix + ".xy.txt")
+    def xyFile = new File(outputPrefix + ".xy.txt")
     xyFile.withPrintWriter { pw ->
         pw.println("x\ty")
         jointSample.each { jointClone ->
@@ -118,14 +123,14 @@ if (opt.p) {
     }
     xyFile.deleteOnExit()
 
-    def xxFile = new File(outputFilePrefix + ".xx.txt")
+    def xxFile = new File(outputPrefix + ".xx.txt")
     xxFile.withPrintWriter { pw ->
         pw.println("xx")
         sample1.each { pw.println(log(it.freq)) }
     }
     xxFile.deleteOnExit()
 
-    def yyFile = new File(outputFilePrefix + ".yy.txt")
+    def yyFile = new File(outputPrefix + ".yy.txt")
     yyFile.withPrintWriter { pw ->
         pw.println("yy")
         sample2.each { pw.println(log(it.freq)) }
@@ -133,12 +138,12 @@ if (opt.p) {
     yyFile.deleteOnExit()
 
     RUtil.execute("intersect_pair_scatter.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
-            outputFilePrefix + ".xy.txt", outputFilePrefix + ".xx.txt", outputFilePrefix + ".yy.txt",
-            outputFilePrefix + ".scatter.pdf")
+            outputPrefix + ".xy.txt", outputPrefix + ".xx.txt", outputPrefix + ".yy.txt",
+            formOutputPath(outputPrefix, "paired", intersectionType.shortName, "scatter", "pdf"))
 
     if (opt.c) {
         RUtil.execute("intersect_pair_area.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
-                outputFilePrefix + ".table_collapsed.txt", outputFilePrefix + ".difference.pdf",
+                tableCollapsedOutputPath, toPlotPath(tableCollapsedOutputPath),
                 Math.max(0, software.headerLineCount - 1).toString())
     }
 }
