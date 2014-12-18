@@ -33,15 +33,21 @@ import com.antigenomics.vdjtools.sample.Sample
  * The class is a wrapper for frequency -> number of clonotypes with a given frequency table
  */
 public class FrequencyTable {
-    private final long min, max, count, diversity
-    private final Map<Long, Long> frequencyMap = new HashMap<>()
+    private final long count, diversity
+    private final Map<Long, FrequencyTableBin> frequencyMap = new HashMap<>()
 
-    FrequencyTable(Sample sample, IntersectionType intersectionType) {
+    /**
+     * Creates frequency table that bins clonotypes according to their frequency
+     * @param sample sample to bin
+     * @param intersectionType intersection type used to collapse clonotypes
+     */
+    public FrequencyTable(Sample sample, IntersectionType intersectionType) {
         Iterable<Countable> counters
 
         // collapse clonotypes by a specific key
         def clonotypeKeyGen = new ClonotypeKeyGen(intersectionType)
 
+        // todo: parallelization possible
         def hashedCounts = new HashMap<ClonotypeKey, Counter>()
 
         sample.each {
@@ -56,129 +62,165 @@ public class FrequencyTable {
         counters = hashedCounts.values()
 
         // compute frequency table
-        long min = Long.MAX_VALUE, max = -1
-
         counters.each {
-            long count = it.count
-            frequencyMap.put(count, (frequencyMap[count] ?: 0L) + 1L)
-            min = Math.min(count, min)
-            max = Math.max(count, max)
+            long x = it.count
+            def bin = frequencyMap[x]
+            if (!bin)
+                frequencyMap.put(x, bin = new FrequencyTableBin(x))
+            bin.increment()
         }
 
-        this.min = min
-        this.max = max
         this.count = sample.count
     }
 
+    /**
+     * Creates frequency table that bins clonotypes according to their occurrence in a set of samples
+     * @param pool pooled samples
+     */
     FrequencyTable(SampleAggregator pool) {
         long diversity = 0, count = 0
 
         // compute frequency table
-        long min = Long.MAX_VALUE, max = -1
-
         pool.each { ClonotypeAggregator it ->
             long x = it.incidenceCount
-            frequencyMap.put(x, (frequencyMap[x] ?: 0L) + 1L)
-            min = Math.min(x, min)
-            max = Math.max(x, max)
+            def bin = frequencyMap[x]
+            if (!bin)
+                frequencyMap.put(x, bin = new FrequencyTableBin(x))
+            bin.increment()
             diversity++
             count += x
         }
 
-        this.min = min
-        this.max = max
         this.count = count
         this.diversity = diversity
     }
 
+    /**
+     * Gets the total number of clonotypes in this table
+     * (in accordance with IntersectionType used to collapse the sample)
+     * @return
+     */
     public long getDiversity() {
         diversity
     }
 
+    /**
+     * Gets the total read count in this table
+     * @return
+     */
     public long getCount() {
-        count
+        this.count
     }
 
-    public long getSingletons() {
-        frequencyMap[1]
+    /**
+     * Gets the number of singleton clonotypes, i.e. those met only once
+     * @return
+     */
+    public int getSingletons() {
+        this[1]
     }
 
-    public long getDoubletons() {
-        frequencyMap[2]
+    /**
+     * Gets the number of doubleton clonotypes, i.e. those met only twice
+     * @return
+     */
+    public int getDoubletons() {
+        this[2]
     }
 
-    public long getAt(long clonotypeSize) {
-        frequencyMap[clonotypeSize] ?: 0
+    /**
+     * Gets the number of clonotypes with the given count
+     * @param count number of reads
+     * @return
+     */
+    public int getAt(long count) {
+        def bin = frequencyMap[count]
+        bin ? bin.count : 0
     }
 
-    public long getMin() {
-        min
+    /**
+     * Gets the bins that have at least one clonotype in them
+     * @return
+     */
+    public Collection<FrequencyTableBin> getBins() {
+        Collections.unmodifiableCollection(frequencyMap.values())
     }
 
-    public long getMax() {
-        max
-    }
+    /**
+     * Frequency table bin
+     */
+    public class FrequencyTableBin {
+        private final long count
+        private int diversity = 0
 
-    public final List<BinInfo> getBins() {
-        double s = 0
-        frequencyMap.sort { it.key }.collect {
-            s += it.value
-            double std = Math.sqrt(it.key * (1.0 - it.key / (double) count))
-
-            new BinInfo(it.key, Math.round(std),
-                    it.key / count, std / count,
-                    it.value, 1.0 - s / diversity)
-        }
-    }
-
-    public static class BinInfo {
-        private final long clonotypeSize, numberOfClonotypes, cloneSizeStd
-        private final double complementaryCdf, clonotypeFreq, clonotypeFreqStd
-
-        BinInfo(long clonotypeSize, long cloneSizeStd,
-                double clonotypeFreq, double clonotypeFreqStd,
-                long numberOfClonotypes, double complementaryCdf) {
-            this.clonotypeSize = clonotypeSize
-            this.cloneSizeStd = cloneSizeStd
-            this.clonotypeFreq = clonotypeFreq
-            this.clonotypeFreqStd = clonotypeFreqStd
-            this.numberOfClonotypes = numberOfClonotypes
-            this.complementaryCdf = complementaryCdf
+        /**
+         * Creates a new frequency table bin
+         * @param count number of reads, used as key
+         */
+        public FrequencyTableBin(long count) {
+            this.count = count
         }
 
-        double getCloneStd() {
-            cloneSizeStd
+        /**
+         * Increment the number of clonotypes in this bin
+         */
+        public void increment() {
+            this.diversity++
         }
 
-        long getClonotypeSize() {
-            clonotypeSize
+        /**
+         * Decrement the number of clonotypes in this bin
+         */
+        public void decrement() {
+            this.diversity--
         }
 
-        long getNumberOfClonotypes() {
-            numberOfClonotypes
+        /**
+         * Get the number of reads that specify this bin
+         * @return
+         */
+        public long getCount() {
+            this.count
         }
 
-        double getComplementaryCdf() {
-            complementaryCdf
+        /**
+         * Gets the number of clonotypes in this bin
+         * @return
+         */
+        public int getDiversity() {
+            this.diversity
         }
 
-        double getClonotypeFreq() {
-            return clonotypeFreq
+        /**
+         * Gets the ratio of clonotypes in this bin and the total diversity of the sample
+         * (in accordance with IntersectionType used to collapse the sample)
+         * @return
+         */
+        public double getRelativeDiversity() {
+            this.diversity / (double) FrequencyTable.this.diversity
         }
 
-        double getClonotypeFreqStd() {
-            return clonotypeFreqStd
+        /**
+         * Get the clonotype frequency that specify this bin
+         * @return
+         */
+        public double getFreq() {
+            this.count / (double) FrequencyTable.this.count
         }
-
-        public static final String HEADER = "#clonotype_size\tclonotype_size_l\tclonotype_size_u\t" +
-                "clonotype_freq\tclonotype_freq_l\tclonotype_freq_u\t" +
-                "number_of_clonotypes\tcompl_cdf"
 
         @Override
-        public String toString() {
-            [clonotypeSize, clonotypeSize - cloneSizeStd, clonotypeSize + cloneSizeStd,
-             clonotypeFreq, clonotypeFreq - clonotypeFreqStd, clonotypeFreq + clonotypeFreqStd,
-             numberOfClonotypes, complementaryCdf].join("\t")
+        boolean equals(o) {
+            if (this.is(o)) return true
+            if (getClass() != o.class) return false
+
+            FrequencyTableBin that = (FrequencyTableBin) o
+
+            this.count == that.count
+        }
+
+        @Override
+        int hashCode() {
+            (int) (this.count ^ (this.count >>> 32))
         }
     }
 }
