@@ -19,15 +19,23 @@ package com.antigenomics.vdjtools.diversity
 import com.antigenomics.vdjtools.intersection.IntersectionType
 import com.antigenomics.vdjtools.pool.SampleAggregator
 import com.antigenomics.vdjtools.sample.Sample
+import groovy.transform.PackageScope
 import org.apache.commons.math3.util.CombinatoricsUtils
 
 class DiversityEstimates {
     private FrequencyTable frequencyTable = null
     private final long extrapolateTo
+    private final ChaoEstimator chaoEstimator
+
+    @PackageScope
+    static DiversityEstimates basicDiversityEstimates(FrequencyTable frequencyTable) {
+        new DiversityEstimates(frequencyTable, -1)
+    }
 
     public DiversityEstimates(FrequencyTable frequencyTable, long extrapolateTo) {
         this.frequencyTable = frequencyTable
         this.extrapolateTo = extrapolateTo
+        this.chaoEstimator = new ChaoEstimator(frequencyTable)
     }
 
     public DiversityEstimates(Sample sample, IntersectionType intersectionType, long extrapolateTo) {
@@ -37,6 +45,7 @@ class DiversityEstimates {
     public DiversityEstimates(SampleAggregator pool, long extrapolateTo) {
         this.frequencyTable = new FrequencyTable(pool)
         this.extrapolateTo = extrapolateTo
+        this.chaoEstimator = new ChaoEstimator(frequencyTable)
     }
 
     public Diversity getObservedDiversity() {
@@ -81,36 +90,11 @@ class DiversityEstimates {
     }
 
     public Diversity getChao1() {
-        double Sobs = frequencyTable.diversity,
-               F1 = frequencyTable[1], F2 = frequencyTable[2],
-               F0 = F1 * (F1 - 1) / 2 / (F2 + 1)
-
-        new Diversity(
-                Sobs + F0,
-                Math.sqrt(
-                        F0 +
-                                F1 * (2 * F1 - 1) * (2 * F1 - 1) / 4 / (F2 + 1) / (F2 + 1) +
-                                F1 * F1 * F2 * (F1 - 1) * (F1 - 1) / 4 / (F2 + 1) / (F2 + 1) / (F2 + 1) / (F2 + 1)
-                ),
-                frequencyTable.count,
-                true, false, "chao1")
+        chaoEstimator.chao1()
     }
 
     public Diversity getChaoE() {
-        long n = frequencyTable.count, mStar = extrapolateTo - n
-
-        if (mStar < 0)
-            return new Diversity(-1, -1, -1, false, false, "undef")
-
-        double Sobs = frequencyTable.diversity,
-               F1 = frequencyTable[1], F2 = frequencyTable[2],
-               F0 = F1 * (F1 - 1) / 2 / (F2 + 1)
-
-        new Diversity(
-                Sobs + F0 * (1.0 - Math.pow(1.0 - F1 / n / F0, mStar)),
-                0, // todo: too lazy to differentiate right now
-                extrapolateTo,
-                true, false, "chao_e")
+        chaoEstimator.chaoE(extrapolateTo)
     }
 
     public FrequencyTable getFrequencyTable() {

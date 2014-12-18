@@ -43,8 +43,8 @@ class DiversityEstimatesResampled {
 
         for (int i = 0; i < resampleCount; i++) {
             def subSample = downSampler.reSample(subSampleSize)
-            def freqTable = new FrequencyTable(subSample, intersectionType)
-            def diversityEstimates = new DiversityEstimates(freqTable, -1)
+            def frequencyTable = new FrequencyTable(subSample, intersectionType)
+            def diversityEstimates = DiversityEstimates.basicDiversityEstimates(frequencyTable)
             observedDiversityStat.addValue(diversityEstimates.observedDiversity.mean)
             efronThistedStat.addValue(diversityEstimates.efronThisted.mean)
             chao1Stat.addValue(diversityEstimates.chao1.mean)
