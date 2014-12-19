@@ -3,17 +3,17 @@ require(gplots); require(RColorBrewer); require(ggplot2)
 args<-commandArgs(TRUE)
 
 input_file  <- args[1] #"ms.segments.V2.txt"
-v_col_count <- as.numeric(args[2]) #48
-lbl_col     <- as.numeric(args[3]) #1
-fac_col     <- as.numeric(args[4]) #2
-cont_factor <- as.logical(args[5])
+v_col_count <- as.numeric(args[2])
+lbl_col     <- as.numeric(args[3])
+fac_col     <- as.numeric(args[4])
+cont_factor <- as.logical(args[5]) # continuous factor?
 output_file <- args[6]
 
 if (lbl_col < 1) {
    lbl_col = 1 # use sample id if not specified
 }
 
-color_by_factor <- fac_col > 0
+color_by_factor <- fac_col > 0 # any color legend for samples?
 
 # read-in data and pre-process
 df<-read.table(input_file, header=T, sep="\t",comment="")
@@ -25,14 +25,19 @@ x <- as.matrix(df[, vcols])
 if (color_by_factor) {
     factor_name <- colnames(df)[fac_col]
     if (cont_factor) {
-       df[,fac_col] <- as.numeric(df[,fac_col])
-       fu   <- as.factor(as.numeric(cut(df[,fac_col],10)))
-       scol <- colorRampPalette(c("#feb24c", "#31a354", "#2b8cbe"))(10)[fu]
+       df[, fac_col] <- as.numeric(df[,fac_col])
+       # base pallete, to be used in legend
+       scol <- colorRampPalette(c("#feb24c", "#31a354", "#2b8cbe"))(10)
+       # color vector for plot
+       pcol <- scol[cut(df[,fac_col], 10)]
     } else {
        df[, fac_col] <- as.factor(df[, fac_col])
        fu   <- levels(df[, fac_col])
        nlevels <- length(fu)
-       scol <- colorRampPalette(brewer.pal(nlevels, "Set2"))(nlevels)[df[,fac_col]]
+       # base pallete, to be used in legend
+       scol <- colorRampPalette(brewer.pal(nlevels, "Set2"))(nlevels)
+       # color vector for plot
+       pcol <- scol[df[,fac_col]]
     }
 }
 
@@ -57,7 +62,7 @@ if (color_by_factor) {
    par(fig = fig, mar = mar, xpd = NA) # this ensures labels are not cut
 
    # plot with coloring columns
-   my.plot(ColSideColors=scol)
+   my.plot(ColSideColors=pcol)
 
    # draw a separate legend
    fig <- c(0.85, 0.95, 0, 1.0)
@@ -70,11 +75,14 @@ if (color_by_factor) {
       ux <- grconvertX(c(0.4 - 0.05 * f, 0.4 + 0.05 * f), from = "npc", to = "user")
       uy <- grconvertY(c(0.8 - 0.15, 0.8 + 0.15), from = "npc", to = "user")
 
+      # gradient legend
+      fmin <- min(df[, fac_col])
+      fmax <- max(df[, fac_col])
       color.legend(ux[1], uy[1], ux[2], uy[2],
-                   legend = fu[c(1, length(fu)/2 + 1, length(fu))],
+                   legend = c(fmin, (fmin+fmax) / 2, fmax),
                    rect.col = scol, gradient = "y", align="rb")
 
-      # position text
+      # position title
       uy <- grconvertY(0.5 + 0.15 + 0.02, from = "npc", to = "user")
       text(0.5, uy, factor_name, adj = c(0.5, 0.0))
    } else {
