@@ -21,7 +21,6 @@ package com.antigenomics.vdjtools
 
 import com.antigenomics.vdjtools.basic.*
 import com.antigenomics.vdjtools.db.ScanDatabase
-import com.antigenomics.vdjtools.diversity.BuildFrequencyTable
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.DownSample
 import com.antigenomics.vdjtools.diversity.RarefactionPlot
@@ -52,7 +51,7 @@ def printHelp = {
     println "CalcDiversityStats"
     println "RarefactionPlot"
     println "DownSample"
-    println "BuildFrequencyTable"
+    //println "BuildFrequencyTable"
     println ""
     println "[Cross-sample analysis]"
     println "IntersectPair"
@@ -99,8 +98,8 @@ def getScript = { String scriptName ->
             return new IntersectSequential()
         case "SCANDATABASE":
             return new ScanDatabase()
-        case "BUILDFREQUENCYTABLE":
-            return new BuildFrequencyTable()
+    //case "BUILDFREQUENCYTABLE":
+    //    return new BuildFrequencyTable()
         case "POOLSAMPLES":
             return new PoolSamples()
         case "RAREFACTIONPLOT":
