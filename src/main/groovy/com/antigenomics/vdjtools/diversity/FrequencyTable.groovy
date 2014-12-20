@@ -135,7 +135,7 @@ public class FrequencyTable {
      */
     public int getAt(long count) {
         def bin = frequencyMap[count]
-        bin ? bin.count : 0
+        bin ? bin.diversity : 0
     }
 
     /**
