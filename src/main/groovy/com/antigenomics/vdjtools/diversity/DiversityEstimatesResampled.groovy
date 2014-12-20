@@ -22,9 +22,13 @@ import com.antigenomics.vdjtools.intersection.IntersectionType
 import com.antigenomics.vdjtools.sample.Sample
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 
+import static com.antigenomics.vdjtools.diversity.DiversityType.Interpolated
+import static com.antigenomics.vdjtools.diversity.DiversityType.TotalDiversityLowerBoundEstimate
+
 
 class DiversityEstimatesResampled {
     private final Diversity observedDiversity, efronThisted, chao1
+    private final int subSampleSize, resampleCount
 
     public DiversityEstimatesResampled(Sample sample,
                                        IntersectionType intersectionType,
@@ -35,6 +39,9 @@ class DiversityEstimatesResampled {
     public DiversityEstimatesResampled(Sample sample,
                                        IntersectionType intersectionType,
                                        int subSampleSize, int resampleCount) {
+        this.subSampleSize = subSampleSize
+        this.resampleCount = resampleCount
+
         def downSampler = new DownSampler(sample)
 
         def observedDiversityStat = new DescriptiveStatistics(),
@@ -52,18 +59,21 @@ class DiversityEstimatesResampled {
 
         this.observedDiversity = new Diversity(
                 observedDiversityStat.mean,
-                observedDiversityStat.standardDeviation, resampleCount,
-                false, true, "observed_diversity")
+                observedDiversityStat.standardDeviation,
+                subSampleSize,
+                Interpolated, true, "observed_diversity")
 
         this.efronThisted = new Diversity(
                 efronThistedStat.mean,
-                efronThistedStat.standardDeviation, resampleCount,
-                false, true, "efron_thisted")
+                efronThistedStat.standardDeviation,
+                subSampleSize,
+                TotalDiversityLowerBoundEstimate, true, "efron_thisted")
 
         this.chao1 = new Diversity(
                 chao1Stat.mean,
-                chao1Stat.standardDeviation, resampleCount,
-                false, true, "chao1")
+                chao1Stat.standardDeviation,
+                subSampleSize,
+                TotalDiversityLowerBoundEstimate, true, "chao1")
     }
 
     public Diversity getObservedDiversity() {

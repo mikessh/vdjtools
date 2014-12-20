@@ -21,6 +21,7 @@ import com.antigenomics.vdjtools.pool.SampleAggregator
 import com.antigenomics.vdjtools.sample.Sample
 import groovy.transform.PackageScope
 import org.apache.commons.math3.util.CombinatoricsUtils
+import static com.antigenomics.vdjtools.diversity.DiversityType.*
 
 class DiversityEstimates {
     private FrequencyTable frequencyTable = null
@@ -50,7 +51,7 @@ class DiversityEstimates {
 
     public Diversity getObservedDiversity() {
         new Diversity(frequencyTable.diversity, 0, frequencyTable.count,
-                false, false, "observed_diversity")
+                Observed, false, "observed_diversity")
     }
 
     public Diversity getEfronThisted() {
@@ -86,7 +87,7 @@ class DiversityEstimates {
         }
 
         new Diversity(S, D, frequencyTable.count,
-                true, false, "efron_thisted")
+                TotalDiversityLowerBoundEstimate, false, "efron_thisted")
     }
 
     public Diversity getChao1() {
