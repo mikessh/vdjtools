@@ -28,7 +28,7 @@ names(df)[c(1, fac_col, lbl_col)] <- c("dataset", "fac", "lbl")
 
 # those are the last points with observed diversity
 # we'll highlight them with point and (if required) a label
-df.p <- subset(df, last>0)
+df.p <- subset(df, type==1)
 
 if (add_lbl) {
    df.l <- df.p
@@ -42,14 +42,19 @@ if (add_lbl) {
    df.l <- df.l[0, ]
 }
 
+# interpolated & extrapolated
+df.i <- subset(df, type==0)
+df.e <- subset(df, type==2)
+
 g <- ggplot(df, aes(x=x, y=mean, group=dataset)) +
      geom_point(data=df.p, aes(colour=fac)) +
-     geom_line(aes(colour=fac)) +
+     geom_line(data=df.i, aes(colour=fac), linetype="solid") +
+     geom_line(data=df.e, aes(colour=fac), linetype="dashed") +
      geom_ribbon(aes(ymin=ciL, ymax=ciU), alpha=0.2) +
 	 xlab("Sample size") + ylab("Diveristy") +
 	 labs(colour=fac_name) +
-	 #scale_x_continuous(limits = c(0, max(df$x)), oob=scales::rescale_none) +
-	 #scale_y_continuous(limits = c(0, max(df$mean)), oob=scales::rescale_none) +
+	 scale_x_continuous(oob=scales::rescale_none) +
+	 scale_y_continuous(oob=scales::rescale_none) +
 	 theme_bw()
 
 # add corresponding fancy axis

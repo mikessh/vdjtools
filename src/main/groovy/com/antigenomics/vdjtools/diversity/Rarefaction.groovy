@@ -18,76 +18,71 @@
 
 package com.antigenomics.vdjtools.diversity
 
-import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.intersection.IntersectionType
-import com.antigenomics.vdjtools.join.ClonotypeKeyGen
-import com.antigenomics.vdjtools.join.key.ClonotypeKey
 import com.antigenomics.vdjtools.sample.Sample
-import com.antigenomics.vdjtools.util.MathUtil
-
 
 class Rarefaction {
-    private final Clonotype[] flattenedClonotypes
-    private final int totalReads
+    private final FrequencyTable frequencyTable
+    private final ChaoEstimator chaoEstimator
+    private final long n
+
+
+    public Diversity getAt(long coord) {
+        coord > n ? chaoEstimator.chaoE(coord) : chaoEstimator.chaoI(coord)
+    }
+
+    public Rarefaction(Sample sample, IntersectionType intersectionType) {
+        this.frequencyTable = new FrequencyTable(sample, intersectionType)
+        this.n = frequencyTable.count
+        this.chaoEstimator = new ChaoEstimator(frequencyTable)
+    }
 
     public Rarefaction(Sample sample) {
-        if (sample.count > Integer.MAX_VALUE)
-            throw new RuntimeException("Couldn't downsample samples with > ${Integer.MAX_VALUE} cells")
-
-        this.totalReads = (int) sample.count
-        this.flattenedClonotypes = new Clonotype[totalReads]
-
-        int counter = 0
-        sample.each {
-            for (int i = 0; i < it.count; i++)
-                flattenedClonotypes[counter++] = it
-        }
+        this(sample, IntersectionType.Strict)
     }
 
-    public RarefactionCurve build() {
-        build(IntersectionType.Strict)
+    public ArrayList<RarefactionPoint> build(long extrapolateTo) {
+        build(extrapolateTo, Math.min(100, (int) n))
     }
 
-    public RarefactionCurve build(IntersectionType intersectionType) {
-        build(intersectionType, 3, 101)
-    }
+    public ArrayList<RarefactionPoint> build(long extrapolateTo, int numberOfPoints) {
+        def rarefactionCurve = new ArrayList<RarefactionPoint>()
 
-    public RarefactionCurve build(IntersectionType intersectionType, int numberOfResamples, int numberOfPoints) {
-        def x = new int[numberOfPoints], y = new int[numberOfPoints][numberOfResamples]
-        def clonotypeKeyGen = new ClonotypeKeyGen(intersectionType)
+        int step = extrapolateTo / (numberOfPoints - 1)
+        boolean hasExact = false
 
-        int step = totalReads / (numberOfPoints - 1)
+        for (int i = 0; i < numberOfPoints; i++) {
+            long m = i * step
 
-        for (int k = 0; k < numberOfResamples; k++) {
-            // Count unique clonotypes using hash set
-            final HashSet<ClonotypeKey> countingHash = new HashSet<>()
+            if (m == n)
+                hasExact = true
 
-            MathUtil.shuffle(flattenedClonotypes) // anyways, we're ordered by size initially
-
-            // Fill hash step by step
-            for (int i = 1; i < numberOfPoints - 1; i++) {
-                int xx = (i - 1) * step
-
-                for (int j = 0; j < step; j++)
-                    countingHash.add(clonotypeKeyGen.generateKey(flattenedClonotypes[xx + j]))
-
-                x[i] = i * step
-                y[i][k] = countingHash.size()
-            }
-
-            // Last step
-            if (k == 0) {
-                for (int j = x[numberOfPoints - 1]; j < totalReads; j++)
-                    countingHash.add(clonotypeKeyGen.generateKey(flattenedClonotypes[j]))
-
-                int totalDiv = countingHash.size()
-                x[numberOfPoints - 1] = totalReads
-
-                for (int kk = 0; kk < numberOfResamples; kk++)
-                    y[numberOfPoints - 1][kk] = totalDiv
-            }
+            rarefactionCurve.add(new RarefactionPoint(this[m]))
         }
 
-        new RarefactionCurve(x, y)
+        if (!hasExact)
+            rarefactionCurve.add(new RarefactionPoint(chaoEstimator.chaoI(n)))
+
+        rarefactionCurve.sort { it.x }
+    }
+
+    class RarefactionPoint {
+        public final double x, mean, ciU, ciL
+        public final DiversityType diversityType
+
+        RarefactionPoint(Diversity diversity) {
+            this.diversityType = diversity.type
+            this.x = diversityType == DiversityType.TotalDiversityLowerBoundEstimate ? 1e20 : diversity.n
+            this.mean = diversity.mean
+            this.ciL = mean - diversity.std
+            this.ciU = mean + diversity.std
+        }
+
+        public static final String HEADER = "x\tmean\tciL\tciU\ttype"
+
+        @Override
+        public String toString() {
+            [x, mean, ciL, ciU, diversityType.id].join("\t")
+        }
     }
 }

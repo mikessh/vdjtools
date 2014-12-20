@@ -28,8 +28,8 @@ import com.antigenomics.vdjtools.util.RUtil
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
 
-def STEPS_DEFAULT = "101", RESAMPLES_DEFAULT = "3",
-    I_TYPE_DEFAULT = IntersectionType.Strict
+def STEPS_DEFAULT = "101"
+I_TYPE_DEFAULT = IntersectionType.Strict
 def cli = new CliBuilder(usage: "RarefactionPlot [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
@@ -47,11 +47,8 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Intersection rule to apply. Allowed values: $IntersectionType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
-cli.r(longOpt: "resamples", argName: "int", args: 1,
-        "Number of times down-sampling will be performed for each point in rarefaction curve. " +
-                "[default=$RESAMPLES_DEFAULT]")
 cli.s(longOpt: "steps", argName: "int", args: 1, "Number of steps (points) in the rarefaction curve " +
-        "(including total diversity). [default=$RESAMPLES_DEFAULT]")
+        "(including 0 and the observed diversity). [default=$STEPS_DEFAULT]")
 
 // plotting:
 
@@ -90,8 +87,9 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 def software = Software.byName(opt.S),
     intersectionType = opt.i ? IntersectionType.byName((String) opt.i) : I_TYPE_DEFAULT,
-    steps = (opt.s ?: STEPS_DEFAULT).toInteger(), resamples = (opt.r ?: RESAMPLES_DEFAULT).toInteger(),
-    optL = opt.'l', optF = opt.'f', numericFactor = (boolean) opt.'n',
+    steps = (opt.s ?: STEPS_DEFAULT).toInteger(),
+    optL = opt.'l', optF = opt.'f',
+    numericFactor = (boolean) opt.'n',
     widePlot = (boolean) opt.'wide-plot',
     outputPrefix = opt.arguments()[-1]
 
@@ -109,12 +107,14 @@ def sampleCollection = metadataFileName ?
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples to analyze"
 
+def sampleStats = sampleCollection.sampleStatistics
+
 //
 // Rarefaction analysis
 //
 
 def header = ["#$MetadataTable.SAMPLE_ID_COLUMN", sampleCollection.metadataTable.columnHeader,
-              RarefactionCurve.RarefactionPoint.HEADER].flatten().join("\t")
+              Rarefaction.RarefactionPoint.HEADER].flatten().join("\t")
 
 def outputTablePath = formOutputPath(outputPrefix, "rarefaction", intersectionType.shortName)
 
@@ -124,14 +124,14 @@ new File(outputTablePath).withPrintWriter { pw ->
     sampleCollection.eachWithIndex { Sample sample, int i ->
         def sampleId = sample.sampleMetadata.sampleId
 
-        println "[${new Date()} $scriptName] Flattening $sampleId"
-        def rarefaction = new Rarefaction(sample)
+        println "[${new Date()} $scriptName] Gathering stats for $sampleId"
+        def rarefaction = new Rarefaction(sample, intersectionType)
 
         println "[${new Date()} $scriptName] Bulding rarefaction curve for $sampleId"
-        def rarefactionCurve = rarefaction.build(intersectionType, resamples, steps)
+        def rarefactionCurve = rarefaction.build(sampleStats.maxCount, steps)
 
-        (0..<steps).each {
-            pw.println([sampleId, sample.sampleMetadata, rarefactionCurve[it]].join("\t"))
+        rarefactionCurve.each {
+            pw.println([sampleId, sample.sampleMetadata, it].join("\t"))
         }
     }
 }
