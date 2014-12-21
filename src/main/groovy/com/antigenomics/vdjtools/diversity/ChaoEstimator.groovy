@@ -26,11 +26,18 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 import static com.antigenomics.vdjtools.diversity.DiversityType.*
 
+/**
+ * Diversity estimates based on works of Anne Chao et al
+ */
 class ChaoEstimator {
     private final FrequencyTable frequencyTable
     private final long n
     private final double F0, Sobs, F1, F2
 
+    /**
+     * Creates an instance of class that computes various diversity estimates based on Chao et al framework
+     * @param frequencyTable
+     */
     public ChaoEstimator(FrequencyTable frequencyTable) {
         this.frequencyTable = frequencyTable
         this.n = frequencyTable.count
@@ -40,6 +47,11 @@ class ChaoEstimator {
         this.F0 = F1 * (F1 - 1) / 2 / (F2 + 1)
     }
 
+    /**
+     * Computes the estimate for lower bound of total repertoire diversity,
+     * i.e. the total number of clonotypes in individual that was sampled
+     * @return
+     */
     public Diversity chao1() {
         new Diversity(
                 Sobs + F0,
@@ -51,6 +63,11 @@ class ChaoEstimator {
                 TotalDiversityLowerBoundEstimate, false, "chao1")
     }
 
+    /**
+     * Extrapolates sample diversity
+     * @param extrapolateTo number of reads, should be &gt; than the total number of reads in a sample
+     * @return
+     */
     public Diversity chaoE(long extrapolateTo) {
         double mStar = extrapolateTo - n
 
@@ -76,6 +93,11 @@ class ChaoEstimator {
                 extrapolateTo == n ? Observed : Extrapolated, false, "chao_e")
     }
 
+    /**
+     * Interpolates sample diversity
+     * @param interpolateTo number of reads, should be &lt; than the total number of reads in a sample
+     * @return
+     */
     public Diversity chaoI(long interpolateTo) {
         if (n > Integer.MAX_VALUE)
             throw new NotImplementedException()
