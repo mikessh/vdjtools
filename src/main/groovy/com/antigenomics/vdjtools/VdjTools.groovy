@@ -27,6 +27,7 @@ import com.antigenomics.vdjtools.diversity.RarefactionPlot
 import com.antigenomics.vdjtools.intersection.*
 import com.antigenomics.vdjtools.pwm.ComputePwms
 import com.antigenomics.vdjtools.util.ExecUtil
+import com.antigenomics.vdjtools.util.RInstall
 
 import java.util.jar.JarFile
 
@@ -67,9 +68,6 @@ def printHelp = {
 
 def getScript = { String scriptName ->
     switch (scriptName.toUpperCase()) {
-    // todo: setup
-    // intall r dependencies
-    // RScript is required for most plotting routines
         case "CALCBASICSTATS":
             return new CalcBasicStats()
         case "CALCSPECTRATYPE":
@@ -106,6 +104,8 @@ def getScript = { String scriptName ->
             return new RarefactionPlot()
         case "COMPUTEPWMS":
             return new ComputePwms()
+        case "RINSTALL":
+            return new RInstall()
         case "-H":
         case "H":
         case "-HELP":

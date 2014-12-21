@@ -19,9 +19,11 @@ package com.antigenomics.vdjtools.util
 import com.antigenomics.vdjtools.sample.metadata.MetadataEntry
 
 class RUtil {
-    static String asNumeric(MetadataEntry metadataEntry) {
+    public static final String PACKAGES_PATH = "$ExecUtil.MY_PATH/Rpackages/"
+
+    public static String asNumeric(MetadataEntry metadataEntry) {
         def value = metadataEntry.asNumeric()
-        value.isNaN() ? "NA" : value.toString()
+        value.isNaN() ? NA : value.toString()
     }
 
     public static String logical(smth) {
@@ -30,7 +32,7 @@ class RUtil {
 
     public static final String NA = "NA"
 
-    static void execute(String scriptName, String... params) {
+    public static void execute(String scriptName, String... params) {
         // Create a temp file to store the script
         def scriptRes = CommonUtil.resourceStreamReader("rscripts/$scriptName")
         scriptName = UUID.randomUUID().toString() + "_" + scriptName
@@ -38,6 +40,10 @@ class RUtil {
         def scriptFile = new File(scriptName)
 
         scriptFile.withPrintWriter { pw ->
+            // Set up library path correctly
+            pw.println(".libPaths(\"$PACKAGES_PATH\")")
+
+            // Write the rest of script to temp file
             scriptRes.readLines().each {
                 pw.println(it)
             }
@@ -47,7 +53,9 @@ class RUtil {
 
         // Run script
         def cmd = ["Rscript", scriptName, params]
+
         println "[RUtil] Executing ${cmd.flatten().join(" ")}"
+
         def proc = cmd.flatten().execute()
 
         proc.in.eachLine {
@@ -62,11 +70,12 @@ class RUtil {
         }
     }
 
-    static void installPackages() {
-        // todo: automatic
-        def packages = REQUIRED_PACKAGES.collect { "\"$it\"" }.join(",")
-        execute("-e", "\"install.packages($packages)\"")
+    public static void install(String... dependencies) {
+        new File(PACKAGES_PATH).mkdirs()
+        execute("install.r", [PACKAGES_PATH, dependencies].flatten() as String[])
     }
 
-    final static REQUIRED_PACKAGES = ["ggplot2", "grid", "gridExtra", "reshape", "ape", "MASS", "plotrix"]
+    public static void test(String... dependencies) {
+        execute("test.r", dependencies)
+    }
 }

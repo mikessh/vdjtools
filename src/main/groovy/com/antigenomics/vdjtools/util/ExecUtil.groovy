@@ -28,7 +28,7 @@ import static java.io.File.separator
 
 class ExecUtil {
     // todo: use this everywhere
-
+    public static final String MY_PATH = new File(ExecUtil.class.protectionDomain.codeSource.location.path).parent
     public static final int THREADS = Runtime.runtime.availableProcessors()
 
     public static String memoryFootprint() {
