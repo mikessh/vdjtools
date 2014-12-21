@@ -42,16 +42,16 @@ class Rarefaction {
     }
 
     public ArrayList<RarefactionPoint> build(long extrapolateTo) {
-        build(extrapolateTo, Math.min(100, (int) n))
+        build(extrapolateTo, Math.min(101, (int) n))
     }
 
     public ArrayList<RarefactionPoint> build(long extrapolateTo, int numberOfPoints) {
         def rarefactionCurve = new ArrayList<RarefactionPoint>()
 
-        int step = extrapolateTo / (numberOfPoints - 1)
+        double step = extrapolateTo / (double)(numberOfPoints - 1)
         boolean hasExact = false
 
-        for (int i = 0; i < numberOfPoints; i++) {
+        for (int i = 0; i < numberOfPoints - 1; i++) {
             long m = i * step
 
             if (m == n)
@@ -62,6 +62,9 @@ class Rarefaction {
 
         if (!hasExact)
             rarefactionCurve.add(new RarefactionPoint(chaoEstimator.chaoI(n)))
+
+        // add the last point (more robust)
+        rarefactionCurve.add(new RarefactionPoint(chaoEstimator.chaoE(extrapolateTo)))
 
         rarefactionCurve.sort { it.x }
     }

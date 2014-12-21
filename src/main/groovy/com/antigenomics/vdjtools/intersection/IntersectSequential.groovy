@@ -117,8 +117,6 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 // Sort samples
 //
 
-def timeCourse = metadataTable.containsColumn("time") || opt.t
-
 def timePoints = opt.t ? (opt.t.toString())[1..-2].split(",").collect() : // [-10,0.5,1,20]
         (0..<sampleCollection.size()).collect { it.toString() } // value provided with argument or uniform
 
@@ -132,19 +130,10 @@ if (!metadataTable.containsColumn("time")) {
 metadataTable.sort("time")
 
 // Take sorted values from metadata
-if (timeCourse) {
-    timePoints = metadataTable.getColumn("time").collect { it.asNumeric().toString() }
+timePoints = metadataTable.getColumn("time").collect { it.asNumeric().toString() }
 
-    println "[${new Date()} $scriptName] Time points and samples to be processed:\n" +
-            "${timePoints.join(",")}\n${metadataTable.sampleIterator.collect().join(",")}"
-} else {
-    if (timeCourse) {
-        timePoints = metadataTable.getColumn("time").collect { it.asNumeric().toString() }
-
-        println "[${new Date()} $scriptName] Samples to be processed:\n" +
-                "${timePoints.join(",")}\n${metadataTable.sampleIterator.collect().join(",")}"
-    }
-}
+println "[${new Date()} $scriptName] Time points and samples to be processed:\n" +
+        "${timePoints.join(",")}\n${metadataTable.sampleIterator.collect().join(",")}"
 
 //
 // Join samples
@@ -253,7 +242,6 @@ if (plot) {
         RUtil.execute("sequential_intersect_stack.r",
                 timeLabel,
                 timePoints.join(","),
-                RUtil.logical(timeCourse),
                 tableCollapsedOutputPath,
                 formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "stackplot", ".pdf"))
 
