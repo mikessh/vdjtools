@@ -25,7 +25,6 @@ import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.DownSample
 import com.antigenomics.vdjtools.diversity.RarefactionPlot
 import com.antigenomics.vdjtools.intersection.*
-import com.antigenomics.vdjtools.pwm.ComputePwms
 import com.antigenomics.vdjtools.util.ExecUtil
 import com.antigenomics.vdjtools.util.RInstall
 
@@ -39,31 +38,34 @@ def printHelp = {
     println ""
     println "Run as \$java -jar vdjtools-${version}.jar ROUTINE_NAME arguments"
     println ""
-    println "[Single-sample statistics]"
+    println "[Basic]"
     println "CalcBasicStats"
     println "CalcSpectratype"
     println "CalcSegmentUsage"
     println "PlotFancySpectratype"
     println "PlotSpectratypeV"
     println "PlotFancyVJUsage"
-    println "FilterNonFunctional"
     println ""
-    println "[Sample diversity]"
+    println "[Diversity]"
     println "CalcDiversityStats"
     println "RarefactionPlot"
-    println "DownSample"
-    //println "BuildFrequencyTable"
+    //println "PlotQuantileStats"
     println ""
-    println "[Cross-sample analysis]"
+    println "[Manipulation]"
+    println "ApplySampleAsFilter"
+    println "FilterNonFunctional"
+    println "DownSample"
+    println ""
+    println "[Intersection]"
     println "IntersectPair"
     println "BatchIntersectPair"
     println "BatchIntersectPairPlot"
     println "IntersectSequential"
-    println "PoolSamples"
+    //println "PoolSamples"
     println ""
-    println "[Sample annotation]"
+    println "[Annotation]"
     println "ScanDatabase"
-    println "ComputePwms"
+    //println "ComputePwms"
 }
 
 def getScript = { String scriptName ->
@@ -98,12 +100,14 @@ def getScript = { String scriptName ->
             return new ScanDatabase()
     //case "BUILDFREQUENCYTABLE":
     //    return new BuildFrequencyTable()
-        case "POOLSAMPLES":
-            return new PoolSamples()
+    //   case "POOLSAMPLES":
+    //       return new PoolSamples()
+        case "APPLYSAMPLEASFILTER":
+            return new ApplySampleAsFilter()
         case "RAREFACTIONPLOT":
             return new RarefactionPlot()
-        case "COMPUTEPWMS":
-            return new ComputePwms()
+    //case "COMPUTEPWMS":
+    //    return new ComputePwms()
         case "RINSTALL":
             return new RInstall()
         case "-H":

@@ -20,7 +20,7 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 
 class ImgtToMigecParser {
-    final static int IMGT_V_REF = 312, IMGT_V_REF_AUX = 318
+    final static int IMGT_V_REF = 312, IMGT_V_REF_AUX = 318 // Only way to handle the mess
     final static String CysRegex = /TG[TC]/, PheTrpRegex = /(?:TGG|TT[TC])(?:GG[ATGC]|GC[ATGC])...GG[ATGC]/
     final boolean onlyFunctional, onlyMajorAllele
 
