@@ -15,7 +15,7 @@ gradient   <- args[4]
 
 # transform data
 
-df <- read.table(file_int, sep ="\t", header = TRUE, comment="")
+df <- read.table(file_in, sep ="\t", header = TRUE, comment="")
 
 # Don't ask me why
 df[, 1:ncol(df)] <- apply(df[, 1:ncol(df)], 2, as.numeric)

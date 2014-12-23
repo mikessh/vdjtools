@@ -101,7 +101,7 @@ new File(outputFileName).withPrintWriter { pw ->
 }
 
 RUtil.execute("fancy_spectratype.r",
-        table, toPlotPath(outputFileName), "Clonotype", "TRUE"
+        outputFileName, toPlotPath(outputFileName), "Clonotype", "TRUE"
 )
 
 println "[${new Date()} $scriptName] Finished"
