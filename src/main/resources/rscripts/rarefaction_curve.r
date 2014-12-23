@@ -13,8 +13,7 @@ file_out <- args[7] # "rarefaction.strict.pdf"
 df <- read.table(file_in,header=T,comment="")
 
 # get name of label and factor
-lbl_name<-df[1,lbl_col]
-fac_name<-df[1,fac_col]
+fac_name<-names(df)[fac_col]
 
 # make sure that we parse numeric factor as needed
 if (num_fac) {

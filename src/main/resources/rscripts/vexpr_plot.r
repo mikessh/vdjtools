@@ -1,4 +1,4 @@
-require(gplots); require(RColorBrewer); require(ggplot2)
+require(gplots); require(RColorBrewer); require(ggplot2); require(plotrix)
 
 args<-commandArgs(TRUE)
 
@@ -65,15 +65,15 @@ if (color_by_factor) {
    my.plot(ColSideColors=pcol)
 
    # draw a separate legend
-   fig <- c(0.85, 0.95, 0, 1.0)
+   fig <- c(0.85, 1.00, 0, 1.0)
 
    par(fig = fig, mar = c(0, 0, 0, 0), xpd = NA, new=TRUE)
 
    if (cont_factor) {
       # set colorbar pos
       f <- 2
-      ux <- grconvertX(c(0.4 - 0.05 * f, 0.4 + 0.05 * f), from = "npc", to = "user")
-      uy <- grconvertY(c(0.8 - 0.15, 0.8 + 0.15), from = "npc", to = "user")
+      ux <- grconvertX(c(0.48 - 0.05 * f, 0.48 + 0.05 * f), from = "npc", to = "user")
+      uy <- grconvertY(c(0.87 - 0.07, 0.87 + 0.07), from = "npc", to = "user")
 
       # gradient legend
       fmin <- min(df[, fac_col])
@@ -83,7 +83,7 @@ if (color_by_factor) {
                    rect.col = scol, gradient = "y", align="rb")
 
       # position title
-      uy <- grconvertY(0.5 + 0.15 + 0.02, from = "npc", to = "user")
+      uy <- grconvertY(0.96, from = "npc", to = "user")
       text(0.5, uy, factor_name, adj = c(0.5, 0.0))
    } else {
       # vanilla legend for discrete factor
