@@ -26,7 +26,7 @@ class SimpleParser extends ClonotypeStreamParser {
     }
 
     @Override
-    protected Clonotype parse(String clonotypeString) {
+    protected Clonotype innerParse(String clonotypeString) {
         def splitString = clonotypeString.split(software.delimiter)
 
         def count = splitString[0].toInteger()

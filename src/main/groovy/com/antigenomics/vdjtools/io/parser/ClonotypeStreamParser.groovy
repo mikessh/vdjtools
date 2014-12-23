@@ -61,7 +61,28 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
         this.sample = sample
     }
 
-    protected abstract Clonotype parse(String clonotypeString)
+    protected abstract Clonotype innerParse(String clonotypeString)
+
+    public Clonotype parse(String clonotypeString) {
+        def clontoype = innerParse(clonotypeString)
+
+        if (missingEntry(clontoype.cdr3nt) ||
+                missingEntry(clontoype.cdr3aa) ||
+                missingEntry(clontoype.v) ||
+                missingEntry(clontoype.j) ||
+                clontoype.count == 0 || clontoype.freqAsInInput == 0) {
+            println "[CRITICAL ERROR] Some of the essential fields are bad/missing " +
+                    "for the following clonotype string:\n" +
+                    "$clonotypeString"
+            System.exit(-1)
+        }
+
+        clontoype
+    }
+
+    private static missingEntry(String entry) {
+        !entry || entry.length() == 0 || entry == "."
+    }
 
     @Override
     Iterator<Clonotype> iterator() {

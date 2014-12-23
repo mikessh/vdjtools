@@ -26,7 +26,7 @@ class MiGecParser extends ClonotypeStreamParser {
     }
 
     @Override
-    protected Clonotype parse(String clonotypeString) {
+    protected Clonotype innerParse(String clonotypeString) {
         /*
              0  Count
              1  Percentage

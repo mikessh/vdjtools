@@ -27,7 +27,7 @@ class IgBlastParser extends ClonotypeStreamParser {
     }
 
     @Override
-    protected Clonotype parse(String clonotypeString) {
+    protected Clonotype innerParse(String clonotypeString) {
         /*
         0	1	2	3
         #reads_count	reads_percent	events_count	events_percent
