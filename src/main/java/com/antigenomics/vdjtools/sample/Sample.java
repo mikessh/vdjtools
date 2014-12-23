@@ -83,8 +83,11 @@ public class Sample implements ClonotypeContainer {
             if (top > -1 && sample.getDiversity() == top)
                 break;
 
-            sample.addClonotype(clonotype, store);
+            if (clonotype != null)
+                sample.addClonotype(clonotype, store);
         }
+
+        clonotypeStreamParser.finish(); // report progress
 
         Collections.sort(sample.clonotypes);
 

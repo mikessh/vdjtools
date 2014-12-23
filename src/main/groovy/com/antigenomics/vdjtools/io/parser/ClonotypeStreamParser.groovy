@@ -24,6 +24,18 @@ import com.antigenomics.vdjtools.sample.Sample
  * Base class for providing parsing of various RepSeq software output
  */
 public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
+    protected final Software software
+    protected final Iterator<String> innerIter
+    protected final Sample sample
+    private int skippedLineCount = 0, commentLineCount
+
+    protected ClonotypeStreamParser(Iterator<String> innerIter, Software software, Sample sample) {
+        this.software = software
+        this.innerIter = innerIter
+        this.sample = sample
+        this.commentLineCount = software.headerLineCount
+    }
+
     public static ClonotypeStreamParser create(InputStream inputStream, Software software, Sample sample) {
         ClonotypeStreamParser parser
         def reader = new BufferedReader(new InputStreamReader(inputStream))
@@ -51,19 +63,14 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
         return parser
     }
 
-    protected final Software software
-    protected final Iterator<String> innerIter
-    protected final Sample sample
-
-    protected ClonotypeStreamParser(Iterator<String> innerIter, Software software, Sample sample) {
-        this.software = software
-        this.innerIter = innerIter
-        this.sample = sample
-    }
-
     protected abstract Clonotype innerParse(String clonotypeString)
 
     public Clonotype parse(String clonotypeString) {
+        if (clonotypeString.startsWith(software.comment)) {
+            commentLineCount++
+            return null
+        }
+
         def clontoype = innerParse(clonotypeString)
 
         if (missingEntry(clontoype.cdr3nt) ||
@@ -71,13 +78,27 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
                 missingEntry(clontoype.v) ||
                 missingEntry(clontoype.j) ||
                 clontoype.count == 0 || clontoype.freqAsInInput == 0) {
-            println "[CRITICAL ERROR] Some of the essential fields are bad/missing " +
-                    "for the following clonotype string:\n" +
-                    "$clonotypeString"
-            System.exit(-1)
+            if (skippedLineCount++ < 5)
+                println "[WARNING] Some of the essential fields are bad/missing " +
+                        "for the following clonotype string (displaying first 5 warnings):\n" +
+                        "$clonotypeString"
+            return null
         }
 
-        clontoype
+        return clontoype
+    }
+
+    public int getSkippedLineCount() {
+         skippedLineCount
+    }
+
+    public int getCommentLineCount() {
+         commentLineCount
+    }
+
+    public void finish() {
+        println "[${new Date()} ClonotypeStreamParser] Finished parsing. " +
+                "$commentLineCount header and $skippedLineCount bad line(s) were skipped."
     }
 
     private static missingEntry(String entry) {
