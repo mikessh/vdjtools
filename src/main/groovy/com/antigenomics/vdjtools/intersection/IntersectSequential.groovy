@@ -44,8 +44,7 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
                 "Header is mandatory and will be used to assign column names for metadata." +
                 "If column named 'time' is present, it will be used to specify time point sequence.")
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
-        "Comma-separated list of intersection types to apply. " +
-                "Allowed values: $IntersectionType.allowedNames. " +
+        "Intersection rule to apply. Allowed values: $IntersectionType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
 cli.t(longOpt: "time", argName: "[t1,t2,t3,...]", args: 1,
         "Time point sequence. Unused if -m is specified.")
@@ -229,9 +228,9 @@ new File(summaryOutputPath).withPrintWriter { pw ->
 // Plotting via R
 //
 
-println "[${new Date()} $scriptName] Writing plots"
-
 if (plot) {
+    println "[${new Date()} $scriptName] Writing plots"
+
     // Plot all the heatmaps
     RUtil.execute("sequential_intersect_similarity_map.r",
             summaryOutputPath,
@@ -243,13 +242,13 @@ if (plot) {
                 timeLabel,
                 timePoints.join(","),
                 tableCollapsedOutputPath,
-                formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "stackplot", ".pdf"))
+                formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "stackplot", "pdf"))
 
         // Plot a "heatcourse" plot of top X clonotype abundances
         RUtil.execute("sequential_intersect_heatcourse.r",
                 timeLabel,
                 timePoints.join(","),
                 tableCollapsedOutputPath,
-                formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "heatplot", ".pdf"))
+                formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "heatplot", "pdf"))
     }
 }

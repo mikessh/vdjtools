@@ -298,7 +298,7 @@ class CommonUtil {
         vdj.collect {
             def major = it.split(",")[0]
             major = major.split("\\*")[0] // trim allele if present
-            major = major.replaceAll("\"", "")  // zap characters introduced by opening file in Excel
+            major = major.replaceAll("\"", "").trim()  // zap characters introduced by file editing in external software (Excel,etc)
             major.length() > 0 ? major : "."
         }
     }

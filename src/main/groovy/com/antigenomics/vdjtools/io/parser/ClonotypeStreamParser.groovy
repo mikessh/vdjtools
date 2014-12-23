@@ -46,7 +46,7 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
                 throw new UnsupportedOperationException("Don't know how to parse $software data")
         }
 
-        (1..software.headerLineCount).each { innerIter.next() }
+        (0..<software.headerLineCount).each { innerIter.next() }
 
         return parser
     }

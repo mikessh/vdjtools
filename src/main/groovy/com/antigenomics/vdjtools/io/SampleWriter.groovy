@@ -18,9 +18,9 @@
 
 package com.antigenomics.vdjtools.io
 
+import com.antigenomics.vdjtools.ClonotypeContainer
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.join.JointSample
-import com.antigenomics.vdjtools.ClonotypeContainer
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.util.ExecUtil
 
@@ -35,6 +35,7 @@ class SampleWriter {
         this.software = software
         this.header = (software.headerLineCount > 1 ?
                 "$software.name-header-blank\n" * (software.headerLineCount - 1) : "") +
+                (software.comment ?: "") +
                 software.printFields.join("\t")
     }
 
