@@ -52,8 +52,11 @@ df.m$sign <- paste(df.m$cdr3nt, df.m$v, df.m$d, df.m$j, sep="_")
 
 pal <- colorRampPalette(c("#2b8cbe", "#e0f3db", "#fdbb84"))
 
-# prepare plot
+#draw
 
+pdf(file_out)
+
+# prepare plot
 g<-ggplot() +
    geom_area(data = df.m,
              aes(variable, value, group = sign, fill = factor(peak)),
@@ -78,9 +81,6 @@ g<-ggplot() +
 # disable label cropping
 gg_table <- ggplot_gtable(ggplot_build(g))
 gg_table$layout$clip[gg_table$layout$name=="panel"] <- "off"
-
-#draw
-pdf(file_out)
 
 grid.draw(gg_table)
 

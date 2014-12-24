@@ -28,6 +28,8 @@ import static com.antigenomics.vdjtools.diversity.DiversityType.*
 
 /**
  * Diversity estimates based on works of Anne Chao et al
+ * Implementation is based on the following paper:
+ * http://viceroy.eeb.uconn.edu/estimates/EstimateSPages/EstSUsersGuide/References/ColwellEtAl2012.pdf
  */
 class ChaoEstimator {
     private final FrequencyTable frequencyTable
@@ -90,7 +92,7 @@ class ChaoEstimator {
                 Sobs + F0 * brackets,
                 Math.sqrt(dSdF1 * dSdF1 * cov11 + dSdF2 * dSdF2 * cov22 + 2 * dSdF1 * dSdF2 * cov12),
                 extrapolateTo,
-                extrapolateTo == n ? Observed : Extrapolated, false, "chao_e")
+                Extrapolated, false, "chao_e")
     }
 
     /**
