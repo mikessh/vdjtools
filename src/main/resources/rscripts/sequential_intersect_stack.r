@@ -2,7 +2,7 @@
 
 args <- commandArgs(TRUE)
 
-require(ggplot2); require(reshape)
+require(ggplot2); require(reshape); require(gridExtra)
 
 label    <- args[1] #"time since HSCT, months"
 points   <- args[2] #"-48,-0.5,4,10,25,37,72"
@@ -52,11 +52,9 @@ df.m$sign <- paste(df.m$cdr3nt, df.m$v, df.m$d, df.m$j, sep="_")
 
 pal <- colorRampPalette(c("#2b8cbe", "#e0f3db", "#fdbb84"))
 
-# plot
+# prepare plot
 
-pdf(file_out)
-
-ggplot() +
+g<-ggplot() +
    geom_area(data = df.m,
              aes(variable, value, group = sign, fill = factor(peak)),
              colour = "gray25", position = 'stack', size = 0.1) +
@@ -71,10 +69,19 @@ ggplot() +
    theme_bw() +
    xlab(label) +
    ylab("abundance") +
-   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5)) +
+   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5), panel.border = element_blank()) +
    geom_text(data = subset(lbl, peak == 1), aes(x, y, label = txt, size = max, alpha = log10(max)), color = "gray10", hjust = 0, vjust = 0.5) +
    geom_text(data = subset(lbl, peak > 1 & peak < n), aes(x, y, label = txt, size = max, alpha = log10(max)), color = "gray10", hjust = 0.5, vjust = 0.5) +
    geom_text(data = subset(lbl, peak == n), aes(x, y, label = txt, size = max, alpha = log10(max)), color = "gray10", hjust = 1, vjust = 0.5) +
    guides(size = FALSE, alpha = FALSE)
+
+# disable label cropping
+gg_table <- ggplot_gtable(ggplot_build(g))
+gg_table$layout$clip[gg_table$layout$name=="panel"] <- "off"
+
+#draw
+pdf(file_out)
+
+grid.draw(gg_table)
 
 dev.off()
