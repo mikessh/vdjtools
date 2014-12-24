@@ -19,9 +19,9 @@
 package com.antigenomics.vdjtools.diversity
 
 import com.antigenomics.vdjtools.util.ExecUtil
+import com.antigenomics.vdjtools.util.MathUtil
 import com.google.common.util.concurrent.AtomicDouble
 import groovyx.gpars.GParsPool
-import org.apache.commons.math3.util.CombinatoricsUtils
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 import static com.antigenomics.vdjtools.diversity.DiversityType.*
@@ -108,18 +108,20 @@ class ChaoEstimator {
         if (interpolateTo < 0 || interpolateTo > n)
             throw new IllegalArgumentException("Should interpolate within the size of sample")
 
-
-        double denom = CombinatoricsUtils.binomialCoefficientLog((int) n, (int) interpolateTo)
-        def sum1 = new AtomicDouble(), sum2 = new AtomicDouble()
+        //double denom = CombinatoricsUtils.binomialCoefficientLog((int) n, (int) interpolateTo)
+        final int n = (int) n, m = (int) interpolateTo
+        final double denom = MathUtil.logFactorialRatio(n, m)
+        final AtomicDouble sum1 = new AtomicDouble(), sum2 = new AtomicDouble()
 
         GParsPool.withPool ExecUtil.THREADS, { // this is quite time consuming
             frequencyTable.bins.eachParallel { FrequencyTable.FrequencyTableBin bin ->
-                def k = bin.count,
+                int k = bin.count,
                     f = bin.diversity
 
-                if (k <= n - interpolateTo) {
-                    def alpha = Math.exp(CombinatoricsUtils.binomialCoefficientLog((int) n - k,
-                            (int) interpolateTo) - denom)
+                if (k <= n - m) {
+                    double alpha = Math.exp(MathUtil.logFactorialRatio(n - k, m) - denom)
+                    //def alpha = Math.exp(CombinatoricsUtils.binomialCoefficientLog((int) n - k,
+                    //        (int) interpolateTo) - denom)
                     sum1.addAndGet(f * alpha)
                     sum2.addAndGet(f * (1 - alpha) * (1 - alpha))
                 } else {
@@ -128,15 +130,12 @@ class ChaoEstimator {
             }
         }
 
-        sum1 = sum1.get()
-        sum2 = sum2.get()
-
-        double Sind = Sobs - sum1
+        double Sind = Sobs - sum1.get()
 
         new Diversity(
                 Sind,
-                Math.sqrt(sum2 - Sind * Sind / (Sobs + F0)),
-                interpolateTo,
-                interpolateTo == n ? Observed : Interpolated, false, "chao_i")
+                Math.sqrt(sum2.get() - Sind * Sind / (Sobs + F0)),
+                m,
+                m == n ? Observed : Interpolated, false, "chao_i")
     }
 }

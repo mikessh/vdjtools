@@ -18,10 +18,25 @@
 
 package com.antigenomics.vdjtools.util;
 
+import org.apache.commons.math3.util.FastMath;
+
 import java.util.Random;
 
 public class MathUtil {
-    public double distanceCorrelation(double[][] x, double[][] y) {
+    /**
+     * Computes the logarithm of n!/(n-k)!
+     */
+    public static double logFactorialRatio(final int n, final int k) {
+        double logSum = 0;
+
+        for (int i = n - k + 1; i <= n; i++) {
+            logSum += FastMath.log(i);
+        }
+
+        return logSum;
+    }
+
+    public static double distanceCorrelation(final double[][] x, final double[][] y) {
         int n = x.length;
         if (n != y.length)
             throw new IndexOutOfBoundsException("x and y should be of same length");
@@ -73,7 +88,7 @@ public class MathUtil {
         return Math.sqrt(dCovXY) / Math.sqrt(Math.sqrt(dVarX * dVarY));
     }
 
-    private static double euclDist(double[] xx, double[] yy) {
+    private static double euclDist(final double[] xx, final double[] yy) {
         int n = xx.length;
         if (n != yy.length)
             throw new IndexOutOfBoundsException("x and y should be of same length");
@@ -87,7 +102,7 @@ public class MathUtil {
         return Math.sqrt(dist);
     }
 
-    public static <T> void shuffle(T[] arr) {
+    public static <T> void shuffle(final T[] arr) {
         Random rnd = new Random();
         for (int i = arr.length - 1; i > 0; i--) {
             int index = rnd.nextInt(i + 1);
@@ -97,7 +112,7 @@ public class MathUtil {
         }
     }
 
-    public static double JSD(double[] pArr, double[] qArr) throws Exception {
+    public static double JSD(final double[] pArr, final double[] qArr) throws Exception {
         int n = pArr.length;
 
         if (n != qArr.length)
