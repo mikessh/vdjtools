@@ -77,8 +77,8 @@ class Rarefaction {
             this.diversityType = diversity.type
             this.x = diversityType == DiversityType.TotalDiversityLowerBoundEstimate ? 1e20 : diversity.n
             this.mean = diversity.mean
-            this.ciL = mean - diversity.std
-            this.ciU = mean + diversity.std
+            this.ciL = mean - 1.96 * diversity.std
+            this.ciU = mean + 1.96 * diversity.std
         }
 
         public static final String HEADER = "x\tmean\tciL\tciU\ttype"

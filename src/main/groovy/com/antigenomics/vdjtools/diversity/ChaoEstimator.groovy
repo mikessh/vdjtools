@@ -90,7 +90,8 @@ class ChaoEstimator {
 
         new Diversity(
                 Sobs + F0 * brackets,
-                Math.sqrt(dSdF1 * dSdF1 * cov11 + dSdF2 * dSdF2 * cov22 + 2 * dSdF1 * dSdF2 * cov12),
+                Math.sqrt(Sobs * (1.0 - Sobs / (Sobs + F0)) +
+                        dSdF1 * dSdF1 * cov11 + dSdF2 * dSdF2 * cov22 + 2 * dSdF1 * dSdF2 * cov12),
                 extrapolateTo,
                 Extrapolated, false, "chao_e")
     }
@@ -121,6 +122,8 @@ class ChaoEstimator {
                             (int) interpolateTo) - denom)
                     sum1.addAndGet(f * alpha)
                     sum2.addAndGet(f * (1 - alpha) * (1 - alpha))
+                } else {
+                    sum2.addAndGet(f)
                 }
             }
         }
