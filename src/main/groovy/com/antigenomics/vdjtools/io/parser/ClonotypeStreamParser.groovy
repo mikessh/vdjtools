@@ -28,11 +28,13 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
     protected final Iterator<String> innerIter
     protected final Sample sample
     private int skippedLineCount = 0, commentLineCount
+    private final boolean hasComment
 
     protected ClonotypeStreamParser(Iterator<String> innerIter, Software software, Sample sample) {
         this.software = software
         this.innerIter = innerIter
         this.sample = sample
+        this.hasComment = software.comment && software.comment.length() > 0
         this.commentLineCount = software.headerLineCount
     }
 
@@ -66,7 +68,7 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
     protected abstract Clonotype innerParse(String clonotypeString)
 
     public Clonotype parse(String clonotypeString) {
-        if (clonotypeString.startsWith(software.comment)) {
+        if (hasComment && clonotypeString.startsWith(software.comment)) {
             commentLineCount++
             return null
         }
@@ -89,11 +91,11 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
     }
 
     public int getSkippedLineCount() {
-         skippedLineCount
+        skippedLineCount
     }
 
     public int getCommentLineCount() {
-         commentLineCount
+        commentLineCount
     }
 
     public void finish() {
