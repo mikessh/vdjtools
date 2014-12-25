@@ -18,22 +18,41 @@
 
 package com.antigenomics.vdjtools.util;
 
+import org.apache.commons.math3.special.Gamma;
 import org.apache.commons.math3.util.FastMath;
 
 import java.util.Random;
 
 public class MathUtil {
+    private static final double HALF_LOG_2_PI = 0.5 * FastMath.log(2.0 * FastMath.PI);
+    private static final long[] FACTORIALS = new long[]{
+            1l, 1l, 2l,
+            6l, 24l, 120l,
+            720l, 5040l, 40320l,
+            362880l, 3628800l, 39916800l,
+            479001600l, 6227020800l, 87178291200l,
+            1307674368000l, 20922789888000l, 355687428096000l,
+            6402373705728000l, 121645100408832000l, 2432902008176640000l};
+
     /**
      * Computes the logarithm of n!/(n-k)!
      */
     public static double logFactorialRatio(final int n, final int k) {
-        double logSum = 0;
+        if (k > n)
+            throw new IllegalArgumentException("k should be less or equal to n");
 
-        for (int i = n - k + 1; i <= n; i++) {
-            logSum += FastMath.log(i);
-        }
+        return fastLogFactorial(n) - fastLogFactorial(n - k);
+    }
 
-        return logSum;
+    private static double fastLogFactorial(final long x) {
+        return x < FACTORIALS.length ? FastMath.log(FACTORIALS[(int) x]) : fastLogGamma(x);
+    }
+
+    private static double fastLogGamma(final double x) {
+        double sum = Gamma.lanczos(x);
+        double tmp = x + Gamma.LANCZOS_G + .5;
+        return ((x + .5) * FastMath.log(tmp)) - tmp +
+                HALF_LOG_2_PI + FastMath.log(sum / x);
     }
 
     public static double distanceCorrelation(final double[][] x, final double[][] y) {
