@@ -10,7 +10,7 @@ add_lbl  <- as.logical(args[5]) #"T"
 wide     <- as.logical(args[6]) #"F"
 file_out <- args[7] # "rarefaction.strict.pdf"
 
-df <- read.table(file_in,header=T,comment="")
+df <- read.table(file_in,header=T,comment="",sep="\t")
 
 # get name of label and factor
 fac_name<-names(df)[fac_col]

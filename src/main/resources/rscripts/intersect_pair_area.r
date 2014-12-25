@@ -24,7 +24,7 @@ getcol_c = function(lst, col){
 	apply(lst[col], 2, as.character)
 }
 
-table <- read.delim(file_xy, skip = skip)
+table <- read.delim(file_xy, skip = skip, sep="\t")
 n <- nrow(table)
 m <- ncol(table)
 table <- table[n:1, ]

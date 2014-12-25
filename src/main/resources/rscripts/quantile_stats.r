@@ -1,6 +1,6 @@
 require(ggplot2); require(RColorBrewer)
 
-df <- read.table("table.txt",header=T)
+df <- read.table("table.txt",header=T, comment="", sep = "\t")
 makesub <- function(t) {
 	tmp <- subset(df, type %in% t)
 	tmp$vmax = cumsum(tmp$value)

@@ -35,7 +35,7 @@ if(lbl_col1_index < 1) {
 require(ape); require(reshape2); require(ggplot2); require(MASS); require(plotrix); require(RColorBrewer)
 
 # read data
-tbl  <- read.delim(file_in)
+tbl  <- read.delim(file_in, sep = "\t")
 df   <- data.frame(tbl)
 
 # convert factor columns depending on if continuous coloring is desired or not

@@ -14,7 +14,7 @@ t <- apply(as.vector(read.table(text=points, sep=",")), 1, as.numeric)
 n <- length(t)
 
 # load data and remove collapse summary columns
-df <- data.frame(read.delim(file_in))
+df <- data.frame(read.delim(file_in, sep="\t")))
 df <- df[1:(nrow(df)-2), ]
 
 # convert abundance columns to numeric

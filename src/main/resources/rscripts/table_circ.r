@@ -10,7 +10,7 @@ require(circlize)
 
 # load data and preproc to fit formats
 
-temp <- read.table(file_in)
+temp <- read.table(file_in, sep="\t", comment="")
 n <- nrow(temp)
 m <- ncol(temp)
 rn = as.character(temp[2:n,1])

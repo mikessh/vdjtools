@@ -16,7 +16,7 @@ if (lbl_col < 1) {
 color_by_factor <- fac_col > 0 # any color legend for samples?
 
 # read-in data and pre-process
-df<-read.table(input_file, header=T, sep="\t",comment="")
+df<-read.table(input_file, header=T, sep="\t", comment="")
 vcols<-(ncol(df)-v_col_count + 1):ncol(df)
 df[, vcols] <- apply(df[, vcols], 2, as.numeric)
 x <- as.matrix(df[, vcols])

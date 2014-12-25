@@ -8,7 +8,7 @@ require(ggplot2); require(reshape)
 
 # preprocess data
 
-tbl <- read.delim(input)
+tbl <- read.delim(input, sep = "\t")
 tbl <- apply(tbl, 1:2, as.numeric)
 
 df <- data.frame(tbl)
