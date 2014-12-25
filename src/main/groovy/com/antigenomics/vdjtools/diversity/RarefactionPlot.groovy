@@ -128,7 +128,7 @@ new File(outputTablePath).withPrintWriter { pw ->
         def rarefaction = new Rarefaction(sample, intersectionType)
 
         println "[${new Date()} $scriptName] Bulding rarefaction curve for $sampleId"
-        def rarefactionCurve = rarefaction.build(sampleStats.maxCount, steps)
+        def rarefactionCurve = rarefaction.build(0, sampleStats.maxCount, steps)
 
         rarefactionCurve.each {
             pw.println([sampleId, sample.sampleMetadata, it].join("\t"))
