@@ -1,4 +1,4 @@
-VDJTOOLS="java -Xmx6G -jar ../../vdjtools-1.0-SNAPSHOT.jar"
+VDJTOOLS="java -Xmx6G -jar ../../target/vdjtools-1.0-SNAPSHOT.jar"
 PARAMS="-S simple -m samples/metadata.txt"
 
 # Basic
