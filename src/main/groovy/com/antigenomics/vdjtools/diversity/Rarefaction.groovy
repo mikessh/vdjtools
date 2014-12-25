@@ -37,6 +37,12 @@ class Rarefaction {
         this.chaoEstimator = new ChaoEstimator(frequencyTable)
     }
 
+    public Rarefaction(FrequencyTable frequencyTable) {
+        this.frequencyTable = frequencyTable
+        this.n = frequencyTable.count
+        this.chaoEstimator = new ChaoEstimator(frequencyTable)
+    }
+
     public Rarefaction(Sample sample) {
         this(sample, IntersectionType.Strict)
     }

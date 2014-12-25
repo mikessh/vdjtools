@@ -37,6 +37,31 @@ public class FrequencyTable {
     private final Map<Long, FrequencyTableBin> frequencyMap = new HashMap<>()
 
     /**
+     * Creates a frequency table from cache
+     * @param frequencyTableCache
+     */
+    public FrequencyTable(Map<Long, Long> frequencyTableCache) {
+        long count = 0, diversity = 0
+        frequencyTableCache.each {
+            frequencyMap.put(it.key, new FrequencyTableBin(it.key, it.value))
+            count += it.key * it.value
+            diversity += it.value
+        }
+        this.count = count
+        this.diversity = diversity
+    }
+
+    /**
+     * Gets the frequency table cache
+     * @return
+     */
+    public Map<Long, Long> getCache() {
+        frequencyMap.values().collectEntries {
+            [(it.count): it.diversity]
+        }
+    }
+
+    /**
      * Creates frequency table that bins clonotypes according to their frequency
      * @param sample sample to bin
      * @param intersectionType intersection type used to collapse clonotypes
@@ -159,6 +184,16 @@ public class FrequencyTable {
          */
         public FrequencyTableBin(long count) {
             this.count = count
+        }
+
+        /**
+         * Creates a new frequency table bin
+         * @param count number of reads, used as key
+         * @param diversity number of clonotypes in this bin
+         */
+        public FrequencyTableBin(long count, long diversity) {
+            this.count = count
+            this.diversity = diversity
         }
 
         /**
