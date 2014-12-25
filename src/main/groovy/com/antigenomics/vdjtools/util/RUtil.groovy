@@ -41,7 +41,8 @@ class RUtil {
 
         scriptFile.withPrintWriter { pw ->
             // Set up library path correctly
-            pw.println(".libPaths(\"$PACKAGES_PATH\")")
+            if (new File(PACKAGES_PATH).exists())
+                pw.println(".libPaths(\"$PACKAGES_PATH\")")
 
             // Write the rest of script to temp file
             scriptRes.readLines().each {
