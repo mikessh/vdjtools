@@ -63,7 +63,15 @@ public class FrequencyTable {
 
     /**
      * Creates frequency table that bins clonotypes according to their frequency
-     * @param sample sample to bin
+     * @param sample sample to summarize
+     */
+    public FrequencyTable(Sample sample) {
+        this(sample, IntersectionType.Strict)
+    }
+
+    /**
+     * Creates frequency table that bins clonotypes according to their frequency
+     * @param sample sample to summarize
      * @param intersectionType intersection type used to collapse clonotypes
      */
     public FrequencyTable(Sample sample, IntersectionType intersectionType) {
