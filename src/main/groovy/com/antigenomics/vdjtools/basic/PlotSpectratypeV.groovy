@@ -49,8 +49,6 @@ if (top > 12) {
     System.exit(-1)
 }
 
-ExecUtil.ensureDir(outputPrefix)
-
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 //
