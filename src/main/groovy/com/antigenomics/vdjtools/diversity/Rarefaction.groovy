@@ -41,18 +41,40 @@ class Rarefaction {
         this(sample, IntersectionType.Strict)
     }
 
-    public ArrayList<RarefactionPoint> build(long extrapolateTo) {
-        build(extrapolateTo, Math.min(101, (int) n))
+    public ArrayList<RarefactionPoint> interpolate() {
+        build(n)
     }
 
-    public ArrayList<RarefactionPoint> build(long extrapolateTo, int numberOfPoints) {
+    public ArrayList<RarefactionPoint> extrapolate(long to) {
+        build(n + 1, to)
+    }
+
+    public ArrayList<RarefactionPoint> interpolate(int numberOfPoints) {
+        build(n, numberOfPoints)
+    }
+
+    public ArrayList<RarefactionPoint> extrapolate(long to, int numberOfPoints) {
+        build(n + 1, to, numberOfPoints)
+    }
+
+    public ArrayList<RarefactionPoint> build(long to) {
+        build(0L, to)
+    }
+
+    public ArrayList<RarefactionPoint> build(long from, long to) {
+        build(from, to, Math.min(101, (int) n))
+    }
+
+    public ArrayList<RarefactionPoint> build(long from, long to, int numberOfPoints) {
+        if (from > to)
+            throw new IllegalArgumentException("from should be less than to")
         def rarefactionCurve = new ArrayList<RarefactionPoint>()
 
-        double step = extrapolateTo / (double)(numberOfPoints - 1)
+        double step = (to - from) / (double) (numberOfPoints - 1)
         boolean hasExact = false
 
         for (int i = 0; i < numberOfPoints - 1; i++) {
-            long m = i * step
+            long m = from + i * step
 
             if (m == n)
                 hasExact = true
@@ -64,7 +86,7 @@ class Rarefaction {
             rarefactionCurve.add(new RarefactionPoint(chaoEstimator.chaoI(n)))
 
         // add the last point (more robust)
-        rarefactionCurve.add(new RarefactionPoint(chaoEstimator.chaoE(extrapolateTo)))
+        rarefactionCurve.add(new RarefactionPoint(this[to]))
 
         rarefactionCurve.sort { it.x }
     }
@@ -78,7 +100,7 @@ class Rarefaction {
             this.x = diversityType == DiversityType.TotalDiversityLowerBoundEstimate ? 1e20 : diversity.n
             this.mean = diversity.mean
             this.ciL = mean - 1.96 * diversity.std
-            this.ciU = mean + 1.96 * diversity.std
+            this.ciU = mean + diversity.std
         }
 
         public static final String HEADER = "x\tmean\tciL\tciU\ttype"
