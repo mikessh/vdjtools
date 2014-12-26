@@ -133,7 +133,7 @@ if (args.length == 0)
 else {
     def script = getScript(args[0])
     try {
-        ExecUtil.run(script, args.length > 1 ? args[1..-1].join(" ") : "")
+        ExecUtil.run(script, args.length > 1 ? args[1..-1] : [""])
     } catch (Exception e) {
         println "[ERROR] $e.message, see _vdjtools_error.log for details"
         new File("_vdjtools_error.log").withWriterAppend { writer ->

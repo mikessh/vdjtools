@@ -52,13 +52,17 @@ class ExecUtil {
         }
     }
 
-    public static Object run(Script script, String args) {
+    public static Object run(Script script, List<String> args) {
         // perform cleanup
-        def argArray = args.split(" ").
-                findAll { it != " " && it != "" }.
-                collect { it.replaceAll("//+", "/").toString() }
-        println "Executing ${script.class.canonicalName} ${argArray.join(" ")}"
-        script.binding.setVariable("args", argArray)
+        args = args.collect { it.trim() }
+        args.removeAll { it.length() == 0 }
+        //def argArray = args.split(" ").
+        //        findAll { it != " " && it != "" }.
+        //        collect { it.replaceAll("//+", "/").toString() }
+        //println "Executing ${script.class.canonicalName} ${argArray.join(" ")}"
+        //script.binding.setVariable("args", argArray)
+        println "Executing ${script.class.canonicalName} ${args.collect().join(" ")}"
+        script.binding.setVariable("args", args as String[])
         script.run()
     }
 

@@ -41,6 +41,8 @@ class RUtil {
 
         scriptFile.withPrintWriter { pw ->
             // Set up library path correctly
+            // Don't do anything if packages are not installed
+            // as this would misguide R not to use /usr/ library
             if (new File(PACKAGES_PATH).exists())
                 pw.println(".libPaths(\"$PACKAGES_PATH\")")
 
