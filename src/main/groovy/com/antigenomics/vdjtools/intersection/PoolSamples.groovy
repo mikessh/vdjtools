@@ -26,6 +26,8 @@ import com.antigenomics.vdjtools.pool.*
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.ExecUtil
 
+import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
+
 def I_TYPE_DEFAULT = "aa"
 def cli = new CliBuilder(usage: "PoolSamples [options] " +
         "[sample1 sample2 sample3 ... if not -m] output_prefix")
@@ -116,7 +118,7 @@ def sampleAggr = new SampleAggregator(sampleCollection, cloneAggrFact, intersect
 println "[${new Date()} $scriptName] Computing frequency tables for stats"
 //def diversityEstimator = new DiversityEstimator(pool)
 
-new File(outputPrefix + ".poolfreqs.txt").withPrintWriter { pwFreq ->
+new File(formOutputPath(outputPrefix, "pool", intersectionType.shortName, "freqs")).withPrintWriter { pwFreq ->
     pwFreq.println("#incidence_count\tread_count")
     sampleAggr.each { MaxClonotypeAggregator cloneAggr ->
         pwFreq.println(cloneAggr.incidenceCount + "\t" + cloneAggr.count)
@@ -126,7 +128,7 @@ new File(outputPrefix + ".poolfreqs.txt").withPrintWriter { pwFreq ->
 if (writeCloneset) {
     println "[${new Date()} $scriptName] Normalizing and sorting pooled clonotypes. Writing output"
     def writer = new SampleWriter(software)
-    writer.write(new PooledSample(sampleAggr), outputPrefix + ".clonetable.txt")
+    writer.write(new PooledSample(sampleAggr), formOutputPath(outputPrefix, "pool", intersectionType.shortName, "table"))
 }
 
 

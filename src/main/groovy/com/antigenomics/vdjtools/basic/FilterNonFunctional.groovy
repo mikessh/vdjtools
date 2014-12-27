@@ -91,4 +91,6 @@ sampleCollection.eachWithIndex { sample, ind ->
     writer.writeConventional(filteredSample, outputPrefix)
 }
 
+sampleCollection.metadataTable.storeWithOutput(outputPrefix, "nonfunc:rem")
+
 println "[${new Date()} $scriptName] Finished"
