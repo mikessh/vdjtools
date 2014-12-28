@@ -16,9 +16,10 @@
  * Last modified on 15.11.2014 by mikesh
  */
 
-package com.antigenomics.vdjtools.intersection
+package com.antigenomics.vdjtools.manipulation
 
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.intersection.IntersectionType
 import com.antigenomics.vdjtools.io.SampleFileConnection
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.sample.IntersectionClonotypeFilter

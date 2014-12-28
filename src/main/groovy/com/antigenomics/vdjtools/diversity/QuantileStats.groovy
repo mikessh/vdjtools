@@ -103,11 +103,13 @@ class QuantileStats {
         highOrderFreq.get() / totalFreq
     }
 
-    public final String HEADER = "singleton\tdoubleton\t" +
-            (1..numberOfQuantiles).collect { "high_order_Q$it" }.join("\t")
+    public static final String HEADER = "type\tname\tvalue"
 
     @Override
-    String toString() {
-        [singletonFreq, doubletonFreq, (0..<numberOfQuantiles).collect { getQuantileFrequency(it) }].flatten().join("\t")
+    public String toString() {
+        ["set\t3+\t$highOrderFreq",
+         "set\t2\t$doubletonFreq",
+         "set\t1\t$singletonFreq",
+         (0..<numberOfQuantiles).collect { "quantile\tQ${it + 1}\t${getQuantileFrequency(it)}" }].flatten().join("\n")
     }
 }

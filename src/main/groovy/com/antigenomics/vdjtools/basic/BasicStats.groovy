@@ -102,14 +102,14 @@ class BasicStats {
         return convergence
     }
 
-    static final String HEADER = "count\tdiversity\t" +
+    public static final String HEADER = "count\tdiversity\t" +
             "mean_frequency\tmedian_frequency\t" +
             "nc_diversity\tnc_frequency\t" +
             "mean_cdr3nt_length\tmean_insert_size\tmean_ndn_size\t" +
             "convergence"
 
     @Override
-    String toString() {
+    public String toString() {
         [count, diversity,
          meanFrequency, medianFrequency,
          ncDiversity, ncFrequency,

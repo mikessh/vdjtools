@@ -10,13 +10,14 @@ $VDJTOOLS PlotSpectratypeV -S mitcr ./samples/A4-i125.txt.gz ./out/4
 $VDJTOOLS PlotFancyVJUsage -S mitcr ./samples/A4-i125.txt.gz ./out/5
 
 # Diversity
-$VDJTOOLS CalcDiversityStats $PARAMS ./out/6
-$VDJTOOLS RarefactionPlot $PARAMS -f age -n -l sample.id ./out/7
+$VDJTOOLS PlotQuantileStats -S mitcr ./samples/A4-i125.txt.gz ./out/6
+$VDJTOOLS CalcDiversityStats $PARAMS ./out/7
+$VDJTOOLS RarefactionPlot $PARAMS -f age -n -l sample.id ./out/8
 
 # Intersect
-$VDJTOOLS IntersectPair -S mitcr -c 100 -p ./samples/A4-i189.txt.gz ./samples/A4-i190.txt.gz ./out/8
-$VDJTOOLS BatchIntersectPair $PARAMS ./out/9
-$VDJTOOLS BatchIntersectPairPlot -f age -n -l sample.id ./out/9
+$VDJTOOLS IntersectPair -S mitcr -c 100 -p ./samples/A4-i189.txt.gz ./samples/A4-i190.txt.gz ./out/9
+$VDJTOOLS BatchIntersectPair $PARAMS ./out/10
+$VDJTOOLS BatchIntersectPairPlot -f age -n -l sample.id ./out/10
 
 # Annotation
-$VDJTOOLS ScanDatabase $PARAMS -f --filter "__origin__=~/EBV/" ./out/10
+$VDJTOOLS ScanDatabase $PARAMS -f --filter "__origin__=~/EBV/" ./out/11
