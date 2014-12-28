@@ -24,13 +24,13 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 
 class BasicStats {
     private final DescriptiveStatistics cloneSize, cdr3ntLength, insertSize, ndnSize
-    private int oofCount
-    private double oofRatio
+    private int ncDiversity
+    private double ncFrequency
     private final long count
     private final int diversity
     private final double convergence
 
-    BasicStats(Sample sample) {
+    public BasicStats(Sample sample) {
         this.count = sample.count
         this.diversity = sample.diversity
 
@@ -51,9 +51,9 @@ class BasicStats {
                 insertSize.addValue(x)
 
             ndnSize.addValue(it.NDNSize)
-            if (!it.inFrame) {
-                oofCount++
-                oofRatio += it.freq
+            if (!it.coding) {
+                ncDiversity++
+                ncFrequency += it.freq
             }
 
             aaSet.add(clonotypeKeyGen.generateKey(it))
@@ -62,49 +62,57 @@ class BasicStats {
         this.convergence = diversity / (double) aaSet.size() - 1
     }
 
-    double getMeanCloneSize() {
+    public double getMeanFrequency() {
         cloneSize.mean
     }
 
-    double getMeanCdr3ntLength() {
+    public double getMeanCdr3ntLength() {
         cdr3ntLength.mean
     }
 
-    double getMeanNDNSize() {
+    public double getMeanNDNSize() {
         ndnSize.mean
     }
 
-    double getMeanInsertSize() {
+    public double getMeanInsertSize() {
         insertSize.mean
     }
 
-    double getMedianCloneSize() {
+    public double getMedianFrequency() {
         cloneSize.getPercentile(50)
     }
 
-    long getCount() {
+    public long getCount() {
         count
     }
 
-    int getDiversity() {
+    public int getDiversity() {
         diversity
     }
 
-    double getConvergence() {
+    public int getNcDiversity() {
+        ncDiversity
+    }
+
+    public double getNcFrequency() {
+        ncFrequency
+    }
+
+    public double getConvergence() {
         return convergence
     }
 
     static final String HEADER = "count\tdiversity\t" +
-            "mean_clone_fraction\tmedian_clone_fraction\t" +
-            "oof_count\toof_fraction\t" +
+            "mean_frequency\tmedian_frequency\t" +
+            "nc_diversity\tnc_frequency\t" +
             "mean_cdr3nt_length\tmean_insert_size\tmean_ndn_size\t" +
             "convergence"
 
     @Override
     String toString() {
         [count, diversity,
-         meanCloneSize, medianCloneSize,
-         oofCount, oofRatio,
+         meanFrequency, medianFrequency,
+         ncDiversity, ncFrequency,
          meanCdr3ntLength, meanInsertSize, meanNDNSize,
          convergence
         ].flatten().join("\t")
