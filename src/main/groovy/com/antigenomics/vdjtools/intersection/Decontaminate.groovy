@@ -21,6 +21,7 @@ package com.antigenomics.vdjtools.intersection
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.pool.RatioFilter
+import com.antigenomics.vdjtools.sample.ClonotypeFilter
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
@@ -101,10 +102,12 @@ def ratioFilter = new RatioFilter(sampleCollection, ratio)
 def sw = new SampleWriter(software)
 
 new File(formOutputPath(outputFilePrefix, "dec", "summary")).withPrintWriter { pw ->
-    pw.println("#$MetadataTable.SAMPLE_ID_COLUMN\t" +
-            "passed_clones\ttotal_clones\t" +
-            "passed_count\ttotal_count\t" +
-            "passed_freq\ttotal_freq")
+    def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
+            sampleCollection.metadataTable.columnHeader + "\t" +
+            ClonotypeFilter.ClonotypeFilterStats.HEADER
+
+    pw.println(header)
+
     sampleCollection.each { sample ->
         def sampleId = sample.sampleMetadata.sampleId
         println "[${new Date()} $scriptName] Filtering $sampleId"
@@ -114,9 +117,7 @@ new File(formOutputPath(outputFilePrefix, "dec", "summary")).withPrintWriter { p
 
         def stats = ratioFilter.getStatsAndFlush()
 
-        pw.println(sampleId + "\t" + [stats.passedClonotypes, stats.totalClonotypes,
-                                      stats.passedCount, stats.totalCount,
-                                      stats.passedFreq, stats.totalFreq].join("\t"))
+        pw.println([sampleId, sample.sampleMetadata, stats].join("\t"))
     }
 }
 

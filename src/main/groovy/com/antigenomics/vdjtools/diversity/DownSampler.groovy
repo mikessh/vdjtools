@@ -20,7 +20,7 @@ import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.util.MathUtil
 
-class DownSampler {
+public class DownSampler {
     private final Clonotype[] flattenedClonotypes
     private final Sample sample
 

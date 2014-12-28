@@ -60,7 +60,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 // Remaining arguments
 
 def software = Software.byName(opt.S),
-        outputPrefix = opt.arguments()[-1]
+    outputFilePrefix = opt.arguments()[-1]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -80,7 +80,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) prepar
 // Compute and output diversity measures, spectratype, etc
 //
 
-new File(formOutputPath(outputPrefix, "basicstats")).withPrintWriter { pw ->
+new File(formOutputPath(outputFilePrefix, "basicstats")).withPrintWriter { pw ->
     def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\t" +
             BasicStats.HEADER

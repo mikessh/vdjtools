@@ -45,7 +45,7 @@ if (opt.h || opt.arguments().size() != 2) {
 }
 
 def software = Software.byName(opt.S),
-    outputPrefix = opt.arguments()[1],
+    outputFilePrefix = opt.arguments()[1],
     top = (opt.t ?: TOP_DEFAULT).toInteger(),
     unweighted = (boolean) opt.u
 
@@ -99,7 +99,7 @@ for (int i = 0; i < spectratypeV.len; i++) {
 
 println "[${new Date()} $scriptName] Writing output and plotting data"
 
-def outputFileName = formOutputPath(outputPrefix, "spectraV", (unweighted ? "unwt" : "wt"))
+def outputFileName = formOutputPath(outputFilePrefix, "spectraV", (unweighted ? "unwt" : "wt"))
 
 new File(outputFileName).withPrintWriter { pw ->
     pw.println(table)

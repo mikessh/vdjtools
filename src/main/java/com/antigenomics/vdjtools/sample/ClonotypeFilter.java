@@ -111,5 +111,17 @@ public abstract class ClonotypeFilter {
         public double getTotalFreq() {
             return totalFreq;
         }
+
+
+        public static final String HEADER = "passed_clones\ttotal_clones\t" +
+                "passed_count\ttotal_count\t" +
+                "passed_freq\ttotal_freq";
+
+        @Override
+        public String toString() {
+            return passedClonotypes + "\t" + totalClonotypes + "\t" +
+                    passedCount + "\t" + totalCount + "\t" +
+                    passedFreq + "\t" + totalFreq;
+        }
     }
 }

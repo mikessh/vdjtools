@@ -42,7 +42,7 @@ if (opt.h || opt.arguments().size() != 2) {
 }
 
 def software = Software.byName(opt.S),
-    outputPrefix = opt.arguments()[1],
+    outputFilePrefix = opt.arguments()[1],
     top = (opt.t ?: TOP_DEFAULT).toInteger()
 
 if (top > TOP_MAX) {
@@ -95,7 +95,7 @@ for (int i = 0; i < spectratype.len; i++) {
 
 println "[${new Date()} $scriptName] Writing output and plotting data"
 
-def outputFileName = formOutputPath(outputPrefix, "fancyspectra")
+def outputFileName = formOutputPath(outputFilePrefix, "fancyspectra")
 
 new File(outputFileName).withPrintWriter { pw ->
     pw.println(table)

@@ -21,9 +21,13 @@ package com.antigenomics.vdjtools.basic
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.io.SampleWriter
+import com.antigenomics.vdjtools.sample.ClonotypeFilter
 import com.antigenomics.vdjtools.sample.FunctionalClonotypeFilter
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
+import com.antigenomics.vdjtools.sample.metadata.MetadataTable
+
+import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
 def cli = new CliBuilder(usage: "FilterNonFunctional [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
@@ -61,7 +65,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 // Remaining arguments
 
 def software = Software.byName(opt.S),
-    outputPrefix = opt.arguments()[-1],
+    outputFilePrefix = opt.arguments()[-1],
     negative = (boolean) opt.e
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
@@ -84,15 +88,29 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 
 def writer = new SampleWriter(software)
 
-sampleCollection.eachWithIndex { sample, ind ->
-    def filteredSample = new Sample(sample, new FunctionalClonotypeFilter(negative))
+new File(formOutputPath(outputFilePrefix, "ncfilter", "summary")).withPrintWriter { pw ->
+    def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
+            sampleCollection.metadataTable.columnHeader + "\t" +
+            ClonotypeFilter.ClonotypeFilterStats.HEADER
 
-    println "[${new Date()} $scriptName] Processed ${ind + 1} sample(s).."
+    pw.println(header)
 
-    // print output
-    writer.writeConventional(filteredSample, outputPrefix)
+    sampleCollection.eachWithIndex { sample, ind ->
+        def sampleId = sample.sampleMetadata.sampleId
+        println "[${new Date()} $scriptName] Filtering $sampleId.."
+
+        def filter = new FunctionalClonotypeFilter(negative)
+        def filteredSample = new Sample(sample, filter)
+
+        // print output
+        writer.writeConventional(filteredSample, outputFilePrefix)
+
+        def stats = filter.getStatsAndFlush()
+
+        pw.println([sampleId, sample.sampleMetadata, stats].join("\t"))
+    }
 }
 
-sampleCollection.metadataTable.storeWithOutput(outputPrefix, "nonfunc:rem")
+sampleCollection.metadataTable.storeWithOutput(outputFilePrefix, "ncfilter:${negative ? "retain" : "remove"}")
 
 println "[${new Date()} $scriptName] Finished"

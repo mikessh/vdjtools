@@ -61,7 +61,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 }
 
 def software = Software.byName(opt.S),
-    outputPrefix = opt.arguments()[-1],
+    outputFilePrefix = opt.arguments()[-1],
     aminoAcid = (boolean) opt.a, unweighted = (boolean) opt.u
 
 
@@ -83,7 +83,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 // Compute and output diversity measures, spectratype, etc
 //
 
-new File(formOutputPath(outputPrefix, "spectratype", (aminoAcid ? "aa" : "nt"), (unweighted ? "unwt" : "wt"))).withPrintWriter { pw ->
+new File(formOutputPath(outputFilePrefix, "spectratype", (aminoAcid ? "aa" : "nt"), (unweighted ? "unwt" : "wt"))).withPrintWriter { pw ->
     def spectratype = new Spectratype(aminoAcid, unweighted)
 
     def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" + sampleCollection.metadataTable.columnHeader + "\t" + spectratype.HEADER

@@ -41,7 +41,7 @@ if (opt.h || opt.arguments().size() != 2) {
 
 def software = Software.byName(opt.S),
     unweighted = opt.u,
-    outputPrefix = opt.arguments()[1]
+    outputFilePrefix = opt.arguments()[1]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -61,7 +61,7 @@ def segmentUsage = new SegmentUsage(sampleCollection, unweighted)
 // Output and plotting
 println "[${new Date()} $scriptName] Writing output"
 
-def outputFileName = formOutputPath(outputPrefix, "fancyvj", (unweighted ? "unwt" : "wt"))
+def outputFileName = formOutputPath(outputFilePrefix, "fancyvj", (unweighted ? "unwt" : "wt"))
 
 new File(outputFileName).withPrintWriter { pw ->
     pw.println(".\t" + segmentUsage.vUsageHeader().collect().join("\t"))

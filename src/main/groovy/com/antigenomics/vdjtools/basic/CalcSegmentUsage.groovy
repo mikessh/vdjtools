@@ -63,7 +63,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 }
 
 def software = Software.byName(opt.S),
-    outputPrefix = opt.arguments()[-1],
+    outputFilePrefix = opt.arguments()[-1],
     unweighted = opt.u,
     plot = (boolean) opt.p
 
@@ -88,8 +88,8 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
 def segmentUsage = new SegmentUsage(sampleCollection, unweighted)
 
-def outputPathV = formOutputPath(outputPrefix, "segments", unweighted ? "unwt" : "wt" ,"V"),
-        outputPathJ = formOutputPath(outputPrefix, "segments", unweighted ? "unwt" : "wt" ,"J")
+def outputPathV = formOutputPath(outputFilePrefix, "segments", unweighted ? "unwt" : "wt" ,"V"),
+        outputPathJ = formOutputPath(outputFilePrefix, "segments", unweighted ? "unwt" : "wt" ,"J")
 new File(outputPathV).withPrintWriter { pwV ->
     new File(outputPathJ).withPrintWriter { pwJ ->
         def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" + sampleCollection.metadataTable.columnHeader
