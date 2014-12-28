@@ -34,7 +34,7 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
 cli.u(longOpt: "unweighted", "Will count each clonotype only once, apart from conventional frequency-weighted histogram.")
-cli.p(longOpt: "plot", "Plot V usage heatmap")
+cli.p(longOpt: "plot", "Plot V/J usage heatmaps and perform cluster analysis")
 cli.n(longOpt: "num-factor", "Numeric factor variable")
 cli.l(longOpt: "label", argName: "string", args: 1, "Metadata entry used to annotate the heatmap")
 cli.f(longOpt: "factor", argName: "string", args: 1, "Metadata entry used to color samples in the heatmap")
@@ -88,8 +88,8 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
 def segmentUsage = new SegmentUsage(sampleCollection, unweighted)
 
-def outputPathV = formOutputPath(outputPrefix, "segments", unweighted ? "unw" : "w" ,"V"),
-        outputPathJ = formOutputPath(outputPrefix, "segments", unweighted ? "unw" : "w" ,"J")
+def outputPathV = formOutputPath(outputPrefix, "segments", unweighted ? "unwt" : "wt" ,"V"),
+        outputPathJ = formOutputPath(outputPrefix, "segments", unweighted ? "unwt" : "wt" ,"J")
 new File(outputPathV).withPrintWriter { pwV ->
     new File(outputPathJ).withPrintWriter { pwJ ->
         def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" + sampleCollection.metadataTable.columnHeader

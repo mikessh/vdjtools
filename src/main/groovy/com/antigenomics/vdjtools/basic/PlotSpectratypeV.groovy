@@ -20,15 +20,19 @@ package com.antigenomics.vdjtools.basic
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
-import static com.antigenomics.vdjtools.util.ExecUtil.*
 import com.antigenomics.vdjtools.util.RUtil
 
+import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
+
+def TOP_DEFAULT = "12", TOP_MAX = 12
 def cli = new CliBuilder(usage: "PlotSpectratypeV [options] input_name output_prefix")
 cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.t(longOpt: "top", args: 1, "Number of top V segments to present on the histogram. " +
-        "Values > 12 are not allowed, as they would make the plot unreadable. default = 12")
+        "Values > $TOP_MAX are not allowed, as they would make the plot unreadable. [default = $TOP_DEFAULT]")
+cli.u(longOpt: "unweighted", "Will count each clonotype only once, apart from conventional frequency-weighted histogram.")
 
 def opt = cli.parse(args)
 
@@ -42,9 +46,10 @@ if (opt.h || opt.arguments().size() != 2) {
 
 def software = Software.byName(opt.S),
     outputPrefix = opt.arguments()[1],
-    top = opt.t ?: 12
+    top = (opt.t ?: TOP_DEFAULT).toInteger(),
+    unweighted = (boolean) opt.u
 
-if (top > 12) {
+if (top > TOP_MAX) {
     println "[ERROR] Specified number of top V segments should not exceed 20"
     System.exit(-1)
 }
@@ -63,7 +68,7 @@ def sample = sampleCollection[0]
 
 // Calculate spectratype
 
-def spectratypeV = new SpectratypeV(false, false)
+def spectratypeV = new SpectratypeV(false, unweighted)
 
 spectratypeV.addAll(sample)
 
@@ -94,7 +99,7 @@ for (int i = 0; i < spectratypeV.len; i++) {
 
 println "[${new Date()} $scriptName] Writing output and plotting data"
 
-def outputFileName = formOutputPath(outputPrefix, "spectraV")
+def outputFileName = formOutputPath(outputPrefix, "spectraV", (unweighted ? "unwt" : "wt"))
 
 new File(outputFileName).withPrintWriter { pw ->
     pw.println(table)

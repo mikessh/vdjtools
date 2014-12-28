@@ -61,7 +61,7 @@ def segmentUsage = new SegmentUsage(sampleCollection, unweighted)
 // Output and plotting
 println "[${new Date()} $scriptName] Writing output"
 
-def outputFileName = formOutputPath(outputPrefix, "fancyvj")
+def outputFileName = formOutputPath(outputPrefix, "fancyvj", (unweighted ? "unwt" : "wt"))
 
 new File(outputFileName).withPrintWriter { pw ->
     pw.println(".\t" + segmentUsage.vUsageHeader().collect().join("\t"))

@@ -23,12 +23,13 @@ import com.antigenomics.vdjtools.sample.SampleCollection
 import static com.antigenomics.vdjtools.util.ExecUtil.*
 import com.antigenomics.vdjtools.util.RUtil
 
+def TOP_DEFAULT = "10", TOP_MAX = 20
 def cli = new CliBuilder(usage: "PlotFancySpectratype [options] input_name output_prefix")
 cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.t(longOpt: "top", args: 1, "Number of top clonotypes to present on the histogram. " +
-        "Values > 20 are not allowed, as they would make the plot legend unreadable. default = 20")
+        "Values > $TOP_MAX are not allowed, as they would make the plot legend unreadable. [default = $TOP_DEFAULT]")
 
 def opt = cli.parse(args)
 
@@ -42,10 +43,10 @@ if (opt.h || opt.arguments().size() != 2) {
 
 def software = Software.byName(opt.S),
     outputPrefix = opt.arguments()[1],
-    top = opt.t ?: 20
+    top = (opt.t ?: TOP_DEFAULT).toInteger()
 
-if (top > 20) {
-    println "[ERROR] Specified number of top clonotypes should not exceed 20"
+if (top > TOP_MAX) {
+    println "[ERROR] Specified number of top clonotypes should not exceed $TOP_MAX"
     System.exit(-1)
 }
 

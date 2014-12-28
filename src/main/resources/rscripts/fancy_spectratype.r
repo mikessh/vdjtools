@@ -48,6 +48,7 @@ ggplot(df.m, aes(x = Len, y = value, fill = variable)) +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
   scale_fill_manual(values=c("grey75", pal)) +
+  theme_bw() +
   theme(legend.text=element_text(size=8), axis.title.y=element_blank()) +
   guides(fill = guide_legend(reverse = TRUE))
 
