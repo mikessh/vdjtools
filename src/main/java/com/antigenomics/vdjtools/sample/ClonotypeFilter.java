@@ -31,9 +31,14 @@ public abstract class ClonotypeFilter {
             totalCount = new AtomicLong();
     private final AtomicDouble passedFreq = new AtomicDouble(),
             totalFreq = new AtomicDouble();
+    private final boolean negative;
+
+    protected ClonotypeFilter(boolean negative) {
+        this.negative = negative;
+    }
 
     public boolean pass(Clonotype clonotype) {
-        boolean pass = checkPass(clonotype);
+        boolean pass = negative ^ checkPass(clonotype);
 
         if (pass) {
             passedClonotypes.incrementAndGet();

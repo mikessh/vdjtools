@@ -33,6 +33,7 @@ cli.S(longOpt: "software", argName: "string", required: true, args: 1,
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
+cli.e(longOpt: "negative", "Will retain only non-functional clonotypes")
 
 def opt = cli.parse(args)
 
@@ -60,7 +61,8 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 // Remaining arguments
 
 def software = Software.byName(opt.S),
-    outputPrefix = opt.arguments()[-1]
+    outputPrefix = opt.arguments()[-1],
+    negative = (boolean) opt.e
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -83,7 +85,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 def writer = new SampleWriter(software)
 
 sampleCollection.eachWithIndex { sample, ind ->
-    def filteredSample = new Sample(sample, FunctionalClonotypeFilter.INSTANCE)
+    def filteredSample = new Sample(sample, new FunctionalClonotypeFilter(negative))
 
     println "[${new Date()} $scriptName] Processed ${ind + 1} sample(s).."
 

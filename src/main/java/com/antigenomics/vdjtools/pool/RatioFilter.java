@@ -26,9 +26,14 @@ public class RatioFilter extends ClonotypeFilter {
     private final SampleAggregator<MaxClonotypeAggregator> sampleAggregator;
     private final double thresholdRatio;
 
-    public RatioFilter(Iterable<Sample> samples, double thresholdRatio) {
+    public RatioFilter(Iterable<Sample> samples, double thresholdRatio, boolean negative) {
+        super(negative);
         this.sampleAggregator = new SampleAggregator<>(samples, new MaxClonotypeAggregatorFactory());
         this.thresholdRatio = thresholdRatio;
+    }
+
+    public RatioFilter(Iterable<Sample> samples, double thresholdRatio) {
+        this(samples, thresholdRatio, false);
     }
 
     public RatioFilter(Iterable<Sample> samples) {

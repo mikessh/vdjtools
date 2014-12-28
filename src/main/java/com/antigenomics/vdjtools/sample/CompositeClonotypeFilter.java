@@ -26,8 +26,13 @@ public class CompositeClonotypeFilter extends ClonotypeFilter {
     private final Collection<ClonotypeFilter> filters;
 
 
-    public CompositeClonotypeFilter(Collection<ClonotypeFilter> filters) {
+    public CompositeClonotypeFilter(Collection<ClonotypeFilter> filters, boolean negative) {
+        super(negative);
         this.filters = filters;
+    }
+
+    public CompositeClonotypeFilter(Collection<ClonotypeFilter> filters) {
+        this(filters, false);
     }
 
     @Override

@@ -21,10 +21,13 @@ package com.antigenomics.vdjtools.sample;
 import com.antigenomics.vdjtools.Clonotype;
 
 public class FunctionalClonotypeFilter extends ClonotypeFilter {
-    private FunctionalClonotypeFilter() {
+    public FunctionalClonotypeFilter(boolean negative) {
+        super(negative);
     }
 
-    public static FunctionalClonotypeFilter INSTANCE = new FunctionalClonotypeFilter();
+    public FunctionalClonotypeFilter() {
+        super(false);
+    }
 
     @Override
     protected boolean checkPass(Clonotype clonotype) {

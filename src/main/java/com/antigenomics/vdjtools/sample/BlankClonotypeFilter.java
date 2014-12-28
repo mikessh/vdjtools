@@ -22,6 +22,7 @@ import com.antigenomics.vdjtools.Clonotype;
 
 public class BlankClonotypeFilter extends ClonotypeFilter {
     private BlankClonotypeFilter() {
+        super(false);
     }
 
     public static BlankClonotypeFilter INSTANCE = new BlankClonotypeFilter();

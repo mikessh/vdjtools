@@ -28,16 +28,19 @@ import java.util.Set;
 public class IntersectionClonotypeFilter extends ClonotypeFilter {
     private final ClonotypeKeyGen clonotypeKeyGen;
     private final Set<ClonotypeKey> keySet;
-    private final boolean negative;
 
     public IntersectionClonotypeFilter(IntersectionType intersectionType, Sample sample, boolean negative) {
+        super(negative);
         this.clonotypeKeyGen = new ClonotypeKeyGen(intersectionType);
         this.keySet = new ClonotypeKeyGen(intersectionType).generateKeySet(sample);
-        this.negative = negative;
+    }
+
+    public IntersectionClonotypeFilter(IntersectionType intersectionType, Sample sample) {
+        this(intersectionType, sample, false);
     }
 
     @Override
     protected boolean checkPass(Clonotype clonotype) {
-        return negative ^ keySet.contains(clonotypeKeyGen.generateKey(clonotype));
+        return keySet.contains(clonotypeKeyGen.generateKey(clonotype));
     }
 }
