@@ -11,7 +11,7 @@ $VDJTOOLS PlotFancyVJUsage -S mitcr ./samples/A4-i125.txt.gz ./out/5
 
 # Diversity
 $VDJTOOLS PlotQuantileStats -S mitcr ./samples/A4-i125.txt.gz ./out/6
-$VDJTOOLS CalcDiversityStats $PARAMS ./out/7
+$VDJTOOLS CalcDiversityStats $PARAMS -x 5000 ./out/7
 $VDJTOOLS RarefactionPlot $PARAMS -f age -n -l sample.id ./out/8
 
 # Intersect

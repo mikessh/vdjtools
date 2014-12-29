@@ -28,8 +28,7 @@ import com.antigenomics.vdjtools.util.RUtil
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
 
-def STEPS_DEFAULT = "101"
-I_TYPE_DEFAULT = IntersectionType.Strict
+def STEPS_DEFAULT = "101", I_TYPE_DEFAULT = IntersectionType.Strict
 def cli = new CliBuilder(usage: "RarefactionPlot [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")

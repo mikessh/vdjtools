@@ -21,7 +21,9 @@ import com.antigenomics.vdjtools.pool.SampleAggregator
 import com.antigenomics.vdjtools.sample.Sample
 import groovy.transform.PackageScope
 import org.apache.commons.math3.util.CombinatoricsUtils
-import static com.antigenomics.vdjtools.diversity.DiversityType.*
+
+import static com.antigenomics.vdjtools.diversity.DiversityType.Observed
+import static com.antigenomics.vdjtools.diversity.DiversityType.TotalDiversityLowerBoundEstimate
 
 class DiversityEstimates {
     private FrequencyTable frequencyTable = null
@@ -51,7 +53,42 @@ class DiversityEstimates {
 
     public Diversity getObservedDiversity() {
         new Diversity(frequencyTable.diversity, 0, frequencyTable.count,
-                Observed, false, "observed_diversity")
+                Observed, false, "observedDiversity")
+    }
+
+    public Diversity getShannonWeaverIndex() {
+        // todo: std computaiton
+        def mean = 0, std = 0
+        frequencyTable.bins.each { FrequencyTable.FrequencyTableBin bin ->
+            def h = bin.diversity * bin.freq * Math.log(bin.freq) // <log(p)>
+            mean -= h
+            //std += h * Math.log(bin.freq) // <log(p)^2>
+        }
+        //std -= mean * mean
+        new Diversity(Math.exp(mean),
+                0,//Math.sqrt((Math.exp(std) - 1) * Math.exp(std + 2 * mean)), // from lognormal approx
+                frequencyTable.count,
+                DiversityType.Index,
+                false,
+                "shannonWeaverIndex"
+        )
+    }
+
+    public Diversity getInverseSimpsonIndex() {
+        // todo: std computaiton
+        def mean = 0, std = 0
+        frequencyTable.bins.each { FrequencyTable.FrequencyTableBin bin ->
+            mean += bin.diversity * bin.freq * bin.freq // <p>
+            //std += bin.diversity * bin.freq * bin.freq * bin.freq // <p^2>
+        }
+        //std -= mean * mean
+        new Diversity(1.0 / mean,
+                0,
+                frequencyTable.count,
+                DiversityType.Index,
+                false,
+                "inverseSimpsonIndex"
+        )
     }
 
     public Diversity getEfronThisted() {
@@ -87,7 +124,7 @@ class DiversityEstimates {
         }
 
         new Diversity(S, D, frequencyTable.count,
-                TotalDiversityLowerBoundEstimate, false, "efron_thisted")
+                TotalDiversityLowerBoundEstimate, false, "efronThisted")
     }
 
     public Diversity getChao1() {
@@ -102,7 +139,10 @@ class DiversityEstimates {
         frequencyTable
     }
 
-    private static final String[] fields = ["observedDiversity", "efronThisted", "chao1", "chaoE"]
+    private static final String[] fields = ["observedDiversity", "chaoE",
+                                            "efronThisted", "chao1",
+                                            "shannonWeaverIndex", "inverseSimpsonIndex"]
+
     public static final HEADER = fields.collect { [it + "_mean", it + "_std"] }.flatten().join("\t")
 
     @Override

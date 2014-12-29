@@ -35,10 +35,10 @@ cli.S(longOpt: "software", argName: "string", required: true, args: 1,
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
-cli.n(longOpt: "n-downsample", argName: "integer", args: 1,
+cli.x(longOpt: "downsample-to", argName: "integer", args: 1,
         "Number of reads to take for down-sampled sample diversity estimate." +
                 "[default=number of reads in the smallest sample]")
-cli.N(longOpt: "n-extrapolate", argName: "integer", args: 1,
+cli.X(longOpt: "extrapolate-to", argName: "integer", args: 1,
         "Number of reads to take for extrapolated sample diversity estimate." +
                 "[default=number of reads in the largest sample]")
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
@@ -97,8 +97,8 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples to analy
 //
 
 def sampleStats = sampleCollection.sampleStatistics
-def minReads = (opt.n ?: "$sampleStats.minCount").toInteger(),
-    maxReads = (opt.N ?: "$sampleStats.maxCount").toInteger()
+def minReads = (opt.x ?: "$sampleStats.minCount").toInteger(),
+    maxReads = (opt.X ?: "$sampleStats.maxCount").toInteger()
 
 //
 // Compute and output diversity measures
@@ -107,8 +107,8 @@ def minReads = (opt.n ?: "$sampleStats.minCount").toInteger(),
 def headerBase = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
         sampleCollection.metadataTable.columnHeader + "\treads\tdiversity_strict"
 
-new File(formOutputPath(outputPrefix, "diversity")).withPrintWriter { pwDiv ->
-    new File(formOutputPath(outputPrefix, "diversity", "resampled")).withPrintWriter { pwDivRes ->
+new File(formOutputPath(outputPrefix, "diversity", intersectionType.shortName)).withPrintWriter { pwDiv ->
+    new File(formOutputPath(outputPrefix, "diversity", intersectionType.shortName, "resampled")).withPrintWriter { pwDivRes ->
         pwDiv.println(headerBase + "\textrapolate_reads\t" + DiversityEstimates.HEADER)
         pwDivRes.println(headerBase + "\tresample_reads\t" + DiversityEstimatesResampled.HEADER)
 

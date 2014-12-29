@@ -22,12 +22,12 @@ import com.antigenomics.vdjtools.intersection.IntersectionType
 import com.antigenomics.vdjtools.sample.Sample
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 
-import static com.antigenomics.vdjtools.diversity.DiversityType.Interpolated
-import static com.antigenomics.vdjtools.diversity.DiversityType.TotalDiversityLowerBoundEstimate
-
+import static com.antigenomics.vdjtools.diversity.DiversityType.*
 
 class DiversityEstimatesResampled {
-    private final Diversity observedDiversity, efronThisted, chao1
+    private final Diversity observedDiversity, efronThisted, chao1,
+                            shannonWeaverIndex, inverseSimpsonIndex
+
     private final int subSampleSize, resampleCount
 
     public DiversityEstimatesResampled(Sample sample,
@@ -46,7 +46,9 @@ class DiversityEstimatesResampled {
 
         def observedDiversityStat = new DescriptiveStatistics(),
             efronThistedStat = new DescriptiveStatistics(),
-            chao1Stat = new DescriptiveStatistics()
+            chao1Stat = new DescriptiveStatistics(),
+            shannonWeaverIndexStat = new DescriptiveStatistics(),
+            inverseSimpsonIndexStat = new DescriptiveStatistics()
 
         for (int i = 0; i < resampleCount; i++) {
             def subSample = downSampler.reSample(subSampleSize)
@@ -55,25 +57,40 @@ class DiversityEstimatesResampled {
             observedDiversityStat.addValue(diversityEstimates.observedDiversity.mean)
             efronThistedStat.addValue(diversityEstimates.efronThisted.mean)
             chao1Stat.addValue(diversityEstimates.chao1.mean)
+            shannonWeaverIndexStat.addValue(diversityEstimates.shannonWeaverIndex.mean)
+            inverseSimpsonIndexStat.addValue(diversityEstimates.inverseSimpsonIndex.mean)
         }
 
         this.observedDiversity = new Diversity(
                 observedDiversityStat.mean,
                 observedDiversityStat.standardDeviation,
                 subSampleSize,
-                Interpolated, true, "observed_diversity")
+                Interpolated, true, "observedDiversity")
 
         this.efronThisted = new Diversity(
                 efronThistedStat.mean,
                 efronThistedStat.standardDeviation,
                 subSampleSize,
-                TotalDiversityLowerBoundEstimate, true, "efron_thisted")
+                TotalDiversityLowerBoundEstimate, true, "efronThisted")
 
         this.chao1 = new Diversity(
                 chao1Stat.mean,
                 chao1Stat.standardDeviation,
                 subSampleSize,
                 TotalDiversityLowerBoundEstimate, true, "chao1")
+
+
+        this.shannonWeaverIndex = new Diversity(
+                shannonWeaverIndexStat.mean,
+                shannonWeaverIndexStat.standardDeviation,
+                subSampleSize,
+                Index, true, "shannonWeaverIndex")
+
+        this.inverseSimpsonIndex = new Diversity(
+                inverseSimpsonIndexStat.mean,
+                inverseSimpsonIndexStat.standardDeviation,
+                subSampleSize,
+                Index, true, "inverseSimpsonIndex")
     }
 
     public Diversity getObservedDiversity() {
@@ -88,7 +105,18 @@ class DiversityEstimatesResampled {
         chao1
     }
 
-    private static final String[] fields = ["observedDiversity", "efronThisted", "chao1"]
+    public Diversity getShannonWeaverIndex() {
+        shannonWeaverIndex
+    }
+
+    public Diversity getInverseSimpsonIndex() {
+        inverseSimpsonIndex
+    }
+
+    private static final String[] fields = ["observedDiversity",
+                                            "efronThisted", "chao1",
+                                            "shannonWeaverIndex", "inverseSimpsonIndex"]
+
     public static final HEADER = fields.collect { [it + "_mean", it + "_std"] }.flatten().join("\t")
 
     @Override
