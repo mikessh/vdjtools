@@ -105,7 +105,7 @@ def minReads = (opt.x ?: "$sampleStats.minCount").toInteger(),
 //
 
 def headerBase = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
-        sampleCollection.metadataTable.columnHeader + "\treads\tdiversity_strict"
+        sampleCollection.metadataTable.columnHeader + "\treads\tdiversity"
 
 new File(formOutputPath(outputPrefix, "diversity", intersectionType.shortName)).withPrintWriter { pwDiv ->
     new File(formOutputPath(outputPrefix, "diversity", intersectionType.shortName, "resampled")).withPrintWriter { pwDivRes ->
