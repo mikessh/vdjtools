@@ -7,7 +7,9 @@
 # With minor additions based on various StackOverflow replies
 #
 
-require(ggplot2); require(grid); require(gridExtra)
+#options(error=traceback)
+
+require(ggplot2); require(grid); require(gridExtra); require(reshape)
 
 # data input
 
@@ -21,19 +23,33 @@ file_yy    <- args[5]
 file_out   <- args[6]
 
 # transform data
-
-getcol = function(lst, col){
-	apply(lst[col], 2, as.numeric)
+to_double = function(x) {
+  log10(as.numeric(as.character(x))+1e-7)
 }
 
-xy <- read.delim(file_xy)
-xy <- data.frame(getcol(xy,"x"),getcol(xy,"y"))
+xy <- read.table(file_xy, header=T)
+xy$x <- to_double(xy$x)
+xy$y <- to_double(xy$y)
 
-xx <- getcol(read.delim(file_xx), "xx")
-xx <- data.frame(xx)
+xx <- read.table(file_xx, header=T)
+xx$xx <- to_double(xx$xx)
+#xx <- rbind(subset(melt(xy),variable=="x"), melt(xx))
 
-yy <- getcol(read.delim(file_yy), "yy")
-yy <- data.frame(yy)
+yy <- read.table(file_yy, header=T)
+yy$yy <- to_double(yy$yy)
+#yy <- rbind(subset(melt(xy),variable=="y"), melt(yy))
+
+xmin <- min(xx$xx, yy$yy)
+
+# For regression info plotting. source: http://goo.gl/K4yh
+lm_eqn = function(df){
+  m = lm(y ~ x, df);
+  eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq))               
+}
 
 # plotting
  
@@ -59,16 +75,18 @@ empty <- ggplot() +
 
 # scatterplot
 
-scatter <- ggplot(xy, aes(x, y, size = (x + y) / 2)) + 
+scatter <- ggplot() + 
   theme_bw() +
-  geom_point(
-     fill   = "grey50", 
-     colour = "black",
-     alpha  = 0.3, 
+  geom_point(data = xy, aes(x, y, size = (x + y) / 2),
+     fill   = "red", 
+     colour = "gray25",
+     alpha  = 0.4,
      pch    = 21
-     ) +     
-  scale_x_continuous(limit = c(-7, 0), breaks = -7:0) +     
-  scale_y_continuous(limit = c(-7, 0), breaks = -7:0) + 
+     ) +
+  geom_text(data = data.frame(), aes(x = xmin, y = 0, label = lm_eqn(xy)), hjust = 0, parse = TRUE) +
+  stat_smooth(data = xy, aes(x, y, weight = 10^((x + y) / 2)), method = "lm", fullrange = T) +
+  scale_x_continuous(limit = c(xmin, 0)) +
+  scale_y_continuous(limit = c(xmin, 0)) +
   scale_size_continuous(guide = "none", range = c(0.1, 5)) +
   xlab(sample1_id) +
   ylab(sample2_id) +  
@@ -76,38 +94,28 @@ scatter <- ggplot(xy, aes(x, y, size = (x + y) / 2)) +
 
 # marginal density of x
 
-plot_top <- ggplot(xx, aes(xx, weight=10^xx)) +  
-  theme_bw() +
-  stat_density(
-       aes(ymax = ..density..,  ymin = -..density..),
-       fill     = "grey50", 
-       colour   = "grey25",      
-       alpha    = 0.3, 
-       position = "identity",
-       adjust   = 5
-     ) + 
-  ylab("") +
-  scale_x_continuous(limit = c(-7, 0), breaks = -7:0) +
-  scale_y_continuous(limit = c(0, 4.5), breaks = c(0, 1.5, 3, 4.5)) +
+plot_top <- ggplot() +  
+  stat_density(data=xx, aes(x=xx, weight=10^xx/sum(10^xx), y = ..scaled..),
+               fill = "grey50", colour = "gray25", size = 0.5, alpha = 0.4) + 
+  stat_density(data=xy, aes(x=x, weight=10^x/sum(10^x), y = ..scaled..), 
+               fill = "red", colour = "gray25", size = 0.5, alpha = 0.4) + 
+  scale_x_continuous(limit = c(xmin, 0)) +
+  #scale_y_continuous(limit = c(0, 4.5), breaks = c(0, 1.5, 3, 4.5)) +
+  ylab("") + theme_bw() +
   theme(legend.position = "none", axis.title.x = element_blank())
 
 
 # marginal density of y
 
-plot_right <- ggplot(yy, aes(yy, weight=10^yy)) + 
-  theme_bw() +
-  stat_density(
-       aes(ymax = ..density..,  ymin = -..density..),
-       fill     = "grey50",
-       colour   = "grey25",   
-       alpha    = 0.3, 
-       position = "identity",
-       adjust   = 5
-     ) + 
-  scale_x_continuous(limit = c(-7, 0), breaks = -7:0) +
-  scale_y_continuous(limit = c(0, 4.5), breaks = c(0, 1.5, 3, 4.5)) +
+plot_right <- ggplot() +  
+  stat_density(data=yy, aes(x=yy, weight=10^yy/sum(10^yy), y = ..scaled..),
+               fill = "grey50", colour = "gray25", size = 0.5, alpha = 0.4) + 
+  stat_density(data=xy, aes(x=y, weight=10^y/sum(10^y), y = ..scaled..), 
+               fill = "red", colour = "gray25", size = 0.5, alpha = 0.4) + 
+  scale_x_continuous(limit = c(xmin, 0)) +
+  #scale_y_continuous(limit = c(0, 4.5), breaks = c(0, 1.5, 3, 4.5)) +
   coord_flip() + 
-  ylab("") +
+  ylab("") + theme_bw() +
   theme(legend.position = "none", axis.title.y = element_blank()) 
 
 # arrange the plots together, with appropriate height and width for each row and column
