@@ -69,8 +69,8 @@ empty <- ggplot() +
        axis.title.y     = element_blank(),
        axis.text.x      = element_blank(),
        axis.text.y      = element_blank(),
-       axis.ticks       = element_blank()
-       #plot.margin      = unit(c(3, -5.5, 4, 3), "mm")
+       axis.ticks       = element_blank(),
+       plot.margin      = unit(c(3, -5.5, 4, 3), "mm")
      )
 
 # scatterplot
@@ -79,15 +79,15 @@ scatter <- ggplot() +
   theme_bw() +
   geom_point(data = xy, aes(x, y, size = (x + y) / 2),
      fill   = "red", 
-     colour = "gray25",
+     colour = "black",
      alpha  = 0.4,
      pch    = 21
      ) +
   geom_text(data = data.frame(), aes(x = xmin, y = 0, label = lm_eqn(xy)), hjust = 0, parse = TRUE) +
-  stat_smooth(data = xy, aes(x, y, weight = 10^((x + y) / 2)), method = "lm", fullrange = T) +
-  scale_x_continuous(limit = c(xmin, 0)) +
-  scale_y_continuous(limit = c(xmin, 0)) +
-  scale_size_continuous(guide = "none", range = c(0.1, 5)) +
+  stat_smooth(data = xy, aes(x, y, weight = 10^((x + y) / 2)), color= "gray25", method = "lm", fullrange = T) +
+  scale_x_continuous(limit = c(xmin, 0), expand = c(0, 0.1)) +
+  scale_y_continuous(limit = c(xmin, 0), expand = c(0, 0.1)) +
+  scale_size_continuous(guide = "none", range = c(1, 10)) +
   xlab(sample1_id) +
   ylab(sample2_id) +  
   theme(legend.position = c(1, 1), legend.justification = c(1, 1))
@@ -96,27 +96,29 @@ scatter <- ggplot() +
 
 plot_top <- ggplot() +  
   stat_density(data=xx, aes(x=xx, weight=10^xx/sum(10^xx), y = ..scaled..),
-               fill = "grey50", colour = "gray25", size = 0.5, alpha = 0.4) + 
+               fill = "grey50", colour = "gray25", size = 0.1, alpha = 0.4, adjust = 1) +
   stat_density(data=xy, aes(x=x, weight=10^x/sum(10^x), y = ..scaled..), 
-               fill = "red", colour = "gray25", size = 0.5, alpha = 0.4) + 
-  scale_x_continuous(limit = c(xmin, 0)) +
-  #scale_y_continuous(limit = c(0, 4.5), breaks = c(0, 1.5, 3, 4.5)) +
+               fill = "red", colour = "gray25", size = 0.1, alpha = 0.4, adjust = 1) +
+  scale_x_continuous(limit = c(xmin, 0), expand = c(0, 0.25)) +
   ylab("") + theme_bw() +
-  theme(legend.position = "none", axis.title.x = element_blank())
+  theme(legend.position = "none", axis.title.x = element_blank(), 
+        axis.text = element_blank(), axis.ticks = element_blank(), 
+        panel.grid  = element_blank())
 
 
 # marginal density of y
 
 plot_right <- ggplot() +  
   stat_density(data=yy, aes(x=yy, weight=10^yy/sum(10^yy), y = ..scaled..),
-               fill = "grey50", colour = "gray25", size = 0.5, alpha = 0.4) + 
+               fill = "grey50", colour = "gray25", size = 0.1, alpha = 0.4, adjust = 1) +
   stat_density(data=xy, aes(x=y, weight=10^y/sum(10^y), y = ..scaled..), 
-               fill = "red", colour = "gray25", size = 0.5, alpha = 0.4) + 
-  scale_x_continuous(limit = c(xmin, 0)) +
-  #scale_y_continuous(limit = c(0, 4.5), breaks = c(0, 1.5, 3, 4.5)) +
+               fill = "red", colour = "gray25", size = 0.1, alpha = 0.4, adjust = 1) +
+  scale_x_continuous(limit = c(xmin, 0), expand = c(0, 0.2)) +
   coord_flip() + 
   ylab("") + theme_bw() +
-  theme(legend.position = "none", axis.title.y = element_blank()) 
+  theme(legend.position = "none", axis.title.y = element_blank(), 
+        axis.text = element_blank(), axis.ticks = element_blank(),
+        panel.grid  = element_blank()) 
 
 # arrange the plots together, with appropriate height and width for each row and column
 
