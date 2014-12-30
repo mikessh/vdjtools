@@ -24,7 +24,7 @@ import com.antigenomics.vdjtools.util.RUtil
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
 
-def I_TYPE_DEFAULT = "strict"
+def I_TYPE_DEFAULT = "strict", TOP_DEFAULT = "20", TOP_MAX = 100
 def cli = new CliBuilder(usage: "IntersectPair [options] sample1 sample2 output_prefix")
 cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
@@ -32,8 +32,9 @@ cli.S(longOpt: "software", argName: "string", required: true, args: 1,
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Intersection rule to apply. Allowed values: $IntersectionType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
-cli.c(longOpt: "collapse", argName: "int", args: 1,
-        "Generate a collapsed overlap table for visualization purposes with a specified number of top clones.")
+cli.t(longOpt: "top", args: 1, "Number of top clonotypes which will be provided in the collapsed joint table " +
+        "and shown on the summary stacked area plot. " +
+        "Values > $TOP_MAX are not allowed, as they would make the plot unreadable. [default = $TOP_DEFAULT]")
 cli.p(longOpt: "plot", "Generate a scatterplot to characterize overlapping clonotypes. " +
         "Also generate abundance difference plot if -c option is specified. " +
         "(R installation with ggplot2, grid and gridExtra packages required).")
@@ -48,7 +49,7 @@ if (opt.h || opt.arguments().size() < 3) {
     System.exit(-1)
 }
 
-def software = Software.byName(opt.S), top = (int) ((opt.c ?: "-1").toInteger()),
+def software = Software.byName(opt.S),
     sample1FileName = opt.arguments()[0], sample2FileName = opt.arguments()[1],
     outputPrefix = opt.arguments()[2]
 
@@ -62,6 +63,15 @@ def intersectionType = IntersectionType.byName(iName)
 if (!intersectionType) {
     println "[ERROR] Bad intersection type specified ($iName). " +
             "Allowed values are: $IntersectionType.allowedNames"
+    System.exit(-1)
+}
+
+// Define nubmer of clonotypes to collapse to
+
+def top = (opt.t ?: TOP_DEFAULT).toInteger()
+
+if (top > TOP_MAX) {
+    println "[ERROR] Specified number of top clonotypes should not exceed $TOP_MAX"
     System.exit(-1)
 }
 
@@ -88,7 +98,7 @@ def jointSample = pairedIntersection.jointSample
 
 println "[${new Date()} $scriptName] Writing output"
 
-new File(outputPrefix + ".summary.txt").withPrintWriter { pw ->
+new File(formOutputPath(outputPrefix, "paired", intersectionType.shortName, "summary")).withPrintWriter { pw ->
     pw.println(pairedIntersection.header)
     pw.println(pairedIntersection.row)
 }
@@ -107,7 +117,6 @@ if (opt.p) {
     def sample1 = sampleCollection[0],
         sample2 = sampleCollection[1]
 
-    // todo: remake completely
     def xyFile = new File(outputPrefix + ".xy.txt")
     xyFile.withPrintWriter { pw ->
         pw.println("x\ty")
