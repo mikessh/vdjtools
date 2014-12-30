@@ -20,12 +20,9 @@ package com.antigenomics.vdjtools.intersection
 
 /**
  * Normalization type that is recommended for a given IntersectMetric
- * Log: log10(x+1e-9)
- * Correlation: (1-x)/2
- * None: x 
  */
 public enum IntersectMetricNormalization {
-    Log(0), Correlation(1), None(2)
+    NegLog(0), Correlation(1), None(2)
 
     /**
      * Normalization type ID, used for passing to R scripts as argument
@@ -38,8 +35,8 @@ public enum IntersectMetricNormalization {
 
     public double normalize(double x) {
         switch (this) {
-            case Log:
-                return Math.log10(x + 1.0)
+            case NegLog:
+                return -Math.log10(x + 1.0)
             case Correlation:
                 return (1.0 - x) / 2
         }

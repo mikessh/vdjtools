@@ -20,7 +20,7 @@ import static com.antigenomics.vdjtools.intersection.IntersectMetricNormalizatio
 
 
 public enum IntersectMetric {
-    Correlation("R", Correlation), Diversity("D", Log), Frequency("F", Log), Frequency2("F2", Log),
+    Correlation("R", Correlation), Diversity("D", NegLog), Frequency("F", NegLog), Frequency2("F2", NegLog),
     vJSD("vJSD", None), vjJSD("vjJSD", None), vj2JSD("vj2JSD", None), sJSD("sJSD", None)
 
     public final String shortName
