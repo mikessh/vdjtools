@@ -16,15 +16,25 @@
 
 package com.antigenomics.vdjtools.intersection
 
-enum IntersectMetric {
-    Correlation("R"), Diversity("D"), Frequency("F"), Frequency2("F2"),
-    vJSD("vJSD"), vjJSD("vjJSD"), vj2JSD("vj2JSD"), sJSD("sJSD")
+import static com.antigenomics.vdjtools.intersection.IntersectMetricNormalization.*
 
-    final String shortName
 
-    IntersectMetric(String shortName) {
+public enum IntersectMetric {
+    Correlation("R", Correlation), Diversity("D", Log), Frequency("F", Log), Frequency2("F2", Log),
+    vJSD("vJSD", None), vjJSD("vjJSD", None), vj2JSD("vj2JSD", None), sJSD("sJSD", None)
+
+    public final String shortName
+    public final IntersectMetricNormalization normalization
+
+    public IntersectMetric(String shortName, IntersectMetricNormalization normalization) {
         this.shortName = shortName
+        this.normalization = normalization
     }
 
-    static String allowedNames = values().collect { it.shortName }.join(",")
+    public static String allowedNames = values().collect { it.shortName }.join(",")
+
+    public static IntersectMetric getByShortName(String name) {
+        name = name.toUpperCase()
+        values().find { it.shortName.toUpperCase() == name }
+    }
 }
