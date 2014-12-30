@@ -24,7 +24,7 @@ import com.antigenomics.vdjtools.util.RUtil
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
 
-def I_TYPE_DEFAULT = "aa"
+def I_TYPE_DEFAULT = "strict"
 def cli = new CliBuilder(usage: "IntersectPair [options] sample1 sample2 output_prefix")
 cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
@@ -107,17 +107,13 @@ if (opt.p) {
     def sample1 = sampleCollection[0],
         sample2 = sampleCollection[1]
 
-    def log = { double x ->
-        Math.log10(x + 1e-7)
-    }
-
     // todo: remake completely
     def xyFile = new File(outputPrefix + ".xy.txt")
     xyFile.withPrintWriter { pw ->
         pw.println("x\ty")
         jointSample.each { jointClone ->
             pw.println((0..1).collect { sampleIndex ->
-                log(jointClone.getFreq(sampleIndex))
+                jointClone.getFreq(sampleIndex)
             }.join("\t"))
         }
     }
@@ -126,14 +122,14 @@ if (opt.p) {
     def xxFile = new File(outputPrefix + ".xx.txt")
     xxFile.withPrintWriter { pw ->
         pw.println("xx")
-        sample1.each { pw.println(log(it.freq)) }
+        sample1.each { pw.println(it.freq) }
     }
     xxFile.deleteOnExit()
 
     def yyFile = new File(outputPrefix + ".yy.txt")
     yyFile.withPrintWriter { pw ->
         pw.println("yy")
-        sample2.each { pw.println(log(it.freq)) }
+        sample2.each { pw.println(it.freq) }
     }
     yyFile.deleteOnExit()
 

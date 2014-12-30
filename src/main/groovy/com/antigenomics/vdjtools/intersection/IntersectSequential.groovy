@@ -131,8 +131,9 @@ metadataTable.sort("time")
 // Take sorted values from metadata
 timePoints = metadataTable.getColumn("time").collect { it.asNumeric().toString() }
 
-println "[${new Date()} $scriptName] Time points and samples to be processed:\n" +
-        "${timePoints.join(",")}\n${metadataTable.sampleIterator.collect().join(",")}"
+println "[${new Date()} $scriptName] Time points " +
+        "${timePoints.join(",")} and corresponding samples ${metadataTable.sampleIterator.collect().join(",")} " +
+        "will be processed"
 
 //
 // Join samples
