@@ -1,4 +1,4 @@
-require(ape); require(reshape2); require(ggplot2); require(MASS); require(plotrix); require(RColorBrewer)
+require(ape); require(reshape2); require(ggplot2); require(MASS); require(plotrix); require(RColorBrewer); require(scales)
 
 ## Read in arguments
 
@@ -37,7 +37,7 @@ if(lbl_col1_index < 1) {
 }
 
 ## Read data
-df <- read.table(tbl, header = T, sep = "\t", comment ="")
+df <- read.table(file_in, header = T, sep = "\t", comment ="")
 
 # convert factor columns depending on if continuous coloring is desired or not
 
@@ -68,7 +68,7 @@ df <- data.frame(
 
 if (measure_type == 0) {
     # neg log normalization (relative overlap, etc)
-    df$measure_col <- log10(df$measure_col + 1e-9)
+    df$measure_col <- -log10(df$measure_col + 1e-9)
 } else if (measure_type == 1) {
     # normalizaiton for correlation coefficients
     df$measure_col <- (1 - df$measure_col) / 2
@@ -270,8 +270,9 @@ fac  <- sapply(aux[match(row.names(as.matrix(df.d)), aux[, "id_col1"]), "factor_
 pdf(file_out_mds, useDingbats=FALSE)
 
 my.plot(FALSE, xy$x, xy$y, xlab="mds1", ylab="mds2", type = "n")
+#points(xy$x, xy$y, col = alpha(cc_final, 0.5), pch = 19)
 text(xy$x, xy$y, labels = lbl, col = cc_final, cex=.5)
-points(xy$x, xy$y, col = cc_final, pch = 19)
+#text(xy$x, xy$y, labels = lbl, cex=.5)
 my.legend(FALSE)
 
 dev.off()
