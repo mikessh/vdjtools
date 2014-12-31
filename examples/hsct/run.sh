@@ -11,7 +11,7 @@ $VDJTOOLS CalcDiversityStats $PARAMS ./out/3
 $VDJTOOLS RarefactionPlot $PARAMS -f time -n -l sample.id ./out/4
 
 # Intersect
-$VDJTOOLS IntersectPair -S simple -c 100 -p ./samples/minus48months.txt.gz ./samples/4months.txt.gz ./out/9
+$VDJTOOLS IntersectPair -S simple -p ./samples/minus48months.txt.gz ./samples/4months.txt.gz ./out/9
 $VDJTOOLS IntersectSequential $PARAMS -c 100 -x 0 -p ./out/5
 
 # Annotation

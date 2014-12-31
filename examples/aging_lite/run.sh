@@ -15,7 +15,7 @@ $VDJTOOLS CalcDiversityStats $PARAMS -x 5000 ./out/7
 $VDJTOOLS RarefactionPlot $PARAMS -f age -n -l sample.id ./out/8
 
 # Intersect
-$VDJTOOLS IntersectPair -S mitcr -c 100 -p ./samples/A4-i189.txt.gz ./samples/A4-i190.txt.gz ./out/9
+$VDJTOOLS IntersectPair -S mitcr -p ./samples/A4-i189.txt.gz ./samples/A4-i190.txt.gz ./out/9
 $VDJTOOLS BatchIntersectPair $PARAMS ./out/10
 $VDJTOOLS BatchIntersectPairPlot -f age -n -l sample.id ./out/10
 
