@@ -42,7 +42,7 @@ class SampleCollection implements Iterable<Sample> {
      * Gets a metadata table that allows querying and ordering of samples in this collection
      * @return metadata table
      */
-    MetadataTable getMetadataTable() {
+    public MetadataTable getMetadataTable() {
         metadataTable
     }
 
@@ -51,7 +51,7 @@ class SampleCollection implements Iterable<Sample> {
      * Samples should belong to the same metadata table, sample order will be preserved.
      * @param samples list of samples
      */
-    SampleCollection(List<Sample> samples) {
+    public SampleCollection(List<Sample> samples) {
         this.software = null
         this.strict = true
         this.lazy = false
@@ -72,9 +72,10 @@ class SampleCollection implements Iterable<Sample> {
      * @param store if set to true, all loaded samples will be stored in memory (only has effect if lazy is set to true)
      * @param lazy if set to true, all samples will be immediately loaded, otherwise samples will be loaded by request
      * @param strict if set to false, will ignore samples with missing files, otherwise will throw an exception in such case
+     * @param sort not sort sample metadata by sample id 
      */
-    SampleCollection(List<String> sampleFileNames, Software software,
-                     boolean store, boolean lazy, boolean strict) {
+    public SampleCollection(List<String> sampleFileNames, Software software,
+                            boolean store, boolean lazy, boolean strict, boolean sort) {
         this.software = software
         this.strict = strict
         this.lazy = lazy
@@ -91,7 +92,9 @@ class SampleCollection implements Iterable<Sample> {
                 println "[${new Date()} SampleCollection] WARNING: File $fileName not found, skipping"
             }
         }
-        metadataTable.sort()
+
+        if (sort)
+            metadataTable.sort()
     }
 
     /**
@@ -101,9 +104,9 @@ class SampleCollection implements Iterable<Sample> {
      * @param store if set to true, all loaded samples will be stored in memory (only has effect if lazy is set to true)
      * @param lazy if set to true, all samples will be immediately loaded, otherwise samples will be loaded by request
      */
-    SampleCollection(List<String> sampleFileNames, Software software,
-                     boolean store, boolean lazy) {
-        this(sampleFileNames, software, store, lazy, true)
+    public SampleCollection(List<String> sampleFileNames, Software software,
+                            boolean store, boolean lazy) {
+        this(sampleFileNames, software, store, lazy, true, false)
     }
 
     /**
@@ -112,9 +115,9 @@ class SampleCollection implements Iterable<Sample> {
      * @param sampleFileNames list of sample file names
      * @param store if set to true, all loaded samples will be stored in memory
      */
-    SampleCollection(List<String> sampleFileNames, Software software,
-                     boolean store) {
-        this(sampleFileNames, software, store, true, true)
+    public SampleCollection(List<String> sampleFileNames, Software software,
+                            boolean store) {
+        this(sampleFileNames, software, store, true, true, false)
     }
 
     /**
@@ -122,8 +125,8 @@ class SampleCollection implements Iterable<Sample> {
      * Samples will be assigned to generic metadata table, sample order will be preserved.
      * @param sampleFileNames list of sample file names
      */
-    SampleCollection(List<String> sampleFileNames, Software software) {
-        this(sampleFileNames, software, false, true, true)
+    public SampleCollection(List<String> sampleFileNames, Software software) {
+        this(sampleFileNames, software, false, true, true, false)
     }
 
     /**
@@ -137,9 +140,10 @@ class SampleCollection implements Iterable<Sample> {
      * @param store if set to true, all loaded samples will be stored in memory (only has effect if lazy is set to true)
      * @param lazy if set to true, all samples will be immediately loaded, otherwise samples will be loaded by request
      * @param strict if set to false, will ignore samples with missing files, otherwise will throw an exception in such case
+     * @param sort not sort sample metadata by sample id 
      */
-    SampleCollection(String sampleMetadataFileName, Software software,
-                     boolean store, boolean lazy, boolean strict) {
+    public SampleCollection(String sampleMetadataFileName, Software software,
+                            boolean store, boolean lazy, boolean strict, boolean sort) {
         this.software = software
 
         this.store = store
@@ -179,7 +183,8 @@ class SampleCollection implements Iterable<Sample> {
             }
         }
 
-        metadataTable.sort()
+        if (sort)
+            metadataTable.sort()
 
         this.metadataTable = metadataTable
     }
@@ -195,9 +200,9 @@ class SampleCollection implements Iterable<Sample> {
      * @param store if set to true, all loaded samples will be stored in memory (only has effect if lazy is set to true)
      * @param lazy if set to true, all samples will be immediately loaded, otherwise samples will be loaded by request
      */
-    SampleCollection(String sampleMetadataFileName, Software software,
-                     boolean store, boolean lazy) {
-        this(sampleMetadataFileName, software, store, lazy, true)
+    public SampleCollection(String sampleMetadataFileName, Software software,
+                            boolean store, boolean lazy) {
+        this(sampleMetadataFileName, software, store, lazy, true, false)
     }
 
     /**
@@ -210,9 +215,9 @@ class SampleCollection implements Iterable<Sample> {
      * @param software software used to get processed samples
      * @param store if set to true, all loaded samples will be stored in memory
      */
-    SampleCollection(String sampleMetadataFileName, Software software,
-                     boolean store) {
-        this(sampleMetadataFileName, software, store, true, true)
+    public SampleCollection(String sampleMetadataFileName, Software software,
+                            boolean store) {
+        this(sampleMetadataFileName, software, store, true, true, false)
     }
 
     /**
@@ -224,8 +229,8 @@ class SampleCollection implements Iterable<Sample> {
      * @param sampleMetadataFileName metadata file path
      * @param software software used to get processed samples
      */
-    SampleCollection(String sampleMetadataFileName, Software software) {
-        this(sampleMetadataFileName, software, false, true, true)
+    public SampleCollection(String sampleMetadataFileName, Software software) {
+        this(sampleMetadataFileName, software, false, true, true, false)
     }
 
     /**
@@ -233,7 +238,7 @@ class SampleCollection implements Iterable<Sample> {
      * Pairs (i, j) are chosen such as j > i, no (i, i) pairs allowed.
      * @return a list of sample pairs
      */
-    List<SamplePair> listPairs() {
+    public List<SamplePair> listPairs() {
         def samplePairs = new ArrayList()
 
         for (int i = 0; i < size(); i++)
@@ -250,7 +255,7 @@ class SampleCollection implements Iterable<Sample> {
      * @param i sample index.
      * @return a list of sample pairs
      */
-    List<SamplePair> listPairs(int i) {
+    public List<SamplePair> listPairs(int i) {
         def samplePairs = new ArrayList<SamplePair>()
 
         if (i < size() - 1) {
@@ -279,7 +284,7 @@ class SampleCollection implements Iterable<Sample> {
      * @param i sample index
      * @return sample
      */
-    Sample getAt(int i) {
+    public Sample getAt(int i) {
         if (i < 0 || i >= metadataTable.sampleCount)
             throw new IndexOutOfBoundsException()
 
@@ -292,13 +297,17 @@ class SampleCollection implements Iterable<Sample> {
      * @param j index of second sample in pair
      * @return sample pair
      */
-    SamplePair getAt(int i, int j) {
+    public SamplePair getAt(int i, int j) {
         new SamplePair(sampleMap[metadataTable.getRow(i).sampleId],
                 sampleMap[metadataTable.getRow(j).sampleId],
                 i, j)
     }
 
-    Iterator iterator() {
+    /**
+     * Gets an iterator that iterates over samples it current collection 
+     * and loads them if needed
+     */
+    public Iterator iterator() {
         def iter = metadataTable.sampleIterator
         return [
                 hasNext: {
@@ -317,8 +326,8 @@ class SampleCollection implements Iterable<Sample> {
      */
     public SampleStatistics getSampleStatistics() {
         def minCount = Long.MAX_VALUE, maxCount = 0,
-                minFreq = Double.MAX_VALUE, maxFreq = 0,
-                minDiversity = Integer.MAX_VALUE, maxDiversity = 0
+            minFreq = Double.MAX_VALUE, maxFreq = 0,
+            minDiversity = Integer.MAX_VALUE, maxDiversity = 0
         println "[${new Date()} SampleCollection] Collecting sample statistics"
         sampleMap.each {
             def sample = it.value.haveAGlance()
@@ -336,12 +345,12 @@ class SampleCollection implements Iterable<Sample> {
      * Gets the number of samples
      * @return number of samples
      */
-    int size() {
+    public int size() {
         sampleMap.size()
     }
 
     @Override
-    String toString() {
+    public String toString() {
         "samples=" + this.collect { it.sampleMetadata.sampleId }.join(",") +
                 "\nmetadata=" + metadataTable.columnIterator.collect().join(",")
     }

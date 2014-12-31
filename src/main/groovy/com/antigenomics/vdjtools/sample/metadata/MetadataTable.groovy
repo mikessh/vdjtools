@@ -32,7 +32,7 @@ class MetadataTable implements Iterable<SampleMetadata> {
     @PackageScope
     static final MetadataTable GENERIC_METADATA_TABLE = new MetadataTable()
 
-    private final HashMap<String, Integer> id2index = new HashMap<>()
+    private final HashMap<String, Integer> columnId2Index = new HashMap<>()
     private final List<String> columnIds
     private List<String> sampleOrder = new ArrayList<>()
     private final Map<String, SampleMetadata> metadataBySample = new HashMap<>()
@@ -52,10 +52,10 @@ class MetadataTable implements Iterable<SampleMetadata> {
         this.columnIds = columnIds
 
         columnIds.eachWithIndex { it, ind ->
-            if (id2index.containsKey(it))
+            if (columnId2Index.containsKey(it))
                 throw new IllegalArgumentException("Duplicate metadata columns not allowed")
 
-            id2index.put(it, ind)
+            columnId2Index.put(it, ind)
         }
     }
 
@@ -82,7 +82,7 @@ class MetadataTable implements Iterable<SampleMetadata> {
                     "number of sample ids and sample collection size don't match")
 
         sampleOrder.each {
-            if (!id2index.containsKey(it))
+            if (!columnId2Index.containsKey(it))
                 throw new IllegalArgumentException("Bad sample order, unknown sample id $it")
         }
 
@@ -200,7 +200,7 @@ class MetadataTable implements Iterable<SampleMetadata> {
     }
 
     private void addColumnId(String columnId) {
-        id2index.put(columnId, columnIds.size())
+        columnId2Index.put(columnId, columnIds.size())
         columnIds.add(columnId)
     }
 
@@ -336,7 +336,7 @@ class MetadataTable implements Iterable<SampleMetadata> {
 
         checkColumnId(columnId)
 
-        int index = id2index[columnId]
+        int index = columnId2Index[columnId]
 
         getColumn(index)
     }
@@ -396,7 +396,7 @@ class MetadataTable implements Iterable<SampleMetadata> {
      * @return metadata entry
      */
     MetadataEntry getAt(String sampleId, String columnId) {
-        metadataBySample[sampleId].entries[id2index[columnId]]
+        metadataBySample[sampleId].entries[columnId2Index[columnId]]
     }
 
     /**
