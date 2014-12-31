@@ -49,21 +49,20 @@ class IntersectionEvaluator {
         ExecUtil.report(this, "Computing $metric", VERBOSE)
         switch (metric) {
             case IntersectMetric.Diversity:
-                // todo: check this
                 def div1 = jointSample.getSample(i).diversity,
                         div2 = jointSample.getSample(j).diversity,
                         div12 = jointSample.getIntersectionDiv(i, j)
-                return -Math.log10(div12 / Math.sqrt(div1 * div2) + 1e-9)
+                return div12 / div1 / div2
 
             case IntersectMetric.Frequency:
-                return -Math.log10(Math.sqrt(jointSample.getIntersectionFreq(i, j) * jointSample.getIntersectionFreq(j, i)) + 1e-9)
+                return Math.sqrt(jointSample.getIntersectionFreq(i, j) * jointSample.getIntersectionFreq(j, i))
 
             case IntersectMetric.Frequency2:
                 double F2 = 0;
                 jointSample.each {
                     F2 += Math.sqrt(it.getFreq(i) * it.getFreq(j))
                 }
-                return -Math.log10(F2 + 1e-9)
+                return F2
 
             case IntersectMetric.Correlation:
                 double R = Double.NaN
@@ -84,7 +83,7 @@ class IntersectionEvaluator {
 
                     R = new PearsonsCorrelation().correlation(x, y)
                 }
-                return (1 - R) / 2.0 // negative distance values are prohibited
+                return R
 
             case IntersectMetric.vJSD:
                 return MathUtil.JSD(
