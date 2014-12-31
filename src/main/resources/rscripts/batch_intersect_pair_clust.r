@@ -1,42 +1,43 @@
+require(ape); require(reshape2); require(ggplot2); require(MASS); require(plotrix); require(RColorBrewer)
+
+## Read in arguments
+
 args<-commandArgs(TRUE)
 
-# read in
+file_in           = args[1]              # Input filename
+id_col1_index     = as.integer(args[2])  # Index of first id column
+id_col2_index     = as.integer(args[3])  # Index of second id column
+measure_col_index = as.integer(args[4])  # Index of overlap measure column
+measure_type      = as.integer(args[5])  # Mesure normalization type
+factor_col1_index = as.integer(args[6])  # Index of first column with factor values
+factor_col2_index = as.integer(args[7])  # Index of second column with factor values
+lbl_col1_index    = as.integer(args[8])  # Index of first column with labels
+lbl_col2_index    = as.integer(args[9])  # Index of second column with labels
+factor_name       = args[10]             # Coloring factor
+cont_factor       = args[11]             # Continuous factor?
+file_out_hc       = args[12]             # Dendrogram plot filename
+file_out_mds      = args[13]             # MDS plot filename
+k_clust           = args[14]             # number of clusters to output
+file_out_clust    = args[15]             # HCL clusters
+file_out_coord    = args[16]             # MDS coords
 
-file_in           = args[1] #"mmu_sep13_aa.txt"
-id_col1_index     = as.integer(args[2])  #1
-id_col2_index     = as.integer(args[3])  #2
-measure_col_index = as.integer(args[4])  #18
-factor_col1_index = as.integer(args[5])  #21
-factor_col2_index = as.integer(args[6])  #22
-lbl_col1_index    = as.integer(args[7])  #1#
-lbl_col2_index    = as.integer(args[8])  #2
-factor_name       = args[9]  #"Group"
-cont_factor       = args[10] #TRUE
-file_out_hc       = args[11]
-file_out_mds      = args[12]
-k_clust           = args[13]
-file_out_clust    = args[14]
-file_out_coord    = args[15]
-
+# handle no factor case
 color_by_factor <- TRUE
-
 if(factor_col1_index < 1) {
    factor_col1_index = id_col1_index
    factor_col2_index = id_col2_index
    color_by_factor   = FALSE
-   cont_factor   = FALSE
+   cont_factor       = FALSE
 }
 
+# handle no label case
 if(lbl_col1_index < 1) {
    lbl_col1_index = id_col1_index
    lbl_col2_index = id_col2_index
 }
 
-require(ape); require(reshape2); require(ggplot2); require(MASS); require(plotrix); require(RColorBrewer)
-
-# read data
-tbl  <- read.delim(file_in, sep = "\t")
-df   <- data.frame(tbl)
+## Read data
+df <- read.table(tbl, header = T, sep = "\t", comment ="")
 
 # convert factor columns depending on if continuous coloring is desired or not
 
@@ -62,6 +63,18 @@ df <- data.frame(
     id_col1 = df[, id_col1_index], id_col2 = df[, id_col2_index],
     measure_col = as.numeric(as.character(df[, measure_col_index]))
     )
+
+# normalize overlap measure
+
+if (measure_type == 0) {
+    # neg log normalization (relative overlap, etc)
+    df$measure_col <- log10(df$measure_col + 1e-9)
+} else if (measure_type == 1) {
+    # normalizaiton for correlation coefficients
+    df$measure_col <- (1 - df$measure_col) / 2
+} else {
+    # no normalization (jensen-shannon divergence, etc)
+}
 
 ## Auxillary table
 
@@ -128,7 +141,7 @@ if (k_clust > 0) {
    write.table(ctbl, file_out_clust, sep = "\t", quote = FALSE, row.names = FALSE)
 }
 
-## Plotting
+## Dendrogram
 
 # for matching colors and labels
 cc_final <- "black"
@@ -184,10 +197,6 @@ my.legend <- function(hcl) {
       }
       par(fig = fig, mar = c(0, 0, 0, 0), xpd = NA, new=TRUE)
       if (cont_factor) {
-         # custom legend.gradient
-         #px = c(-0.075, 0.075, 0.075, -0.075)
-         #py = c(-0.1,   -0.1,  0.1,    0.1)
-
          # order & get rid of NAs
          fu1 <- fu[ind1]
          cc1 <- cc[ind1]
@@ -203,10 +212,6 @@ my.legend <- function(hcl) {
 
          uy <- grconvertY(0.5 + 0.15 + 0.02, from = "npc", to = "user")
          text(0.5, uy, factor_name, adj = c(0.5, 0.0))
-
-         # old impl
-         # rect(-0.075, -0.1, 0.075, 0.1)
-         #legend.gradient(cbind(x = px, y = py), cols = cc[ind1], title = factor_name, limits = c(fu[1], fu[length(fu)]))
       } else {
          # vanilla legend for discrete factor
          legend("center", "(x,y)", fill = cc, pch = '', box.lwd = 0, title = factor_name, legend = fu)
@@ -214,7 +219,7 @@ my.legend <- function(hcl) {
    }
 }
 
-# draw dendrogram
+# plot
 pdf(file_out_hc)
 
 my.plot(TRUE, phylo, tip.color = cc_final, type = "fan")
@@ -260,14 +265,19 @@ if (color_by_factor) {
 lbl  <- sapply(aux[match(row.names(as.matrix(df.d)), aux[, "id_col1"]), "lbl_col1"], as.character)
 fac  <- sapply(aux[match(row.names(as.matrix(df.d)), aux[, "id_col1"]), "factor_col1"], as.character)
 
+# plot
+
 pdf(file_out_mds, useDingbats=FALSE)
 
 my.plot(FALSE, xy$x, xy$y, xlab="mds1", ylab="mds2", type = "n")
 text(xy$x, xy$y, labels = lbl, col = cc_final, cex=.5)
-#points(xy$x, xy$y, col = cc_final, pch = 19)
+points(xy$x, xy$y, col = cc_final, pch = 19)
 my.legend(FALSE)
 
 dev.off()
+
+# table with mds coordinates
+# it will be later used in permutation testing
 
 write.table(data.frame(id = aux[, "id_col1"], lbl = lbl, factor = fac, x=xy$x, y=xy$y),
    file_out_coord, sep = "\t", quote = FALSE, row.names = FALSE)

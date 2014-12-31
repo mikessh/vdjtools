@@ -145,7 +145,7 @@ println "[${new Date()} $scriptName] Clustering and plotting data"
 RUtil.execute("batch_intersect_pair_clust.r",
         inputFileName,
         idCol1Ind, idCol2Ind,
-        measureColInd,
+        measureColInd, IntersectMetric.getByShortName(measureName).normalization.id.toString(),
         factorCol1Ind, factorCol2Ind,
         labelCol1Ind, labelCol2Ind,
         factorNameOrig ?: "NA", numFactor ? "TRUE" : "FALSE",
