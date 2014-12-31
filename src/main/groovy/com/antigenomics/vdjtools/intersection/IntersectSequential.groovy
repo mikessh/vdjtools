@@ -110,6 +110,11 @@ def sampleCollection = metadataFileName ?
 
 def metadataTable = sampleCollection.metadataTable
 
+if (sampleCollection.size() < 3) {
+    println "[ERROR] Metadata file should contain at least 3 samples"
+    System.exit(-1)
+}
+
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
 //

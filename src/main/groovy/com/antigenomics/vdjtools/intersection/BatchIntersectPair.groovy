@@ -55,9 +55,9 @@ def metadataFileName = opt.m
 
 if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 4) {
     if (metadataFileName)
-        println "Only output prefix should be provided in case of -m"
+        println "[ERROR] Only output prefix should be provided in case of -m"
     else
-        println "At least 3 sample files should be provided if not using -m"
+        println "[ERROR] At least 3 sample file names should be provided if not using -m"
     cli.usage()
     System.exit(-1)
 }
@@ -90,6 +90,11 @@ boolean store, lazy
 def sampleCollection = metadataFileName ?
         new SampleCollection((String) metadataFileName, software, store, lazy) :
         new SampleCollection(opt.arguments()[0..-2], software, store, lazy)
+
+if (sampleCollection.size() < 3) {
+    println "[ERROR] Metadata file should contain at least 3 samples"
+    System.exit(-1)
+}
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
