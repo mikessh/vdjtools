@@ -144,11 +144,9 @@ if (opt.p) {
 
     RUtil.execute("intersect_pair_scatter.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
             outputPrefix + ".xy.txt", outputPrefix + ".xx.txt", outputPrefix + ".yy.txt",
-            formOutputPath(outputPrefix, "paired", intersectionType.shortName, "scatter", "pdf"))
+            formOutputPath(outputPrefix, intersectionType.shortName, "paired", "scatter", "pdf"))
 
-    if (opt.c) {
-        RUtil.execute("intersect_pair_area.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
-                tableCollapsedOutputPath, toPlotPath(tableCollapsedOutputPath),
-                Math.max(0, software.headerLineCount - 1).toString())
-    }
+    RUtil.execute("intersect_pair_area.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
+            tableCollapsedOutputPath, toPlotPath(tableCollapsedOutputPath),
+            Math.max(0, software.headerLineCount - 1).toString())
 }
