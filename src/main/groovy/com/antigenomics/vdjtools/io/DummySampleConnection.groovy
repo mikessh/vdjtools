@@ -34,4 +34,9 @@ class DummySampleConnection implements SampleConnection {
     public Sample haveAGlance() {
         sample
     }
+    
+    @Override
+    public String toString() {
+        "DummyFileConnection{.>${sample.sampleMetadata.sampleId}}"
+    }
 }

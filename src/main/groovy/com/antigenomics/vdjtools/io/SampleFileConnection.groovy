@@ -84,4 +84,9 @@ class SampleFileConnection implements SampleConnection {
     public Sample haveAGlance() {
         _sample ?: Sample.fromInputStream(CommonUtil.getFileStream(fileName), null, software, -1, false)
     }
+
+    @Override
+    public String toString() {
+        "SampleFileConnection{$fileName>${sampleMetadata.sampleId},storing=${store},loaded=${_sample != null}"
+    }
 }

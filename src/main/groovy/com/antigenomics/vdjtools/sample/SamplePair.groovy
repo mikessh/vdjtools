@@ -58,4 +58,9 @@ class SamplePair {
         }
         throw new IndexOutOfBoundsException()
     }
+    
+    @Override
+    public String toString() {
+        "SamplePair{${sample1conn},${sample2conn}}"
+    }
 }
