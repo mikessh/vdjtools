@@ -72,6 +72,7 @@ ggplot() +
     theme_bw() +
     theme(legend.position = "none") + #, axis.text.x  = element_text(angle=90, vjust=0.5)) +
     geom_text(data = subset(df.0, peak == 0), aes(x = "s1", y = cum, label = cdr3aa, size = expr, alpha = rank(expr)), hjust = 0, vjust = 1) +
-    geom_text(data = subset(df.1, peak == 1), aes(x = "s2", y = cum, label = cdr3aa, size = expr, alpha = rank(expr)), hjust = 1, vjust = 1)
+    geom_text(data = subset(df.1, peak == 1), aes(x = "s2", y = cum, label = cdr3aa, size = expr, alpha = rank(expr)), hjust = 1, vjust = 1) +
+    scale_size_continuous(guide = "none", range = c(3, 10))
 
 dev.off()
