@@ -134,6 +134,8 @@ df.d <- as.dist(df.m)
 hcl <- hclust(df.d)
 
 k_clust <- as.integer(k_clust)
+
+# write clusters
 if (k_clust > 0) {
    clusters <- cutree(hcl, k = k_clust)
    clusters <- data.frame(id_col1 = names(clusters), cluster = clusters)

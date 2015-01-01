@@ -16,15 +16,15 @@
  * Last modified on 10.11.2014 by mikesh
  */
 
-package com.antigenomics.vdjtools.intersection
+package com.antigenomics.vdjtools.intersection.mds
 
-class FactorClusterStats {
+class DiscreteFactorClusterStats {
     private final String factorName
     private final List<String> factorList = new ArrayList<>()
     private final List<Point> pointList = new ArrayList<>()
     private final Silhouette observedSilhouette
 
-    public FactorClusterStats(String fileName) {
+    public DiscreteFactorClusterStats(String fileName) {
         def reader = new File(fileName).newReader()
         def header = reader.readLine() // id\tlabel\tfactor\tx\ty
 
@@ -44,10 +44,6 @@ class FactorClusterStats {
     }
 
     public HashMap<String, Summary> performPermutations(int nPerms) {
-        performPermutations(nPerms, null)
-    }
-
-    public HashMap<String, Summary> performPermutations(int nPerms, String outputFileName) {
         def summaryByFactor = new HashMap<String, Summary>()
 
         factorList.each { String factor ->
@@ -66,36 +62,37 @@ class FactorClusterStats {
             }
         }
 
-        if (outputFileName) {
-            new File(outputFileName).withPrintWriter { pw ->
-                pw.println(factorName +
-                        "\ttype\tperm\tobs\tp")
-                //"\tperm.within\tperm.between\tobs.within\tobs.between\tp.within\tp.between")
+        summaryByFactor
+    }
 
-                summaryByFactor.each {
-                    nPerms.times { int i ->
-                        def factor = it.key
-                        def summary = it.value
-                        //pw.println([factor,
-                        //            summary.getWithinPerm(i), summary.getBetweenPerm(i),
-                        //            summary.withinObs, summary.betweenObs,
-                        //            summary.withinP, summary.betweenP].join("\t"))
+    public static void writeSummary(HashMap<String, Summary> summaryByFactor, String cacheFileName) {
+        new File(cacheFileName).withPrintWriter { pw ->
+            pw.println(factorName +
+                    "\ttype\tperm\tobs\tp")
+            //"\tperm.within\tperm.between\tobs.within\tobs.between\tp.within\tp.between")
 
-                        pw.println([factor, "within",
-                                    summary.getWithinPerm(i),
-                                    summary.withinObs,
-                                    summary.withinP].join("\t"))
+            summaryByFactor.each {
+                def factor = it.key
+                def summary = it.value
+                summary.nPerms.times { int i ->
+                    //pw.println([factor,
+                    //            summary.getWithinPerm(i), summary.getBetweenPerm(i),
+                    //            summary.withinObs, summary.betweenObs,
+                    //            summary.withinP, summary.betweenP].join("\t"))
 
-                        pw.println([factor, "between",
-                                    summary.getBetweenPerm(i),
-                                    summary.betweenObs,
-                                    summary.betweenP].join("\t"))
-                    }
+                    pw.println([factor, "within",
+                                summary.getWithinPerm(i),
+                                summary.withinObs,
+                                summary.withinP].join("\t"))
+
+                    pw.println([factor, "between",
+                                summary.getBetweenPerm(i),
+                                summary.betweenObs,
+                                summary.betweenP].join("\t"))
                 }
             }
         }
 
-        summaryByFactor
     }
 
     private static class Silhouette {

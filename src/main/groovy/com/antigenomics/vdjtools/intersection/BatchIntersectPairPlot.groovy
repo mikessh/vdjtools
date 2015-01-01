@@ -16,6 +16,7 @@
 
 package com.antigenomics.vdjtools.intersection
 
+import com.antigenomics.vdjtools.intersection.mds.DiscreteFactorClusterStats
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 import com.antigenomics.vdjtools.util.RUtil
 
@@ -138,7 +139,10 @@ if (numFactor && specifiedFactor) {
         numFactor = false
     }
 }
-// Plot
+
+//
+// Cluster & plot
+//
 
 println "[${new Date()} $scriptName] Clustering and plotting data"
 
@@ -153,16 +157,23 @@ RUtil.execute("batch_intersect_pair_clust.r",
         k.toString(), clustFileName, coordFileName
 )
 
+//
+// Permutation testing
+//
+
 if (specifiedFactor) {
+    println "[${new Date()} $scriptName] Running permutation testing for factor ~ cluster dependence"
     def permsOutputPath = formOutputPath(outputPrefix, "mds", "perms", intersectionType, measureName)
     if (numFactor) {
         // todo: finish with distance correlation
     } else {
-        new FactorClusterStats(coordFileName).performPermutations(10000,
-                permsOutputPath)
+        def summary = new DiscreteFactorClusterStats(coordFileName).performPermutations(10000)
+        DiscreteFactorClusterStats.writeSummary(summary, permsOutputPath)
         RUtil.execute("batch_intersect_pair_perm_f.r",
                 permsOutputPath,
                 toPlotPath(permsOutputPath)
         )
     }
 }
+
+println "[${new Date()} $scriptName] Finished"
