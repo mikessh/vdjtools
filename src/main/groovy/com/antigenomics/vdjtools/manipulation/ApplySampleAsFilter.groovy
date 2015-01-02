@@ -22,6 +22,7 @@ import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.intersection.IntersectionType
 import com.antigenomics.vdjtools.io.SampleFileConnection
 import com.antigenomics.vdjtools.io.SampleWriter
+import com.antigenomics.vdjtools.sample.ClonotypeFilter
 import com.antigenomics.vdjtools.sample.IntersectionClonotypeFilter
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
@@ -31,8 +32,12 @@ import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
-def cli = new CliBuilder(usage: "ApplySampleAsFilter [options] filter_sample sample1 [sample2 ...] output_prefix")
+def cli = new CliBuilder(usage: "ApplySampleAsFilter [options] filter_sample " +
+        "[sample1 sample2 ... if not -m] filter_sample output_prefix")
 cli.h("display help message")
+cli.m(longOpt: "metadata", argName: "filename", args: 1,
+        "Metadata file. First and second columns should contain file name and sample id. " +
+                "Header is mandatory and will be used to assign column names for metadata.")
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Intersection type to apply. " +
                 "Allowed values: $IntersectionType.allowedNames. " +
@@ -56,15 +61,20 @@ if (opt.h) {
 
 // Check if enough arguments are provided
 
-if (opt.arguments().size() < 3) {
-    println "At least 3 arguments should be provided"
+def metadataFileName = opt.m
+
+if (metadataFileName ? opt.arguments().size() != 2 : opt.arguments().size() < 3) {
+    if (metadataFileName)
+        println "Output prefix and filter sample should be provided in case of -m"
+    else
+        println "At least 1 sample, filter sample and output path should be provided if not using -m"
     cli.usage()
     System.exit(-1)
 }
 
 // IO stuff
 
-def sampleFileNames = opt.arguments()[0..-2],
+def filterFileName = opt.arguments()[-2],
     compress = (boolean) opt.c,
     outputFilePrefix = opt.arguments()[-1]
 
@@ -85,8 +95,14 @@ if (!intersectionType) {
 
 println "[${new Date()} $scriptName] Reading input samples & filter sample"
 
-def sampleCollection = new SampleCollection(sampleFileNames[1..-1].flatten() as List<String>, software)
-def filterSample = SampleFileConnection.load(sampleFileNames[0], software)
+def sampleCollection = metadataFileName ?
+        new SampleCollection((String) metadataFileName, software) :
+        new SampleCollection(opt.arguments()[0..-3], software)
+
+println "[${new Date()} $scriptName] Loading filter sample"
+
+def filterSample = SampleFileConnection.load(filterFileName, software)
+
 def clonotypeFilter = new IntersectionClonotypeFilter(intersectionType, filterSample, negative)
 
 //
@@ -98,18 +114,22 @@ println "[${new Date()} $scriptName] Filtering (${negative ? "negative" : "posit
 def sw = new SampleWriter(software, compress)
 
 new File(formOutputPath(outputFilePrefix, "asaf", "summary")).withPrintWriter { pw ->
-    pw.println("#$MetadataTable.SAMPLE_ID_COLUMN\tcells_before\tdiversity_before\tcells_after\tdiversity_after")
+    def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
+            sampleCollection.metadataTable.columnHeader + "\t" +
+            ClonotypeFilter.ClonotypeFilterStats.HEADER
+
+    pw.println(header)
+    
     sampleCollection.each { Sample sample ->
         // Filter
+        def sampleId = sample.sampleMetadata.sampleId
+        
+        println "[${new Date()} $scriptName] Filtering $sampleId sample."
         def filteredSample = new Sample(sample, clonotypeFilter)
 
-        // todo: filterstats
-        
-        println "[${new Date()} $scriptName] Processed $sample.sampleMetadata.sampleId sample."
-
-        pw.println([sample.sampleMetadata.sampleId,
-                    sample.count, sample.diversity,
-                    filteredSample.count, filteredSample.diversity].join("\t"))
+        // print filter stats
+        def stats = clonotypeFilter.getStatsAndFlush()
+        pw.println([sampleId, sample.sampleMetadata, stats].join("\t"))
 
         // print output
         sw.writeConventional(filteredSample, outputFilePrefix)
@@ -120,5 +140,3 @@ sampleCollection.metadataTable.storeWithOutput(outputFilePrefix,
         "asaf:$filterSample.sampleMetadata.sampleId:${negative ? "-" : "+"}:$intersectionType.shortName")
 
 println "[${new Date()} $scriptName] Finished"
-
-
