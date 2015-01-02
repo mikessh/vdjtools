@@ -25,7 +25,7 @@ class DiscreteFactorClusterStats {
 
     public DiscreteFactorClusterStats(String fileName) {
         def reader = new File(fileName).newReader()
-        def header = reader.readLine() // id\tlabel\tfactor\tx\ty
+        reader.readLine() // id\tlabel\tfactor\tx\ty
 
         def line
         while ((line = reader.readLine()) != null) {

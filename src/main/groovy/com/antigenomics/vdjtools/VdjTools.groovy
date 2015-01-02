@@ -22,11 +22,12 @@ package com.antigenomics.vdjtools
 import com.antigenomics.vdjtools.basic.*
 import com.antigenomics.vdjtools.db.ScanDatabase
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
-import com.antigenomics.vdjtools.manipulation.DownSample
 import com.antigenomics.vdjtools.diversity.PlotQuantileStats
 import com.antigenomics.vdjtools.diversity.RarefactionPlot
 import com.antigenomics.vdjtools.intersection.*
 import com.antigenomics.vdjtools.manipulation.ApplySampleAsFilter
+import com.antigenomics.vdjtools.manipulation.Decontaminate
+import com.antigenomics.vdjtools.manipulation.DownSample
 import com.antigenomics.vdjtools.manipulation.FilterNonFunctional
 import com.antigenomics.vdjtools.util.ExecUtil
 import com.antigenomics.vdjtools.util.RInstall
@@ -65,6 +66,7 @@ def printHelp = {
     println "ApplySampleAsFilter"
     println "FilterNonFunctional"
     println "DownSample"
+    println "Decontaminate"
     println ""
     println "[Annotation]"
     println "ScanDatabase"
@@ -109,6 +111,8 @@ def getScript = { String scriptName ->
             return new RarefactionPlot()
         case "PLOTQUANTILESTATS":
             return new PlotQuantileStats()
+        case "DECONTAMINATE":
+            return new Decontaminate()
         case "RINSTALL":
             return new RInstall()
         case "-H":

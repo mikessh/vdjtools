@@ -43,7 +43,6 @@ class IntersectionEvaluator {
         segmentUsageCache
     }
 
-    // all metrics are [0, +inf] with 0 for equal samples and symmetric
     private double _computeIntersectionMetric(IntersectMetric metric,
                                               int i, int j) {
         ExecUtil.report(this, "Computing $metric", VERBOSE)
