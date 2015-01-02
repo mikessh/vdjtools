@@ -28,7 +28,7 @@ import com.antigenomics.vdjtools.util.RUtil
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
 
-def I_TYPE_DEFAULT = "strict"
+def I_TYPE_DEFAULT = "strict", TOP_DEFAULT = "100", TOP_MAX = 200
 def cli = new CliBuilder(usage: "IntersectSequential [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
@@ -37,8 +37,6 @@ cli.S(longOpt: "software", argName: "string", required: true, args: 1,
 cli.x(longOpt: "track-sample", argName: "int", args: 1,
         "A zero-based index of time point to track. " +
                 "Will otherwise consider all clonotypes that were detected in 2+ samples")
-cli.c(longOpt: "collapse", argName: "int", args: 1,
-        "Generate a collapsed overlap table for visualization purposes with a specified number of top clones.")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata." +
@@ -46,14 +44,16 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Intersection rule to apply. Allowed values: $IntersectionType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
-cli.t(longOpt: "time", argName: "[t1,t2,t3,...]", args: 1,
-        "Time point sequence. Unused if -m is specified.")
-cli._(longOpt: "time-label", argName: "string", args: 1,
-        "Optional time axis label for plotting.")
-// todo: below & at least 3,4,.. samples
-cli.p(longOpt: "plot", "Generate a scatterplot to characterize overlapping clonotypes. " +
-        "Also generate abundance difference plot if -c option is specified. " +
-        "(R installation with ggplot2, grid and gridExtra packages required).")
+cli.s(longOpt: "sequence", argName: "[t1,t2,t3,...]", args: 1,
+        "Time point sequence. Unused if -m is specified. " +
+                "If not specified, either time values from metadata, " +
+                "or sample indexes (as in command line) are used.")
+cli.t(longOpt: "top", args: 1, "Number of top clonotypes which will be provided in the collapsed joint table " +
+        "and shown on the summary stacked area plot. " +
+        "Values > $TOP_MAX are not allowed, as they would make the plot unreadable. [default = $TOP_DEFAULT]")
+cli.f(longOpt: "factor", argName: "string", args: 1,
+        "Column name, as in metadata. Factor to be treated as time variable. [default = \"time\"]")
+cli.p(longOpt: "plot", "Turns on plotting.")
 
 def opt = cli.parse(args)
 
@@ -79,6 +79,16 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 4)
     System.exit(-1)
 }
 
+// Other parameters
+
+def software = Software.byName(opt.S),
+    trackSample = (opt.x ?: "-1").toInteger(),
+    plot = opt.p,
+    timeFactor = opt.f ?: "time",
+    outputPrefix = opt.arguments()[-1]
+
+def scriptName = getClass().canonicalName.split("\\.")[-1]
+
 // Select intersection type
 
 def iName = opt.i ?: I_TYPE_DEFAULT
@@ -90,13 +100,14 @@ if (!intersectionType) {
     System.exit(-1)
 }
 
-def software = Software.byName(opt.S),
-    trackSample = (opt.x ?: "-1").toInteger(),
-    top = (int) ((opt.c ?: "-1").toInteger()), plot = opt.p,
-    timeLabel = opt."time-label" ?: "time",
-    outputPrefix = opt.arguments()[-1]
+// Define number of clonotypes to show explicitly
 
-def scriptName = getClass().canonicalName.split("\\.")[-1]
+def top = (opt.t ?: TOP_DEFAULT).toInteger()
+
+if (top > TOP_MAX) {
+    println "[ERROR] Specified number of top clonotypes should not exceed $TOP_MAX"
+    System.exit(-1)
+}
 
 //
 // Batch load samples
@@ -118,23 +129,31 @@ if (sampleCollection.size() < 3) {
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
 //
-// Sort samples
+// Get time points & sort samples
 //
 
-def timePoints = opt.t ? (opt.t.toString())[1..-2].split(",").collect() : // [-10,0.5,1,20]
+// get time points (this will be unused if metadata already contains $timeFactor column)
+def timePoints = opt.s ? (opt.s.toString())[1..-2].split(",").collect() : // [-10,0.5,1,20]
         (0..<sampleCollection.size()).collect { it.toString() } // value provided with argument or uniform
 
 int n = timePoints.size()
 
-if (!metadataTable.containsColumn("time")) {
-    // add corresponding column to metadata
-    metadataTable.addColumn("time", timePoints as List<String>)
+if (n != sampleCollection.size()) {
+    println "[ERROR] $n time points provided, " +
+            "while sample collection contains ${sampleCollection.size()} samples"
+    System.exit(-1)
 }
 
-metadataTable.sort("time")
+// sort
+if (!metadataTable.containsColumn(timeFactor)) {
+    // add corresponding column to metadata
+    metadataTable.addColumn(timeFactor, timePoints as List<String>)
+}
+
+metadataTable.sort(timeFactor)
 
 // Take sorted values from metadata
-timePoints = metadataTable.getColumn("time").collect { it.asNumeric().toString() }
+timePoints = metadataTable.getColumn(timeFactor).collect { it.asNumeric().toString() }
 
 println "[${new Date()} $scriptName] Time points " +
         "${timePoints.join(",")} and corresponding samples ${metadataTable.sampleIterator.collect().join(",")} " +
@@ -171,7 +190,7 @@ println "[${new Date()} $scriptName] Writing output"
 def summaryOutputPath = formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "summary")
 new File(summaryOutputPath).withPrintWriter { pw ->
     pw.println("#1_$MetadataTable.SAMPLE_ID_COLUMN\t2_$MetadataTable.SAMPLE_ID_COLUMN\t" +
-            "value\tmetric\t" +
+            "value\tmetric\t1_time\t2_time\t" +
             sampleCollection.metadataTable.columnHeader1 + "\t" +
             sampleCollection.metadataTable.columnHeader2)
 
@@ -187,44 +206,20 @@ new File(summaryOutputPath).withPrintWriter { pw ->
         }
     }
 
-    def procTable = { double[][] table ->
-        def flatTable = table.collect { it.collect() }.flatten().findAll { !Double.isNaN(it) }
-        def min = 0, max = 1
-        if (flatTable.size() > 0) {
-            min = flatTable.min()
-            max = flatTable.max()
-        } else {
-            // should not happen, but who knows
-        }
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                table[i][j] = (table[i][j] - min) / (max - min)
-            }
-        }
-    }
-
-    def toRstring = { double x ->
-        Double.isInfinite(x) ? "NA" : x
-    }
-
-    procTable(freqTable)
-    procTable(divTable)
-    procTable(countTable)
-
     for (int i = 0; i < jointSample.numberOfSamples; i++) {
         for (int j = 0; j < jointSample.numberOfSamples; j++) {
             def ids = [i, j].collect { jointSample.getSample(it).sampleMetadata.sampleId }.join("\t"),
                 metadata = [i, j].collect { jointSample.getSample(it).sampleMetadata.toString() }.join("\t")
+            def pointPair = [timePoints[i], timePoints[j]]
 
             if (i != j) {
-                pw.println(ids + "\t" + toRstring(freqTable[i][j]) + "\tfrequency\t" + metadata)
-                pw.println(ids + "\t" + toRstring(divTable[i][j]) + "\tdiversity\t" + metadata)
-                pw.println(ids + "\t" + toRstring(countTable[i][j]) + "\tcount\t" + metadata)
+                pw.println([ids, RUtil.asNumeric(freqTable[i][j]), "frequency", pointPair, metadata].flatten().join("\t"))
+                pw.println([ids, RUtil.asNumeric(divTable[i][j]), "diversity", pointPair, metadata].flatten().join("\t"))
+                pw.println([ids, RUtil.asNumeric(countTable[i][j]), "count", pointPair, metadata].flatten().join("\t"))
             } else {
-                pw.println(ids + "\tNA\tfrequency\t" + metadata)
-                pw.println(ids + "\tNA\tdiversity\t" + metadata)
-                pw.println(ids + "\tNA\tcount\t" + metadata)
+                pw.println([ids, "NA", "frequency", pointPair, metadata].flatten().join("\t"))
+                pw.println([ids, "NA", "diversity", pointPair, metadata].flatten().join("\t"))
+                pw.println([ids, "NA", "count", pointPair, metadata].flatten().join("\t"))
             }
         }
     }
@@ -242,19 +237,17 @@ if (plot) {
             summaryOutputPath,
             toPlotPath(summaryOutputPath))
 
-    if (top >= 0) {
-        // Plot a stack plot of top X clonotype abundances
-        RUtil.execute("sequential_intersect_stack.r",
-                timeLabel,
-                timePoints.join(","),
-                tableCollapsedOutputPath,
-                formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "stackplot", "pdf"))
+    // Plot a stack plot of top X clonotype abundances
+    RUtil.execute("sequential_intersect_stack.r",
+            timeFactor,
+            timePoints.join(","),
+            tableCollapsedOutputPath,
+            formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "stackplot", "pdf"))
 
-        // Plot a "heatcourse" plot of top X clonotype abundances
-        RUtil.execute("sequential_intersect_heatcourse.r",
-                timeLabel,
-                timePoints.join(","),
-                tableCollapsedOutputPath,
-                formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "heatplot", "pdf"))
-    }
+    // Plot a "heatcourse" plot of top X clonotype abundances
+    RUtil.execute("sequential_intersect_heatcourse.r",
+            timeFactor,
+            timePoints.join(","),
+            tableCollapsedOutputPath,
+            formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "heatplot", "pdf"))
 }
