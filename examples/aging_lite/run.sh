@@ -17,7 +17,8 @@ $VDJTOOLS RarefactionPlot $PARAMS -f age -n -l sample.id ./out/8
 # Intersect
 $VDJTOOLS IntersectPair -S mitcr -p ./samples/A4-i189.txt.gz ./samples/A4-i190.txt.gz ./out/9
 $VDJTOOLS BatchIntersectPair $PARAMS ./out/10
-$VDJTOOLS BatchIntersectPairPlot -f sex -l sample.id ./out/10
+$VDJTOOLS BatchIntersectPairPlot -f age -n -l sample.id ./out/10 ./out/10.age
+$VDJTOOLS BatchIntersectPairPlot -m vJSD -f sex -l sample.id ./out/10 ./out/10.sex
 
 # Annotation
 $VDJTOOLS ScanDatabase $PARAMS -f --filter "__origin__=~/EBV/" ./out/11
