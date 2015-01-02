@@ -16,3 +16,6 @@ $VDJTOOLS IntersectSequential $PARAMS -f "Time post HSCT, months" -x 0 -p ./out/
 
 # Annotation
 $VDJTOOLS ScanDatabase $PARAMS -f --filter "__origin__.contains('CMV')||__origin__.contains('EBV')" ./out/7
+
+# Manipulation
+$VDJTOOLS ApplySampleAsFilter $PARAMS -c ./samples/minus48months.txt.gz out/asaf/

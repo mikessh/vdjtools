@@ -22,3 +22,8 @@ $VDJTOOLS BatchIntersectPairPlot -m vJSD -f sex -l sample.id ./out/10 ./out/10.s
 
 # Annotation
 $VDJTOOLS ScanDatabase $PARAMS -f --filter "__origin__=~/EBV/" ./out/11
+
+# Manipulation
+$VDJTOOLS Decontaminate $PARAMS -c out/dec/
+$VDJTOOLS Downsample $PARAMS -c -x 5000 out/ds/
+$VDJTOOLS FilterNonFunctional $PARAMS -c out/nf/
