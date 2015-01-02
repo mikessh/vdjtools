@@ -35,7 +35,7 @@ public class MathUtil {
             6402373705728000l, 121645100408832000l, 2432902008176640000l};
 
     /**
-     * Computes the logarithm of n!/(n-k)!
+     * Computes the logarithm of n!/(n-k)!. Implemented based on apache math 3
      */
     public static double logFactorialRatio(final int n, final int k) {
         if (k > n)
@@ -48,6 +48,11 @@ public class MathUtil {
         return x < FACTORIALS.length ? FastMath.log(FACTORIALS[(int) x]) : fastLogGamma(x);
     }
 
+    /**
+     * Internal. Implemented based on apache math 3 
+     * @param x
+     * @return
+     */
     private static double fastLogGamma(final double x) {
         double sum = Gamma.lanczos(x);
         double tmp = x + Gamma.LANCZOS_G + .5;

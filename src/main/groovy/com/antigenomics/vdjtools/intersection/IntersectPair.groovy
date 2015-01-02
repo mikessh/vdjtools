@@ -66,7 +66,7 @@ if (!intersectionType) {
     System.exit(-1)
 }
 
-// Define nubmer of clonotypes to collapse to
+// Define number of clonotypes to show explicitly
 
 def top = (opt.t ?: TOP_DEFAULT).toInteger()
 

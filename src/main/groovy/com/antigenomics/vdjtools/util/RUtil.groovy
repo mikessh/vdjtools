@@ -16,14 +16,15 @@
 
 package com.antigenomics.vdjtools.util
 
-import com.antigenomics.vdjtools.sample.metadata.MetadataEntry
-
 class RUtil {
     public static final String PACKAGES_PATH = "$ExecUtil.MY_PATH/Rpackages/"
 
-    public static String asNumeric(MetadataEntry metadataEntry) {
-        def value = metadataEntry.asNumeric()
-        value.isNaN() ? NA : value.toString()
+    public static String asNumeric(smth) {
+        def smthStr = smth.toString()
+        if (!smthStr.isDouble())
+            return NA
+        def value = smthStr.toDouble()
+        (value.isNaN() || value.isInfinite()) ? NA : value.toString()
     }
 
     public static String logical(smth) {
