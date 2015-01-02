@@ -19,6 +19,7 @@
 package com.antigenomics.vdjtools.diversity
 
 import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.manipulation.DownSampler
 import com.antigenomics.vdjtools.sample.Sample
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 

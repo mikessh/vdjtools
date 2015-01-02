@@ -38,6 +38,7 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
 cli.e(longOpt: "negative", "Will retain only non-functional clonotypes")
+cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
 
@@ -66,6 +67,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 def software = Software.byName(opt.S),
     outputFilePrefix = opt.arguments()[-1],
+    compress = (boolean) opt.c,
     negative = (boolean) opt.e
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
@@ -86,7 +88,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 // Iterate over samples & down-sample
 //
 
-def writer = new SampleWriter(software)
+def writer = new SampleWriter(software, compress)
 
 new File(formOutputPath(outputFilePrefix, "ncfilter", "summary")).withPrintWriter { pw ->
     def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +

@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-package com.antigenomics.vdjtools.diversity
+package com.antigenomics.vdjtools.manipulation
 
 import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.sample.Sample

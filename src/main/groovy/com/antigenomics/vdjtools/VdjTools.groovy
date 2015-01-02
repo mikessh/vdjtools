@@ -22,7 +22,7 @@ package com.antigenomics.vdjtools
 import com.antigenomics.vdjtools.basic.*
 import com.antigenomics.vdjtools.db.ScanDatabase
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
-import com.antigenomics.vdjtools.diversity.DownSample
+import com.antigenomics.vdjtools.manipulation.DownSample
 import com.antigenomics.vdjtools.diversity.PlotQuantileStats
 import com.antigenomics.vdjtools.diversity.RarefactionPlot
 import com.antigenomics.vdjtools.intersection.*

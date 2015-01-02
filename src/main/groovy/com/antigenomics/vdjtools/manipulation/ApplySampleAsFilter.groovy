@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ * Copyright 2013-2015 Mikhail Shugay (mikhail.shugay@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 15.11.2014 by mikesh
+ * Last modified on 2.1.2015 by mikesh
  */
 
 package com.antigenomics.vdjtools.manipulation
@@ -40,6 +40,7 @@ cli.i(longOpt: "intersect-type", argName: "string", args: 1,
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.n(longOpt: "negative", "Will report clonotypes present in filter_sample. The default action is to remove them")
+cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
 
@@ -64,7 +65,8 @@ if (opt.arguments().size() < 3) {
 // IO stuff
 
 def sampleFileNames = opt.arguments()[0..-2],
-    outputPrefix = opt.arguments()[-1]
+    compress = (boolean) opt.c,
+    outputFilePrefix = opt.arguments()[-1]
 
 // Parameters
 
@@ -93,14 +95,16 @@ def clonotypeFilter = new IntersectionClonotypeFilter(intersectionType, filterSa
 
 println "[${new Date()} $scriptName] Filtering (${negative ? "negative" : "positive"}) and writing output"
 
-def sw = new SampleWriter(software)
+def sw = new SampleWriter(software, compress)
 
-new File(formOutputPath(outputPrefix, "asaf", "summary")).withPrintWriter { pw ->
+new File(formOutputPath(outputFilePrefix, "asaf", "summary")).withPrintWriter { pw ->
     pw.println("#$MetadataTable.SAMPLE_ID_COLUMN\tcells_before\tdiversity_before\tcells_after\tdiversity_after")
     sampleCollection.each { Sample sample ->
         // Filter
         def filteredSample = new Sample(sample, clonotypeFilter)
 
+        // todo: filterstats
+        
         println "[${new Date()} $scriptName] Processed $sample.sampleMetadata.sampleId sample."
 
         pw.println([sample.sampleMetadata.sampleId,
@@ -108,11 +112,11 @@ new File(formOutputPath(outputPrefix, "asaf", "summary")).withPrintWriter { pw -
                     filteredSample.count, filteredSample.diversity].join("\t"))
 
         // print output
-        sw.writeConventional(filteredSample, outputPrefix)
+        sw.writeConventional(filteredSample, outputFilePrefix)
     }
 }
 
-sampleCollection.metadataTable.storeWithOutput(outputPrefix,
+sampleCollection.metadataTable.storeWithOutput(outputFilePrefix,
         "asaf:$filterSample.sampleMetadata.sampleId:${negative ? "-" : "+"}:$intersectionType.shortName")
 
 println "[${new Date()} $scriptName] Finished"

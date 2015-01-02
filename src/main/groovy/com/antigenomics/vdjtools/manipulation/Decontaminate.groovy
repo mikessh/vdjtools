@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ * Copyright 2013-2015 Mikhail Shugay (mikhail.shugay@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 15.11.2014 by mikesh
+ * Last modified on 2.1.2015 by mikesh
  */
 
 package com.antigenomics.vdjtools.manipulation
@@ -42,11 +42,11 @@ cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli._(longOpt: "low-mem", "Will process all sample pairs sequentially, avoiding" +
         " loading all of them into memory. Slower but memory-efficient mode.")
+cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
 
 if (opt == null) {
-    //cli.usage()
     System.exit(-1)
 }
 
@@ -72,7 +72,8 @@ def software = Software.byName(opt.S), outputFilePrefix = opt.arguments()[-1],
 // todo: implement low-mem version
 // this will lead eventually to the problem of removing Clonotype ref from dynamic clonotype
     lowMem = (boolean) opt.'low-mem',
-    ratio = (opt.r ?: DEFAULT_CONT_RATIO).toDouble()
+    ratio = (opt.r ?: DEFAULT_CONT_RATIO).toDouble(),
+    compress = (boolean)opt.c
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -99,7 +100,7 @@ def ratioFilter = new RatioFilter(sampleCollection, ratio)
 //
 // Go through all sample once more and perform freq-based filtering
 //
-def sw = new SampleWriter(software)
+def sw = new SampleWriter(software, compress)
 
 new File(formOutputPath(outputFilePrefix, "dec", "summary")).withPrintWriter { pw ->
     def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +

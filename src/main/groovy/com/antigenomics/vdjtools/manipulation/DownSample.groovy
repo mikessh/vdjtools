@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ * Copyright 2013-2015 Mikhail Shugay (mikhail.shugay@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 15.11.2014 by mikesh
+ * Last modified on 2.1.2015 by mikesh
  */
 
 
-package com.antigenomics.vdjtools.diversity
+package com.antigenomics.vdjtools.manipulation
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.io.SampleWriter
@@ -31,7 +31,8 @@ cli.S(longOpt: "software", argName: "string", required: true, args: 1,
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
-cli.n(longOpt: "num-cells", argName: "integer", required: true, args: 1, "Number of reads/cDNAs to sample.")
+cli.x(longOpt: "num-reads", argName: "integer", required: true, args: 1, "Number of reads to sample.")
+cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
 
@@ -58,7 +59,9 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 // Remaining arguments
 
-def software = Software.byName(opt.S), n = (int) opt.n.toInteger(),
+def software = Software.byName(opt.S),
+    x = (int) opt.x.toInteger(),
+    compress = (boolean) opt.c,
     outputPrefix = opt.arguments()[-1]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
@@ -79,18 +82,18 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 // Iterate over samples & down-sample
 //
 
+def sampleWriter = new SampleWriter(software, compress)
+
 sampleCollection.eachWithIndex { sample, ind ->
     def downSampler = new DownSampler(sample)
-    def newSample = downSampler.reSample(n)
+    def newSample = downSampler.reSample(x)
 
     println "[${new Date()} $scriptName] Processed ${ind + 1} sample(s).. Writing output"
-
-    def sampleWriter = new SampleWriter(software)
 
     // print output
     sampleWriter.writeConventional(newSample, outputPrefix)
 }
 
-sampleCollection.metadataTable.storeWithOutput(outputPrefix, "ds:$n")
+sampleCollection.metadataTable.storeWithOutput(outputPrefix, "ds:$x")
 
 println "[${new Date()} $scriptName] Finished"
