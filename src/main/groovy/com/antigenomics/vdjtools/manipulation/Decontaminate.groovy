@@ -73,7 +73,7 @@ def software = Software.byName(opt.S), outputFilePrefix = opt.arguments()[-1],
 // this will lead eventually to the problem of removing Clonotype ref from dynamic clonotype
     lowMem = (boolean) opt.'low-mem',
     ratio = (opt.r ?: DEFAULT_CONT_RATIO).toDouble(),
-    compress = (boolean)opt.c
+    compress = (boolean) opt.c
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -122,7 +122,7 @@ new File(formOutputPath(outputFilePrefix, "dec", "summary")).withPrintWriter { p
     }
 }
 
-sampleCollection.metadataTable.storeWithOutput(outputFilePrefix, "dec:$ratio")
+sampleCollection.metadataTable.storeWithOutput(outputFilePrefix, compress, "dec:$ratio")
 
 println "[${new Date()} $scriptName] Finished"
 

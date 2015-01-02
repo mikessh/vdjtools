@@ -94,6 +94,6 @@ sampleCollection.eachWithIndex { sample, ind ->
     sampleWriter.writeConventional(newSample, outputPrefix)
 }
 
-sampleCollection.metadataTable.storeWithOutput(outputPrefix, "ds:$x")
+sampleCollection.metadataTable.storeWithOutput(outputPrefix, compress, "ds:$x")
 
 println "[${new Date()} $scriptName] Finished"

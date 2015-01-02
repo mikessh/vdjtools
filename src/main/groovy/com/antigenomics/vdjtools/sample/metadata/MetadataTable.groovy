@@ -286,9 +286,10 @@ class MetadataTable implements Iterable<SampleMetadata> {
      * Will write a new metadata table assuming that an 1<->1 sample output, e.g.
      * from Decontaminate, ApplySampleAsFilter or Downsample will be produced to the same directory.
      * @param outputPrefix
+     * @param compress indicates whether samples will be stored as compressed
      * @param filters list of filter names applied to data this time
      */
-    public void storeWithOutput(String outputPrefix, String... filters) {
+    public void storeWithOutput(String outputPrefix, boolean compress, String... filters) {
         def metadataPath = formMetadataPath(outputPrefix)
 
         def metadataTableCopy = this.copy()
@@ -308,7 +309,7 @@ class MetadataTable implements Iterable<SampleMetadata> {
             metadataTableCopy.metadataBySample.each {
                 def sampleOutputPath = formOutputPath(outputPrefix, it.key)
 
-                pw.println([relativeSamplePath(metadataPath, sampleOutputPath),
+                pw.println([relativeSamplePath(metadataPath, sampleOutputPath) + (compress ? ".gz" : ""),
                             it.key,
                             it.value.toString()].join("\t"))
             }

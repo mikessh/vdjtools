@@ -136,7 +136,7 @@ new File(formOutputPath(outputFilePrefix, "asaf", "summary")).withPrintWriter { 
     }
 }
 
-sampleCollection.metadataTable.storeWithOutput(outputFilePrefix,
+sampleCollection.metadataTable.storeWithOutput(outputFilePrefix, compress,
         "asaf:$filterSample.sampleMetadata.sampleId:${negative ? "-" : "+"}:$intersectionType.shortName")
 
 println "[${new Date()} $scriptName] Finished"

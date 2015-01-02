@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ * Copyright 2013-2015 Mikhail Shugay (mikhail.shugay@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 8.11.2014 by mikesh
+ * Last modified on 2.1.2015 by mikesh
  */
 
 
@@ -113,6 +113,6 @@ new File(formOutputPath(outputFilePrefix, "ncfilter", "summary")).withPrintWrite
     }
 }
 
-sampleCollection.metadataTable.storeWithOutput(outputFilePrefix, "ncfilter:${negative ? "retain" : "remove"}")
+sampleCollection.metadataTable.storeWithOutput(outputFilePrefix, compress, "ncfilter:${negative ? "retain" : "remove"}")
 
 println "[${new Date()} $scriptName] Finished"
