@@ -19,7 +19,6 @@
 package com.antigenomics.vdjtools.intersection.mds
 
 class DiscreteFactorClusterStats {
-    private final String factorName
     private final List<String> factorList = new ArrayList<>()
     private final List<Point> pointList = new ArrayList<>()
     private final Silhouette observedSilhouette
@@ -27,8 +26,6 @@ class DiscreteFactorClusterStats {
     public DiscreteFactorClusterStats(String fileName) {
         def reader = new File(fileName).newReader()
         def header = reader.readLine() // id\tlabel\tfactor\tx\ty
-
-        this.factorName = header.split("\t")[2]
 
         def line
         while ((line = reader.readLine()) != null) {
@@ -65,16 +62,16 @@ class DiscreteFactorClusterStats {
         summaryByFactor
     }
 
-    public static void writeSummary(HashMap<String, Summary> summaryByFactor, String cacheFileName) {
+    public static void writeSummary(HashMap<String, Summary> summaryByFactor,
+                                    String cacheFileName) {
         new File(cacheFileName).withPrintWriter { pw ->
-            pw.println(factorName +
-                    "\ttype\tperm\tobs\tp")
-            //"\tperm.within\tperm.between\tobs.within\tobs.between\tp.within\tp.between")
+            pw.println("factor\ttype\tperm\tobs\tp")
 
             summaryByFactor.each {
                 def factor = it.key
                 def summary = it.value
                 summary.nPerms.times { int i ->
+                    // todo: finish with real silhouette index
                     //pw.println([factor,
                     //            summary.getWithinPerm(i), summary.getBetweenPerm(i),
                     //            summary.withinObs, summary.betweenObs,
@@ -96,8 +93,6 @@ class DiscreteFactorClusterStats {
     }
 
     private static class Silhouette {
-        // todo: finish with real silhouette index
-
         private final HashMap<String, Distances> distancesMap = new HashMap<>()
 
         Silhouette(List<String> factorList, List<Point> pointList) {

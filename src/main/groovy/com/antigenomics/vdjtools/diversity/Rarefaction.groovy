@@ -91,8 +91,8 @@ class Rarefaction {
         if (!hasExact)
             rarefactionCurve.add(new RarefactionPoint(chaoEstimator.chaoI(n)))
 
-        // add the last point (more robust)
-        rarefactionCurve.add(new RarefactionPoint(this[to]))
+        // add the last point (more robust & label placing in plotting)
+        rarefactionCurve.add(new RarefactionPoint(chaoEstimator.chaoE(to)))
 
         rarefactionCurve.sort { it.x }
     }
