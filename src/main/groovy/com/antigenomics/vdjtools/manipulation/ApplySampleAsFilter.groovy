@@ -32,6 +32,7 @@ import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
+def I_TYPE_DEFAULT = "strict"
 def cli = new CliBuilder(usage: "ApplySampleAsFilter [options] filter_sample " +
         "[sample1 sample2 ... if not -m] filter_sample output_prefix")
 cli.h("display help message")
@@ -41,7 +42,7 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Intersection type to apply. " +
                 "Allowed values: $IntersectionType.allowedNames. " +
-                "Will use '$IntersectionType.Strict.shortName' by default.")
+                "Will use '$I_TYPE_DEFAULT' by default.")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.n(longOpt: "negative", "Will report clonotypes present in filter_sample. The default action is to remove them")
@@ -80,7 +81,7 @@ def filterFileName = opt.arguments()[-2],
 
 // Parameters
 
-def software = Software.byName(opt.S), intersectionType = IntersectionType.byName((opt.i ?: "strict")),
+def software = Software.byName(opt.S), intersectionType = IntersectionType.byName((opt.i ?: I_TYPE_DEFAULT)),
     negative = (boolean) opt.n
 
 if (!intersectionType) {
@@ -119,11 +120,11 @@ new File(formOutputPath(outputFilePrefix, "asaf", "summary")).withPrintWriter { 
             ClonotypeFilter.ClonotypeFilterStats.HEADER
 
     pw.println(header)
-    
+
     sampleCollection.each { Sample sample ->
         // Filter
         def sampleId = sample.sampleMetadata.sampleId
-        
+
         println "[${new Date()} $scriptName] Filtering $sampleId sample."
         def filteredSample = new Sample(sample, clonotypeFilter)
 

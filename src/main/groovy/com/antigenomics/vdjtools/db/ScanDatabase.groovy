@@ -40,7 +40,10 @@ cli.d(longOpt: "details", "Will output detailed DB query files.")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
-cli.f(longOpt: "fuzzy", "Will query database allowing a fuzzy match containing an amino-acid substitution")
+cli.f(longOpt: "fuzzy", "Will query database allowing at most 2 substitutions, 1 deletion and 1 insertion, " +
+        "but no more than 2 mismatches simultaneously.")
+cli._(longOpt: "v-match", "V segments are required to match")
+cli._(longOpt: "j-match", "V segments are required to match")
 
 def opt = cli.parse(args)
 
@@ -69,6 +72,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 // Remaining arguments
 
 def software = Software.byName(opt.S), dbName = (String) (opt.D ?: null), fuzzy = (boolean) opt.f,
+    vMatch = (boolean) opt."v-match", jMatch = (boolean) opt."j-match",
     details = (boolean) opt.d, filter = (String) (opt.'filter' ?: null),
     outputFileName = opt.arguments()[-1]
 
@@ -91,7 +95,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) to pro
 //
 
 def database = dbName ? new CdrDatabase(dbName, filter) : new CdrDatabase(filter)
-def databaseBrowser = new DatabaseBrowser(false, false, fuzzy)
+def databaseBrowser = new DatabaseBrowser(vMatch, jMatch, fuzzy)
 
 println "[${new Date()} $scriptName] Annotating sample(s) & writing results"
 
@@ -117,7 +121,7 @@ new File(formOutputPath(outputFileName, "annot", dbName ?: "default", "summary")
             new File(formOutputPath(outputFileName, "annot", dbName ?: "default", sampleId)).withPrintWriter { pwDetails ->
                 pwDetails.println("#" + CdrMatch.HEADER + "\t" + database.ANNOTATION_HEADER)
                 browserResult.each { match ->
-                    pwDetails.println(match + "\t" + match.subject.annotation)
+                    pwDetails.println(match + "\t" + match.subject.annotation.join("\t"))
                 }
             }
         }

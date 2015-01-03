@@ -24,10 +24,7 @@ import com.antigenomics.vdjtools.join.ClonotypeKeyGen;
 import com.antigenomics.vdjtools.join.key.ClonotypeKey;
 import com.antigenomics.vdjtools.sample.Sample;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public class SampleAggregator<T extends ClonotypeAggregator> implements Iterable<T> {
     private final Map<ClonotypeKey, T> innerMap = new HashMap<>();
@@ -45,6 +42,7 @@ public class SampleAggregator<T extends ClonotypeAggregator> implements Iterable
         this.clonotypeKeyGen = new ClonotypeKeyGen(intersectionType);
         int sampleId = 0;
         long count = 0;
+
         for (Sample sample : samples) {
             System.out.println("[" + (new Date().toString()) + " " + "SamplePool] " +
                     "Pooling sample " + sample.getSampleMetadata().getSampleId());
@@ -63,6 +61,8 @@ public class SampleAggregator<T extends ClonotypeAggregator> implements Iterable
             count += sample.getCount( );
             sampleId++;
         }
+        
+        // todo: sort
 
         this.count = count;
     }

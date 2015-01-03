@@ -74,7 +74,7 @@ class CdrMatch {
     }
     public static final String HEADER = "score\tquery_cdr3aa\tquery_v\tquery_j\t" +
             "subject_cdr3aa\tsubject_v\tsubject_j\t" +
-            "v_match\tj_match\tsubstitutions"
+            "v_match\tj_match\tmismatches"
 
     @Override
     public String toString() {
