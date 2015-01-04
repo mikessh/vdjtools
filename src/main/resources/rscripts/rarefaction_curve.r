@@ -36,9 +36,9 @@ df <- data.frame(dataset = df[,1],
 # those are the last points with observed diversity
 # we'll highlight them with point and (if required) a label
 df.p <- subset(df, type==2 & x==max(df$x))
+df.l <- df.p
 
 if (add_lbl) {
-   df.l <- df.p
    # We absolutely sure need this trick as labels are going to overlap leading to huge mess..
    x.fact <- 100 / max(df.l$x)
    y.fact <- 100 / max(df.l$mean)
