@@ -53,7 +53,7 @@ class SampleWriter {
 
         def fos = new FileOutputStream(fileName)
 
-        new BufferedWriter(new OutputStreamWriter(fileName ?
+        new BufferedWriter(new OutputStreamWriter(compress ?
                 new GZIPOutputStream(fos) : fos))
     }
 
