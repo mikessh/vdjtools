@@ -27,7 +27,7 @@ getcol_c = function(lst, col){
 table <- read.delim(file_xy, skip = skip, sep="\t")
 n <- nrow(table)
 m <- ncol(table)
-table <- table[n:1, ]
+table <- table[n:1, ] # reorder, bring non-overlapping / not-shown to the top
 
 x1 <- getcol_n(table, m - 1)
 x2 <- getcol_n(table, m)
@@ -37,9 +37,14 @@ x2 <- getcol_n(table, m)
 
 df <- data.frame(cdr3nt = rep(getcol_c(table, "cdr3nt"), 2),
                  cdr3aa = rep(getcol_c(table, "cdr3aa"), 2),
+                 v = rep(getcol_c(table, "v"), 2),
+                 d = rep(getcol_c(table, "d"), 2),
+                 j = rep(getcol_c(table, "j"), 2),
                  sample = rep(c("s1", "s2"), each = n),
                  expr   = c(x1, x2),
                  peak   = rep(getcol_n(table, "peak"), 2))
+                 
+df$sign <- paste(df$cdr3nt, df$v, df$d, df$j, sep="_")
 
 # trick to add clonotype labels with geom_text, as suggested at StackExchange
 
@@ -63,7 +68,7 @@ pdf(file_out)
 
 ggplot() +
     geom_area(data = df, aes(x = sample, y = expr, fill = cdr3nt,
-    group = cdr3nt), colour = "grey25", size = 0.01, guide = "none", position="stack") +
+    group = sign), colour = "grey25", size = 0.01, guide = "none", position="stack") +
     ylab("cumulative abundance") +
     xlab("") +
     scale_x_discrete(expand = c(0, 0), labels=c(sample1_id, sample2_id)) +
