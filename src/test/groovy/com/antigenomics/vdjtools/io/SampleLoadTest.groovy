@@ -43,7 +43,7 @@ class SampleLoadTest {
 
     @Test
     public void igblastTest() {
-        loadTest("igblast", Software.IgBlast, 403, 393)
+        loadTest("igblast", Software.IgBlast, 8408, 7274)
     }
 
     @Test
