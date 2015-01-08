@@ -23,7 +23,7 @@ HomoSapiens	VPR	0	0	0	0
 HomoSapiens	IGH	1	1	1	1
 HomoSapiens	IGK	1	0	1	1
 HomoSapiens	IGL	1	0	1	1
-OncorhynchusMykiss	TRB	0	1	1	0
+OncorhynchusMykiss	TRB	1	1	1	1
 OncorhynchusMykiss	MH2	0	0	0	0
 OncorhynchusMykiss	MH1	0	0	0	0
 OncorhynchusMykiss	IGH	1	1	1	1
@@ -50,7 +50,7 @@ MusMusculus_A/J	IGH	0	0	0	0
 MacacaFascicularis	IGH	0	0	0	0
 MusSpretus	TRB	0	0	0	0
 MusSpretus	IGK	1	0	0	0
-MusSpretus	IGL	1	0	0	0
+MusSpretus	IGL	1	0	1	1
 MusMusculus_129/Sv	IGH	1	0	0	0
 RattusRattus	IGH	0	0	0	0
 BosTaurus	TRA	0	0	1	0
