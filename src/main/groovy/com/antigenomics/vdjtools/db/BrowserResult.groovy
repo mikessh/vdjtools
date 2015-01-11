@@ -20,13 +20,16 @@ package com.antigenomics.vdjtools.db
 
 class BrowserResult implements Iterable<CdrMatch> {
     public final int sampleDiversity, databaseDiversity
-    public final double sampleFreq
+    public final double sampleFreq, meanCloneSize
     private final List<CdrMatch> matches
 
-    BrowserResult(int sampleDiversity, int databaseDiversity, double sampleFreq, List<CdrMatch> matches) {
+    BrowserResult(int sampleDiversity, int databaseDiversity, 
+                  double sampleFreq, double meanCloneSize,
+                  List<CdrMatch> matches) {
         this.sampleDiversity = sampleDiversity
         this.databaseDiversity = databaseDiversity
         this.sampleFreq = sampleFreq
+        this.meanCloneSize = meanCloneSize
         this.matches = matches
     }
 
@@ -40,10 +43,11 @@ class BrowserResult implements Iterable<CdrMatch> {
     }
 
     public static
-    final String HEADER = "match_size\tsample_diversity_in_matches\tdb_diversity_in_matches\tsample_freq_in_matches"
+    final String HEADER = "match_size\tsample_diversity_in_matches\tdb_diversity_in_matches\t" +
+            "sample_freq_in_matches\tmean_matched_clone_size"
 
     @Override
     String toString() {
-        [size(), sampleDiversity, databaseDiversity, sampleFreq].join("\t")
+        [size(), sampleDiversity, databaseDiversity, sampleFreq, meanCloneSize].join("\t")
     }
 }

@@ -53,7 +53,8 @@ class DatabaseBrowser {
         def matchContainer = Collections.synchronizedCollection(matchList)
 
         // number of query clones matched and their frequency sum
-        def matchDivQ = new AtomicInteger(), matchFreqQ = new AtomicDouble()
+        def matchDivQ = new AtomicInteger(), matchFreqQ = new AtomicDouble(),
+            matchFreqQgm = new AtomicDouble()
 
         def add = { Clonotype clonotype, CdrSearchResult result ->
             matchContainer.addAll(CdrMatch.collectMatches(clonotype, result, vMatch, jMatch))
@@ -81,6 +82,9 @@ class DatabaseBrowser {
 
                         // match frequency
                         matchFreqQ.addAndGet(clonotype.freq)
+
+                        // geometric mean of match frequency
+                        matchFreqQgm.addAndGet(Math.log10(clonotype.freq))
                     }
                 }
             }
@@ -88,7 +92,9 @@ class DatabaseBrowser {
 
         // number of subject clones matched
         def matchDivS = matchList.collectEntries { [(it.subject): 0] }.size()
+        def mathDivQVal = matchDivQ.get()
 
-        new BrowserResult(matchDivQ.get(), matchDivS, matchFreqQ.get(), matchList)
+        new BrowserResult(mathDivQVal, matchDivS, matchFreqQ.get(),
+                mathDivQVal > 0 ? Math.pow(10, matchFreqQgm.get() / mathDivQVal) : 0, matchList)
     }
 }
