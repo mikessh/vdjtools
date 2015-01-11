@@ -52,12 +52,14 @@ cli.s(longOpt: "steps", argName: "int", args: 1, "Number of steps (points) in th
 // plotting:
 
 cli.l(longOpt: "label", argName: "string", args: 1,
-        "Name of metadata column which should be used as label")
+        "[plotting] Name of metadata column which should be used as label")
 cli.f(longOpt: "factor", argName: "string", args: 1,
-        "Name of metadata column which should be used as a coloring factor")
+        "[plotting] Name of metadata column which should be used as a coloring factor")
 cli.n(longOpt: "factor-numeric",
-        "Treat factor values as numeric and use a gradient color scale")
-cli._(longOpt: "wide-plot", "Will use wide layout for plot")
+        "[plotting] Treat factor values as numeric and use a gradient color scale")
+cli._(longOpt: "wide-plot", "[plotting] Will use wide layout for plot")
+cli._(longOpt: "label-exact", "[plotting] Will use corresponding sample size for x coordinate of a label. " +
+        "Positions all labels at the biggest sample's size if not set.")
 
 def opt = cli.parse(args)
 
@@ -90,6 +92,7 @@ def software = Software.byName(opt.S),
     optL = opt.'l', optF = opt.'f',
     numericFactor = (boolean) opt.'n',
     widePlot = (boolean) opt.'wide-plot',
+    labelExact = (boolean) opt.'label-exact',
     outputPrefix = opt.arguments()[-1]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
@@ -162,6 +165,7 @@ RUtil.execute("rarefaction_curve.r",
         numeric,
         addLbl,
         RUtil.logical(widePlot),
+        RUtil.logical(labelExact),
         toPlotPath(outputTablePath)
 )
 

@@ -2,13 +2,14 @@ args<-commandArgs(TRUE)
 
 require(reshape); require(ggplot2); require(gridExtra); require(FField)
 
-file_in  <- args[1] #"rarefaction.strict.txt"
-lbl_col  <- as.integer(args[2]) #5
-fac_col  <- as.integer(args[3]) #6
-num_fac  <- as.logical(args[4]) #"F"
-add_lbl  <- as.logical(args[5]) #"T"
-wide     <- as.logical(args[6]) #"F"
-file_out <- args[7] # "rarefaction.strict.pdf"
+file_in   <- args[1] #"rarefaction.strict.txt"
+lbl_col   <- as.integer(args[2]) #5
+fac_col   <- as.integer(args[3]) #6
+num_fac   <- as.logical(args[4]) #"F"
+add_lbl   <- as.logical(args[5]) #"T"
+wide      <- as.logical(args[6]) #"F"
+lab_exact <- as.logical(args[7]) #"F"
+file_out  <- args[8] # "rarefaction.strict.pdf"
 
 df <- read.table(file_in,header=T,comment="",sep="\t")
 
@@ -36,7 +37,11 @@ df <- data.frame(dataset = df[,1],
 # those are the last points with observed diversity
 # we'll highlight them with point and (if required) a label
 df.p <- subset(df, type==2 & x==max(df$x))
-df.l <- df.p
+if (lab_exact) {
+   df.l <- subset(df, type==1)
+} else {
+   df.l <- df.p
+}
 
 if (add_lbl) {
    # We absolutely sure need this trick as labels are going to overlap leading to huge mess..
