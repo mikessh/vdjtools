@@ -22,6 +22,8 @@ class Diversity {
     public final DiversityType type
     public final String estimatorName
 
+    public static Diversity DUMMY = new Diversity(-1, -1, -1, DiversityType.Unknown, false, "DUMMY")
+
     Diversity(double mean, double std, long n,
               DiversityType type, boolean resampled, String estimatorName) {
         this((long) mean, (long) std, n, type, resampled, estimatorName)

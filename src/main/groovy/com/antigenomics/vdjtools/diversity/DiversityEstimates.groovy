@@ -132,7 +132,7 @@ class DiversityEstimates {
     }
 
     public Diversity getChaoE() {
-        chaoEstimator.chaoE(extrapolateTo)
+        extrapolateTo < frequencyTable.count ?  Diversity.DUMMY : chaoEstimator.chaoE(extrapolateTo)
     }
 
     public FrequencyTable getFrequencyTable() {

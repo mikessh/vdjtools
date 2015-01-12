@@ -20,7 +20,7 @@ package com.antigenomics.vdjtools.diversity
 
 
 public enum DiversityType {
-    Interpolated(0), Observed(1), Extrapolated(2), TotalDiversityLowerBoundEstimate(3), Index(4)
+    Interpolated(0), Observed(1), Extrapolated(2), TotalDiversityLowerBoundEstimate(3), Index(4), Unknown(-1)
 
     final int id
 
