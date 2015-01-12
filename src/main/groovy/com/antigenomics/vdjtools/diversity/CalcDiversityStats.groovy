@@ -96,7 +96,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples to analy
 // Set up downsample/extrapolate read counts
 //
 
-def sampleStats = sampleCollection.sampleStatistics
+def sampleStats = (!opt.x || !opt.X) ? sampleCollection.sampleStatistics : null
 def minReads = (opt.x ?: "$sampleStats.minCount").toInteger(),
     maxReads = (opt.X ?: "$sampleStats.maxCount").toInteger()
 
