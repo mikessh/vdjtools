@@ -194,7 +194,7 @@ public class Spectratype {
         def spectratype = new double[span]
         def _freq = normalized ? freq : 1.0
 
-        for (int i = 0; i < len; i++)
+        for (int i = 0; i < span; i++)
             spectratype[i] = this.innerHist[i] / _freq
 
         spectratype

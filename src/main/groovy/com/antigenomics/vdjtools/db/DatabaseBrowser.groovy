@@ -95,6 +95,7 @@ class DatabaseBrowser {
         def mathDivQVal = matchDivQ.get()
 
         new BrowserResult(mathDivQVal, matchDivS, matchFreqQ.get(),
-                mathDivQVal > 0 ? Math.pow(10, matchFreqQgm.get() / mathDivQVal) : 0, matchList)
+                (double)(mathDivQVal > 0 ? Math.pow(10, matchFreqQgm.get() / mathDivQVal) : 0),
+                matchList)
     }
 }
