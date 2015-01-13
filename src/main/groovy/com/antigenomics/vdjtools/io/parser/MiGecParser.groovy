@@ -61,7 +61,7 @@ class MiGecParser extends ClonotypeStreamParser {
         String v, j, d
         (v, j, d) = CommonUtil.extractVDJ(splitString[4..6])
 
-        boolean inFrame = !cdr3aa.contains("~"), noStop = !cdr3aa.contains("*"), isComplete = true
+        boolean inFrame = !cdr3aa.contains("?"), noStop = !cdr3aa.contains("*"), isComplete = true
 
         def segmPoints = [
                 splitString[7].toInteger(),
