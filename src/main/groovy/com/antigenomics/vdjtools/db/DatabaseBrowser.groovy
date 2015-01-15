@@ -30,10 +30,19 @@ import groovyx.gpars.GParsPool
 
 import java.util.concurrent.atomic.AtomicInteger
 
-class DatabaseBrowser {
+/**
+ *  This is a suffix tree wrapper that queries pre-defined CDR3 database 
+ */
+public class DatabaseBrowser {
     private final boolean vMatch, jMatch
     private final TreeSearchParameters treeSearchParameters
 
+    /**
+     * Creates a new instance of database browser with specified search parameters
+     * @param vMatch if set to {@code true} Variable segments are required to match
+     * @param jMatch if set to {@code true} Joining segments are required to match
+     * @param treeSearchParameters suffix tree search parameters
+     */
     public DatabaseBrowser(boolean vMatch, boolean jMatch,
                            TreeSearchParameters treeSearchParameters) {
         this.vMatch = vMatch
@@ -41,13 +50,27 @@ class DatabaseBrowser {
         this.treeSearchParameters = treeSearchParameters
     }
 
+    /**
+     * Creates a new instance of database browser with specified search parameters
+     * @param vMatch if set to {@code true} Variable segments are required to match
+     * @param jMatch if set to {@code true} Joining segments are required to match
+     * @param fuzzy if set to {@code true} will allow fuzzy CDR3 match:
+     *              0..2 substitutions, 0..1 insertions, 0..1 deletions but less that 3 errors in total.
+     *              Will use strict CDR3 match otherwise
+     */
     public DatabaseBrowser(boolean vMatch, boolean jMatch, boolean fuzzy) {
         this.vMatch = vMatch
         this.jMatch = jMatch
         this.treeSearchParameters = fuzzy ? new TreeSearchParameters(2, 1, 1, 2) : null
     }
 
-    BrowserResult query(Sample sample, CdrDatabase cdrDatabase) {
+    /**
+     * Queries a given sample versus a given database. Parallel implementation is used.
+     * @param sample sample, all clonotypes from which will be queried
+     * @param cdrDatabase database so search
+     * @return {@code BrowserResult} object
+     */
+    public BrowserResult query(final Sample sample, final CdrDatabase cdrDatabase) {
         def dbSearch = new CdrDatabaseSearcher(cdrDatabase, treeSearchParameters)
         def matchList = new LinkedList<CdrMatch>()
         def matchContainer = Collections.synchronizedCollection(matchList)
@@ -95,7 +118,7 @@ class DatabaseBrowser {
         def mathDivQVal = matchDivQ.get()
 
         new BrowserResult(mathDivQVal, matchDivS, matchFreqQ.get(),
-                (double)(mathDivQVal > 0 ? Math.pow(10, matchFreqQgm.get() / mathDivQVal) : 0),
+                (double) (mathDivQVal > 0 ? Math.pow(10, matchFreqQgm.get() / mathDivQVal) : 0),
                 matchList)
     }
 }
