@@ -68,7 +68,7 @@ public class DatabaseBrowser {
      * Queries a given sample versus a given database. Parallel implementation is used.
      * @param sample sample, all clonotypes from which will be queried
      * @param cdrDatabase database so search
-     * @return {@code BrowserResult} object
+     * @return a {@code BrowserResult} object
      */
     public BrowserResult query(final Sample sample, final CdrDatabase cdrDatabase) {
         def dbSearch = new CdrDatabaseSearcher(cdrDatabase, treeSearchParameters)
@@ -95,7 +95,9 @@ public class DatabaseBrowser {
                         }
                     } else {
                         // exact match (can also contain several associated entries)
-                        found = add(clonotype, dbSearch.exact(clonotype.cdr3aa))
+                        def result = dbSearch.exact(clonotype.cdr3aa)
+                        if (result)
+                            found = add(clonotype, result)
                     }
 
 
