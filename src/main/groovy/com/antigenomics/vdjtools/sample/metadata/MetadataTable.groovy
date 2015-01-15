@@ -306,12 +306,12 @@ class MetadataTable implements Iterable<SampleMetadata> {
 
         new File(metadataPath).withPrintWriter { pw ->
             pw.println("#$FILE_NAME_COLUMN\t$SAMPLE_ID_COLUMN\t" + metadataTableCopy.columnHeader)
-            metadataTableCopy.metadataBySample.each {
-                def sampleOutputPath = formOutputPath(outputPrefix, it.key)
+            metadataTableCopy.each {
+                def sampleOutputPath = formOutputPath(outputPrefix, it.sampleId)
 
                 pw.println([relativeSamplePath(metadataPath, sampleOutputPath) + (compress ? ".gz" : ""),
-                            it.key,
-                            it.value.toString()].join("\t"))
+                            it.sampleId,
+                            it.toString()].join("\t"))
             }
         }
     }
