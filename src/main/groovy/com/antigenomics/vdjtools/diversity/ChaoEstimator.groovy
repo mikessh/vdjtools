@@ -62,7 +62,7 @@ class ChaoEstimator {
                                 F1 * F1 * F2 * (F1 - 1) * (F1 - 1) / 4 / (F2 + 1) / (F2 + 1) / (F2 + 1) / (F2 + 1)
                 ),
                 frequencyTable.count,
-                TotalDiversityLowerBoundEstimate, false, "chao1")
+                TotalDiversityLowerBoundEstimate, 1, "chao1")
     }
 
     /**
@@ -93,7 +93,7 @@ class ChaoEstimator {
                 Math.sqrt(Sobs * (1.0 - Sobs / (Sobs + F0)) +
                         dSdF1 * dSdF1 * cov11 + dSdF2 * dSdF2 * cov22 + 2 * dSdF1 * dSdF2 * cov12),
                 extrapolateTo,
-                Extrapolated, false, "chao_e")
+                Extrapolated, 1, "chao_e")
     }
 
     /**
@@ -136,6 +136,6 @@ class ChaoEstimator {
                 Sind,
                 Math.sqrt(sum2.get() - Sind * Sind / (Sobs + F0)),
                 m,
-                m == n ? Observed : Interpolated, false, "chao_i")
+                m == n ? Observed : Interpolated, 1, "chao_i")
     }
 }

@@ -65,7 +65,7 @@ public class DatabaseBrowser {
     }
 
     /**
-     * Queries a given sample versus a given database. Parallel implementation is used.
+     * Query a given sample versus a given database. Parallel implementation is used.
      * @param sample sample, all clonotypes from which will be queried
      * @param cdrDatabase database so search
      * @return a {@code BrowserResult} object

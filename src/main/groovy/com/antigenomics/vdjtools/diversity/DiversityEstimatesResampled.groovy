@@ -25,18 +25,42 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 
 import static com.antigenomics.vdjtools.diversity.DiversityType.*
 
-class DiversityEstimatesResampled {
+/**
+ * Class that computes richness estimates and diversity indices. 
+ * Re-sampling is used to calculate the mean and standard deviation for estimates.
+ * In order to normalize diversity estimates between samples, they are down-sampled to the same size,
+ * typically the size of the smallest sample. All computations are performed based on {@code FrequencyTable}.
+ * NOTE: that the {@code IntersectionType} is always computed based on certain {@code IntersectionType},
+ * which tells how to collapse clonotypes, e.g. consider identical CDR3 nucleotide or amino acid sequences, etc.
+ * {@code IntersectionType.strict} is recommended for most purposes.
+ */
+public class DiversityEstimatesResampled {
     private final Diversity observedDiversity, efronThisted, chao1,
                             shannonWeaverIndex, inverseSimpsonIndex
 
     private final int subSampleSize, resampleCount
 
+    /**
+     * Creates an instance of individual-based diversity estimates class computed using re-sampling.
+     * All computations are performed within the constructor.
+     * @param sample sample to be analyzed
+     * @param intersectionType {@code IntersectionType} used to collapse sample during {@code FrequencyTable} computation
+     * @param subSampleSize down-sampled sample size. Typically set to the size of smallest sample if several samples are to be compared
+     */
     public DiversityEstimatesResampled(Sample sample,
                                        IntersectionType intersectionType,
                                        int subSampleSize) {
         this(sample, intersectionType, subSampleSize, 3)
     }
 
+    /**
+     * Creates an instance of individual-based diversity estimates class computed using re-sampling.
+     * All computations are performed within the constructor.
+     * @param sample sample to be analyzed
+     * @param intersectionType {@code IntersectionType} used to collapse sample during {@code FrequencyTable} computation
+     * @param subSampleSize down-sampled sample size. Typically set to the size of smallest sample if several samples are to be compared
+     * @param resampleCount number of re-samples to be performed
+     */
     public DiversityEstimatesResampled(Sample sample,
                                        IntersectionType intersectionType,
                                        int subSampleSize, int resampleCount) {
@@ -66,60 +90,89 @@ class DiversityEstimatesResampled {
                 observedDiversityStat.mean,
                 observedDiversityStat.standardDeviation,
                 subSampleSize,
-                Interpolated, true, "observedDiversity")
+                Interpolated, resampleCount, "observedDiversity")
 
         this.efronThisted = new Diversity(
                 efronThistedStat.mean,
                 efronThistedStat.standardDeviation,
                 subSampleSize,
-                TotalDiversityLowerBoundEstimate, true, "efronThisted")
+                TotalDiversityLowerBoundEstimate, resampleCount, "efronThisted")
 
         this.chao1 = new Diversity(
                 chao1Stat.mean,
                 chao1Stat.standardDeviation,
                 subSampleSize,
-                TotalDiversityLowerBoundEstimate, true, "chao1")
+                TotalDiversityLowerBoundEstimate, resampleCount, "chao1")
 
 
         this.shannonWeaverIndex = new Diversity(
                 shannonWeaverIndexStat.mean,
                 shannonWeaverIndexStat.standardDeviation,
                 subSampleSize,
-                Index, true, "shannonWeaverIndex")
+                Index, resampleCount, "shannonWeaverIndex")
 
         this.inverseSimpsonIndex = new Diversity(
                 inverseSimpsonIndexStat.mean,
                 inverseSimpsonIndexStat.standardDeviation,
                 subSampleSize,
-                Index, true, "inverseSimpsonIndex")
+                Index, resampleCount, "inverseSimpsonIndex")
     }
 
+    /**
+     * Gets the observed diversity, i.e. the number of clonotypes in a down-sampled sample 
+     * @return
+     */
     public Diversity getObservedDiversity() {
         observedDiversity
     }
 
+    /**
+     * Gets Efron-Thisted lower bound estimate of total diversity 
+     * @return
+     */
     public Diversity getEfronThisted() {
         efronThisted
     }
 
+    /**
+     * Gets Chao1 lower bound estimate of total diversity
+     * @return
+     */
     public Diversity getChao1() {
         chao1
     }
 
+    /**
+     * Gets the Shannon-Weaver diversity index
+     * @return
+     */
     public Diversity getShannonWeaverIndex() {
         shannonWeaverIndex
     }
 
+    /**
+     * Gets the Inverse Simpson diversity index
+     * @return
+     */
     public Diversity getInverseSimpsonIndex() {
         inverseSimpsonIndex
     }
 
+    /**
+     * List of fields that will be included in tabular output 
+     */
     private static final String[] fields = ["observedDiversity",
                                             "efronThisted", "chao1",
                                             "shannonWeaverIndex", "inverseSimpsonIndex"]
 
+    /**
+     * Header string, used for tabular output
+     */
     public static final HEADER = fields.collect { [it + "_mean", it + "_std"] }.flatten().join("\t")
 
+    /**
+     * Plain text row for tabular output
+     */
     @Override
     public String toString() {
         fields.collect { this."$it" }.join("\t")

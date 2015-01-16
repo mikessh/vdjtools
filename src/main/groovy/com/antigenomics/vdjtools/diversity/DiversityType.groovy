@@ -18,10 +18,15 @@
 
 package com.antigenomics.vdjtools.diversity
 
-
+/**
+ * Diversity estimate type 
+ */
 public enum DiversityType {
     Interpolated(0), Observed(1), Extrapolated(2), TotalDiversityLowerBoundEstimate(3), Index(4), Unknown(-1)
 
+    /**
+     * Id, mostly used for passing to R scripts
+     */
     final int id
 
     DiversityType(int id) {

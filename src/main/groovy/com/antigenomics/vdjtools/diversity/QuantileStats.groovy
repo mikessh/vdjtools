@@ -23,7 +23,14 @@ import com.google.common.util.concurrent.AtomicDouble
 import com.google.common.util.concurrent.AtomicDoubleArray
 
 
-class QuantileStats {
+/**
+ * A class that computes summary statistics of repertoire clonality divided into several levels:
+ * 1. singletons (encountered once), doubletons (encountered twice) and high-order clonotypes - 
+ *    those are base quantities to estimate the lower bound on total repertoire diversity
+ * 2. cumulative frequency for several quantiles (e.g. top 25%, next 25%, ...) of high-order clonotypes
+ * 3. details for top N clonotypes 
+ */
+public class QuantileStats {
     private final int numberOfQuantiles
     private final AtomicDoubleArray quantileFreqs
     private final AtomicDouble highOrderFreq = new AtomicDouble(),
@@ -31,6 +38,11 @@ class QuantileStats {
                                singletonFreq = new AtomicDouble()
     private final double totalFreq
 
+    /**
+     * Summarizes quantile statisitcs for a given sample 
+     * @param clonotypeContainer a set of clonotypes
+     * @param numberOfQuantiles number of quantiles for 2nd level of detalizaiton
+     */
     public QuantileStats(ClonotypeContainer clonotypeContainer, int numberOfQuantiles) {
         this.numberOfQuantiles = numberOfQuantiles
         this.quantileFreqs = new AtomicDoubleArray(numberOfQuantiles)
@@ -43,10 +55,17 @@ class QuantileStats {
         update(clonotypeContainer)
     }
 
+    /**
+     * * Summarizes quantile statisitcs for a given sample 
+     * @param clonotypeContainer a set of clonotypes
+     */
     public QuantileStats(ClonotypeContainer clonotypeContainer) {
         this(clonotypeContainer, 5)
     }
 
+    /**
+     * Internal - adds more clonotyps to stats
+     */
     private void update(ClonotypeContainer clonotypeContainer) {
         int n = clonotypeContainer.diversity, m = n
 
@@ -81,30 +100,59 @@ class QuantileStats {
         }
     }
 
+    /**
+     * Gets the number of 2nd level summary quantiles 
+     * @return
+     */
     public int getNumberOfQuantiles() {
         return numberOfQuantiles
     }
 
+    /**
+     * Gets frequency for a given quantile
+     * @param quantile quantile index, should be less than {@code numberOfQuantiles} and 
+     *                 greater or equal than {@code 0}
+     * @return
+     * @throws IndexOutOfBoundsException
+     */
     public double getQuantileFrequency(int quantile) {
         if (quantile < 0 || quantile >= numberOfQuantiles)
             throw new IndexOutOfBoundsException()
         quantileFreqs.get(quantile) / totalFreq
     }
 
+    /**
+     * Gets the frequency of singletons, i.e. clonotypes represented by a single read 
+     * @return
+     */
     public double getSingletonFreq() {
         singletonFreq.get() / totalFreq
     }
 
+    /**
+     * Gets the frequency of doubletons, i.e. clonotypes represented by two reads 
+     * @return
+     */
     public double getDoubletonFreq() {
         doubletonFreq.get() / totalFreq
     }
 
+    /**
+     * Gets the frequency of high order clonotypes, i.e. clonotypes represented by more than two reads
+     * @return
+     */
     public double getHighOrderFreq() {
         highOrderFreq.get() / totalFreq
     }
 
+    /**
+     * Header string, used for tabular output
+     */
     public static final String HEADER = "type\tname\tvalue"
 
+    /**
+     * Plain text row for tabular output
+     */
     @Override
     public String toString() {
         ["set\t3+\t$highOrderFreq",
