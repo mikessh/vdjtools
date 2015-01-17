@@ -16,15 +16,54 @@
 
 package com.antigenomics.vdjtools.intersection
 
-enum IntersectionType {
-    Nucleotide("nt", false), NucleotideV("ntV", false), NucleotideVJ("ntVJ", false),
-    AminoAcid("aa", true), AminoAcidV("aaV", true), AminoAcidVJ("aaVJ", true),
-    AminoAcidNonNucleotide("aa!nt", true),
-    Strict("strict", false)
+/**
+ * An enum that defines the clonotype matching rule. 
+ * Used both when collapsing "identical" clonotypes in a sample and when matching clonotypes between samples 
+ */
+public enum IntersectionType {
+
+    /**
+     * Intersection rule. Clonotypes match if their CDR3 nucleotide sequences match 
+     */
+    /*   */ Nucleotide("nt", false),
+    /**
+     * Intersection rule. Clonotypes match if both V segments and CDR3 nucleotide sequences match 
+     */
+            NucleotideV("ntV", false),
+    /**
+     * Intersection rule. Clonotypes match if both V, J segments and CDR3 nucleotide sequences match 
+     */
+            NucleotideVJ("ntVJ", false),
+    /**
+     * Intersection rule. Clonotypes match if their CDR3 amino acid sequences match  
+     */
+            AminoAcid("aa", true),
+    /**
+     * Intersection rule. Clonotypes match if both V segments and CDR3 amino acid sequences match 
+     */
+            AminoAcidV("aaV", true),
+    /**
+     * Intersection rule. Clonotypes match if both V, J segments and CDR3 amino acid sequences match 
+     */
+            AminoAcidVJ("aaVJ", true),
+    /**
+     * Intersection rule. Clonotypes match if their CDR3 amino acid sequences match, 
+     * but their CDR3 nucleotide sequences do not match. Contamination-proof matching
+     */
+            AminoAcidNonNucleotide("aa!nt", true),
+    /**
+     * Intersection rule. Clonotypes match if both V, J segments, somatic hypermutations and CDR3 nucleotide sequences match
+     */
+            Strict("strict", false)
 
     final String shortName
     final boolean aminoAcid
 
+    /**
+     *
+     * @param shortName acronym for clonotype match rule
+     * @param aminoAcid if {@code true} matching relies on amino acid sequences; {@code false} for nucleotide sequences
+     */
     IntersectionType(String shortName, boolean aminoAcid) {
         this.shortName = shortName
         this.aminoAcid = aminoAcid

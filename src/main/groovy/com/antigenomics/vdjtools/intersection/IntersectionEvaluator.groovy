@@ -20,11 +20,20 @@ class IntersectionEvaluator {
     private final Spectratype[] spectratypeCache
     private final Map<String, Double> metricCache = new HashMap<>()
 
-    IntersectionEvaluator(JointSample jointSample) {
+    /**
+     * Sets up an instance that can compute overlap metrics for a pre-defined set of sample intersections
+     * @param jointSample a result of intersection between sample pair(s)
+     */
+    public IntersectionEvaluator(JointSample jointSample) {
         this.jointSample = jointSample
         this.spectratypeCache = new Spectratype[jointSample.numberOfSamples]
     }
 
+    /**
+     * INTERNAL gets spectratype, for spectratype JSD metrics 
+     * @param sampleIndex
+     * @return
+     */
     private Spectratype getSpectratype(int sampleIndex) {
         if (!spectratypeCache[sampleIndex]) {
             spectratypeCache[sampleIndex] = new Spectratype(jointSample.getSample(sampleIndex),
@@ -34,6 +43,11 @@ class IntersectionEvaluator {
         spectratypeCache[sampleIndex]
     }
 
+    /**
+     * INTERNAL gets segment usage, for V/J/V+J/V*J JSD metrics
+     * @param sampleIndex
+     * @return
+     */
     private SegmentUsage getSegmentUsage() {
         if (!segmentUsageCache) {
             segmentUsageCache = new SegmentUsage((0..<jointSample.numberOfSamples).collect {
@@ -43,6 +57,13 @@ class IntersectionEvaluator {
         segmentUsageCache
     }
 
+    /**
+     * INTERNAL main routine that calculates a specified intersection metric
+     * @param metric metric type
+     * @param i index of first sample in pair
+     * @param j index of second sample in pair
+     * @return
+     */
     private double _computeIntersectionMetric(IntersectMetric metric,
                                               int i, int j) {
         ExecUtil.report(this, "Computing $metric", VERBOSE)
@@ -108,7 +129,13 @@ class IntersectionEvaluator {
         }
     }
 
-
+    /**
+     * Computes specified intersection metric for a pair of samples
+     * @param metric intersection metric type
+     * @param i index of first sample in pair
+     * @param j index of second sample in pair
+     * @return intersection metric value
+     */
     public double computeIntersectionMetric(IntersectMetric metric,
                                             int i, int j) {
         def key = [metric.shortName, i, j].join("_")
@@ -118,6 +145,11 @@ class IntersectionEvaluator {
         value
     }
 
+    /**
+     * Computes specified intersection metric for the first pair of samples
+     * @param metric intersection metric type
+     * @return intersection metric value
+     */
     public double computeIntersectionMetric(IntersectMetric intersectMetric) {
         computeIntersectionMetric(intersectMetric, 0, 1)
     }
