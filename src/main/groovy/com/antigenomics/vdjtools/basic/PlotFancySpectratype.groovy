@@ -62,6 +62,7 @@ def sampleCollection = new SampleCollection([opt.arguments()[0]], software)
 
 def sample = sampleCollection[0]
 
+top = Math.min(top, sample.diversity)
 
 // Calculate spectratype
 

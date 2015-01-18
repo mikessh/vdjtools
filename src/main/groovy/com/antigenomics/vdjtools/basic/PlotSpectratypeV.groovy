@@ -76,22 +76,22 @@ def collapsedSpectratypes = spectratypeV.collapse(top)
 
 // Prepare output table
 
-def spectraMatrix = new double[spectratypeV.len][top + 1]
+def spectraMatrix = new double[spectratypeV.span][top + 1]
 
 def otherHistogram = collapsedSpectratypes["other"].getHistogram(false)
-for (int i = 0; i < spectratypeV.len; i++) {
+for (int i = 0; i < spectratypeV.span; i++) {
     spectraMatrix[i][0] = otherHistogram[i]
 }
 
 collapsedSpectratypes.findAll { it.key != "other" }.eachWithIndex { it, ind ->
     def histogram = it.value.getHistogram(false)
-    for (int i = 0; i < spectratypeV.len; i++) {
+    for (int i = 0; i < spectratypeV.span; i++) {
         spectraMatrix[i][top - ind] = histogram[i]
     }
 }
 
 def table = "Len\tOther\t" + collapsedSpectratypes.findAll { it.key != "other" }.collect { it.key }.reverse().join("\t")
-for (int i = 0; i < spectratypeV.len; i++) {
+for (int i = 0; i < spectratypeV.span; i++) {
     table += "\n" + spectratypeV.lengths[i] + "\t" + spectraMatrix[i].collect().join("\t")
 }
 
