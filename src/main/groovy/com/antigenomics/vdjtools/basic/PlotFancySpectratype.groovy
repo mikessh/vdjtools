@@ -74,9 +74,9 @@ def spectratypeHist = spectratype.histogram
 
 // Prepare output table
 
-def spectraMatrix = new double[spectratype.len][top + 1]
+def spectraMatrix = new double[spectratype.span][top + 1]
 
-for (int i = 0; i < spectratype.len; i++) {
+for (int i = 0; i < spectratype.span; i++) {
     spectraMatrix[i][0] = spectratypeHist[i]
 }
 
@@ -86,7 +86,7 @@ topClonotypes.eachWithIndex { it, ind ->
 }
 
 def table = "Len\tOther\t" + topClonotypes.reverse().collect { it.cdr3aa }.join("\t")
-for (int i = 0; i < spectratype.len; i++) {
+for (int i = 0; i < spectratype.span; i++) {
     table += "\n" + spectratype.lengths[i] + "\t" + spectraMatrix[i].collect().join("\t")
 }
 
