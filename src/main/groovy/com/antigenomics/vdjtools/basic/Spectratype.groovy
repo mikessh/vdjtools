@@ -17,8 +17,6 @@
  */
 
 
-
-
 package com.antigenomics.vdjtools.basic
 
 import com.antigenomics.vdjtools.Clonotype
@@ -192,7 +190,8 @@ public class Spectratype {
      */
     public double[] getHistogram(boolean normalized) {
         def spectratype = new double[span]
-        def _freq = normalized ? freq : 1.0
+        
+        double _freq = (normalized && freq > 0) ? freq : 1.0
 
         for (int i = 0; i < span; i++)
             spectratype[i] = this.innerHist[i] / _freq
