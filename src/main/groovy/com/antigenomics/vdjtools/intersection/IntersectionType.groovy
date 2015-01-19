@@ -60,18 +60,26 @@ public enum IntersectionType {
     final boolean aminoAcid
 
     /**
-     *
-     * @param shortName acronym for clonotype match rule
+     * Defines a new clonotype matching rule
+     * @param shortName short name
      * @param aminoAcid if {@code true} matching relies on amino acid sequences; {@code false} for nucleotide sequences
      */
-    IntersectionType(String shortName, boolean aminoAcid) {
+    public IntersectionType(String shortName, boolean aminoAcid) {
         this.shortName = shortName
         this.aminoAcid = aminoAcid
     }
 
-    static IntersectionType byName(String shortName) {
+    /**
+     * Gets {@code IntersectionType} by short name
+     * @param shortName short name
+     * @return
+     */
+    public static IntersectionType getByShortName(String shortName) {
         values().find { it.shortName.toUpperCase() == shortName.toUpperCase() }
     }
 
-    static String allowedNames = values().collect { it.shortName }.join(",")
+    /**
+     * A list of existing {@code IntersectionType} short names
+     */
+    public static String allowedNames = values().collect { it.shortName }.join(",")
 }

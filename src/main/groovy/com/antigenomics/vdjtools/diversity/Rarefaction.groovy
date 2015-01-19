@@ -24,7 +24,7 @@ import com.antigenomics.vdjtools.sample.Sample
 /**
  * A class that is used to compute a rarefaction curve based on {@code ChaoEstimator}. 
  * Rarefaction curve shows the relation between sample diversity and sample size.
- * See also http://viceroy.eeb.uconn.edu/estimates/EstimateSPages/EstSUsersGuide/References/ColwellEtAl2012.pdf
+ * See also {@url http://viceroy.eeb.uconn.edu/estimates/EstimateSPages/EstSUsersGuide/References/ColwellEtAl2012.pdf}
  */
 public class Rarefaction {
     private final FrequencyTable frequencyTable

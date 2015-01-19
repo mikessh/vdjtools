@@ -18,23 +18,50 @@ package com.antigenomics.vdjtools.intersection
 
 import static com.antigenomics.vdjtools.intersection.IntersectMetricNormalization.*
 
-
+/**
+ * An enum that defines intersection metric, a function that characterizes the extent of overlap between a pair of samples.
+ */
 public enum IntersectMetric {
-    Correlation("R", Correlation), Diversity("D", NegLog), Frequency("F", NegLog), Frequency2("F2", NegLog),
-    vJSD("vJSD", None), vjJSD("vjJSD", None), vj2JSD("vj2JSD", None), sJSD("sJSD", None)
+    /**
+     *
+     */
+    Correlation("R", Correlation),
+    /**
+     *
+     */
+            Diversity("D", NegLog),
+    Frequency("F", NegLog),
+    Frequency2("F2", NegLog),
+    vJSD("vJSD", None),
+    vjJSD("vjJSD", None),
+    vj2JSD("vj2JSD", None),
+    sJSD("sJSD", None)
 
     public final String shortName
     public final IntersectMetricNormalization normalization
 
+    /**
+     * Defines a new intersection metric 
+     * @param shortName short name
+     * @param normalization normalization type
+     */
     public IntersectMetric(String shortName, IntersectMetricNormalization normalization) {
         this.shortName = shortName
         this.normalization = normalization
     }
 
-    public static String allowedNames = values().collect { it.shortName }.join(",")
-
+    /**
+     * Gets {@code IntersectMetric} by short name
+     * @param shortName short name
+     * @return
+     */
     public static IntersectMetric getByShortName(String name) {
         name = name.toUpperCase()
         values().find { it.shortName.toUpperCase() == name }
     }
+
+    /**
+     * A list of existing {@code IntersectMetric} short names
+     */
+    public static String allowedNames = values().collect { it.shortName }.join(",")
 }

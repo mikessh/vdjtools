@@ -29,7 +29,7 @@ import static com.antigenomics.vdjtools.diversity.DiversityType.*
 /**
  * Diversity estimates based on works of Anne Chao et al
  * Implementation is based on the following paper:
- * http://viceroy.eeb.uconn.edu/estimates/EstimateSPages/EstSUsersGuide/References/ColwellEtAl2012.pdf
+ * {@url http://viceroy.eeb.uconn.edu/estimates/EstimateSPages/EstSUsersGuide/References/ColwellEtAl2012.pdf}
  */
 class ChaoEstimator {
     private final FrequencyTable frequencyTable

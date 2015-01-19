@@ -81,7 +81,7 @@ def filterFileName = opt.arguments()[-2],
 
 // Parameters
 
-def software = Software.byName(opt.S), intersectionType = IntersectionType.byName((opt.i ?: I_TYPE_DEFAULT)),
+def software = Software.byName(opt.S), intersectionType = IntersectionType.getByShortName((opt.i ?: I_TYPE_DEFAULT)),
     negative = (boolean) opt.n
 
 if (!intersectionType) {

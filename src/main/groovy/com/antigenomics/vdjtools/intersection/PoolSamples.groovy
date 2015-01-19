@@ -81,7 +81,7 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 // Select intersection type
 
 def iName = opt.i ?: I_TYPE_DEFAULT
-def intersectionType = IntersectionType.byName(iName)
+def intersectionType = IntersectionType.getByShortName(iName)
 
 if (!intersectionType) {
     println "[ERROR] Bad intersection type specified ($iName). " +

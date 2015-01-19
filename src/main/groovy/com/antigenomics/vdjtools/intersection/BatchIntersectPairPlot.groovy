@@ -58,7 +58,7 @@ if (opt.h || opt.arguments().size() < 1) {
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 def iName = opt.i ?: I_TYPE_DEFAULT
-def intersectionType = IntersectionType.byName(iName)
+def intersectionType = IntersectionType.getByShortName(iName)
 
 if (!intersectionType) {
     println "[ERROR] Bad intersection type specified ($iName). " +

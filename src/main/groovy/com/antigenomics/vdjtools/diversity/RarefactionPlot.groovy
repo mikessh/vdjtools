@@ -87,7 +87,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 // Other arguments
 
 def software = Software.byName(opt.S),
-    intersectionType = opt.i ? IntersectionType.byName((String) opt.i) : I_TYPE_DEFAULT,
+    intersectionType = opt.i ? IntersectionType.getByShortName((String) opt.i) : I_TYPE_DEFAULT,
     steps = (opt.s ?: STEPS_DEFAULT).toInteger(),
     optL = opt.'l', optF = opt.'f',
     numericFactor = (boolean) opt.'n',
