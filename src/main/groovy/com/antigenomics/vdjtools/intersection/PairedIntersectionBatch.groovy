@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 2.1.2015 by mikesh
+ * Last modified on 19.1.2015 by mikesh
  */
 
 package com.antigenomics.vdjtools.intersection
@@ -26,24 +26,51 @@ import groovyx.gpars.GParsPool
 
 import java.util.concurrent.atomic.AtomicInteger
 
-class PairedIntersectionBatch {
+/**
+ * A class that implements all-vs-all paired intersection for a sample collection and 
+ * holds information on those intersections in a manner it could be easily accessed
+ */
+public class PairedIntersectionBatch {
     private final SampleCollection sampleCollection
     private final IntersectionType intersectionType
     private final Collection<IntersectMetric> intersectMetrics
     private final PairedIntersection[][] pairedIntersectionCache
     private final int numberOfSamples
 
+    /**
+     * Intersects clonotype lists for all unique pairs of samples in a given sample collection.
+     * Will load both samples into memory for the initialization step. 
+     * Pre-computes all intersection metrics.
+     * @param sampleCollection a list of samples
+     * @param intersectionType clonotype matching rule
+     */
     public PairedIntersectionBatch(SampleCollection sampleCollection,
                                    IntersectionType intersectionType) {
         this(sampleCollection, intersectionType, false, false)
     }
 
+    /**
+     * Intersects clonotype lists for all unique pairs of samples in a given sample collection.
+     * Pre-computes all intersection metrics.
+     * @param sampleCollection a list of samples
+     * @param intersectionType clonotype matching rule
+     * @param store holds all samples in memory if set to {@code true}
+     * @param lowMem if set to {@code true}, will not load all samples in memory, but rather load a sample pair at each step
+     */
     public PairedIntersectionBatch(SampleCollection sampleCollection,
                                    IntersectionType intersectionType,
                                    boolean store, boolean lowMem) {
         this(sampleCollection, intersectionType, store, lowMem, IntersectMetric.values())
     }
 
+    /**
+     * Intersects clonotype lists for all unique pairs of samples in a given sample collection
+     * @param sampleCollection a list of samples
+     * @param intersectionType clonotype matching rule
+     * @param store holds all samples in memory if set to {@code true}
+     * @param lowMem if set to {@code true}, will not load all samples in memory, but rather load a sample pair at each step
+     * @param intersectMetrics a list of intersection metrics that should be pre-computed
+     */
     public PairedIntersectionBatch(SampleCollection sampleCollection,
                                    IntersectionType intersectionType,
                                    boolean store, boolean lowMem,
@@ -85,6 +112,13 @@ class PairedIntersectionBatch {
         }
     }
 
+    /**
+     * Gets a paired intersection for a given pair of samples 
+     * @param i first sample index
+     * @param j second sample index
+     * @return {@code PairedIntersection} for samples ordered as {@code [i , j]}. Will return {@code null} if {@code i == j}
+     * @throws {@code IndexOutOfBoundsException} if {@code i} or {@code j} are not in {@code [0 , numberOfSamples)}
+     */
     public PairedIntersection getAt(int i, int j) {
         if (i == j)
             return null // todo: re-implement with dummy batch intersection
@@ -99,6 +133,9 @@ class PairedIntersectionBatch {
         reverse ? pairedIntersectionCache[i][j] : pairedIntersectionCache[i][j].reverse
     }
 
+    /**
+     * Header string, used for tabular output
+     */
     public String getHeader() {
         ["#1_$MetadataTable.SAMPLE_ID_COLUMN", "2_$MetadataTable.SAMPLE_ID_COLUMN",
          PairedIntersection.OUTPUT_FIELDS.collect(), intersectMetrics.collect { it.shortName },
@@ -106,10 +143,14 @@ class PairedIntersectionBatch {
          sampleCollection.metadataTable.columnHeader2].flatten().join("\t")
     }
 
-    public String getTable() {
+    /**
+     * Plain text row for tabular output
+     */
+    @Override
+    public String toString() {
         (0..<(numberOfSamples - 1)).collect { int i ->
             ((i + 1)..<numberOfSamples).collect { int j ->
-                pairedIntersectionCache[i][j].row
+                pairedIntersectionCache[i][j].toString()
             }
         }.flatten().join("\n")
     }
