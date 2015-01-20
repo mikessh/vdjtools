@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 23.12.2014 by mikesh
+ * Last modified on 20.1.2015 by mikesh
  */
 
 package com.antigenomics.vdjtools.io.parser
@@ -23,11 +23,21 @@ import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.util.CommonUtil
 
-class MiTcrParser extends ClonotypeStreamParser {
-    MiTcrParser(Iterator<String> innerIter, Software software, Sample sample) {
+/**
+ * A clonotype parser implementation that handles output from MiTCR software, see
+ * {@url http://mitcr.milaboratory.com/}
+ */
+public class MiTcrParser extends ClonotypeStreamParser {
+    /**
+     * {@inheritDoc}
+     */
+    public MiTcrParser(Iterator<String> innerIter, Software software, Sample sample) {
         super(innerIter, software, sample)
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Clonotype innerParse(String clonotypeString) {
         def splitString = clonotypeString.split(software.delimiter)

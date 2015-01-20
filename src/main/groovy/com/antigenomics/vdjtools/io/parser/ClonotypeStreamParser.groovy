@@ -1,17 +1,19 @@
-/**
- Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+/*
+ * Copyright 2013-2015 Mikhail Shugay (mikhail.shugay@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Last modified on 20.1.2015 by mikesh
  */
 
 package com.antigenomics.vdjtools.io.parser
@@ -30,6 +32,13 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
     private int skippedLineCount = 0, commentLineCount
     private final boolean hasComment
 
+    /**
+     * Creates a new instance of clonotype parser. 
+     * It is a clonotype factory wrapped around the specified input stream
+     * @param innerIter object that iterates over file lines, i.e. rows in the clonotype table
+     * @param software software used to create the clonotype table. Specifies the parser
+     * @param sample a blank sample to fill up with clonotypes
+     */
     protected ClonotypeStreamParser(Iterator<String> innerIter, Software software, Sample sample) {
         this.software = software
         this.innerIter = innerIter
@@ -38,6 +47,14 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
         this.commentLineCount = software.headerLineCount
     }
 
+    /**
+     * Gets an instance of clonotype parser.
+     * It is a clonotype factory wrapped around the specified input stream
+     * @param inputStream input stream that will be read
+     * @param software software used to create the clonotype table. Specifies the parser
+     * @param sample a blank sample to fill up with clonotypes
+     * @return clonotype parser object
+     */
     public static ClonotypeStreamParser create(InputStream inputStream, Software software, Sample sample) {
         ClonotypeStreamParser parser
         def reader = new BufferedReader(new InputStreamReader(inputStream))
@@ -65,8 +82,19 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
         return parser
     }
 
+    /**
+     * Parses a string into clonotype in a {@code Software}-dependent manner 
+     * @param clonotypeString string to parse
+     * @return string to parse
+     */
     protected abstract Clonotype innerParse(String clonotypeString)
 
+    /**
+     * Parses a string into clonotype in a {@code Software}-dependent manner and performs some consistency checks.
+     * Skips input strings that result in incomplete / bad clonotypes.
+     * @param clonotypeString string to parse
+     * @return a clonotype instance or {@code null} if input string was skipped
+     */
     public Clonotype parse(String clonotypeString) {
         if (hasComment && clonotypeString.startsWith(software.comment)) {
             commentLineCount++
@@ -90,25 +118,45 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
         return clontoype
     }
 
+    /**
+     * Gets the number of skipped input lines
+     * @return number of input lines that resulted in bad/incomplete clonotypes
+     */
     public int getSkippedLineCount() {
         skippedLineCount
     }
 
+    /**
+     * Gets the number of comment input lines 
+     * @return number of input lines that have a comment character at their beginning
+     */
     public int getCommentLineCount() {
         commentLineCount
     }
 
+    /**
+     * As for now, just reports summary statistics to {@code stdout}
+     */
     public void finish() {
         println "[${new Date()} ClonotypeStreamParser] Finished parsing. " +
                 "$commentLineCount header and $skippedLineCount bad line(s) were skipped."
     }
 
-    private static missingEntry(String entry) {
+    /**
+     * INTERNAL checks if a given entry string is missing
+     * @param entry
+     * @return
+     */
+    private static boolean missingEntry(String entry) {
         !entry || entry.length() == 0 || entry == "."
     }
 
+    /**
+     * Implementation that simplifies usage syntax {@code parser.each{ Clonotype c -> ...}}
+     * @return a clonotype iterator wrapped around the inner plain text table iterator
+     */
     @Override
-    Iterator<Clonotype> iterator() {
+    public Iterator<Clonotype> iterator() {
         [hasNext: {
             innerIter.hasNext()
         }, next : {

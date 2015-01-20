@@ -27,17 +27,27 @@ import com.antigenomics.vdjtools.util.ExecUtil
 import java.util.zip.GZIPOutputStream
 
 /**
- * Base class for providing output of Sample and JointSample
+ * A class implementing output of Sample and JointSample to plain-text file
  */
-class SampleWriter {
+public class SampleWriter {
     private final Software software
     private final String header
     private final boolean compress
 
+    /**
+     * Creates a sample writer capable to output samples in plain-text files according to specified software format 
+     * @param software table layour that will be used during output
+     */
     public SampleWriter(Software software) {
         this(software, false)
     }
 
+    /**
+     * Creates a sample writer capable to output samples in plain-text files according to specified software format.
+     * Will compress the resulting output file if {@code compress = true} and append ".gz" to the file name.
+     * @param software table layour that will be used during output
+     * @param compress specifies whether to compress resulting output file
+     */
     public SampleWriter(Software software, boolean compress) {
         this.software = software
         this.header = (software.headerLineCount > 1 ?
@@ -47,6 +57,11 @@ class SampleWriter {
         this.compress = compress
     }
 
+    /**
+     * Gets buffered writer 
+     * @param fileName
+     * @return
+     */
     private BufferedWriter getWriter(String fileName) {
         if (compress)
             fileName += ".gz"
@@ -57,18 +72,46 @@ class SampleWriter {
                 new GZIPOutputStream(fos) : fos))
     }
 
+    /**
+     * Writes a sample to a given directory/path using conventional sample naming suffix. 
+     * Will assume that output to a directory is required if path ends with "/".
+     * @param sample sample to write
+     * @param outputPrefix output path prefix or output directory (if end with "/")
+     */
     public void writeConventional(Sample sample, String outputPrefix) {
         write(sample, ExecUtil.formOutputPath(outputPrefix, sample))
     }
 
+    /**
+     * Writes a sample to a given directory/path using conventional sample naming suffix. 
+     * Will assume that output to a directory is required if path ends with "/".
+     * @param sample sample to write
+     * @param outputPrefix output path prefix or output directory (if end with "/")
+     * @param top number of top clonotype to write, -1 to write all clonotypes
+     * @param collapse specifies whether to store the information on clonotypes that not got it to {@code top}
+     *        ones as a separate single entry put at the end of the file
+     */
     public void writeConventional(Sample sample, String outputPrefix, int top, boolean collapse) {
         write(sample, ExecUtil.formOutputPath(outputPrefix, sample), top, collapse)
     }
 
+    /**
+     * Writes a sample as a plain-text table to the specified path.
+     * @param sample sample to write
+     * @param fileName output path
+     */
     public void write(ClonotypeContainer sample, String fileName) {
         write(sample, fileName, -1, false)
     }
 
+    /**
+     * Writes a sample as a plain-text table to the specified path.
+     * @param sample sample to write
+     * @param fileName output path
+     * @param top number of top clonotype to write, -1 to write all clonotypes
+     * @param collapse specifies whether to store the information on clonotypes that not got it to {@code top}
+     *        ones as a separate single entry put at the end of the file
+     */
     public void write(ClonotypeContainer sample, String fileName, int top, boolean collapse) {
         def printWriter = getWriter(fileName)
 
@@ -106,6 +149,14 @@ class SampleWriter {
         printWriter.close()
     }
 
+    /**
+     * Writes a joint sample as a plain-text table to the specified path.
+     * @param sample sample to write
+     * @param fileName output path
+     * @param top number of top clonotype to write, -1 to write all clonotypes
+     * @param collapse specifies whether to store the information on clonotypes that not got it to {@code top}
+     *        ones as a separate single entry put at the end of the file
+     */
     public void write(JointSample jointSample, String fileName, int top, boolean collapse) {
         def printWriter = getWriter(fileName)
         top = top > jointSample.diversity || top < 0 ? jointSample.diversity : top
@@ -184,6 +235,11 @@ class SampleWriter {
         printWriter.close()
     }
 
+    /**
+     * Writes a joint sample as a plain-text table to the specified path.
+     * @param sample sample to write
+     * @param fileName output path
+     */
     public void write(JointSample jointSample, String fileName) {
         write(jointSample, fileName, -1, false)
     }

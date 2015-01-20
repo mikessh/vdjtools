@@ -18,8 +18,21 @@
 
 package com.antigenomics.vdjtools.io
 
-interface InputStreamFactory {
-    InputStream create()
+/**
+ * An input stream factory. An example implementation would be creating a new file connection each time.
+ * The main purpose of this class is to allow loading the same sample several times and to provide a mean
+ * for implementing re-load for custom input streams.
+ */
+public interface InputStreamFactory {
+    /**
+     * Creates the corresponding input stream. Depending on stream type re-opens file connection, etc
+     * @return a new input stream
+     */
+    public InputStream create()
 
-    String getId()
+    /**
+     * Get the id associated with a given input stream
+     * @return id string, a derivative of file name, etc
+     */
+    public String getId()
 }

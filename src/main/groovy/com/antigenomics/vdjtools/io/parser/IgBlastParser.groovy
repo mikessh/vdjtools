@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 2.1.2015 by mikesh
+ * Last modified on 20.1.2015 by mikesh
  */
 
 package com.antigenomics.vdjtools.io.parser
@@ -24,11 +24,21 @@ import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.util.CommonUtil
 
-class IgBlastParser extends ClonotypeStreamParser {
-    IgBlastParser(Iterator<String> innerIter, Software software, Sample sample) {
+/**
+ * A clonotype parser implementation that handles output from IgBlastWrapper software, see
+ * {@url https://github.com/mikessh/igblastwrp}
+ */
+public class IgBlastParser extends ClonotypeStreamParser {
+    /**
+     * {@inheritDoc}
+     */
+    public IgBlastParser(Iterator<String> innerIter, Software software, Sample sample) {
         super(innerIter, software, sample)
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Clonotype innerParse(String clonotypeString) {
         /*
@@ -78,6 +88,12 @@ class IgBlastParser extends ClonotypeStreamParser {
         return clonotype
     }
 
+    /**
+     * INTERNAL parses IgBlastWrapper-formatted mutation entry and creates a mutation object
+     * @param mutationString a single mutation entry
+     * @param parent clonotype this mutation will be assigned to
+     * @return a mutation object
+     */
     private static Mutation parseIgBlastMutation(String mutationString, Clonotype parent) {
         def splitString = mutationString.split(",")
 

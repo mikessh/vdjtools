@@ -23,11 +23,21 @@ import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.util.CommonUtil
 
-class SimpleParser extends ClonotypeStreamParser {
-    SimpleParser(Iterator<String> innerIter, Software software, Sample sample) {
+/**
+ * A clonotype parser implementation that handles simple tab-delimited input, see
+ * {@url https://github.com/mikessh/vdjtools/wiki/Input#simple}
+ */
+public class SimpleParser extends ClonotypeStreamParser {
+    /**
+     * {@inheritDoc}
+     */
+    public SimpleParser(Iterator<String> innerIter, Software software, Sample sample) {
         super(innerIter, software, sample)
     }
-
+    
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Clonotype innerParse(String clonotypeString) {
         def splitString = clonotypeString.split(software.delimiter)

@@ -1,33 +1,39 @@
-package com.antigenomics.vdjtools.io
-/**
- Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+/*
+ * Copyright 2013-2015 Mikhail Shugay (mikhail.shugay@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Last modified on 7.1.2015 by mikesh
  */
 
-class FastaReader implements Iterable<FastaRecord> {
-    final BufferedReader reader
-    String header = ""
+package com.antigenomics.vdjtools.io
 
-    FastaReader(String fileName) {
+/**
+ * A simple FASTA reader, that could be accessed using {@code fastaReader.each{ FastaRecord fastaRecord -> ...}}
+ */
+public class FastaReader implements Iterable<FastaRecord> {
+    private final BufferedReader reader
+    private String header = ""
+
+    public FastaReader(String fileName) {
         this(new FileReader(fileName))
     }
 
-    FastaReader(InputStreamReader input) {
+    public FastaReader(InputStreamReader input) {
         reader = new BufferedReader(input)
     }
 
-    FastaRecord next() {
+    public FastaRecord next() {
         if (header == "") // first sequence
             header = reader.readLine()
 
@@ -53,7 +59,7 @@ class FastaReader implements Iterable<FastaRecord> {
     }
 
     @Override
-    Iterator iterator() {
+    public Iterator iterator() {
         [hasNext: { header != null }, next: { next() }] as Iterator
     }
 }

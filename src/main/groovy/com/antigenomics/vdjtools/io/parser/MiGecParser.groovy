@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 2.1.2015 by mikesh
+ * Last modified on 20.1.2015 by mikesh
  */
 
 package com.antigenomics.vdjtools.io.parser
@@ -23,11 +23,21 @@ import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.util.CommonUtil
 
-class MiGecParser extends ClonotypeStreamParser {
-    MiGecParser(Iterator<String> innerIter, Software software, Sample sample) {
+/**
+ * A clonotype parser implementation that handles output from MiGEC software, see
+ * {@url https://github.com/mikessh/migec}
+ */
+public class MiGecParser extends ClonotypeStreamParser {
+    /**
+     * {@inheritDoc}
+     */
+    public MiGecParser(Iterator<String> innerIter, Software software, Sample sample) {
         super(innerIter, software, sample)
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Clonotype innerParse(String clonotypeString) {
         /*

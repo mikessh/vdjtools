@@ -21,20 +21,33 @@ package com.antigenomics.vdjtools.io
 import com.antigenomics.vdjtools.sample.metadata.MetadataUtil
 import com.antigenomics.vdjtools.util.CommonUtil
 
-class FileInputStreamFactory implements InputStreamFactory {
+/**
+ * A file input stream factory. This factory creates a new file connection each time.
+ */
+public class FileInputStreamFactory implements InputStreamFactory {
     private final String fileName
 
+    /**
+     * Creates a new instance of file input stream factory associated with a given file name
+     * @param fileName path to underlying file
+     */
     public FileInputStreamFactory(String fileName) {
         this.fileName = fileName
     }
 
+    /**
+     * @inheritDoc
+     */
     @Override
-    InputStream create() {
+    public InputStream create() {
         CommonUtil.getFileStream(fileName)
     }
 
+    /**
+     * @inheritDoc
+     */
     @Override
-    String getId() {
+    public String getId() {
         MetadataUtil.fileName2id(fileName)
     }
 }
