@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ * Copyright 2013-2015 Mikhail Shugay (mikhail.shugay@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 9.10.2014 by mikesh
+ * Last modified on 21.1.2015 by mikesh
  */
 
 package com.antigenomics.vdjtools.sample.metadata
 
-class MetadataColumnInfo {
-    final MetadataColumnType metadataColumnType
-    final int numericSamples, factorSamples
-    final Set<MetadataEntry> uniqueEntries = new HashSet<>()
-    final String columnId
-    final MetadataTable parent
+/**
+ * An object containing general information for a metadata column
+ */
+public class MetadataColumnInfo {
+    private final MetadataColumnType metadataColumnType
+    private final int numericSamples, factorSamples
+    private final Set<MetadataEntry> uniqueEntries = new HashSet<>()
+    private final String columnId
+    private final MetadataTable parent
 
-    MetadataColumnInfo(MetadataTable header, String columnId) {
-        this.parent = header
+    /**
+     * Generates an info for a specified column of metadata table
+     * @param table metadata table
+     * @param columnId id of column to summarize
+     */
+    public MetadataColumnInfo(MetadataTable table, String columnId) {
+        this.parent = table
         this.columnId = columnId
         int numericSamples = 0, factorSamples = 0
-        header.getColumn(columnId).each {
+        table.getColumn(columnId).each {
             if (it.isNumeric())
                 numericSamples++
             else
@@ -47,6 +55,54 @@ class MetadataColumnInfo {
 
         this.numericSamples = numericSamples
         this.factorSamples = factorSamples
+    }
+
+    /**
+     * Gets the type of metadata column 
+     * @return numeric , semi-numeric or factor, depending on column content
+     */
+    public MetadataColumnType getMetadataColumnType() {
+        metadataColumnType
+    }
+
+    /**
+     * Gets the number of numeric samples 
+     * @return number of samples that have a numeric value in a given metadata column
+     */
+    public int getNumericSamples() {
+        numericSamples
+    }
+
+    /**
+     * Gets the number of factor samples 
+     * @return number of samples that have a non-numeric value in a given metadata column
+     */
+    public int getFactorSamples() {
+        factorSamples
+    }
+
+    /**
+     * Gets the set of unique entries 
+     * @return and unmodifiable set contaiting unique column values 
+     */
+    public Set<MetadataEntry> getUniqueEntries() {
+        Collections.unmodifiableSet(uniqueEntries)
+    }
+
+    /**
+     * Gets the column id 
+     * @return id of metadata column
+     */
+    public String getColumnId() {
+        columnId
+    }
+
+    /**
+     * Gets parent table
+     * @return parent metadata table
+     */
+    public MetadataTable getParent() {
+        parent
     }
 
     @Override

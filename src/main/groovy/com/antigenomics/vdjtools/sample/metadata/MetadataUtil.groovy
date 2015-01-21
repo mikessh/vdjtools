@@ -20,8 +20,15 @@ package com.antigenomics.vdjtools.sample.metadata
 
 import org.apache.commons.io.FilenameUtils
 
-
-class MetadataUtil {
+/**
+ * Some useful utils for metadata manipulation 
+ */
+public class MetadataUtil {
+    /**
+     * Converts a file name to sample id 
+     * @param fileName file name to convert
+     * @return sample id, a shortcut for file name without any path and extension
+     */
     public static String fileName2id(String fileName) {
         FilenameUtils.getBaseName(
                 fileName.endsWith(".gz") ?
@@ -29,10 +36,19 @@ class MetadataUtil {
                         fileName)
     }
 
+    /**
+     * Creates sample metadata object and assigns it to a generic metadata table 
+     * @param sampleId short unique identifier of a sample
+     * @return sample metadata object assigned to a generic metadata table
+     */
     public static SampleMetadata createSampleMetadata(String sampleId) {
-        MetadataTable.GENERIC_METADATA_TABLE.createRow(sampleId, new ArrayList<String>())
+        defaultMetadataTable.createRow(sampleId, new ArrayList<String>())
     }
 
+    /**
+     * Gets a generic metadata table
+     * @return metadata table which contains all statically-created metadata entries
+     */
     public static MetadataTable getDefaultMetadataTable() {
         MetadataTable.GENERIC_METADATA_TABLE
     }

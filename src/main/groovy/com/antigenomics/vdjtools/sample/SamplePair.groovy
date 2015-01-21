@@ -21,35 +21,79 @@ package com.antigenomics.vdjtools.sample
 import com.antigenomics.vdjtools.io.DummySampleConnection
 import com.antigenomics.vdjtools.io.SampleConnection
 
-class SamplePair {
+/**
+ * A class representing a tuple of samples
+ */
+public class SamplePair {
     private final SampleConnection sample1conn, sample2conn
-    final int i, j
+    private int i, j
 
-    SamplePair(SampleConnection sample1conn, SampleConnection sample2conn, int i, int j) {
+    public SamplePair(SampleConnection sample1conn, SampleConnection sample2conn, int i, int j) {
         this.sample1conn = sample1conn
         this.sample2conn = sample2conn
         this.i = i
         this.j = j
     }
 
-    SamplePair(Sample sample1, Sample sample2, int i, int j) {
+    /**
+     * Creates a sample pair holding references to both samples and their indices in parent collection
+     * @param sample1 first sample
+     * @param sample2 second sample
+     * @param i index of the first sample in sample collection 
+     * @param j index of the second sample in sample collection
+     */
+    public SamplePair(Sample sample1, Sample sample2, int i, int j) {
         this(new DummySampleConnection(sample1), new DummySampleConnection(sample2), i, j)
     }
 
-    SamplePair(SampleConnection sample1conn, SampleConnection sample2conn) {
+    /**
+     * Creates a sample pair holding references to both samples
+     * @param sample1conn an object that can be used to load the first sample
+     * @param sample2conn an object that can be used to load the second sample
+     */
+    public SamplePair(SampleConnection sample1conn, SampleConnection sample2conn) {
         this(sample1conn, sample2conn, 0, 1)
     }
 
-    SamplePair(Sample sample1, Sample sample2) {
+    /**
+     * Creates a sample pair holding references to both samples 
+     * @param sample1 first sample
+     * @param sample2 second sample
+     */
+    public SamplePair(Sample sample1, Sample sample2) {
         this(sample1, sample2, 0, 1)
     }
 
+    /**
+     * Swaps samples
+     * @return a sample pair with samples being swapped
+     */
     public SamplePair getReverse() {
         new SamplePair(sample2conn, sample1conn, j, i)
     }
 
+    /**
+     * Gets the index of first sample 
+     * @return the index of first sample
+     */
+    public getI() {
+        i
+    }
 
-    Sample getAt(int index) {
+    /**
+     * Gets the index of second sample 
+     * @return the index of second sample
+     */
+    public getJ() {
+        j
+    }
+
+    /**
+     * Gets the sample that corresponds to a given index
+     * @param index index of sample, {@code 0} or {@code 1}
+     * @return gets the sample specified by given index
+     */
+    public getAt(int index) {
         switch (index) {
             case 0:
                 return sample1conn.sample
@@ -58,7 +102,7 @@ class SamplePair {
         }
         throw new IndexOutOfBoundsException()
     }
-    
+
     @Override
     public String toString() {
         "SamplePair{${sample1conn},${sample2conn}}"

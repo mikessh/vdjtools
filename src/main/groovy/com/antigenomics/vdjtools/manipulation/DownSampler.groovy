@@ -20,10 +20,18 @@ import com.antigenomics.vdjtools.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.util.MathUtil
 
+/**
+ * A class that implements down-sampling procedure, i.e.
+ * selecting {@code n < N} reads from a given sample with {@code N} reads 
+ */
 public class DownSampler {
     private final Clonotype[] flattenedClonotypes
     private final Sample sample
 
+    /**
+     * Create a down-sampler for the specified sample 
+     * @param sample sample that would be down-sampled
+     */
     public DownSampler(Sample sample) {
         if (sample.count > Integer.MAX_VALUE)
             throw new RuntimeException("Couldn't downsample samples with > ${Integer.MAX_VALUE} cells")
@@ -38,6 +46,11 @@ public class DownSampler {
         }
     }
 
+    /**
+     * Gets a specified number of reads from a given sample
+     * @param count number of reads to take
+     * @return a newly create down-sampled sample, or the underlying sample if the number of reads is greated or equal to the sample size
+     */
     public Sample reSample(int count) {
         if (count >= sample.count) {
             return new Sample(sample)

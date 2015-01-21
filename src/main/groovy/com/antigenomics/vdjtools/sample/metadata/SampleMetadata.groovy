@@ -20,29 +20,53 @@ package com.antigenomics.vdjtools.sample.metadata
 
 import groovy.transform.PackageScope
 
-class SampleMetadata {
-    final String sampleId
-    final ArrayList<MetadataEntry> entries
-    final MetadataTable parent
+/**
+ * A class holding metadata column values for a given sample, i.e. a metadata table row 
+ */
+public class SampleMetadata {
+    private final String sampleId
+    private final ArrayList<MetadataEntry> entries
+    private final MetadataTable parent
 
+    /**
+     * Creates a blank sample metadata 
+     * @param sampleId unique sample id
+     * @param parent parent metadata table
+     */
     private SampleMetadata(String sampleId, MetadataTable parent) {
         this.sampleId = sampleId
         this.entries = new ArrayList<>()
         this.parent = parent
     }
 
+    /**
+     * Creates sample metadata and fills it with metadata entries
+     * @param sampleId unique sample id
+     * @param entries entries that should be assigned to a given sample
+     * @param parent parent metadata table
+     */
     private SampleMetadata(String sampleId, ArrayList<MetadataEntry> entries, MetadataTable parent) {
         this.sampleId = sampleId
         this.entries = entries
         this.parent = parent
     }
 
+    /**
+     * Gets the metadata entry associated with current sample and a given column
+     * @param columnId metadata column id
+     * @return metadata entry for a given column id
+     */
     public MetadataEntry getAt(String columnId) {
         if (columnId == MetadataTable.SAMPLE_ID_COLUMN)
             return new MetadataEntry(parent, this, MetadataTable.SAMPLE_ID_COLUMN, sampleId)
         parent[sampleId, columnId]
     }
 
+    /**
+     * INTERNAL re-assigns parent metadata table 
+     * @param parent
+     * @return
+     */
     @PackageScope
     SampleMetadata changeParent(MetadataTable parent) {
         def sampleMetadata = new SampleMetadata(sampleId, parent)
@@ -50,6 +74,13 @@ class SampleMetadata {
         sampleMetadata
     }
 
+    /**
+     * INTERNAL
+     * @param sampleId
+     * @param entries
+     * @param parent
+     * @return
+     */
     @PackageScope
     static SampleMetadata predefined(String sampleId, ArrayList<MetadataEntry> entries, MetadataTable parent) {
         new SampleMetadata(sampleId, entries, parent)
@@ -65,8 +96,32 @@ class SampleMetadata {
         addEntry(metadataEntry.columnId, metadataEntry.value)
     }
 
+    /**
+     * Gets the unique id of current sample 
+     * @return sample id string
+     */
+    public String getSampleId() {
+        sampleId
+    }
+
+    /**
+     * Gets the metadata row associated with current sample
+     * @return a list of metadata entries for current sample that correspond to different metadata table columns
+     */
+    public List<MetadataEntry> getEntries() {
+        Collections.unmodifiableList(entries)
+    }
+
+    /**
+     * Gets parent metadata table
+     * @return metadata table this sample metadata is assigned to
+     */
+    public MetadataTable getParent() {
+        parent
+    }
+
     @Override
-    boolean equals(o) {
+    public boolean equals(o) {
         if (this.is(o)) return true
         if (getClass() != o.class) return false
 
@@ -78,12 +133,15 @@ class SampleMetadata {
     }
 
     @Override
-    int hashCode() {
+    public int hashCode() {
         return sampleId.hashCode()
     }
 
+    /**
+     * Plain text row for tabular output
+     */
     @Override
-    String toString() {
+    public String toString() {
         entries.size() > 0 ? entries.join("\t") : "."
     }
 }

@@ -23,7 +23,7 @@ import groovy.transform.PackageScope
 import static com.antigenomics.vdjtools.util.ExecUtil.*
 
 /**
- * Base class to handle sample metadata
+ * Base class that handles metadata for a sample collection
  */
 class MetadataTable implements Iterable<SampleMetadata> {
     /**

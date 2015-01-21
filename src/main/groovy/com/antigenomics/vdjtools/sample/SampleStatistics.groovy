@@ -18,15 +18,26 @@
 
 package com.antigenomics.vdjtools.sample
 
+/**
+ * An object holding some basic statistics for a sample collection 
+ */
+public class SampleStatistics {
+    private final long minCount, maxCount
+    private final double minFreq, maxFreq
+    private final int minDiversity, maxDiversity
 
-class SampleStatistics {
-    public final long minCount, maxCount
-    public final double minFreq, maxFreq
-    public final int minDiversity, maxDiversity
-
-    SampleStatistics(long minCount, long maxCount,
-                     double minFreq, double maxFreq,
-                     int minDiversity, int maxDiversity) {
+    /**
+     * Initializes a new sample statistics object with pre-computed values 
+     * @param minCount minimal number of reads in a sample from given sample collection
+     * @param maxCount maximal number of reads in a sample from given sample collection
+     * @param minFreq minimal total frequency of clonotypes in a sample from given sample collection
+     * @param maxFreq maximal total frequency of clonotypes in a sample from given sample collection
+     * @param minDiversity minimal number of clonotypes in a sample from given sample collection
+     * @param maxDiversity maximal number of clonotypes in a sample from given sample collection
+     */
+    public SampleStatistics(long minCount, long maxCount,
+                            double minFreq, double maxFreq,
+                            int minDiversity, int maxDiversity) {
         this.minCount = minCount
         this.maxCount = maxCount
         this.minFreq = minFreq
@@ -35,10 +46,18 @@ class SampleStatistics {
         this.maxDiversity = maxDiversity
     }
 
+    /**
+     * Gets the minimal number of reads in a sample from given sample collection
+     * @return size of the smallest sample in sample collection
+     */
     public long getMinCount() {
         minCount
     }
 
+    /**
+     * Gets the maximal number of reads in a sample from given sample collection
+     * @return size of the largest sample in sample collection
+     */
     public long getMaxCount() {
         maxCount
     }

@@ -18,6 +18,20 @@
 
 package com.antigenomics.vdjtools.sample.metadata
 
+/**
+ * Metadata column type that is assigned according to its content 
+ */
 public enum MetadataColumnType {
-    Factor, Numeric, SemiNumeric
+    /**
+     * Column contains only non-numeric values 
+     */
+    /*   */ Factor,
+    /**
+     * Column contains only numeric values
+     */
+            Numeric,
+    /**
+     * Column contains both numeric and non-numeric values
+     */
+            SemiNumeric
 }
