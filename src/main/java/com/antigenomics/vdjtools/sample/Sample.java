@@ -79,17 +79,30 @@ public class Sample implements ClonotypeContainer {
 
         ClonotypeStreamParser clonotypeStreamParser = ClonotypeStreamParser.create(inputStream, software, sample);
 
+        boolean sorted = true;
+        int prevCount = Integer.MAX_VALUE;
+
         for (Clonotype clonotype : clonotypeStreamParser) {
             if (top > -1 && sample.getDiversity() == top)
                 break;
 
-            if (clonotype != null)
+            if (clonotype != null) {
+                int count = clonotype.getCount();
+
+                if (sorted && count > prevCount) {
+                    sorted = false;
+                    prevCount = count;
+                }
+
                 sample.addClonotype(clonotype, store);
+            }
         }
 
         clonotypeStreamParser.finish(); // report progress
 
-        Collections.sort(sample.clonotypes);
+        // on-demand sorting
+        if (!sorted)
+            Collections.sort(sample.clonotypes);
 
         return sample;
     }
