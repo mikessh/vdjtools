@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 13.1.2015 by mikesh
+ * Last modified on 30.1.2015 by mikesh
  */
 
 package com.antigenomics.vdjtools.basic
@@ -36,43 +36,70 @@ public class BasicStats {
     private final long count
     private final int diversity
     private final double convergence
+    private final boolean weighted
 
     /**
      * Create an instance of BasicStats class. All computations are done within constructor.
      * @param sample sample to be analyzed
      */
     public BasicStats(Sample sample) {
+        this(sample, true)
+    }
+
+    /**
+     * Create an instance of BasicStats class. All computations are done within constructor.
+     * @param sample sample to be analyzed
+     * @param weighted if set to {@code true}, will use clonotype frequency to weight mean_cdr3nt_length, mean_insert_size and mean_ndn_size
+     */
+    public BasicStats(Sample sample, boolean weighted) {
         this.count = sample.count
         this.diversity = sample.diversity
 
         this.cloneSize = new DescriptiveStatistics()
         this.cloneSizeGeom = new DescriptiveStatistics()
+
         this.cdr3ntLength = new DescriptiveStatistics()
         this.insertSize = new DescriptiveStatistics()
         this.ndnSize = new DescriptiveStatistics()
 
-        def clonotypeKeyGen = new ClonotypeKeyGen(IntersectionType.AminoAcidVJ)
-        def aaSet = new HashSet<ClonotypeKey>()
+        this.weighted = weighted
+
+        def keyGenAA = new ClonotypeKeyGen(IntersectionType.AminoAcid),
+            keyGenNT = new ClonotypeKeyGen(IntersectionType.Nucleotide)
+        def aaSet = new HashSet<ClonotypeKey>(),
+            ntSet = new HashSet<ClonotypeKey>()
+
+        int weight = 1
 
         sample.each {
             cloneSize.addValue(it.freq)
             cloneSizeGeom.addValue(Math.log10(it.freq))
-            cdr3ntLength.addValue(it.cdr3nt.length())
+
+            if (weighted)
+                weight = it.count
+
+            cdr3ntLength.addValue(weight * it.cdr3nt.length())
 
             def x = it.insertSize
             if (x > -1)
-                insertSize.addValue(x)
+                insertSize.addValue(weight * x)
 
-            ndnSize.addValue(it.NDNSize)
+            ndnSize.addValue(weight * it.NDNSize)
+
             if (!it.coding) {
                 ncDiversity++
                 ncFrequency += it.freq
             }
 
-            aaSet.add(clonotypeKeyGen.generateKey(it))
+            aaSet.add(keyGenAA.generateKey(it))
+            ntSet.add(keyGenNT.generateKey(it))
         }
 
-        this.convergence = diversity / (double) aaSet.size() - 1
+        this.convergence = ntSet.size() / (double) aaSet.size()
+    }
+
+    private double normalize(double value) {
+        weighted ? value / count : value
     }
 
     /**
@@ -92,28 +119,30 @@ public class BasicStats {
     }
 
     /**
-     * Gets mean CDR3 nucleotide sequence length 
+     * Gets mean CDR3 nucleotide sequence length. 
+     * If {@code weighted = true} the mean will be weighted by clonotype count 
      * @return
      */
     public double getMeanCdr3ntLength() {
-        cdr3ntLength.mean
+        normalize(cdr3ntLength.mean)
     }
 
     /**
      * Gets mean NDN region size, i.e. mean number of nucleotides between V segment end and J segment start 
+     * If {@code weighted = true} the mean will be weighted by clonotype count
      * @return
      */
     public double getMeanNDNSize() {
-        ndnSize.mean
+        normalize(ndnSize.mean)
     }
 
     /**
      * Gets mean insert size, i.e. mean number of nucleotides in V-D and D-J regions if D segment is determined or
-     * V-J regions if not 
+     * V-J regions if not. If {@code weighted = true} the mean will be weighted by clonotype count
      * @return
      */
     public double getMeanInsertSize() {
-        insertSize.mean
+        normalize(insertSize.mean)
     }
 
     /**
@@ -153,7 +182,7 @@ public class BasicStats {
      * @return
      */
     public double getConvergence() {
-        return convergence
+        convergence
     }
 
     /**

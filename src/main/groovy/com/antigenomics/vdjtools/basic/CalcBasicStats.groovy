@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 7.1.2015 by mikesh
+ * Last modified on 30.1.2015 by mikesh
  */
 
 package com.antigenomics.vdjtools.basic
@@ -33,6 +33,7 @@ cli.S(longOpt: "software", argName: "string", required: true, args: 1,
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
+cli.u(longOpt: "unweighted", "Will count each clonotype only once, apart from conventional frequency-weighted histogram.")
 
 def opt = cli.parse(args)
 
@@ -60,7 +61,8 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 // Remaining arguments
 
 def software = Software.byName(opt.S),
-    outputFilePrefix = opt.arguments()[-1]
+    outputFilePrefix = opt.arguments()[-1],
+    unweighted = (boolean) opt.u
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -90,7 +92,7 @@ new File(formOutputPath(outputFilePrefix, "basicstats")).withPrintWriter { pw ->
     def sampleCounter = 0
 
     sampleCollection.each { Sample sample ->
-        def basicStats = new BasicStats(sample)
+        def basicStats = new BasicStats(sample, !unweighted)
 
         println "[${new Date()} $scriptName] ${++sampleCounter} sample(s) processed"
 
