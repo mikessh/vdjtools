@@ -36,8 +36,6 @@ public class CdrMatch {
     public static List<CdrMatch> collectMatches(Clonotype query,
                                                 CdrSearchResult cdrSearchResult,
                                                 boolean requireVMatch, boolean requireJMatch) {
-        requireVMatch = !requireVMatch
-        requireJMatch = !requireJMatch
         def result = new ArrayList<CdrMatch>()
         cdrSearchResult.cdrEntrySet.each {
             def wrapper = new CdrMatch(it, query, cdrSearchResult.alignment)
