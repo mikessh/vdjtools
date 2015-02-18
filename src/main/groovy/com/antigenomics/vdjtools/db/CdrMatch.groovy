@@ -41,7 +41,7 @@ public class CdrMatch {
         def result = new ArrayList<CdrMatch>()
         cdrSearchResult.cdrEntrySet.each {
             def wrapper = new CdrMatch(it, query, cdrSearchResult.alignment)
-            if ((requireVMatch || wrapper.vMatch) && (requireJMatch && wrapper.jMatch))
+            if ((!requireVMatch || wrapper.vMatch) && (!requireJMatch || wrapper.jMatch))
                 result.add(wrapper)
         }
         result
