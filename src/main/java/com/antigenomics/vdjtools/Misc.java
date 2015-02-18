@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ * Copyright 2013-2015 Mikhail Shugay (mikhail.shugay@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 8.11.2014 by mikesh
+ * Last modified on 30.1.2015 by mikesh
  */
 
 package com.antigenomics.vdjtools;
 
+/**
+ * Some miscellaneous constants and functions
+ */
 public class Misc {
     /**
      * Upper limit on current precision of RepSeq

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ * Copyright 2013-2015 Mikhail Shugay (mikhail.shugay@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 10.11.2014 by mikesh
+ * Last modified on 30.1.2015 by mikesh
  */
 
 package com.antigenomics.vdjtools.util;
@@ -23,6 +23,9 @@ import org.apache.commons.math3.util.FastMath;
 
 import java.util.Random;
 
+/**
+ * Fast Java implementation for mathematical routines used in VDJtools
+ */
 public class MathUtil {
     private static final double HALF_LOG_2_PI = 0.5 * FastMath.log(2.0 * FastMath.PI);
     private static final long[] FACTORIALS = new long[]{

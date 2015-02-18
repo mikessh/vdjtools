@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ * Copyright 2013-2015 Mikhail Shugay (mikhail.shugay@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 15.11.2014 by mikesh
+ * Last modified on 30.1.2015 by mikesh
  */
 
 
@@ -26,11 +26,18 @@ import java.nio.file.Path
 
 import static java.io.File.separator
 
-class ExecUtil {
+/**
+ * Class that contains commonly used static functions for running scripts and I/O
+ */
+public class ExecUtil {
     // todo: use this everywhere
     public static final String MY_PATH = new File(ExecUtil.class.protectionDomain.codeSource.location.path).parent
     public static final int THREADS = Runtime.runtime.availableProcessors()
 
+    /**
+     * Gets the memory footprint of Java Runtime Environment
+     * @return a string containing memory usage summary
+     */
     public static String memoryFootprint() {
         final factor = 1024 * 1024 * 1024
 
@@ -52,6 +59,12 @@ class ExecUtil {
         }
     }
 
+    /**
+     * Runs a specified Groovy script 
+     * @param script groovy script object
+     * @param args list of arguments
+     * @return script
+     */
     public static Object run(Script script, List<String> args) {
         // perform cleanup
         args = args.collect { it.trim() }

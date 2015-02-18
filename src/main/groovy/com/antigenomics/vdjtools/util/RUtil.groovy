@@ -16,9 +16,18 @@
 
 package com.antigenomics.vdjtools.util
 
-class RUtil {
-    public static final String PACKAGES_PATH = "$ExecUtil.MY_PATH/Rpackages/"
+/**
+ * Class containing static utils for executing R scripts 
+ */
+public class RUtil {
+    public static final String PACKAGES_PATH = "$ExecUtil.MY_PATH/Rpackages/" // Local R library path
+    public static final String NA = "NA" // NaN in R
 
+    /**
+     * Converts a given object to numeric variable
+     * @param smth object to convert
+     * @return a numeric string or NA if object couldn't be converted
+     */
     public static String asNumeric(smth) {
         def smthStr = smth.toString()
         if (!smthStr.isDouble())
@@ -27,12 +36,20 @@ class RUtil {
         (value.isNaN() || value.isInfinite()) ? NA : value.toString()
     }
 
+    /**
+     * Converts a given object to logical variable
+     * @param smth object to convert
+     * @return "T" for true or "F" for false
+     */
     public static String logical(smth) {
         smth ? "T" : "F"
     }
 
-    public static final String NA = "NA"
-
+    /**
+     * Execute a given R script 
+     * @param scriptName R script name
+     * @param params script parameters
+     */
     public static void execute(String scriptName, String... params) {
         // Create a temp file to store the script
         def scriptRes = CommonUtil.resourceStreamReader("rscripts/$scriptName")
@@ -74,11 +91,19 @@ class RUtil {
         }
     }
 
+    /**
+     * Install specified R packages 
+     * @param dependencies names of packages to install (case-sensitive)
+     */
     public static void install(String... dependencies) {
         new File(PACKAGES_PATH).mkdirs()
         execute("install.r", [PACKAGES_PATH, dependencies].flatten() as String[])
     }
 
+    /**
+     * Test if specified R packages are installed
+     * @param dependencies names of packages that will be checked (case-sensitive)
+     */
     public static void test(String... dependencies) {
         execute("test.r", dependencies)
     }

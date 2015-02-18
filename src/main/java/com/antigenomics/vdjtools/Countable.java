@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2014 Mikhail Shugay (mikhail.shugay@gmail.com)
+ * Copyright 2013-2015 Mikhail Shugay (mikhail.shugay@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 7.11.2014 by mikesh
+ * Last modified on 30.1.2015 by mikesh
  */
 
 package com.antigenomics.vdjtools;
 
+/**
+ * Something that has a read count
+ */
 public interface Countable {
+    /**
+     * Gets the number of reads associated with a given object
+     *
+     * @return number of reads
+     */
     public int getCount();
 }

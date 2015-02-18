@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 7.1.2015 by mikesh
+ * Last modified on 13.1.2015 by mikesh
  */
 
 package com.antigenomics.vdjtools.basic
