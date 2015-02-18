@@ -36,7 +36,6 @@ public class QuantileStats {
     private final AtomicDouble highOrderFreq = new AtomicDouble(),
                                doubletonFreq = new AtomicDouble(),
                                singletonFreq = new AtomicDouble()
-    private final double totalFreq
 
     /**
      * Summarizes quantile statisitcs for a given sample 
@@ -49,8 +48,6 @@ public class QuantileStats {
 
         if (!clonotypeContainer.isSorted())
             throw new Exception("Clonotype container should be sorted to be used as input for this statistic")
-
-        this.totalFreq = clonotypeContainer.count / (double) clonotypeContainer.diversity
 
         update(clonotypeContainer)
     }
@@ -67,7 +64,7 @@ public class QuantileStats {
      * Internal - adds more clonotyps to stats
      */
     private void update(ClonotypeContainer clonotypeContainer) {
-        int n = clonotypeContainer.diversity, m = n
+        int n = clonotypeContainer.diversity, m = -1
 
         for (int i = n - 1; i >= 0; i--) {
             def clonotype = clonotypeContainer[i]
@@ -118,7 +115,7 @@ public class QuantileStats {
     public double getQuantileFrequency(int quantile) {
         if (quantile < 0 || quantile >= numberOfQuantiles)
             throw new IndexOutOfBoundsException()
-        quantileFreqs.get(quantile) / totalFreq
+        quantileFreqs.get(quantile)
     }
 
     /**
@@ -126,7 +123,7 @@ public class QuantileStats {
      * @return
      */
     public double getSingletonFreq() {
-        singletonFreq.get() / totalFreq
+        singletonFreq.get()
     }
 
     /**
@@ -134,7 +131,7 @@ public class QuantileStats {
      * @return
      */
     public double getDoubletonFreq() {
-        doubletonFreq.get() / totalFreq
+        doubletonFreq.get()
     }
 
     /**
@@ -142,7 +139,7 @@ public class QuantileStats {
      * @return
      */
     public double getHighOrderFreq() {
-        highOrderFreq.get() / totalFreq
+        highOrderFreq.get()
     }
 
     /**
