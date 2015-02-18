@@ -50,7 +50,7 @@ public class QuantileStats {
         if (!clonotypeContainer.isSorted())
             throw new Exception("Clonotype container should be sorted to be used as input for this statistic")
 
-        this.totalFreq = clonotypeContainer.freq
+        this.totalFreq = clonotypeContainer.count / (double) clonotypeContainer.diversity
 
         update(clonotypeContainer)
     }
