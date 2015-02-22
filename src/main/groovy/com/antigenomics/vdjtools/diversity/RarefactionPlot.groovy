@@ -152,7 +152,7 @@ int lblCol = optL ? sampleCollection.metadataTable.getColumnIndex(optL) : 0,
 if (facCol < 0) {
     numeric = RUtil.logical(false)
 } else {
-    if (sampleCollection.metadataTable.getInfo(optF).numericSamples < 3 && numeric == RUtil.logical(true)) {
+    if (numeric == RUtil.logical(true) && sampleCollection.metadataTable.getInfo(optF).numericSamples < 3) {
         println "Switching off numeric option, there were <3 numeric values in corresponding column"
         numeric = RUtil.logical(false)
     }

@@ -44,7 +44,7 @@ public class MetadataColumnInfo {
                 numericSamples++
             else
                 factorSamples++
-            uniqueEntries.add(it)
+            this.uniqueEntries.add(it) // getter/member mess in groovy
         }
 
         if (factorSamples > 0) {
