@@ -60,7 +60,7 @@ public class BasicStats {
         this.cloneSize = new DescriptiveStatistics()
         this.cloneSizeGeom = new DescriptiveStatistics()
 
-        double cdr3ntLength, insertSize, ndnSize
+        double cdr3ntLength = 0, insertSize = 0, ndnSize = 0
 
         this.weighted = weighted
 
