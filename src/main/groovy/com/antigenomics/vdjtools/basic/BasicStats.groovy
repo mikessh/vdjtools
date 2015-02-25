@@ -17,7 +17,6 @@
  */
 
 
-
 package com.antigenomics.vdjtools.basic
 
 import com.antigenomics.vdjtools.intersection.IntersectionType
@@ -32,12 +31,14 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
  * fraction of non-coding clonotypes and repertoire convergence 
  */
 public class BasicStats {
-    private final DescriptiveStatistics cloneSize, cloneSizeGeom, cdr3ntLength, insertSize, ndnSize
+    private final DescriptiveStatistics cloneSize, cloneSizeGeom
+    private final double cdr3ntLength, insertSize, ndnSize
     private int ncDiversity
     private double ncFrequency
     private final long count
     private final int diversity
     private final double convergence
+    private final double denom
     private final boolean weighted
 
     /**
@@ -60,9 +61,7 @@ public class BasicStats {
         this.cloneSize = new DescriptiveStatistics()
         this.cloneSizeGeom = new DescriptiveStatistics()
 
-        this.cdr3ntLength = new DescriptiveStatistics()
-        this.insertSize = new DescriptiveStatistics()
-        this.ndnSize = new DescriptiveStatistics()
+        double cdr3ntLength, insertSize, ndnSize
 
         this.weighted = weighted
 
@@ -80,13 +79,13 @@ public class BasicStats {
             if (weighted)
                 weight = it.count
 
-            cdr3ntLength.addValue(weight * it.cdr3nt.length())
+            cdr3ntLength += weight * it.cdr3nt.length()
 
             def x = it.insertSize
             if (x > -1)
-                insertSize.addValue(weight * x)
+                insertSize += weight * x
 
-            ndnSize.addValue(weight * it.NDNSize)
+            ndnSize += weight * it.NDNSize
 
             if (!it.coding) {
                 ncDiversity++
@@ -95,13 +94,14 @@ public class BasicStats {
 
             aaSet.add(keyGenAA.generateKey(it))
             ntSet.add(keyGenNT.generateKey(it))
+
+            denom += weight
         }
 
         this.convergence = ntSet.size() / (double) aaSet.size()
-    }
-
-    private double normalize(double value) {
-        weighted ? value / count : value
+        this.cdr3ntLength = cdr3ntLength / denom
+        this.ndnSize = ndnSize / denom
+        this.insertSize = insertSize / denom
     }
 
     /**
@@ -126,7 +126,7 @@ public class BasicStats {
      * @return
      */
     public double getMeanCdr3ntLength() {
-        normalize(cdr3ntLength.mean)
+        cdr3ntLength
     }
 
     /**
@@ -135,7 +135,7 @@ public class BasicStats {
      * @return
      */
     public double getMeanNDNSize() {
-        normalize(ndnSize.mean)
+        ndnSize
     }
 
     /**
@@ -144,7 +144,7 @@ public class BasicStats {
      * @return
      */
     public double getMeanInsertSize() {
-        normalize(insertSize.mean)
+        insertSize
     }
 
     /**
