@@ -38,7 +38,6 @@ public class BasicStats {
     private final long count
     private final int diversity
     private final double convergence
-    private final double denom
     private final boolean weighted
 
     /**
@@ -71,6 +70,7 @@ public class BasicStats {
             ntSet = new HashSet<ClonotypeKey>()
 
         int weight = 1
+        double denom = 0
 
         sample.each {
             cloneSize.addValue(it.freq)
