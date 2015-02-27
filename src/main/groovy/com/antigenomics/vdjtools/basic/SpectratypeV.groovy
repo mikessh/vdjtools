@@ -31,6 +31,21 @@ public class SpectratypeV {
 
     /**
      * Creates a blank Variable segment spectratype instance.
+     */
+    public SpectratypeV() {
+        this(false, false)
+    }
+
+    /**
+     * Creates a blank Variable segment spectratype instance.
+     * @param intersectionType intersection type to deduce whether amino acid or nucleotide sequence CDR3 should be used to determine the histogram bin
+     */
+    public SpectratypeV(IntersectionType intersectionType) {
+        this(intersectionType.aminoAcid, false)
+    }
+
+    /**
+     * Creates a blank Variable segment spectratype instance.
      * @param intersectionType intersection type to deduce whether amino acid or nucleotide sequence CDR3 should be used to determine the histogram bin
      * @param unweighted will count each unique clonotype once if set to true. Will weight each clonotype by its frequency otherwise
      */
@@ -87,7 +102,9 @@ public class SpectratypeV {
     }
 
     /**
-     * Selects spectratypes for {@code 0..top-1} Variable segments
+     * Selects spectratypes for {@code 0..top-1} Variable segments. 
+     * Note that you should not normalize the resulting histograms if you want to see the correct picture,
+     * so call {@code spectratype.getHistogram(false)}
      * @param top number of most frequent Variable segments to take
      * @return map with Variable segment name {@code String} as key and {@code Spectratype} as value
      */
