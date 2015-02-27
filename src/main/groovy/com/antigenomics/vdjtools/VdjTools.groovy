@@ -25,10 +25,7 @@ import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.PlotQuantileStats
 import com.antigenomics.vdjtools.diversity.RarefactionPlot
 import com.antigenomics.vdjtools.intersection.*
-import com.antigenomics.vdjtools.manipulation.ApplySampleAsFilter
-import com.antigenomics.vdjtools.manipulation.Decontaminate
-import com.antigenomics.vdjtools.manipulation.DownSample
-import com.antigenomics.vdjtools.manipulation.FilterNonFunctional
+import com.antigenomics.vdjtools.manipulation.*
 import com.antigenomics.vdjtools.util.ExecUtil
 import com.antigenomics.vdjtools.util.RInstall
 
@@ -67,6 +64,7 @@ def printHelp = {
     println "FilterNonFunctional"
     println "DownSample"
     println "Decontaminate"
+    println "FilterBySegment"
     println ""
     println "[Annotation]"
     println "ScanDatabase"
@@ -113,6 +111,8 @@ def getScript = { String scriptName ->
             return new PlotQuantileStats()
         case "DECONTAMINATE":
             return new Decontaminate()
+        case "FILTERBYSEGMENT":
+            return new FilterBySegment()
         case "RINSTALL":
             return new RInstall()
         case "-H":
