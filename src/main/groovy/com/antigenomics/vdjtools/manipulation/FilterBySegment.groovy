@@ -89,7 +89,7 @@ def sampleCollection = metadataFileName ?
 println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded"
 
 //
-// Iterate over samples & down-sample
+// Iterate over samples & filter
 //
 
 def writer = new SampleWriter(software, compress)
