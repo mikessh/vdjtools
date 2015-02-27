@@ -37,6 +37,10 @@ public abstract class ClonotypeFilter {
         this.negative = negative;
     }
 
+    protected ClonotypeFilter() {
+        this(false);
+    }
+
     public boolean pass(Clonotype clonotype) {
         boolean pass = negative ^ checkPass(clonotype);
 

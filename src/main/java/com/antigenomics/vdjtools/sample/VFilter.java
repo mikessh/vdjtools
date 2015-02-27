@@ -13,32 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 7.1.2015 by mikesh
+ * Last modified on 27.2.2015 by mikesh
  */
 
 package com.antigenomics.vdjtools.sample;
 
 import com.antigenomics.vdjtools.Clonotype;
 
-public class CompositeClonotypeFilter extends ClonotypeFilter {
-    private final ClonotypeFilter[] filters;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
+public class VFilter extends ClonotypeFilter {
+    private final Set<String> vSegmentSet = new HashSet<>();
 
-    public CompositeClonotypeFilter(boolean negative, ClonotypeFilter... filters) {
+    public VFilter(boolean negative, String... vSegment) {
         super(negative);
-        this.filters = filters;
+        Collections.addAll(this.vSegmentSet, vSegment);
     }
 
-    public CompositeClonotypeFilter(ClonotypeFilter... filters) {
-        this(false, filters);
+    public VFilter(String... vSegment) {
+        this(false, vSegment);
     }
 
     @Override
     protected boolean checkPass(Clonotype clonotype) {
-        for (ClonotypeFilter filter : filters)
-            if (!filter.pass(clonotype))
-                return false;
+        return vSegmentSet.contains(clonotype.getV());
+    }
 
-        return true;
+    public Set<String> getvSegmentSet() {
+        return Collections.unmodifiableSet(vSegmentSet);
     }
 }
