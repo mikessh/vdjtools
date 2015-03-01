@@ -118,6 +118,6 @@ new File(formOutputPath(outputFilePrefix, "segfilter", "summary")).withPrintWrit
 }
 
 sampleCollection.metadataTable.storeWithOutput(outputFilePrefix, compress,
-        "segfilter:${negative ? "retain" : "remove"}:${opt.v ?: "."}:${opt.d ?: "."}:${opt.j ?: "."}")
+        "segfilter:${negative ? "remove" : "keep"}:${opt.v ?: "."}:${opt.d ?: "."}:${opt.j ?: "."}")
 
 println "[${new Date()} $scriptName] Finished"

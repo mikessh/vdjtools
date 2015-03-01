@@ -113,6 +113,6 @@ new File(formOutputPath(outputFilePrefix, "ncfilter", "summary")).withPrintWrite
     }
 }
 
-sampleCollection.metadataTable.storeWithOutput(outputFilePrefix, compress, "ncfilter:${negative ? "retain" : "remove"}")
+sampleCollection.metadataTable.storeWithOutput(outputFilePrefix, compress, "ncfilter:${negative ? "keep" : "remove"}")
 
 println "[${new Date()} $scriptName] Finished"
