@@ -224,7 +224,7 @@ my.legend <- function(hcl) {
 # plot
 pdf(file_out_hc)
 
-my.plot(TRUE, phylo, tip.color = cc_final, type = "fan")
+my.plot(TRUE, phylo, tip.color = cc_final)
 my.legend(TRUE)
 
 dev.off()
