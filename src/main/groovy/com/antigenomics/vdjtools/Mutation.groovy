@@ -53,14 +53,14 @@ class Mutation {
                 directed, parent)
     }
 
-    static Mutation cdr3Mutation(int ntPos, char fromNt, char toNt,
-                                 int aaPos, char fromAa, char toAa,
-                                 boolean directed, Clonotype parent) {
-        new Mutation("CDR3",
-                ntPos, aaPos,
-                fromAa, toAa, fromNt, toNt,
-                directed, parent)
-    }
+    //static Mutation cdr3Mutation(int ntPos, char fromNt, char toNt,
+    //                             int aaPos, char fromAa, char toAa,
+    //                             boolean directed, Clonotype parent) {
+    //    new Mutation("CDR3",
+    //            ntPos, aaPos,
+    //            fromAa, toAa, fromNt, toNt,
+    //            directed, parent)
+    //}
 
     String getV() {
         parent.v
@@ -70,11 +70,11 @@ class Mutation {
         directed ? parent.freq : altFreq
     }
 
-    String getMotif(int lSize, int rSize) {
-        int from = ntPos - lSize, to = ntPos + rSize + 1
-        region == "CDR3" ? parent.getSubSequence(from, to) :
-                parent.getVSegmentData().getSubSequence(from, to)
-    }
+    //String getMotif(int lSize, int rSize) {
+    //    int from = ntPos - lSize, to = ntPos + rSize + 1
+    //    region == "CDR3" ? parent.getSubSequence(from, to) :
+    //            parent.getVSegmentData().getSubSequence(from, to)
+    //}
 
     //
     // Intersection

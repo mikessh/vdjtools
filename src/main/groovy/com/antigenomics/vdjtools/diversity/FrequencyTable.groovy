@@ -176,7 +176,7 @@ public class FrequencyTable {
      * @return
      */
     public Collection<FrequencyTableBin> getBins() {
-        Collections.unmodifiableCollection(frequencyMap.values())
+        Collections.unmodifiableCollection(frequencyMap.values().sort { it.count })
     }
 
     /**
