@@ -27,9 +27,9 @@ import com.antigenomics.vdjtools.sample.metadata.MetadataUtil
 import com.antigenomics.vdjtools.util.ExecUtil
 
 /**
- * Base class to store and handle collections of samples in VDJtools
- * Provides loading samples and their metadata
- * The only limitation is that samples should be processed by same software
+ * Base class used in VDJtools to store and handle collections of samples.
+ * Implements methods for loading clonotype tables and sample information (metadata).
+ * Note that all samples in a single sample collection should have the same {@code Software} type.
  */
 class SampleCollection implements Iterable<Sample> {
     private final Map<String, SampleConnection> sampleMap = new HashMap<>()

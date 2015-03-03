@@ -131,6 +131,11 @@ public class DiversityEstimates {
                 "inverseSimpsonIndex"
         )
     }
+    
+    public Diversity getQuantileIndex(double quantile) {
+        
+        
+    }
 
     /**
      * Gets Efron-Thisted lower bound estimate of total diversity 

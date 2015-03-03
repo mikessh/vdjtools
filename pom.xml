@@ -103,6 +103,13 @@
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
                 <version>1.4</version>
+                <configuration>
+                    <scope>protected</scope>
+                    <windowTitle>VDJtools API</windowTitle>
+                    <footer>(C) 2014-2015 Shugay M et al.</footer>
+                    <docTitle>VDJtools API Documentation</docTitle>
+                    <header>VDJtools API Documentation</header>
+                </configuration>
             </plugin>
         </plugins>
     </build>
