@@ -4,9 +4,9 @@ A comprehensive framework for post-analysis of immune repertoire sequencing data
 Compiled binaries are available from [here](https://github.com/mikessh/vdjtools/releases/latest).
 The software is cross-platform and requires Java v1.7+ to run.
 
-## Installing
+## Compiling from source
 
-Install by cloning the repository and compiling using [Maven](maven.apache.org)
+Clone the repository and compiling using [Maven](maven.apache.org)
 
 ```bash
 git clone https://github.com/mikessh/vdjtools
