@@ -24,7 +24,10 @@ import com.antigenomics.vdjtools.join.ClonotypeKeyGen;
 import com.antigenomics.vdjtools.join.key.ClonotypeKey;
 import com.antigenomics.vdjtools.sample.Sample;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class SampleAggregator<T extends ClonotypeAggregator> implements Iterable<T> {
     private final Map<ClonotypeKey, T> innerMap = new HashMap<>();

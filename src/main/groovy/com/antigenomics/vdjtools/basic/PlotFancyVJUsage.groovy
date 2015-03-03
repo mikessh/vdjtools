@@ -20,8 +20,10 @@ package com.antigenomics.vdjtools.basic
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
-import static com.antigenomics.vdjtools.util.ExecUtil.*
 import com.antigenomics.vdjtools.util.RUtil
+
+import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
 
 def cli = new CliBuilder(usage: "PlotFancyVJUsage [options] input_name output_prefix")
 cli.h("display help message")

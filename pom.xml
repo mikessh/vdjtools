@@ -96,6 +96,14 @@
                     </execution>
                 </executions>
             </plugin>
+            <!--
+              Use "mvn gplus:groovydoc" to compile groovy/javadocs
+              -->
+            <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <version>1.4</version>
+            </plugin>
         </plugins>
     </build>
 
@@ -141,12 +149,11 @@
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
-        <!--
         <dependency>
-            <groupId>org.codehaus.jsr166-mirror</groupId>
-            <artifactId>jsr166y</artifactId>
-            <version>1.7.0</version>
+            <groupId>org.fusesource.jansi</groupId>
+            <artifactId>jansi</artifactId>
+            <version>1.11</version>
+            <scope>provided</scope>
         </dependency>
-        -->
     </dependencies>
 </project>
