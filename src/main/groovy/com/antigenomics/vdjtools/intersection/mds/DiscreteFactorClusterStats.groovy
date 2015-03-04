@@ -48,6 +48,9 @@ class DiscreteFactorClusterStats {
             summaryByFactor.put(factor, new Summary(nPerms, obsDist.within, obsDist.between))
         }
 
+        if (summaryByFactor.keySet().size() < 2)
+            return null
+
         for (int i = 0; i < nPerms; i++) {
             def factorListCopy = new ArrayList<String>(factorList)
             Collections.shuffle(factorListCopy)
@@ -90,6 +93,10 @@ class DiscreteFactorClusterStats {
             }
         }
 
+    }
+
+    List<String> getFactorList() {
+        Collections.unmodifiableList(factorList)
     }
 
     private static class Silhouette {
