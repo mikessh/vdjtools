@@ -1,17 +1,19 @@
-/**
- Copyright 2014 Mikhail Shugay (mikhail.shugay@gmail.com)
-
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
-
- http://www.apache.org/licenses/LICENSE-2.0
-
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
+/*
+ * Copyright 2013-2015 Mikhail Shugay (mikhail.shugay@gmail.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Last modified on 4.3.2015 by mikesh
  */
 
 package com.antigenomics.vdjtools.diversity
@@ -27,10 +29,15 @@ import static com.antigenomics.vdjtools.diversity.DiversityType.TotalDiversityLo
 
 /**
  * Class that computes richness estimates and diversity indices. 
- * All computations are performed based on {@code FrequencyTable}.
- * NOTE: that the {@code IntersectionType} is always computed based on certain {@code IntersectionType},
+ * All computations are performed via the {@link com.antigenomics.vdjtools.diversity.FrequencyTable} object.
+ * Note that the clonotype is always computed based on certain {@link com.antigenomics.vdjtools.intersection.IntersectionType},
  * which tells how to collapse clonotypes, e.g. consider identical CDR3 nucleotide or amino acid sequences, etc.
- * {@code IntersectionType.strict} is recommended for most purposes.
+ * Therefore in some cases the result will be different from one obtained using raw clonotype frequencies.
+ * This will not happen in case {@link com.antigenomics.vdjtools.intersection.IntersectionType#Strict} is used,
+ * which is recommended for most purposes.
+ *
+ * @see com.antigenomics.vdjtools.diversity.DiversityEstimatesResampled
+ * @see com.antigenomics.vdjtools.diversity.Diversity
  */
 public class DiversityEstimates {
     private FrequencyTable frequencyTable = null
@@ -38,7 +45,7 @@ public class DiversityEstimates {
     private final ChaoEstimator chaoEstimator
 
     /**
-     * INTERNAL, constructor used for {@code DiversityEstimatesResampled}
+     * INTERNAL, constructor used for {@link com.antigenomics.vdjtools.diversity.DiversityEstimatesResampled.}
      */
     @PackageScope
     static DiversityEstimates basicDiversityEstimates(FrequencyTable frequencyTable) {
@@ -46,10 +53,11 @@ public class DiversityEstimates {
     }
 
     /**
-     * Creates an instance of individual-based diversity estimates class
-     * @param frequencyTable a {@code FrequencyTable} summary for sample of interest
-     * @param extrapolateTo extrapolated sample size. Used for ChaoE estimate. 
-     *                      Typically set to the size of the largest sample when several sampels are considered.
+     * Creates an instance of individual-based diversity estimates class.
+     * @param frequencyTable a {@link com.antigenomics.vdjtools.diversity.FrequencyTable} summary for sample of interest.
+     * @param extrapolateTo desired extrapolation extent. Used to compute the
+     *                      {@link com.antigenomics.vdjtools.diversity.ChaoEstimator#chaoE} estimate.
+     *                      For most cases, it should be set to the size of the largest sample when several samples are to be compared.
      */
     public DiversityEstimates(FrequencyTable frequencyTable, long extrapolateTo) {
         this.frequencyTable = frequencyTable
@@ -58,21 +66,26 @@ public class DiversityEstimates {
     }
 
     /**
-     * Creates an instance of individual-based diversity estimates class. Will compute {@code FrequencyTable} for a given sample.
-     * @param sample sample to be analyzed
-     * @param intersectionType {@code IntersectionType} used to collapse sample during {@code FrequencyTable} computation
-     * @param extrapolateTo extrapolated sample size. Used for ChaoE estimate.
-     *                      Typically set to the size of the largest sample when several samples are considered.
+     * Creates an instance of individual-based diversity estimates class.
+     * Will compute {@link com.antigenomics.vdjtools.diversity.FrequencyTable} for a given sample.
+     * @param sample a sample to analyze.
+     * @param intersectionType {@link com.antigenomics.vdjtools.intersection.IntersectionType} that will be used
+     *                         to collapse sample during {@link com.antigenomics.vdjtools.diversity.FrequencyTable} computation
+     * @param extrapolateTo desired extrapolation extent. Used to compute the
+     *                      {@link com.antigenomics.vdjtools.diversity.ChaoEstimator#chaoE} estimate.
+     *                      For most cases, it should be set to the size of the largest sample when several samples are to be compared.
      */
     public DiversityEstimates(Sample sample, IntersectionType intersectionType, long extrapolateTo) {
         this(new FrequencyTable(sample, intersectionType), extrapolateTo)
     }
 
     /**
-     * Creates an instance of sample-based diversity estimates class. Will summarize clonotype occurrences to build {@code FrequencyTable}
-     * @param pool a pool of several samples
-     * @param extrapolateTo extrapolated sample count.
-     *                      Number of samples in the largest sample pool if several are analyzed
+     * Creates an instance of sample-based diversity estimates class.
+     * Will summarize clonotype occurrences to build {@link com.antigenomics.vdjtools.diversity.FrequencyTable}
+     * @param pool a pool of several samples to analyze.
+     * @param extrapolateTo desired extrapolation extent. Used to compute the
+     *                      {@link com.antigenomics.vdjtools.diversity.ChaoEstimator#chaoE} estimate.
+     *                      For most cases, it should be set to the number of samples in the largest sample pool if several are to be compared.
      */
     public DiversityEstimates(SampleAggregator pool, long extrapolateTo) {
         this.frequencyTable = new FrequencyTable(pool)
@@ -81,8 +94,8 @@ public class DiversityEstimates {
     }
 
     /**
-     * Gets the observed diversity, i.e. the number of clonotypes in the sample 
-     * @return
+     * Computes the observed diversity, i.e. the number of clonotypes in the sample.
+     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
      */
     public Diversity getObservedDiversity() {
         new Diversity(frequencyTable.diversity, 0, frequencyTable.count,
@@ -90,8 +103,8 @@ public class DiversityEstimates {
     }
 
     /**
-     * Gets the Shannon-Weaver diversity index
-     * @return
+     * Computes the Shannon-Weaver diversity index.
+     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
      */
     public Diversity getShannonWeaverIndex() {
         // todo: std computaiton ?
@@ -112,8 +125,8 @@ public class DiversityEstimates {
     }
 
     /**
-     * Gets the Inverse Simpson diversity index
-     * @return
+     * Computes the Inverse Simpson diversity index.
+     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
      */
     public Diversity getInverseSimpsonIndex() {
         // todo: std computaiton ?
@@ -131,25 +144,74 @@ public class DiversityEstimates {
                 "inverseSimpsonIndex"
         )
     }
-    
-    public Diversity getQuantileIndex(double quantile) {
-        
-        
+
+    /**
+     * Computes the diversity index DXX, where XX is a specified fraction.
+     * The estimate is the minimum number of clonotypes accounting for at least XX% of the total reads.
+     * @param fraction a fraction of reads at which the diversity estimate will be computed.
+     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
+     */
+    public Diversity getDxxIndex(double fraction) {
+        if (fraction < 0 || fraction > 1)
+            throw new IllegalArgumentException("Fraction value should be within [0,1] bounds.")
+
+        def div = 0, freqSum = 0
+
+        frequencyTable.bins.find {
+            freqSum += it.freq
+            div++
+
+            freqSum >= fraction
+        }
+
+        new Diversity(div / (double) frequencyTable.diversity,
+                0,
+                frequencyTable.count,
+                DiversityType.Index,
+                1,
+                "dxxIndex"
+        )
     }
 
     /**
-     * Gets Efron-Thisted lower bound estimate of total diversity 
-     * @return
+     * Computes is the minimum number of clonotypes accounting for at least 50% of the total reads.
+     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
+     */
+    public Diversity getD50Index(double fraction) {
+        if (fraction < 0 || fraction > 1)
+            throw new IllegalArgumentException("Fraction value should be within [0,1] bounds.")
+
+        def div = 0, freqSum = 0
+
+        frequencyTable.bins.find {
+            freqSum += it.freq
+            div++
+
+            freqSum >= fraction
+        }
+
+        new Diversity(div / (double) frequencyTable.diversity,
+                0,
+                frequencyTable.count,
+                DiversityType.Index,
+                1,
+                "dxxIndex"
+        )
+    }
+
+    /**
+     * Computes the Efron-Thisted lower bound estimate of total diversity.
+     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
      */
     public Diversity getEfronThisted() {
         getEfronThisted(20, 0.05)
     }
 
     /**
-     * Gets Efron-Thisted lower bound estimate of total diversity
-     * @param maxDepth max number of terms in series to compute
-     * @param cvThreshold cv threshold, after reaching it higher order terms will be ignored
-     * @return
+     * Computes the Efron-Thisted lower bound estimate of total diversity.
+     * @param maxDepth max number of terms in Euler series to compute.
+     * @param cvThreshold coefficient of variance threshold, after reaching it higher order terms will be ignored.
+     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
      */
     public Diversity getEfronThisted(int maxDepth, double cvThreshold) {
         double S = -1, D = -1, CV
@@ -184,46 +246,46 @@ public class DiversityEstimates {
     }
 
     /**
-     * Gets Chao1 lower bound estimate of total diversity
-     * @return
+     * Computes the Chao1 lower bound estimate of total diversity.
+     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
      */
     public Diversity getChao1() {
         chaoEstimator.chao1()
     }
 
     /**
-     * Gets extrapolated Chao diversity estimate 
-     * @return
+     * Computes the extrapolated Chao diversity estimate.
+     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
      */
     public Diversity getChaoE() {
         extrapolateTo < frequencyTable.count ? Diversity.DUMMY : chaoEstimator.chaoE(extrapolateTo)
     }
 
     /**
-     * Gets the underlying frequency table
-     * @return
+     * Gets the underlying frequency table.
+     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
      */
     public FrequencyTable getFrequencyTable() {
         frequencyTable
     }
 
     /**
-     * List of fields that will be included in tabular output 
+     * List of fields that will be included in tabular output .
      */
-    private static final String[] fields = ["observedDiversity", "chaoE",
+    private static final String[] FIELDS = ["observedDiversity", "chaoE",
                                             "efronThisted", "chao1",
                                             "shannonWeaverIndex", "inverseSimpsonIndex"]
 
     /**
-     * Header string, used for tabular output
+     * Header string, used for tabular output.
      */
-    public static final HEADER = fields.collect { [it + "_mean", it + "_std"] }.flatten().join("\t")
+    public static final HEADER = FIELDS.collect { [it + "_mean", it + "_std"] }.flatten().join("\t")
 
     /**
-     * Plain text row for tabular output
+     * Plain text row for tabular output.
      */
     @Override
     public String toString() {
-        fields.collect { this."$it" }.join("\t")
+        FIELDS.collect { this."$it" }.join("\t")
     }
 }

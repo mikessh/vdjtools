@@ -29,10 +29,13 @@ import static com.antigenomics.vdjtools.diversity.DiversityType.*
  * Class that computes richness estimates and diversity indices. 
  * Re-sampling is used to calculate the mean and standard deviation for estimates.
  * In order to normalize diversity estimates between samples, they are down-sampled to the same size,
- * typically the size of the smallest sample. All computations are performed based on {@code FrequencyTable}.
- * NOTE: that the {@code IntersectionType} is always computed based on certain {@code IntersectionType},
+ * typically the size of the smallest sample.
+ * All computations are performed via the @see com.antigenomics.vdjtools.diversity.FrequencyTable object.
+ * Note that the clonotype is always computed based on certain {@code IntersectionType},
  * which tells how to collapse clonotypes, e.g. consider identical CDR3 nucleotide or amino acid sequences, etc.
- * {@code IntersectionType.strict} is recommended for most purposes.
+ * Therefore in some cases the result will be different from one obtained using raw clonotype frequencies.
+ * This will not happen in case @see com.antigenomics.vdjtools.intersection.IntersectionType#Strict is used, 
+ * which is recommended for most purposes.
  */
 public class DiversityEstimatesResampled {
     private final Diversity observedDiversity, efronThisted, chao1,
