@@ -22,8 +22,7 @@ import com.antigenomics.vdjtools.intersection.IntersectionType
 import com.antigenomics.vdjtools.manipulation.DownSampler
 import com.antigenomics.vdjtools.sample.Sample
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
-
-import static com.antigenomics.vdjtools.diversity.DiversityType.*
+import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 /**
  * Class that computes richness estimates and diversity indices. 
@@ -37,11 +36,11 @@ import static com.antigenomics.vdjtools.diversity.DiversityType.*
  * This will not happen in case @see com.antigenomics.vdjtools.intersection.IntersectionType#Strict is used, 
  * which is recommended for most purposes.
  */
-public class DiversityEstimatesResampled {
-    private final Diversity observedDiversity, efronThisted, chao1,
-                            d50Index, shannonWeaverIndex, inverseSimpsonIndex
+public class ResamplingEstimator extends DiversityEstimator {
+    private final DiversityIndex d50Index, shannonWeinerIndex, inverseSimpsonIndex
+    private final SpeciesRichness observedDiversity, efronThisted, chao1
 
-    private final int subSampleSize, resampleCount
+    protected final int subSampleSize, resampleCount
 
     /**
      * Creates an instance of individual-based diversity estimates class computed using re-sampling.
@@ -50,9 +49,9 @@ public class DiversityEstimatesResampled {
      * @param intersectionType {@code IntersectionType} used to collapse sample during {@code FrequencyTable} computation
      * @param subSampleSize down-sampled sample size. Typically set to the size of smallest sample if several samples are to be compared
      */
-    public DiversityEstimatesResampled(Sample sample,
-                                       IntersectionType intersectionType,
-                                       int subSampleSize) {
+    public ResamplingEstimator(Sample sample,
+                               IntersectionType intersectionType,
+                               int subSampleSize) {
         this(sample, intersectionType, subSampleSize, 3)
     }
 
@@ -64,9 +63,10 @@ public class DiversityEstimatesResampled {
      * @param subSampleSize down-sampled sample size. Typically set to the size of smallest sample if several samples are to be compared
      * @param resampleCount number of re-samples to be performed
      */
-    public DiversityEstimatesResampled(Sample sample,
-                                       IntersectionType intersectionType,
-                                       int subSampleSize, int resampleCount) {
+    public ResamplingEstimator(Sample sample,
+                               IntersectionType intersectionType,
+                               int subSampleSize, int resampleCount) {
+        super(null, EstimationMethod.Resampled)
         this.subSampleSize = subSampleSize
         this.resampleCount = resampleCount
 
@@ -82,117 +82,123 @@ public class DiversityEstimatesResampled {
         for (int i = 0; i < resampleCount; i++) {
             def subSample = downSampler.reSample(subSampleSize)
             def frequencyTable = new FrequencyTable(subSample, intersectionType)
-            def diversityEstimates = DiversityEstimates.basicDiversityEstimates(frequencyTable)
+            def diversityEstimates = ExactEstimator.basicDiversityEstimates(frequencyTable)
             observedDiversityStat.addValue(diversityEstimates.observedDiversity.mean)
             efronThistedStat.addValue(diversityEstimates.efronThisted.mean)
             chao1Stat.addValue(diversityEstimates.chao1.mean)
             d50Index.addValue(diversityEstimates.d50Index.mean)
-            shannonWeaverIndexStat.addValue(diversityEstimates.shannonWeaverIndex.mean)
+            shannonWeaverIndexStat.addValue(diversityEstimates.shannonWeinerIndex.mean)
             inverseSimpsonIndexStat.addValue(diversityEstimates.inverseSimpsonIndex.mean)
         }
 
-        this.observedDiversity = new Diversity(
-                observedDiversityStat.mean,
-                observedDiversityStat.standardDeviation,
-                subSampleSize,
-                Interpolated, resampleCount, "observedDiversity")
+        this.d50Index = new DiversityIndex(
+                d50Index.mean,
+                d50Index.standardDeviation,
+                subSampleSize)
 
-        this.efronThisted = new Diversity(
+        this.shannonWeinerIndex = new DiversityIndex(
+                shannonWeaverIndexStat.mean,
+                shannonWeaverIndexStat.standardDeviation,
+                subSampleSize)
+
+        this.inverseSimpsonIndex = new DiversityIndex(
+                inverseSimpsonIndexStat.mean,
+                inverseSimpsonIndexStat.standardDeviation,
+                subSampleSize)
+
+        this.efronThisted = new SpeciesRichness(
                 efronThistedStat.mean,
                 efronThistedStat.standardDeviation,
                 subSampleSize,
-                TotalDiversityLowerBoundEstimate, resampleCount, "efronThisted")
+                RichnessEstimateType.TotalDiversityLowerBoundEstimate)
 
-        this.chao1 = new Diversity(
+        this.chao1 = new SpeciesRichness(
                 chao1Stat.mean,
                 chao1Stat.standardDeviation,
                 subSampleSize,
-                TotalDiversityLowerBoundEstimate, resampleCount, "chao1")
+                RichnessEstimateType.TotalDiversityLowerBoundEstimate)
 
-        this.d50Index = new Diversity(
-                d50Index.mean,
-                d50Index.standardDeviation,
+        this.observedDiversity = new SpeciesRichness(
+                observedDiversityStat.mean,
+                observedDiversityStat.standardDeviation,
                 subSampleSize,
-                Index, resampleCount, "d50index")
-
-        this.shannonWeaverIndex = new Diversity(
-                shannonWeaverIndexStat.mean,
-                shannonWeaverIndexStat.standardDeviation,
-                subSampleSize,
-                Index, resampleCount, "shannonWeaverIndex")
-
-        this.inverseSimpsonIndex = new Diversity(
-                inverseSimpsonIndexStat.mean,
-                inverseSimpsonIndexStat.standardDeviation,
-                subSampleSize,
-                Index, resampleCount, "inverseSimpsonIndex")
+                RichnessEstimateType.Observed)
     }
 
     /**
-     * Gets the observed diversity, i.e. the number of clonotypes in a down-sampled sample.
-     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
+     * {@inheritDoc}
      */
-    public Diversity getObservedDiversity() {
-        observedDiversity
+    @Override
+    DiversityIndex getDxxIndex(double fraction) {
+        throw new NotImplementedException()
     }
 
     /**
-     * Gets Efron-Thisted lower bound estimate of total diversity computed for down-sampled clonotype frequencies.
-     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
+     * {@inheritDoc}
      */
-    public Diversity getEfronThisted() {
-        efronThisted
-    }
-
-    /**
-     * Gets Chao1 lower bound estimate of total diversity computed for down-sampled clonotype frequencies.
-     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
-     */
-    public Diversity getChao1() {
-        chao1
-    }
-
-    /**
-     * Gets Chao1 lower bound estimate of total diversity computed for down-sampled clonotype frequencies.
-     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
-     */
-    public Diversity getD50Index() {
+    @Override
+    DiversityIndex getD50Index() {
         d50Index
     }
 
     /**
-     * Gets the Shannon-Weaver diversity index computed for down-sampled clonotype frequencies.
-     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
+     * {@inheritDoc}
      */
-    public Diversity getShannonWeaverIndex() {
-        shannonWeaverIndex
+    @Override
+    DiversityIndex getShannonWeinerIndex() {
+        shannonWeinerIndex
     }
 
     /**
-     * Gets the Inverse Simpson diversity index computed for down-sampled clonotype frequencies.
-     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
+     * {@inheritDoc}
      */
-    public Diversity getInverseSimpsonIndex() {
+    @Override
+    DiversityIndex getInverseSimpsonIndex() {
         inverseSimpsonIndex
     }
 
     /**
-     * List of fields that will be included in tabular output 
-     */
-    private static final String[] fields = ["observedDiversity",
-                                            "efronThisted", "chao1",
-                                            "d50index", "shannonWeaverIndex", "inverseSimpsonIndex"]
-
-    /**
-     * Header string, used for tabular output
-     */
-    public static final HEADER = fields.collect { [it + "_mean", it + "_std"] }.flatten().join("\t")
-
-    /**
-     * Plain text row for tabular output
+     * {@inheritDoc}
      */
     @Override
-    public String toString() {
-        fields.collect { this."$it" }.join("\t")
+    SpeciesRichness getObservedDiversity() {
+        observedDiversity
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    SpeciesRichness getEfronThisted(int maxDepth, double cvThreshold) {
+        throw new NotImplementedException()
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    SpeciesRichness getEfronThisted() {
+        efronThisted
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    SpeciesRichness getChao1() {
+        chao1
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    DiversityEstimate getChaoE() {
+        DiversityEstimate.DUMMY
+    }
+
+    @Override
+    FrequencyTable getFrequencyTable() {
+        throw new NotImplementedException()
     }
 }

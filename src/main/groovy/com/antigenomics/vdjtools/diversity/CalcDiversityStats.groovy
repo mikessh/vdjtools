@@ -109,8 +109,8 @@ def headerBase = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
 
 new File(formOutputPath(outputPrefix, "diversity", intersectionType.shortName)).withPrintWriter { pwDiv ->
     new File(formOutputPath(outputPrefix, "diversity", intersectionType.shortName, "resampled")).withPrintWriter { pwDivRes ->
-        pwDiv.println(headerBase + "\textrapolate_reads\t" + DiversityEstimates.HEADER)
-        pwDivRes.println(headerBase + "\tresample_reads\t" + DiversityEstimatesResampled.HEADER)
+        pwDiv.println(headerBase + "\textrapolate_reads\t" + ExactEstimator.HEADER)
+        pwDivRes.println(headerBase + "\tresample_reads\t" + ResamplingEstimator.HEADER)
 
         sampleCollection.each { Sample sample ->
             println "[${new Date()} $scriptName] Analyzing $sample.sampleMetadata.sampleId"
@@ -118,8 +118,8 @@ new File(formOutputPath(outputPrefix, "diversity", intersectionType.shortName)).
             def rowBase = [sample.sampleMetadata.sampleId, sample.sampleMetadata,
                            sample.count, sample.diversity].join("\t")
 
-            def diversityEstimates = new DiversityEstimates(sample, intersectionType, maxReads),
-                diversityEstimatesResampled = new DiversityEstimatesResampled(sample, intersectionType, (int) minReads)
+            def diversityEstimates = new ExactEstimator(sample, intersectionType, maxReads),
+                diversityEstimatesResampled = new ResamplingEstimator(sample, intersectionType, (int) minReads)
 
             pwDiv.println(rowBase + "\t" + maxReads + "\t" + diversityEstimates)
             pwDivRes.println(rowBase + "\t" + minReads + "\t" + diversityEstimatesResampled)

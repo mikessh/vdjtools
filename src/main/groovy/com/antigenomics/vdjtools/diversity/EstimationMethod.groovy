@@ -13,23 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Last modified on 16.1.2015 by mikesh
+ * Last modified on 7.3.2015 by mikesh
  */
 
 package com.antigenomics.vdjtools.diversity
 
 /**
- * Diversity estimate type 
+ * Specifies how the diversity estimate was computed
  */
-public enum DiversityType {
-    Interpolated(0), Observed(1), Extrapolated(2), TotalDiversityLowerBoundEstimate(3), Index(4), Unknown(-1)
-
+enum EstimationMethod {
     /**
-     * Id, mostly used for passing to R scripts
+     * Exact method was used to compute mean and standard deviation 
      */
-    final int id
-
-    DiversityType(int id) {
-        this.id = id
-    }
+            Exact,
+    /**
+     * Re-sampling was used to compute mean and standard deviation 
+     */
+            Resampled
 }

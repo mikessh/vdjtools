@@ -23,9 +23,9 @@ import com.antigenomics.vdjtools.sample.Sample
 
 /**
  * A class that is used to compute a rarefaction curve based on {@code ChaoEstimator}. 
- * Rarefaction curve shows the relation between sample diversity and sample size.
+ * Rarefaction curve shows the relation between sample richness and sample size.
  * Implementation is based on Colwell et al 2012 paper.
- * 
+ *
  * @url http://viceroy.eeb.uconn.edu/estimates/EstimateSPages/EstSUsersGuide/References/ColwellEtAl2012.pdf
  */
 public class Rarefaction {
@@ -34,11 +34,11 @@ public class Rarefaction {
     private final long n
 
     /**
-     * Computes the interpolated/exact/extrapolated diversity estimate for a given sample size
+     * Computes the interpolated/exact/extrapolated richness estimate for a given sample size
      * @param coord sample size
      * @return
      */
-    public Diversity getAt(long coord) {
+    public SpeciesRichness getAt(long coord) {
         coord > n ? chaoEstimator.chaoE(coord) : chaoEstimator.chaoI(coord)
     }
 
@@ -163,18 +163,18 @@ public class Rarefaction {
     }
 
     /**
-     * Holds summary for rarefied diversity estimate 
+     * Holds summary for rarefied richness estimate
      */
     public class RarefactionPoint {
         private final double x, mean, ciU, ciL
-        private final DiversityType diversityType
+        private final RichnessEstimateType richnessType
 
-        public RarefactionPoint(Diversity diversity) {
-            this.diversityType = diversity.type
-            this.x = diversityType == DiversityType.TotalDiversityLowerBoundEstimate ? 1e20 : diversity.n
-            this.mean = diversity.mean
-            this.ciL = mean - 1.96 * diversity.std
-            this.ciU = mean + 1.96 * diversity.std
+        public RarefactionPoint(SpeciesRichness richness) {
+            this.richnessType = richness.type
+            this.x = richnessType == RichnessEstimateType.TotalDiversityLowerBoundEstimate ? 1e20 : richness.numberOfReads
+            this.mean = richness.mean
+            this.ciL = mean - 1.96 * richness.std
+            this.ciU = mean + 1.96 * richness.std
         }
 
         /**
@@ -186,7 +186,7 @@ public class Rarefaction {
         }
 
         /**
-         * Gets the mean of rarefied diversity estimate 
+         * Gets the mean of rarefied richness estimate
          * @return
          */
         public double getMean() {
@@ -194,7 +194,7 @@ public class Rarefaction {
         }
 
         /**
-         * Gets the upper bound of 95% confidence interval of rarefied diversity estimate
+         * Gets the upper bound of 95% confidence interval of rarefied richness estimate
          * @return
          */
         public double getCiU() {
@@ -202,7 +202,7 @@ public class Rarefaction {
         }
 
         /**
-         * Gets the lower bound of 95% confidence interval of rarefied diversity estimate
+         * Gets the lower bound of 95% confidence interval of rarefied richness estimate
          * @return
          */
         public double getCiL() {
@@ -210,11 +210,11 @@ public class Rarefaction {
         }
 
         /**
-         * Gets the diversity estimate type: interpolated, exact or extrapolated
+         * Gets the richness estimate type: interpolated, exact or extrapolated
          * @return
          */
-        public DiversityType getDiversityType() {
-            diversityType
+        public RichnessEstimateType getRichnessType() {
+            richnessType
         }
 
         /**
@@ -227,7 +227,7 @@ public class Rarefaction {
          */
         @Override
         public String toString() {
-            [x, mean, ciL, ciU, diversityType.id].join("\t")
+            [x, mean, ciL, ciU, richnessType.id].join("\t")
         }
     }
 }

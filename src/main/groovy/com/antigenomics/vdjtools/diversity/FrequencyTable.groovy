@@ -38,12 +38,13 @@ public class FrequencyTable {
 
     /**
      * Creates a frequency table from cache
-     * @param frequencyTableCache
+     * @param frequencyTableCache a {@code [clonotype count -> number of clonotypes]} mapping
      */
     public FrequencyTable(Map<Long, Long> frequencyTableCache) {
         long count = 0, diversity = 0
         frequencyTableCache.each {
-            frequencyMap.put(it.key, new FrequencyTableBin(it.key, it.value))
+            frequencyMap.put((long) it.key, // absolutely necessary conversion here, time to switch to Scala :)
+                    new FrequencyTableBin(it.key, it.value))
             count += it.key * it.value
             diversity += it.value
         }
@@ -177,6 +178,15 @@ public class FrequencyTable {
      */
     public Collection<FrequencyTableBin> getBins() {
         Collections.unmodifiableCollection(frequencyMap.values().sort { -it.count })
+    }
+
+    public static final String HEADER = "#count_bin\tclonotypes_in_bin"
+
+    @Override
+    public String toString() {
+        bins.collect() {
+            it.count + "\t" + it.diversity
+        }.join("\n")
     }
 
     /**

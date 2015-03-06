@@ -24,7 +24,7 @@ import com.google.common.util.concurrent.AtomicDouble
 import groovyx.gpars.GParsPool
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
-import static com.antigenomics.vdjtools.diversity.DiversityType.*
+import static com.antigenomics.vdjtools.diversity.RichnessEstimateType.*
 
 /**
  * Diversity estimates based on works of Anne Chao et al
@@ -54,15 +54,15 @@ class ChaoEstimator {
      * i.e. the total number of clonotypes in individual that was sampled
      * @return
      */
-    public Diversity chao1() {
-        new Diversity(
+    public SpeciesRichness chao1() {
+        new SpeciesRichness(
                 Sobs + F0,
                 Math.sqrt(
                         F0 + F1 * (2 * F1 - 1) * (2 * F1 - 1) / 4 / (F2 + 1) / (F2 + 1) +
                                 F1 * F1 * F2 * (F1 - 1) * (F1 - 1) / 4 / (F2 + 1) / (F2 + 1) / (F2 + 1) / (F2 + 1)
                 ),
                 frequencyTable.count,
-                TotalDiversityLowerBoundEstimate, 1, "chao1")
+                TotalDiversityLowerBoundEstimate)
     }
 
     /**
@@ -70,7 +70,7 @@ class ChaoEstimator {
      * @param extrapolateTo number of reads, should be &gt; than the total number of reads in a sample
      * @return
      */
-    public Diversity chaoE(long extrapolateTo) {
+    public SpeciesRichness chaoE(long extrapolateTo) {
         double mStar = extrapolateTo - n
 
         if (mStar < 0)
@@ -88,12 +88,12 @@ class ChaoEstimator {
                cov11 = F1 * (1 - F1 / (Sobs + F0)), cov22 = F2 * (1 - F2 / (Sobs + F0)),
                cov12 = -F1 * F2 / (Sobs + F0)
 
-        new Diversity(
+        new SpeciesRichness(
                 Sobs + F0 * brackets,
                 Math.sqrt(Sobs * (1.0 - Sobs / (Sobs + F0)) +
                         dSdF1 * dSdF1 * cov11 + dSdF2 * dSdF2 * cov22 + 2 * dSdF1 * dSdF2 * cov12),
                 extrapolateTo,
-                Extrapolated, 1, "chao_e")
+                Extrapolated)
     }
 
     /**
@@ -101,7 +101,7 @@ class ChaoEstimator {
      * @param interpolateTo number of reads, should be &lt; than the total number of reads in a sample
      * @return
      */
-    public Diversity chaoI(long interpolateTo) {
+    public SpeciesRichness chaoI(long interpolateTo) {
         if (n > Integer.MAX_VALUE)
             throw new NotImplementedException()
 
@@ -132,10 +132,10 @@ class ChaoEstimator {
 
         double Sind = Sobs - sum1.get()
 
-        new Diversity(
+        new SpeciesRichness(
                 Sind,
                 Math.sqrt(sum2.get() - Sind * Sind / (Sobs + F0)),
                 m,
-                m == n ? Observed : Interpolated, 1, "chao_i")
+                m == n ? Observed : Interpolated)
     }
 }
