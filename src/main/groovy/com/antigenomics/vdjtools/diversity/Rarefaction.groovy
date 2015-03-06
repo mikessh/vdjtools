@@ -34,7 +34,7 @@ public class Rarefaction {
     private final long n
 
     /**
-     * Gets the interpolated/exact/extrapolated diversity estimate for a given sample size 
+     * Computes the interpolated/exact/extrapolated diversity estimate for a given sample size
      * @param coord sample size
      * @return
      */

@@ -39,7 +39,7 @@ import static com.antigenomics.vdjtools.diversity.DiversityType.*
  */
 public class DiversityEstimatesResampled {
     private final Diversity observedDiversity, efronThisted, chao1,
-                            shannonWeaverIndex, inverseSimpsonIndex
+                            d50Index, shannonWeaverIndex, inverseSimpsonIndex
 
     private final int subSampleSize, resampleCount
 
@@ -75,6 +75,7 @@ public class DiversityEstimatesResampled {
         def observedDiversityStat = new DescriptiveStatistics(),
             efronThistedStat = new DescriptiveStatistics(),
             chao1Stat = new DescriptiveStatistics(),
+            d50Index = new DescriptiveStatistics(),
             shannonWeaverIndexStat = new DescriptiveStatistics(),
             inverseSimpsonIndexStat = new DescriptiveStatistics()
 
@@ -85,6 +86,7 @@ public class DiversityEstimatesResampled {
             observedDiversityStat.addValue(diversityEstimates.observedDiversity.mean)
             efronThistedStat.addValue(diversityEstimates.efronThisted.mean)
             chao1Stat.addValue(diversityEstimates.chao1.mean)
+            d50Index.addValue(diversityEstimates.d50Index.mean)
             shannonWeaverIndexStat.addValue(diversityEstimates.shannonWeaverIndex.mean)
             inverseSimpsonIndexStat.addValue(diversityEstimates.inverseSimpsonIndex.mean)
         }
@@ -107,6 +109,11 @@ public class DiversityEstimatesResampled {
                 subSampleSize,
                 TotalDiversityLowerBoundEstimate, resampleCount, "chao1")
 
+        this.d50Index = new Diversity(
+                d50Index.mean,
+                d50Index.standardDeviation,
+                subSampleSize,
+                Index, resampleCount, "d50index")
 
         this.shannonWeaverIndex = new Diversity(
                 shannonWeaverIndexStat.mean,
@@ -122,40 +129,48 @@ public class DiversityEstimatesResampled {
     }
 
     /**
-     * Gets the observed diversity, i.e. the number of clonotypes in a down-sampled sample 
-     * @return
+     * Gets the observed diversity, i.e. the number of clonotypes in a down-sampled sample.
+     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
      */
     public Diversity getObservedDiversity() {
         observedDiversity
     }
 
     /**
-     * Gets Efron-Thisted lower bound estimate of total diversity 
-     * @return
+     * Gets Efron-Thisted lower bound estimate of total diversity computed for down-sampled clonotype frequencies.
+     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
      */
     public Diversity getEfronThisted() {
         efronThisted
     }
 
     /**
-     * Gets Chao1 lower bound estimate of total diversity
-     * @return
+     * Gets Chao1 lower bound estimate of total diversity computed for down-sampled clonotype frequencies.
+     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
      */
     public Diversity getChao1() {
         chao1
     }
 
     /**
-     * Gets the Shannon-Weaver diversity index
-     * @return
+     * Gets Chao1 lower bound estimate of total diversity computed for down-sampled clonotype frequencies.
+     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
+     */
+    public Diversity getD50Index() {
+        d50Index
+    }
+
+    /**
+     * Gets the Shannon-Weaver diversity index computed for down-sampled clonotype frequencies.
+     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
      */
     public Diversity getShannonWeaverIndex() {
         shannonWeaverIndex
     }
 
     /**
-     * Gets the Inverse Simpson diversity index
-     * @return
+     * Gets the Inverse Simpson diversity index computed for down-sampled clonotype frequencies.
+     * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
      */
     public Diversity getInverseSimpsonIndex() {
         inverseSimpsonIndex
@@ -166,7 +181,7 @@ public class DiversityEstimatesResampled {
      */
     private static final String[] fields = ["observedDiversity",
                                             "efronThisted", "chao1",
-                                            "shannonWeaverIndex", "inverseSimpsonIndex"]
+                                            "d50index", "shannonWeaverIndex", "inverseSimpsonIndex"]
 
     /**
      * Header string, used for tabular output

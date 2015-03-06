@@ -56,7 +56,7 @@ public class DiversityEstimates {
      * Creates an instance of individual-based diversity estimates class.
      * @param frequencyTable a {@link com.antigenomics.vdjtools.diversity.FrequencyTable} summary for sample of interest.
      * @param extrapolateTo desired extrapolation extent. Used to compute the
-     *                      {@link com.antigenomics.vdjtools.diversity.ChaoEstimator#chaoE} estimate.
+     * {@link com.antigenomics.vdjtools.diversity.ChaoEstimator#chaoE} estimate.
      *                      For most cases, it should be set to the size of the largest sample when several samples are to be compared.
      */
     public DiversityEstimates(FrequencyTable frequencyTable, long extrapolateTo) {
@@ -72,7 +72,7 @@ public class DiversityEstimates {
      * @param intersectionType {@link com.antigenomics.vdjtools.intersection.IntersectionType} that will be used
      *                         to collapse sample during {@link com.antigenomics.vdjtools.diversity.FrequencyTable} computation
      * @param extrapolateTo desired extrapolation extent. Used to compute the
-     *                      {@link com.antigenomics.vdjtools.diversity.ChaoEstimator#chaoE} estimate.
+     * {@link com.antigenomics.vdjtools.diversity.ChaoEstimator#chaoE} estimate.
      *                      For most cases, it should be set to the size of the largest sample when several samples are to be compared.
      */
     public DiversityEstimates(Sample sample, IntersectionType intersectionType, long extrapolateTo) {
@@ -84,7 +84,7 @@ public class DiversityEstimates {
      * Will summarize clonotype occurrences to build {@link com.antigenomics.vdjtools.diversity.FrequencyTable}
      * @param pool a pool of several samples to analyze.
      * @param extrapolateTo desired extrapolation extent. Used to compute the
-     *                      {@link com.antigenomics.vdjtools.diversity.ChaoEstimator#chaoE} estimate.
+     * {@link com.antigenomics.vdjtools.diversity.ChaoEstimator#chaoE} estimate.
      *                      For most cases, it should be set to the number of samples in the largest sample pool if several are to be compared.
      */
     public DiversityEstimates(SampleAggregator pool, long extrapolateTo) {
@@ -169,7 +169,7 @@ public class DiversityEstimates {
                 frequencyTable.count,
                 DiversityType.Index,
                 1,
-                "dxxIndex"
+                "d${(int) (fraction * 100)}Index"
         )
     }
 
@@ -177,26 +177,8 @@ public class DiversityEstimates {
      * Computes is the minimum number of clonotypes accounting for at least 50% of the total reads.
      * @return {@link com.antigenomics.vdjtools.diversity.Diversity} object handling the result.
      */
-    public Diversity getD50Index(double fraction) {
-        if (fraction < 0 || fraction > 1)
-            throw new IllegalArgumentException("Fraction value should be within [0,1] bounds.")
-
-        def div = 0, freqSum = 0
-
-        frequencyTable.bins.find {
-            freqSum += it.freq
-            div++
-
-            freqSum >= fraction
-        }
-
-        new Diversity(div / (double) frequencyTable.diversity,
-                0,
-                frequencyTable.count,
-                DiversityType.Index,
-                1,
-                "dxxIndex"
-        )
+    public Diversity getD50Index() {
+        getDxxIndex(0.5)
     }
 
     /**
@@ -272,9 +254,10 @@ public class DiversityEstimates {
     /**
      * List of fields that will be included in tabular output .
      */
-    private static final String[] FIELDS = ["observedDiversity", "chaoE",
+    private static final String[] FIELDS = ["observedDiversity",
+                                            "chaoE",
                                             "efronThisted", "chao1",
-                                            "shannonWeaverIndex", "inverseSimpsonIndex"]
+                                            "d50Index", "shannonWeaverIndex", "inverseSimpsonIndex"]
 
     /**
      * Header string, used for tabular output.
