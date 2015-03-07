@@ -15,7 +15,6 @@
  */
 
 
-
 package com.antigenomics.vdjtools.io.parser
 
 import com.antigenomics.vdjtools.Clonotype

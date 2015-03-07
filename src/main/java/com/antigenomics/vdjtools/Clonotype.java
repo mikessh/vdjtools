@@ -286,7 +286,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
     /**
      * Gets the position of the last nucleotide of Variable segment in CDR3 coordinates
      *
-     * @return zero-based position of last Variable segment nucleotide, relative to first CDR3 nucleotide (first letter of conserved Cys)
+     * @return zero-based position of last Variable segment nucleotide, relative to first CDR3 nucleotide (first bp of conserved Cys codon)
      */
     public int getVEnd() {
         return segmPoints[0];
@@ -295,7 +295,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
     /**
      * Gets the position of the first nucleotide of Diversity segment in CDR3 coordinates
      *
-     * @return zero-based position of first Diversity segment nucleotide, relative to first CDR3 nucleotide (first letter of conserved Cys)
+     * @return zero-based position of first Diversity segment nucleotide, relative to first CDR3 nucleotide (first bp of conserved Cys codon)
      */
     public int getDStart() {
         return segmPoints[1];
@@ -304,7 +304,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
     /**
      * Gets the position of the last nucleotide of Diversity segment in CDR3 coordinates
      *
-     * @return zero-based position of last Diversity segment nucleotide, relative to first CDR3 nucleotide (first letter of conserved Cys)
+     * @return zero-based position of last Diversity segment nucleotide, relative to first CDR3 nucleotide (first bp of conserved Cys codon)
      */
     public int getDEnd() {
         return segmPoints[2];
@@ -313,7 +313,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
     /**
      * Gets the position of the first nucleotide of Joining segment in CDR3 coordinates
      *
-     * @return zero-based position of first Joining segment nucleotide, relative to first CDR3 nucleotide (first letter of conserved Cys)
+     * @return zero-based position of first Joining segment nucleotide, relative to first CDR3 nucleotide (first bp of conserved Cys codon)
      */
     public int getJStart() {
         return segmPoints[3];
