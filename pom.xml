@@ -97,7 +97,7 @@
                 </executions>
             </plugin>
             <!--
-              Use "mvn gplus:groovydoc" to compile groovy/javadocs
+              Use "mvn gplus:generateStubs gplus:groovydoc" to compile groovy/javadocs
               -->
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>

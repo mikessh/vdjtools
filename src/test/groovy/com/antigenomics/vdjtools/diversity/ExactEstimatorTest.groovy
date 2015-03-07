@@ -73,7 +73,7 @@ class ExactEstimatorTest {
 
         def trials = 100
 
-        println DiversityEstimator.HEADER
+        //println DiversityEstimator.HEADER
         for (int i = 0; i < trials; i++) {
             def table = tableGenerator.create()
 

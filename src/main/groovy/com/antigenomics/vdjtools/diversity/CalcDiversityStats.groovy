@@ -106,8 +106,10 @@ def minReads = (opt.x ?: "$sampleStats.minCount").toInteger(),
 def headerBase = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
         sampleCollection.metadataTable.columnHeader + "\treads\tdiversity"
 
-def exactOutputPath = formOutputPath(outputPrefix, "diversity", intersectionType.shortName, EstimationMethod.Exact.name),
-    resampledOutputPath = formOutputPath(outputPrefix, "diversity", intersectionType.shortName, EstimationMethod.Resampled.name)
+def exactOutputPath = formOutputPath(outputPrefix, "diversity",
+        intersectionType.shortName, EstimationMethod.Exact.name),
+    resampledOutputPath = formOutputPath(outputPrefix, "diversity",
+            intersectionType.shortName, EstimationMethod.Resampled.name)
 
 new File(exactOutputPath).withPrintWriter { pwExact ->
     new File(resampledOutputPath).withPrintWriter { pwResampling ->
