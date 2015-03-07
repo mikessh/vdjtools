@@ -83,7 +83,9 @@ public class BasicStats {
             if (x > -1)
                 insertSize += weight * x
 
-            ndnSize += weight * it.NDNSize
+            x = it.NDNSize
+            if (x > -1)
+                ndnSize += weight * x
 
             if (!it.coding) {
                 ncDiversity++

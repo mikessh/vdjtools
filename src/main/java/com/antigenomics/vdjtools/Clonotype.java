@@ -320,12 +320,21 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
     }
 
     /**
+     * Gets the length of CDR3 region.
+     *
+     * @return length of CDR3 nucleotide sequence.
+     */
+    public int getCdr3Length() {
+        return cdr3nt.length();
+    }
+
+    /**
      * Gets the number of nucleotides added between the Variable segment end and Diversity segment start
      *
      * @return number of nucleotides inserted into Variable-Diversity segment junction, or {@code -1} if Diversity segment is not defined
      */
     public int getVDIns() {
-        return segmPoints[1] >= 0 ? segmPoints[1] - segmPoints[0] - 1 : -1;
+        return (segmPoints[0] >= 0 && segmPoints[1] >= 0) ? segmPoints[1] - segmPoints[0] - 1 : -1;
     }
 
     /**
@@ -334,7 +343,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
      * @return number of nucleotides inserted into Diversity-Joining segment junction, or {@code -1} if Diversity segment is not defined
      */
     public int getDJIns() {
-        return segmPoints[2] >= 0 ? segmPoints[3] - segmPoints[2] - 1 : -1;
+        return (segmPoints[3] >= 0 && segmPoints[2] >= 0) ? segmPoints[3] - segmPoints[2] - 1 : -1;
     }
 
     /**
@@ -343,7 +352,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
      * @return number of nucleotides inserted into Variable-Diversity and Diversity-Joining segment junctions, or {@code -1} if Diversity segment is not defined
      */
     public int getInsertSize() {
-        return segmPoints[1] >= 0 && segmPoints[2] >= 0 ? getVDIns() + getDJIns() : -1;
+        return (segmPoints[0] >= 0 && segmPoints[1] >= 0 && segmPoints[2] >= 0 && segmPoints[3] >= 0) ? getVDIns() + getDJIns() : -1;
     }
 
     /**
@@ -352,7 +361,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
      * @return number of nucleotides between Variable and Joining segments, including those of Diversity segment (if present)
      */
     public int getNDNSize() {
-        return segmPoints[3] - segmPoints[0] - 1;
+        return (segmPoints[0] >= 0 && segmPoints[3] >= 0) ? segmPoints[3] - segmPoints[0] - 1 : 0;
     }
 
     /**
