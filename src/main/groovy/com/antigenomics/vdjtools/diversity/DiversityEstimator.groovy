@@ -55,15 +55,18 @@ abstract class DiversityEstimator {
 
     /**
      * Computes the diversity index DXX, where XX is a specified fraction.
-     * The estimate is the minimum number of clonotypes accounting for at least XX% of the total reads.
+     * The estimate equals to {@code 1 - n / N}, where {@code n} is the minimum number of clonotypes accounting 
+     * for at least XX% of the total reads and {@code N} is the total number of clonotypes in the sample.
      * @param fraction a fraction of reads at which the diversity estimate will be computed.
      * @return {@link com.antigenomics.vdjtools.diversity.DiversityEstimate} object handling the result.
      */
     abstract DiversityIndex getDxxIndex(double fraction)
 
     /**
-     * Computes is the minimum number of clonotypes accounting for at least 50% of the total reads.
+     * Computes diversity index that equals to one minus the minimum fraction of clonotypes accounting 
+     * for at least 50% of the total reads.
      * @return {@link com.antigenomics.vdjtools.diversity.DiversityEstimate} object handling the result.
+     * @see com.antigenomics.vdjtools.diversity.DiversityEstimator#getDxxIndex
      */
     DiversityEstimate getD50Index() {
         getDxxIndex(0.5)
@@ -130,29 +133,29 @@ abstract class DiversityEstimator {
     /**
      * List of fields that will be included in tabular output .
      */
-    private static final String[] FIELDS = ["observedDiversity",
-                                            "chaoE",
-                                            "efronThisted", "chao1",
-                                            "d50Index", "shannonWeinerIndex", "inverseSimpsonIndex"]
+    static final String[] ESTIMATE_NAMES = ["observedDiversity",
+                                    "chaoE",
+                                    "efronThisted", "chao1",
+                                    "d50Index", "shannonWeinerIndex", "inverseSimpsonIndex"]
 
     /**
      * Computes all the diversity estimates.
-     * @return list of computed diversity estimates.
+     * @return a map {@code [name -> value]} of computed diversity estimates.
      */
-    List<DiversityEstimate> computeAll() {
-        FIELDS.collect { this."$it" }
+    Map<String, DiversityEstimate> computeAll() {
+        ESTIMATE_NAMES.collectEntries { [(it): this."$it"] }
     }
 
     /**
      * Header string, used for tabular output.
      */
-    static final String HEADER = FIELDS.collect { [it + "_mean", it + "_std"] }.flatten().join("\t")
+    static final String HEADER = ESTIMATE_NAMES.collect { [it + "_mean", it + "_std"] }.flatten().join("\t")
 
     /**
      * Plain text row for tabular output.
      */
     @Override
     String toString() {
-        FIELDS.collect { this."$it" }.join("\t")
+        ESTIMATE_NAMES.collect { this."$it" }.join("\t")
     }
 }

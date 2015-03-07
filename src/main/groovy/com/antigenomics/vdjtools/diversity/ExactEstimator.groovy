@@ -132,7 +132,7 @@ class ExactEstimator extends DiversityEstimator {
             freqSum >= fraction
         }
 
-        new DiversityIndex(div / (double) frequencyTable.diversity, 0, frequencyTable.count)
+        new DiversityIndex(1.0 - div / (double) frequencyTable.diversity, 0, frequencyTable.count)
     }
 
     /**
