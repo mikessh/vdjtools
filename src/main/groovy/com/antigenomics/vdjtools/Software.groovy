@@ -17,6 +17,7 @@
 package com.antigenomics.vdjtools
 
 enum Software {
+    // todo : output mutations
     MiTcr("mitcr", "\t", null, 2, ["count", "freq", "cdr3nt", "blank", "blank", "cdr3aa",
                                    "blank", "v", "blank", "j", "blank", "d",
                                    "VEnd", "DStart", "DEnd", "JStart"]),
@@ -27,7 +28,13 @@ enum Software {
                                       "cdr1nt", "cdr2nt", "cdr3nt", "cdr1aa", "cdr2aa", "cdr3aa",
                                       "inFrame", "noStop", "complete",
                                       "blank", "blank", "blank",
-                                      "blank"]), // todo : output mutations
+                                      "blank"]),
+    ImmunoSEQ("immunoSEQ", "\t", null, 1, ["cdr3nt", "cdr3aa", "count", "freq", "cdr3Length",
+                                           "blank", "v", "blank", "blank", "blank", "blank", "blank",
+                                           "blank", "d", "blank", "blank", "blank", "blank", "blank",
+                                           "blank", "j", "blank", "blank", "blank", "blank", "blank",
+                                           "blank", "blank", "blank", "blank", "blank", "blank",
+                                           "VEnd", "DStart", "DEnd", "JStart"]),
     Simple("simple", "\t", "#", 0, ["count", "freq", "cdr3nt", "cdr3aa", "v", "d", "j"])
 
     final String name, delimiter, comment
