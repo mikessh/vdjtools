@@ -31,8 +31,8 @@ public class MiTcrParser extends ClonotypeStreamParser {
     /**
      * {@inheritDoc}
      */
-    public MiTcrParser(Iterator<String> innerIter, Software software, Sample sample) {
-        super(innerIter, software, sample)
+    public MiTcrParser(Iterator<String> innerIter, Sample sample) {
+        super(innerIter, Software.MiTcr, sample)
     }
 
     /**

@@ -31,8 +31,8 @@ public class MiGecParser extends ClonotypeStreamParser {
     /**
      * {@inheritDoc}
      */
-    public MiGecParser(Iterator<String> innerIter, Software software, Sample sample) {
-        super(innerIter, software, sample)
+    public MiGecParser(Iterator<String> innerIter, Sample sample) {
+        super(innerIter, Software.MiGec, sample)
     }
 
     /**
@@ -42,7 +42,7 @@ public class MiGecParser extends ClonotypeStreamParser {
     protected Clonotype innerParse(String clonotypeString) {
         /*
              0  Count
-             1  Percentage
+             1  Fraction
              2  CDR3 nucleotide sequence
              3  CDR3 amino acid sequence
              4  V segments
