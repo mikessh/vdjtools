@@ -61,16 +61,16 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
 
         switch (software) {
             case Software.MiTcr:
-                parser = new MiTcrParser(innerIter, software, sample)
+                parser = new MiTcrParser(innerIter, sample)
                 break
             case Software.IgBlast:
-                parser = new IgBlastParser(innerIter, software, sample)
+                parser = new IgBlastParser(innerIter, sample)
                 break
             case Software.Simple:
-                parser = new SimpleParser(innerIter, software, sample)
+                parser = new SimpleParser(innerIter, sample)
                 break
             case Software.MiGec:
-                parser = new MiGecParser(innerIter, software, sample)
+                parser = new MiGecParser(innerIter, sample)
                 break
             default:
                 throw new UnsupportedOperationException("Don't know how to parse $software data")
