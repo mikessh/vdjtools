@@ -34,7 +34,7 @@ import com.google.common.util.concurrent.AtomicDoubleArray
  * 3. details for top N clonotypes.
  *
  */
-public class QuantileStats {
+class QuantileStats {
     private final int numberOfQuantiles
     private final AtomicDoubleArray quantileFreqs
     private final AtomicDouble highOrderFreq = new AtomicDouble(),
@@ -46,7 +46,7 @@ public class QuantileStats {
      * @param clonotypeContainer a set of clonotypes.
      * @param numberOfQuantiles number of quantiles for 2nd level of detalizaiton.
      */
-    public QuantileStats(ClonotypeContainer clonotypeContainer, int numberOfQuantiles) {
+    QuantileStats(ClonotypeContainer clonotypeContainer, int numberOfQuantiles) {
         this.numberOfQuantiles = numberOfQuantiles
         this.quantileFreqs = new AtomicDoubleArray(numberOfQuantiles)
 
@@ -60,7 +60,7 @@ public class QuantileStats {
      * Summarizes quantile statisitcs for a given sample.
      * @param clonotypeContainer a set of clonotypes.
      */
-    public QuantileStats(ClonotypeContainer clonotypeContainer) {
+    QuantileStats(ClonotypeContainer clonotypeContainer) {
         this(clonotypeContainer, 5)
     }
 
@@ -105,7 +105,7 @@ public class QuantileStats {
      * Gets the number of 2nd level summary quantiles.
      * @return number of 2nd level quantiles.
      */
-    public int getNumberOfQuantiles() {
+    int getNumberOfQuantiles() {
         return numberOfQuantiles
     }
 
@@ -113,9 +113,9 @@ public class QuantileStats {
      * Gets frequency for a given quantile.
      * @param quantile quantile index, should be less than {@link #numberOfQuantiles} and greater or equal than {@code 0}.
      * @return selected quantile frequency.
-     * @throws IndexOutOfBoundsException
+     * @throws IndexOutOfBoundsException wrong quantile index.
      */
-    public double getQuantileFrequency(int quantile) {
+    double getQuantileFrequency(int quantile) {
         if (quantile < 0 || quantile >= numberOfQuantiles)
             throw new IndexOutOfBoundsException()
         quantileFreqs.get(quantile)
@@ -125,7 +125,7 @@ public class QuantileStats {
      * Gets the frequency of singletons, i.e. clonotypes represented by a single read.
      * @return singleton frequency.
      */
-    public double getSingletonFreq() {
+    double getSingletonFreq() {
         singletonFreq.get()
     }
 
@@ -133,7 +133,7 @@ public class QuantileStats {
      * Gets the frequency of doubletons, i.e. clonotypes represented by two reads.
      * @return doubleton frequency.
      */
-    public double getDoubletonFreq() {
+    double getDoubletonFreq() {
         doubletonFreq.get()
     }
 
@@ -141,20 +141,20 @@ public class QuantileStats {
      * Gets the frequency of high-order clonotypes, i.e. clonotypes represented by more than two reads.
      * @return high-order clonotype frequency.
      */
-    public double getHighOrderFreq() {
+    double getHighOrderFreq() {
         highOrderFreq.get()
     }
 
     /**
      * Header string, used for tabular output.
      */
-    public static final String HEADER = "type\tname\tvalue"
+    static final String HEADER = "type\tname\tvalue"
 
     /**
      * Plain text row for tabular output.
      */
     @Override
-    public String toString() {
+    String toString() {
         ["set\t3+\t$highOrderFreq",
          "set\t2\t$doubletonFreq",
          "set\t1\t$singletonFreq",

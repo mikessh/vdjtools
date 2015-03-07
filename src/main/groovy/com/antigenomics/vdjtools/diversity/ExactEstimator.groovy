@@ -193,5 +193,4 @@ class ExactEstimator extends DiversityEstimator {
     SpeciesRichness getObservedDiversity() {
         new SpeciesRichness(frequencyTable.diversity, 0, frequencyTable.count, RichnessEstimateType.Observed)
     }
-
 }

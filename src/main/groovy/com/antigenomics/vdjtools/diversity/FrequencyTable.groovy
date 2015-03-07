@@ -32,7 +32,7 @@ import com.antigenomics.vdjtools.sample.Sample
  * and tabulating frequencies of abundant clonotypes. The class is a wrapper for mapping between 
  * clonotype frequency and the number of clonotypes with a given frequency table.
  */
-public class FrequencyTable {
+class FrequencyTable {
     private final long count, diversity
     private final Map<Long, FrequencyTableBin> frequencyMap = new HashMap<>()
 
@@ -40,7 +40,7 @@ public class FrequencyTable {
      * Creates a frequency table from cache.
      * @param frequencyTableCache a {@code [clonotype count -> number of clonotypes]} mapping.
      */
-    public FrequencyTable(Map<Long, Long> frequencyTableCache) {
+    FrequencyTable(Map<Long, Long> frequencyTableCache) {
         long count = 0, diversity = 0
         frequencyTableCache.each {
             frequencyMap.put((long) it.key, // absolutely necessary conversion here, time to switch to Scala :)
@@ -56,7 +56,7 @@ public class FrequencyTable {
      * Gets the frequency table cache.
      * @return {@code [clonotype count -> number of clonotypes]} mapping.
      */
-    public Map<Long, Long> getCache() {
+    Map<Long, Long> getCache() {
         frequencyMap.values().collectEntries {
             [(it.count): it.diversity]
         }
@@ -66,7 +66,7 @@ public class FrequencyTable {
      * Creates frequency table that bins clonotypes according to their frequency.
      * @param sample sample to tabulate.
      */
-    public FrequencyTable(Sample sample) {
+    FrequencyTable(Sample sample) {
         this(sample, IntersectionType.Strict)
     }
 
@@ -75,7 +75,7 @@ public class FrequencyTable {
      * @param sample sample to tabulate.
      * @param intersectionType intersection type used to collapse clonotypes.
      */
-    public FrequencyTable(Sample sample, IntersectionType intersectionType) {
+    FrequencyTable(Sample sample, IntersectionType intersectionType) {
         Iterable<Countable> counters
 
         // collapse clonotypes by a specific key
@@ -134,7 +134,7 @@ public class FrequencyTable {
      * in accordance with {@link com.antigenomics.vdjtools.intersection.IntersectionType} used to collapse the sample.
      * @return total number of clonotypes in the table after they were collapsed.
      */
-    public long getDiversity() {
+    long getDiversity() {
         diversity
     }
 
@@ -142,7 +142,7 @@ public class FrequencyTable {
      * Gets the total read count in this table.
      * @return total number of reads.
      */
-    public long getCount() {
+    long getCount() {
         this.count
     }
 
@@ -150,7 +150,7 @@ public class FrequencyTable {
      * Gets the number of singleton clonotypes, i.e. those met only once.
      * @return singleton frequency.
      */
-    public int getSingletons() {
+    int getSingletons() {
         this[1]
     }
 
@@ -158,7 +158,7 @@ public class FrequencyTable {
      * Gets the number of doubleton clonotypes, i.e. those met only twice
      * @return doubleton frequency.
      */
-    public int getDoubletons() {
+    int getDoubletons() {
         this[2]
     }
 
@@ -167,7 +167,7 @@ public class FrequencyTable {
      * @param count number of reads.
      * @return number of clonotypes with a given read count.
      */
-    public int getAt(long count) {
+    int getAt(long count) {
         def bin = frequencyMap[count]
         bin ? bin.diversity : 0
     }
@@ -176,17 +176,17 @@ public class FrequencyTable {
      * Gets the bins that have at least one clonotype in them.
      * @return a collection of non-empty bins.
      */
-    public Collection<FrequencyTableBin> getBins() {
+    Collection<FrequencyTableBin> getBins() {
         Collections.unmodifiableCollection(frequencyMap.values().sort { -it.count })
     }
 
     /**
      * Header for plain-text output. 
      */
-    public static final String HEADER = "#count_bin\tclonotypes_in_bin"
+    static final String HEADER = "#count_bin\tclonotypes_in_bin"
 
     @Override
-    public String toString() {
+    String toString() {
         bins.collect() {
             it.count + "\t" + it.diversity
         }.join("\n")
@@ -195,7 +195,7 @@ public class FrequencyTable {
     /**
      * Frequency table bin.
      */
-    public class FrequencyTableBin {
+    class FrequencyTableBin {
         private final long count
         private int diversity = 0
 
@@ -203,7 +203,7 @@ public class FrequencyTable {
          * Creates a new frequency table bin.
          * @param count number of reads, used as key.
          */
-        public FrequencyTableBin(long count) {
+        FrequencyTableBin(long count) {
             this.count = count
         }
 
@@ -212,7 +212,7 @@ public class FrequencyTable {
          * @param count number of reads, used as key.
          * @param diversity number of clonotypes in this bin.
          */
-        public FrequencyTableBin(long count, long diversity) {
+        FrequencyTableBin(long count, long diversity) {
             this.count = count
             this.diversity = diversity
         }
@@ -220,31 +220,29 @@ public class FrequencyTable {
         /**
          * Increment the number of clonotypes in this bin.
          */
-        public void increment() {
+        void increment() {
             this.diversity++
         }
 
         /**
          * Decrement the number of clonotypes in this bin.
          */
-        public void decrement() {
+        void decrement() {
             this.diversity--
         }
 
         /**
          * Get the number of reads that specify this bin.
          * @return read count for this bin.
-         */
-        public long getCount() {
-            this.count
-        }
 
-        /**
+         public long getCount() {
+         this.count
+         }/**
          * Gets the number of clonotypes in this bin.
          * @return clonotype diversity in this bin.
          * @see com.antigenomics.vdjtools.diversity.FrequencyTable#getDiversity()
          */
-        public int getDiversity() {
+        int getDiversity() {
             this.diversity
         }
 
@@ -253,7 +251,7 @@ public class FrequencyTable {
          * @return ratio of clonotypes in this bin.
          * @see com.antigenomics.vdjtools.diversity.FrequencyTable#getDiversity()
          */
-        public double getRelativeDiversity() {
+        double getRelativeDiversity() {
             this.diversity / (double) FrequencyTable.this.diversity
         }
 
@@ -261,7 +259,7 @@ public class FrequencyTable {
          * Get the clonotype frequency that specify this bin.
          * @return frequency in this bin.
          */
-        public double getFreq() {
+        double getFreq() {
             this.count / (double) FrequencyTable.this.count
         }
 

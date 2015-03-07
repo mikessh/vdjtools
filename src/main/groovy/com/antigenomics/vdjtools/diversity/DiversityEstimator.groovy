@@ -18,6 +18,9 @@
 
 package com.antigenomics.vdjtools.diversity
 
+import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.sample.Sample
+
 /**
  * Base class for implementations that compute various species richness estimates and diversity indices.
  * @see com.antigenomics.vdjtools.diversity.DiversityIndex
@@ -26,6 +29,19 @@ package com.antigenomics.vdjtools.diversity
 abstract class DiversityEstimator {
     protected final FrequencyTable frequencyTable
     protected final EstimationMethod estimationMethod
+
+    static DiversityEstimator forMethod(Sample sample, IntersectionType intersectionType,
+                                        EstimationMethod estimationMethod,
+                                        int characteristicCount) {
+        switch (estimationMethod) {
+            case EstimationMethod.Exact:
+                return new ExactEstimator(sample, intersectionType, characteristicCount)
+            case EstimationMethod.Resampled:
+                return new ResamplingEstimator(sample, intersectionType, characteristicCount)
+        }
+
+        null
+    }
 
     /**
      * Protected constructor.
@@ -134,9 +150,9 @@ abstract class DiversityEstimator {
      * List of fields that will be included in tabular output .
      */
     static final String[] ESTIMATE_NAMES = ["observedDiversity",
-                                    "chaoE",
-                                    "efronThisted", "chao1",
-                                    "d50Index", "shannonWeinerIndex", "inverseSimpsonIndex"]
+                                            "chaoE",
+                                            "efronThisted", "chao1",
+                                            "d50Index", "shannonWeinerIndex", "inverseSimpsonIndex"]
 
     /**
      * Computes all the diversity estimates.

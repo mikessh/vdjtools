@@ -26,7 +26,7 @@ import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
-def I_TYPE_DEFAULT = IntersectionType.Strict
+def I_TYPE_DEFAULT = IntersectionType.Strict, RESAMPLES_DEFAULT = "3"
 def cli = new CliBuilder(usage: "CalcDiversityStats [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
@@ -44,6 +44,8 @@ cli.X(longOpt: "extrapolate-to", argName: "integer", args: 1,
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Intersection rule to apply. Allowed values: $IntersectionType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
+cli._(longOpt: "resample-trials", argName: "integer", args: 1,
+        "Number of resamples for corresponding estimator. [default = $RESAMPLES_DEFAULT]")
 
 def opt = cli.parse(args)
 
@@ -72,13 +74,10 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 def software = Software.byName(opt.S),
     intersectionType = opt.i ? IntersectionType.getByShortName((String) opt.i) : I_TYPE_DEFAULT,
+    resampleCount = (opt."resample-trials" ?: RESAMPLES_DEFAULT).toInteger(),
     outputPrefix = opt.arguments()[-1]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
-
-// Defaults
-
-//def nResamples = 3 todo: default resamples
 
 //
 // Batch load all samples (lazy)
@@ -107,10 +106,13 @@ def minReads = (opt.x ?: "$sampleStats.minCount").toInteger(),
 def headerBase = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
         sampleCollection.metadataTable.columnHeader + "\treads\tdiversity"
 
-new File(formOutputPath(outputPrefix, "diversity", intersectionType.shortName)).withPrintWriter { pwDiv ->
-    new File(formOutputPath(outputPrefix, "diversity", intersectionType.shortName, "resampled")).withPrintWriter { pwDivRes ->
-        pwDiv.println(headerBase + "\textrapolate_reads\t" + ExactEstimator.HEADER)
-        pwDivRes.println(headerBase + "\tresample_reads\t" + ResamplingEstimator.HEADER)
+def exactOutputPath = formOutputPath(outputPrefix, "diversity", intersectionType.shortName, EstimationMethod.Exact.name),
+    resampledOutputPath = formOutputPath(outputPrefix, "diversity", intersectionType.shortName, EstimationMethod.Resampled.name)
+
+new File(exactOutputPath).withPrintWriter { pwExact ->
+    new File(resampledOutputPath).withPrintWriter { pwResampling ->
+        pwExact.println(headerBase + "\textrapolate_reads\t" + ExactEstimator.HEADER)
+        pwResampling.println(headerBase + "\tresample_reads\t" + ResamplingEstimator.HEADER)
 
         sampleCollection.each { Sample sample ->
             println "[${new Date()} $scriptName] Analyzing $sample.sampleMetadata.sampleId"
@@ -118,11 +120,11 @@ new File(formOutputPath(outputPrefix, "diversity", intersectionType.shortName)).
             def rowBase = [sample.sampleMetadata.sampleId, sample.sampleMetadata,
                            sample.count, sample.diversity].join("\t")
 
-            def diversityEstimates = new ExactEstimator(sample, intersectionType, maxReads),
-                diversityEstimatesResampled = new ResamplingEstimator(sample, intersectionType, (int) minReads)
+            def exactEstimator = new ExactEstimator(sample, intersectionType, maxReads),
+                resamplingEstimator = new ResamplingEstimator(sample, intersectionType, minReads, resampleCount)
 
-            pwDiv.println(rowBase + "\t" + maxReads + "\t" + diversityEstimates)
-            pwDivRes.println(rowBase + "\t" + minReads + "\t" + diversityEstimatesResampled)
+            pwExact.println(rowBase + "\t" + maxReads + "\t" + exactEstimator)
+            pwResampling.println(rowBase + "\t" + minReads + "\t" + resamplingEstimator)
         }
     }
 }

@@ -40,4 +40,4 @@ java -jar vdjtools-1.0-SNAPSHOT.jar RInstall
 
 * Examples: in `examples/` folder together with corresponding shell scripts.
 
-* Javadocs: http://mikessh.github.io/vdjtools-doc/
+* Javadocs: http://mikessh.github.io/vdjtools-doc/ **(under development)**

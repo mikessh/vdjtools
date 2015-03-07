@@ -36,7 +36,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException
  * This will not happen in case {@link com.antigenomics.vdjtools.intersection.IntersectionType#Strict} is used,
  * which is recommended for most purposes.
  */
-public class ResamplingEstimator extends DiversityEstimator {
+class ResamplingEstimator extends DiversityEstimator {
     private final DiversityIndex d50Index, shannonWeinerIndex, inverseSimpsonIndex
     private final SpeciesRichness observedDiversity, efronThisted, chao1
 
@@ -49,9 +49,9 @@ public class ResamplingEstimator extends DiversityEstimator {
      * @param intersectionType {@code IntersectionType} used to collapse sample during {@code FrequencyTable} computation
      * @param subSampleSize down-sampled sample size. Typically set to the size of smallest sample if several samples are to be compared
      */
-    public ResamplingEstimator(Sample sample,
-                               IntersectionType intersectionType,
-                               int subSampleSize) {
+    ResamplingEstimator(Sample sample,
+                        IntersectionType intersectionType,
+                        int subSampleSize) {
         this(sample, intersectionType, subSampleSize, 3)
     }
 
@@ -63,9 +63,9 @@ public class ResamplingEstimator extends DiversityEstimator {
      * @param subSampleSize down-sampled sample size. Typically set to the size of smallest sample if several samples are to be compared
      * @param resampleCount number of re-samples to be performed
      */
-    public ResamplingEstimator(Sample sample,
-                               IntersectionType intersectionType,
-                               int subSampleSize, int resampleCount) {
+    ResamplingEstimator(Sample sample,
+                        IntersectionType intersectionType,
+                        int subSampleSize, int resampleCount) {
         super(null, EstimationMethod.Resampled)
         this.subSampleSize = subSampleSize
         this.resampleCount = resampleCount

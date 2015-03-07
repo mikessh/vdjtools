@@ -25,9 +25,24 @@ enum EstimationMethod {
     /**
      * Exact method was used to compute mean and standard deviation 
      */
-            Exact,
+            Exact("exact"),
     /**
      * Re-sampling was used to compute mean and standard deviation 
      */
-            Resampled
+            Resampled("resampled")
+    
+    private final String name
+
+    EstimationMethod(String name) {
+        this.name = name
+    }
+
+    String getName() {
+         name
+    }
+
+    @Override
+    String toString() {
+        name
+    }
 }

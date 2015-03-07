@@ -39,7 +39,7 @@ class ChaoEstimator {
      * Creates an instance of class that computes Chao richness estiamtes.
      * @param frequencyTable a {@link com.antigenomics.vdjtools.diversity.FrequencyTable} summary for sample of interest.
      */
-    public ChaoEstimator(FrequencyTable frequencyTable) {
+    ChaoEstimator(FrequencyTable frequencyTable) {
         this.frequencyTable = frequencyTable
         this.n = frequencyTable.count
         this.Sobs = frequencyTable.diversity
@@ -53,7 +53,7 @@ class ChaoEstimator {
      * i.e. the total number of clonotypes in individual that was sampled.
      * @return Chao lower bound estimate for total richness.
      */
-    public SpeciesRichness chao1() {
+    SpeciesRichness chao1() {
         new SpeciesRichness(
                 Sobs + F0,
                 Math.sqrt(
@@ -69,7 +69,7 @@ class ChaoEstimator {
      * @param extrapolateTo number of reads, should be greater than the total number of reads in a sample
      * @return extrapolated richness estimate.
      */
-    public SpeciesRichness chaoE(long extrapolateTo) {
+    SpeciesRichness chaoE(long extrapolateTo) {
         double mStar = extrapolateTo - n
 
         if (mStar < 0)
@@ -100,7 +100,7 @@ class ChaoEstimator {
      * @param interpolateTo number of reads, should be less than the total number of reads in a sample
      * @return interpolated richness estimate.
      */
-    public SpeciesRichness chaoI(long interpolateTo) {
+    SpeciesRichness chaoI(long interpolateTo) {
         if (n > Integer.MAX_VALUE)
             throw new NotImplementedException()
 
