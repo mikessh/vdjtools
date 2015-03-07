@@ -27,8 +27,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException
 import static com.antigenomics.vdjtools.diversity.RichnessEstimateType.*
 
 /**
- * Diversity estimates based on works of Anne Chao et al
- * Implementation is based on the following paper:
+ * Species richness estimates based on works of Anne Chao et al. Implemented according to the following paper:
  * {@url http://viceroy.eeb.uconn.edu/estimates/EstimateSPages/EstSUsersGuide/References/ColwellEtAl2012.pdf}
  */
 class ChaoEstimator {
@@ -37,8 +36,8 @@ class ChaoEstimator {
     private final double F0, Sobs, F1, F2
 
     /**
-     * Creates an instance of class that computes various diversity estimates based on Chao et al framework
-     * @param frequencyTable
+     * Creates an instance of class that computes Chao richness estiamtes.
+     * @param frequencyTable a {@link com.antigenomics.vdjtools.diversity.FrequencyTable} summary for sample of interest.
      */
     public ChaoEstimator(FrequencyTable frequencyTable) {
         this.frequencyTable = frequencyTable
@@ -50,9 +49,9 @@ class ChaoEstimator {
     }
 
     /**
-     * Computes the estimate for lower bound of total repertoire diversity,
-     * i.e. the total number of clonotypes in individual that was sampled
-     * @return
+     * Computes the estimate for lower bound of total repertoire richness,
+     * i.e. the total number of clonotypes in individual that was sampled.
+     * @return Chao lower bound estimate for total richness.
      */
     public SpeciesRichness chao1() {
         new SpeciesRichness(
@@ -66,9 +65,9 @@ class ChaoEstimator {
     }
 
     /**
-     * Extrapolates sample diversity
-     * @param extrapolateTo number of reads, should be &gt; than the total number of reads in a sample
-     * @return
+     * Extrapolates observed richness according to multinomial model.
+     * @param extrapolateTo number of reads, should be greater than the total number of reads in a sample
+     * @return extrapolated richness estimate.
      */
     public SpeciesRichness chaoE(long extrapolateTo) {
         double mStar = extrapolateTo - n
@@ -97,9 +96,9 @@ class ChaoEstimator {
     }
 
     /**
-     * Interpolates sample diversity
-     * @param interpolateTo number of reads, should be &lt; than the total number of reads in a sample
-     * @return
+     * Interpolates observed richness based on multinomial model.
+     * @param interpolateTo number of reads, should be less than the total number of reads in a sample
+     * @return interpolated richness estimate.
      */
     public SpeciesRichness chaoI(long interpolateTo) {
         if (n > Integer.MAX_VALUE)

@@ -22,7 +22,7 @@ import com.antigenomics.vdjtools.intersection.IntersectionType
 import com.antigenomics.vdjtools.sample.Sample
 
 /**
- * A class that is used to compute a rarefaction curve based on {@code ChaoEstimator}. 
+ * A class that is used to compute a rarefaction curve based on {@link com.antigenomics.vdjtools.diversity.ChaoEstimator}.
  * Rarefaction curve shows the relation between sample richness and sample size.
  * Implementation is based on Colwell et al 2012 paper.
  *
@@ -34,18 +34,18 @@ public class Rarefaction {
     private final long n
 
     /**
-     * Computes the interpolated/exact/extrapolated richness estimate for a given sample size
-     * @param coord sample size
-     * @return
+     * Computes the interpolated/exact/extrapolated richness estimate for a given sample size.
+     * @param coord sample size.
+     * @return species richness estimate.
      */
     public SpeciesRichness getAt(long coord) {
         coord > n ? chaoEstimator.chaoE(coord) : chaoEstimator.chaoI(coord)
     }
 
     /**
-     * Creates an instance that will perform rarefaction for a given sample  
-     * @param sample sample to analyze
-     * @param intersectionType {@code IntersectionType} that will be used to collapse clonotypes when computing a {@code FrequencyTable}
+     * Creates an instance that will perform rarefaction for a given sample.
+     * @param sample sample to analyze.
+     * @param intersectionType specifies a method that will be used to collapse clonotypes when computing a {@link com.antigenomics.vdjtools.diversity.FrequencyTable}.
      */
     public Rarefaction(Sample sample, IntersectionType intersectionType) {
         this.frequencyTable = new FrequencyTable(sample, intersectionType)
@@ -54,8 +54,8 @@ public class Rarefaction {
     }
 
     /**
-     * Creates an instance that will perform rarefaction for a given frequency table 
-     * @param frequencyTable {@code FrequencyTable} summarizing the number of clonotypes met once, twice, ... in a given clonotype set
+     * Creates an instance that will perform rarefaction for a given frequency table.
+     * @param frequencyTable a {@link com.antigenomics.vdjtools.diversity.FrequencyTable} summarizing the number of clonotypes met once, twice, ... in a given clonotype set.
      */
     public Rarefaction(FrequencyTable frequencyTable) {
         this.frequencyTable = frequencyTable
@@ -65,76 +65,76 @@ public class Rarefaction {
 
     /**
      * Creates an instance that will perform rarefaction for a given sample. 
-     * Will use {@code IntersectionType.strict} to build a frequency table 
-     * @param sample sample to analyze
+     * Will use {@code com.antigenomics.vdjtools.intersection.IntersectionType # Strict} to build a {@link com.antigenomics.vdjtools.diversity.FrequencyTable}.
+     * @param sample sample to analyze.
      */
     public Rarefaction(Sample sample) {
         this(sample, IntersectionType.Strict)
     }
 
     /**
-     * Builds a rarefaction curve interpolation up to given sample size 
-     * @return
+     * Builds a rarefaction curve interpolation up to given sample size.
+     * @return create the interpolated part of rarefaction curve.
      */
     public ArrayList<RarefactionPoint> interpolate() {
         build(n)
     }
 
     /**
-     * Extrapolates rarefaction curve from the size of a given sample up to a specified size
-     * @param to where to extrapolate 
-     * @return
-     * @throws IllegalArgumentException if {@code to} is less than sample size + 1 
+     * Extrapolates rarefaction curve from the size of a given sample up to a specified size.
+     * @param to where to extrapolate.
+     * @return the extrapolated part of rarefaction curve.
+     * @throws IllegalArgumentException if {@code to} is less than {@code sample size + 1}.
      */
     public ArrayList<RarefactionPoint> extrapolate(long to) {
         build(n + 1, to)
     }
 
     /**
-     * Builds a rarefaction curve interpolation up to given sample size
-     * @param numberOfPoints number of size steps
-     * @return
+     * Builds a rarefaction curve interpolation up to given sample size.
+     * @param numberOfPoints number of size steps.
+     * @return create the interpolated part of rarefaction curve.
      */
     public ArrayList<RarefactionPoint> interpolate(int numberOfPoints) {
         build(n, numberOfPoints)
     }
 
     /**
-     * Extrapolates rarefaction curve starting from the size of a given sample up to a specified size
-     * @param to where to extrapolate 
-     * @param numberOfPoints number of points in rarefaction curve
+     * Extrapolates rarefaction curve starting from the size of a given sample up to a specified size.
+     * @param to where to extrapolate.
+     * @param numberOfPoints number of points in rarefaction curve.
      * @return
-     * @throws IllegalArgumentException if {@code to} is less than sample size + 1 
+     * @throws IllegalArgumentException if {@code to} is less than {@code sample size + 1}.
      */
     public ArrayList<RarefactionPoint> extrapolate(long to, int numberOfPoints) {
         build(n + 1, to, numberOfPoints)
     }
 
     /**
-     * Builds a rarefaction curve from sample size {@code 0} up to sample size {@code to}
-     * @param to sample size for last rarefaction point
-     * @return
+     * Builds a rarefaction curve from sample size {@code 0} up to sample size {@code to}.
+     * @param to sample size for last rarefaction point.
+     * @return rarefaction curve.
      */
     public ArrayList<RarefactionPoint> build(long to) {
         build(0L, to)
     }
 
     /**
-     * Builds a rarefaction curve starting from sample size {@code from} up to sample size {@code to}
-     * @param from sample size for first rarefaction point
-     * @param to sample size for last rarefaction point
-     * @return
+     * Builds a rarefaction curve starting from sample size {@code from} up to sample size {@code to}.
+     * @param from sample size for first rarefaction point.
+     * @param to sample size for last rarefaction point.
+     * @return rarefaction curve.
      */
     public ArrayList<RarefactionPoint> build(long from, long to) {
         build(from, to, Math.min(101, (int) n))
     }
 
     /**
-     * Builds a rarefaction curve starting from sample size {@code from} up to sample size {@code to}
-     * @param from sample size for first rarefaction point
-     * @param to sample size for last rarefaction point
-     * @param numberOfPoints number of points in rarefaction curve
-     * @return
+     * Builds a rarefaction curve starting from sample size {@code from} up to sample size {@code to}.
+     * @param from sample size for first rarefaction point.
+     * @param to sample size for last rarefaction point.
+     * @param numberOfPoints number of points in rarefaction curve.
+     * @return rarefaction curve.
      */
     public ArrayList<RarefactionPoint> build(long from, long to, int numberOfPoints) {
         if (from > to)
@@ -163,7 +163,7 @@ public class Rarefaction {
     }
 
     /**
-     * Holds summary for rarefied richness estimate
+     * Holds summary for rarefied richness estimate.
      */
     public class RarefactionPoint {
         private final double x, mean, ciU, ciL
@@ -178,52 +178,52 @@ public class Rarefaction {
         }
 
         /**
-         * Gets the coordinate, i.e. sample size 
-         * @return
+         * Gets the coordinate, i.e. sample size.
+         * @return {@code x} coordinate of rarefaction curve.
          */
         public double getX() {
             x
         }
 
         /**
-         * Gets the mean of rarefied richness estimate
-         * @return
+         * Gets the mean of rarefied richness estimate.
+         * @return {@code y} coordinate of rarefaction curve.
          */
         public double getMean() {
             mean
         }
 
         /**
-         * Gets the upper bound of 95% confidence interval of rarefied richness estimate
-         * @return
+         * Gets the upper bound of 95% confidence interval of rarefied richness estimate.
+         * @return upper bound coordinate of rarefaction curve.
          */
         public double getCiU() {
             ciU
         }
 
         /**
-         * Gets the lower bound of 95% confidence interval of rarefied richness estimate
-         * @return
+         * Gets the lower bound of 95% confidence interval of rarefied richness estimate.
+         * @return lower bound coordinate of rarefaction curve.
          */
         public double getCiL() {
             ciL
         }
 
         /**
-         * Gets the richness estimate type: interpolated, exact or extrapolated
-         * @return
+         * Gets the richness estimate type: interpolated, exact or extrapolated.
+         * @return richness type.
          */
         public RichnessEstimateType getRichnessType() {
             richnessType
         }
 
         /**
-         * Header string, used for tabular output
+         * Header string, used for tabular output.
          */
         public static final String HEADER = "x\tmean\tciL\tciU\ttype"
 
         /**
-         * Plain text row for tabular output
+         * Plain text row for tabular output.
          */
         @Override
         public String toString() {

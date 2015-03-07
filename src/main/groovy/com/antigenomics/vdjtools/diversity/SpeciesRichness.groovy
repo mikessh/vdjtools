@@ -25,7 +25,11 @@ class SpeciesRichness extends DiversityEstimate {
     private final RichnessEstimateType type
 
     /**
-     * {@inheritDoc}
+     * Creates a structure holding diversity estimate summary.
+     * @param mean expected value of a diversity estimate.
+     * @param std standard deviation of a diversity estimate.
+     * @param numberOfReads number of reads in the sample that was analyzed.
+     * @param type richness estimate type. 
      */
     SpeciesRichness(long mean, long std, long numberOfReads, RichnessEstimateType type) {
         super(mean, std, numberOfReads)
@@ -33,15 +37,19 @@ class SpeciesRichness extends DiversityEstimate {
     }
 
     /**
-     * {@inheritDoc}
+     * Creates a structure holding diversity estimate summary.
+     * @param mean expected value of a diversity estimate.
+     * @param std standard deviation of a diversity estimate.
+     * @param numberOfReads number of reads in the sample that was analyzed.
+     * @param type richness estimate type.
      */
     SpeciesRichness(double mean, double std, long numberOfReads, RichnessEstimateType type) {
         this((long) mean, (long) std, numberOfReads, type)
     }
 
     /**
-     * Gets the richness estimate type
-     * @return estimate type
+     * Gets the richness estimate type.
+     * @return estimate type (interpolated/observed/extrapolated/lower bound estimate on total diversity).
      */
     RichnessEstimateType getType() {
         type

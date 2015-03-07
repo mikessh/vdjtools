@@ -124,7 +124,7 @@ abstract class DiversityEstimator {
 
     /**
      * Gets the computation method that is used in this estimator implementation.
-     * @return computation method that is used in this estimator implementation.
+     * @return estimation method (exact/resampling).
      */
     EstimationMethod getEstimationMethod() {
         return estimationMethod

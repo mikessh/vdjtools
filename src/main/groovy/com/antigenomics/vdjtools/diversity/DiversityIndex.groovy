@@ -23,7 +23,10 @@ package com.antigenomics.vdjtools.diversity
  */
 class DiversityIndex extends DiversityEstimate {
     /**
-     * {@inheritDoc}
+     * Creates a structure holding diversity estimate summary.
+     * @param mean expected value of a diversity estimate.
+     * @param std standard deviation of a diversity estimate.
+     * @param numberOfReads number of reads in the sample that was analyzed.
      */
     DiversityIndex(double mean, double std, long numberOfReads) {
         super(mean, std, numberOfReads)

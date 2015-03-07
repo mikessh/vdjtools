@@ -29,11 +29,11 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException
  * Re-sampling is used to calculate the mean and standard deviation for estimates.
  * In order to normalize diversity estimates between samples, they are down-sampled to the same size,
  * typically the size of the smallest sample.
- * All computations are performed via the @see com.antigenomics.vdjtools.diversity.FrequencyTable object.
- * Note that the clonotype is always computed based on certain {@code IntersectionType},
+ * All computations are performed via the {@link com.antigenomics.vdjtools.diversity.FrequencyTable} object.
+ * Note that the clonotype is always computed based on certain {@link com.antigenomics.vdjtools.intersection.IntersectionType},
  * which tells how to collapse clonotypes, e.g. consider identical CDR3 nucleotide or amino acid sequences, etc.
  * Therefore in some cases the result will be different from one obtained using raw clonotype frequencies.
- * This will not happen in case @see com.antigenomics.vdjtools.intersection.IntersectionType#Strict is used, 
+ * This will not happen in case {@link com.antigenomics.vdjtools.intersection.IntersectionType#Strict} is used,
  * which is recommended for most purposes.
  */
 public class ResamplingEstimator extends DiversityEstimator {
