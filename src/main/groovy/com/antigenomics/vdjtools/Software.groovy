@@ -18,31 +18,30 @@ package com.antigenomics.vdjtools
 
 enum Software {
     // todo : output mutations
-    MiTcr("mitcr", "\t", null, 2, ["count", "freq", "cdr3nt", "blank", "blank", "cdr3aa",
-                                   "blank", "v", "blank", "j", "blank", "d",
-                                   "VEnd", "DStart", "DEnd", "JStart"]),
-    MiGec("migec", "\t", null, 1, ["count", "freq", "cdr3nt", "cdr3aa",
-                                   "v", "j", "d",
-                                   "VEnd", "DStart", "DEnd", "JStart"]),
-    IgBlast("igblast", "\t", "#", 0, ["blank", "blank", "count", "freq",
-                                      "cdr1nt", "cdr2nt", "cdr3nt", "cdr1aa", "cdr2aa", "cdr3aa",
-                                      "inFrame", "noStop", "complete",
-                                      "blank", "blank", "blank",
-                                      "blank"]),
-    ImmunoSEQ("immunoseq", "\t", null, 1, ["cdr3nt", "cdr3aa", "count", "freq", "cdr3Length",
-                                           "blank", "v", "blank", "blank", "blank", "blank", "blank",
-                                           "blank", "d", "blank", "blank", "blank", "blank", "blank",
-                                           "blank", "j", "blank", "blank", "blank", "blank", "blank",
-                                           "blank", "blank", "blank", "blank", "blank", "blank",
-                                           "blank", "VEnd", "DStart", "DEnd", "JStart"]),
-    Simple("simple", "\t", "#", 0, ["count", "freq", "cdr3nt", "cdr3aa", "v", "d", "j"])
+    MiTcr("\t", null, 2, ["count", "freq", "cdr3nt", "blank", "blank", "cdr3aa",
+                          "blank", "v", "blank", "j", "blank", "d",
+                          "VEnd", "DStart", "DEnd", "JStart"]),
+    MiGec("\t", null, 1, ["count", "freq", "cdr3nt", "cdr3aa",
+                          "v", "j", "d",
+                          "VEnd", "DStart", "DEnd", "JStart"]),
+    IgBlast("\t", "#", 0, ["blank", "blank", "count", "freq",
+                           "cdr1nt", "cdr2nt", "cdr3nt", "cdr1aa", "cdr2aa", "cdr3aa",
+                           "inFrame", "noStop", "complete",
+                           "blank", "blank", "blank",
+                           "blank"]),
+    ImmunoSeq("\t", null, 1, ["cdr3nt", "cdr3aa", "count", "freq", "cdr3Length",
+                              "blank", "v", "blank", "blank", "blank", "blank", "blank",
+                              "blank", "d", "blank", "blank", "blank", "blank", "blank",
+                              "blank", "j", "blank", "blank", "blank", "blank", "blank",
+                              "blank", "blank", "blank", "blank", "blank", "blank",
+                              "blank", "VEnd", "DStart", "DEnd", "JStart"]),
+    Simple("\t", "#", 0, ["count", "freq", "cdr3nt", "cdr3aa", "v", "d", "j"])
 
-    final String name, delimiter, comment
+    final String delimiter, comment
     final int headerLineCount
     final List<String> printFields
 
-    Software(String name, String delimiter, String comment, int headerLineCount, List<String> printFields) {
-        this.name = name
+    Software(String delimiter, String comment, int headerLineCount, List<String> printFields) {
         this.delimiter = delimiter
         this.comment = comment
         this.headerLineCount = headerLineCount
@@ -51,12 +50,12 @@ enum Software {
 
     static Software byName(String name) {
         def software = values().find {
-            it.name.toLowerCase() == name.toLowerCase()
+            it.toString().toLowerCase() == name.toLowerCase()
         }
         if (!software)
             throw new IllegalArgumentException("Unknown software $name")
         software
     }
 
-    static String allowedNames = values().collect { it.name }.join(",")
+    static String allowedNames = values().collect { it.toString().toLowerCase() }.join(",")
 }

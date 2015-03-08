@@ -27,12 +27,12 @@ import com.antigenomics.vdjtools.util.CommonUtil
  * output format, see
  * {@url http://www.adaptivebiotech.com/content/immunoseq-0}
  */
-class AdaptiveParser extends ClonotypeStreamParser {
+class ImmunoSeqParser extends ClonotypeStreamParser {
     /**
      * {@inheritDoc}
      */
-    public AdaptiveParser(Iterator<String> innerIter, Sample sample) {
-        super(innerIter, Software.ImmunoSEQ, sample)
+    public ImmunoSeqParser(Iterator<String> innerIter, Sample sample) {
+        super(innerIter, Software.ImmunoSeq, sample)
     }
 
     /**
