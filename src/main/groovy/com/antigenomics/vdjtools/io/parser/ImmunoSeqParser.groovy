@@ -43,7 +43,7 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
         /*
              $id   | content                    | description
             -------|----------------------------|------------------------------------------------------------------------
-             00    | nucleotide sequence        | this is raw sequence of a read. It could contain only 5' part of CDR3
+             00    | sequencing read            | this is raw sequence of a read. It could contain esither full or partial (5') CDR3 sequence
              01    | CDR3 amino acid sequence   | standard AA sequence or blank, in case read was too short to cover CDR3
              02    | Count                      | default
              03    | Fraction                   | fraction that also accounts for incomplete reads
