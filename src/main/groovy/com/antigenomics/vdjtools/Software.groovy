@@ -18,10 +18,12 @@ package com.antigenomics.vdjtools
 
 enum Software {
     // todo : output mutations
-    MiTcr("\t", null, 2, false, ["count", "freq", "cdr3nt", "blank", "blank", "cdr3aa",
+    MiTcr("\t", null, 2, false, ["count", "freq",
+                                 "cdr3nt", "blank", "blank", "cdr3aa",
                                  "blank", "v", "blank", "j", "blank", "d",
                                  "VEnd", "DStart", "DEnd", "JStart"]),
-    MiGec("\t", null, 1, false, ["count", "freq", "cdr3nt", "cdr3aa",
+    MiGec("\t", null, 1, false, ["count", "freq",
+                                 "cdr3nt", "cdr3aa",
                                  "v", "j", "d",
                                  "VEnd", "DStart", "DEnd", "JStart"]),
     IgBlast("\t", "#", 0, false, ["blank", "blank", "count", "freq",
@@ -35,7 +37,10 @@ enum Software {
                                     "blank", "j", "blank", "blank", "blank", "blank", "blank",
                                     "blank", "blank", "blank", "blank", "blank", "blank",
                                     "blank", "VEnd", "DStart", "DEnd", "JStart"]),
-    Simple("\t", "#", 0, false, ["count", "freq", "cdr3nt", "cdr3aa", "v", "d", "j"])
+    Simple("\t", "#", 0, false, ["count", "freq",
+                                 "cdr3nt", "cdr3aa",
+                                 "v", "d", "j",
+                                 "VEnd", "DStart", "DEnd", "JStart"])
 
     final String delimiter, comment
     final boolean collapseRequired

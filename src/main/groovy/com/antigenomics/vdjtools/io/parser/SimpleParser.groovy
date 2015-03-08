@@ -32,7 +32,7 @@ public class SimpleParser extends ClonotypeStreamParser {
     public SimpleParser(Iterator<String> innerIter, Sample sample) {
         super(innerIter, Software.Simple, sample)
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -49,14 +49,19 @@ public class SimpleParser extends ClonotypeStreamParser {
         cdr3aa = splitString[3]
 
         String v, d, j
-        (v, d, j) = CommonUtil.extractVDJ(splitString[4..-1])
+        (v, d, j) = CommonUtil.extractVDJ(splitString[4..6])
 
         boolean inFrame = !(cdr3aa.contains("~") || cdr3aa.contains("?")),
                 noStop = !cdr3aa.contains("*"),
                 isComplete = true
 
+
+        def segmPoints = (7..10).collect {
+            (splitString.size() <= it || !splitString[it].isInteger()) ? -1 : splitString[it].toInteger()
+        } as int[]
+
         new Clonotype(sample, count, freq,
-                [-1, -1, -1, -1] as int[], v, d, j,
+                segmPoints, v, d, j,
                 cdr1nt, cdr2nt, cdr3nt,
                 cdr1aa, cdr2aa, cdr3aa,
                 inFrame, noStop, isComplete,
