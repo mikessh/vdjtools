@@ -22,13 +22,15 @@ import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 
 /**
- * Base class for providing parsing of various RepSeq software output
+ * Base class for providing parsing of various RepSeq software output.
+ * The stream parser is not thread-safe. 
  */
 public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
     protected final Software software
     protected final Iterator<String> innerIter
     protected final Sample sample
     private int skippedLineCount = 0, commentLineCount
+    private boolean printedWarning = false
     private final boolean hasComment
 
     /**
@@ -105,15 +107,23 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
 
         def clontoype = innerParse(clonotypeString)
 
-        if (missingEntry(clontoype.cdr3nt) ||
-                missingEntry(clontoype.cdr3aa) ||
-                missingEntry(clontoype.v) ||
-                missingEntry(clontoype.j) ||
-                clontoype.count == 0 || clontoype.freqAsInInput == 0) {
-            if (skippedLineCount++ < 5)
+        def badFieldMap = ["no_cdr3nt" : missingEntry(clontoype.cdr3nt),
+                           "no_cdr3aa" : missingEntry(clontoype.cdr3aa),
+                           "no_v"      : missingEntry(clontoype.v),
+                           "no_k"      : missingEntry(clontoype.j),
+                           "zero_count": clontoype.count == 0,
+                           "zero_freq" : clontoype.freqAsInInput == 0]
+
+        if (badFieldMap.any { it.value }) {
+            if (!printedWarning) {
+                printedWarning = true
                 println "[WARNING] Some of the essential fields are bad/missing " +
-                        "for the following clonotype string (displaying first 5 warnings):\n" +
-                        "$clonotypeString"
+                        "for the following clonotype string (displaying first 5 warnings)"
+            }
+            if (skippedLineCount++ < 5) {
+                println badFieldMap.findAll { it.value }.collect { it.key }.join(",") + ":"
+                println "$clonotypeString"
+            }
             return null
         }
 
