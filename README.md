@@ -17,13 +17,11 @@ cd vdjtools && mvn clean install
 
 The following steps should be performed to compile VDJtools from sources:
 
-* Make sure you are compiling under Java v1.7
+* Make sure you are compiling under Java v1.7+
 
-* [VDJdb](https://github.com/mikessh/vdjdb) and [MiLib](https://github.com/milaboratory/milib) dependency should be manually installed:
+* [VDJdb](https://github.com/mikessh/vdjdb) dependency should be manually installed:
 
 ```bash
-git clone --branch 1.0 --depth 1 https://github.com/milaboratory/milib.git
-cd milib && mvn clean install && cd ..
 git clone https://github.com/mikessh/vdjdb.git
 cd vdjdb
 mvn clean install
