@@ -25,9 +25,9 @@ import java.util.Set;
  * CDR stands for Complementarity Determining Region
  */
 public class Clonotype implements Comparable<Clonotype>, Countable {
-    private final ClonotypeContainer parent;
-    private final int count;
-    private final double freq;
+    private ClonotypeContainer parent;
+    private int count;
+    private double freq;
     private final String key;
 
     private final int[] segmPoints;
@@ -389,6 +389,11 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
      */
     public Set<Mutation> getMutations() {
         return mutations != null ? Collections.unmodifiableSet(mutations) : null;
+    }
+
+    public void append(Clonotype other) {
+        this.count += other.count;
+        this.freq += other.freq;
     }
 
     private static final String KEY_SEP = "_",

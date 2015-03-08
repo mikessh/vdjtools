@@ -18,33 +18,35 @@ package com.antigenomics.vdjtools
 
 enum Software {
     // todo : output mutations
-    MiTcr("\t", null, 2, ["count", "freq", "cdr3nt", "blank", "blank", "cdr3aa",
-                          "blank", "v", "blank", "j", "blank", "d",
-                          "VEnd", "DStart", "DEnd", "JStart"]),
-    MiGec("\t", null, 1, ["count", "freq", "cdr3nt", "cdr3aa",
-                          "v", "j", "d",
-                          "VEnd", "DStart", "DEnd", "JStart"]),
-    IgBlast("\t", "#", 0, ["blank", "blank", "count", "freq",
-                           "cdr1nt", "cdr2nt", "cdr3nt", "cdr1aa", "cdr2aa", "cdr3aa",
-                           "inFrame", "noStop", "complete",
-                           "blank", "blank", "blank",
-                           "blank"]),
-    ImmunoSeq("\t", null, 1, ["cdr3nt", "cdr3aa", "count", "freq", "cdr3Length",
-                              "blank", "v", "blank", "blank", "blank", "blank", "blank",
-                              "blank", "d", "blank", "blank", "blank", "blank", "blank",
-                              "blank", "j", "blank", "blank", "blank", "blank", "blank",
-                              "blank", "blank", "blank", "blank", "blank", "blank",
-                              "blank", "VEnd", "DStart", "DEnd", "JStart"]),
-    Simple("\t", "#", 0, ["count", "freq", "cdr3nt", "cdr3aa", "v", "d", "j"])
+    MiTcr("\t", null, 2, false, ["count", "freq", "cdr3nt", "blank", "blank", "cdr3aa",
+                                 "blank", "v", "blank", "j", "blank", "d",
+                                 "VEnd", "DStart", "DEnd", "JStart"]),
+    MiGec("\t", null, 1, false, ["count", "freq", "cdr3nt", "cdr3aa",
+                                 "v", "j", "d",
+                                 "VEnd", "DStart", "DEnd", "JStart"]),
+    IgBlast("\t", "#", 0, false, ["blank", "blank", "count", "freq",
+                                  "cdr1nt", "cdr2nt", "cdr3nt", "cdr1aa", "cdr2aa", "cdr3aa",
+                                  "inFrame", "noStop", "complete",
+                                  "blank", "blank", "blank",
+                                  "blank"]),
+    ImmunoSeq("\t", null, 1, true, ["cdr3nt", "cdr3aa", "count", "freq", "cdr3Length",
+                                    "blank", "v", "blank", "blank", "blank", "blank", "blank",
+                                    "blank", "d", "blank", "blank", "blank", "blank", "blank",
+                                    "blank", "j", "blank", "blank", "blank", "blank", "blank",
+                                    "blank", "blank", "blank", "blank", "blank", "blank",
+                                    "blank", "VEnd", "DStart", "DEnd", "JStart"]),
+    Simple("\t", "#", 0, false, ["count", "freq", "cdr3nt", "cdr3aa", "v", "d", "j"])
 
     final String delimiter, comment
+    final boolean collapseRequired
     final int headerLineCount
     final List<String> printFields
 
-    Software(String delimiter, String comment, int headerLineCount, List<String> printFields) {
+    Software(String delimiter, String comment, int headerLineCount, boolean collapseRequired, List<String> printFields) {
         this.delimiter = delimiter
         this.comment = comment
         this.headerLineCount = headerLineCount
+        this.collapseRequired = collapseRequired
         this.printFields = printFields
     }
 

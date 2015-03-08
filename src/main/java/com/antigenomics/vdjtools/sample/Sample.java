@@ -72,13 +72,15 @@ public class Sample implements ClonotypeContainer {
     public static Sample fromInputStream(InputStream inputStream,
                                          SampleMetadata sampleMetadata,
                                          Software software,
-                                         int top, boolean store) {
+                                         int top, boolean store, boolean collapse) {
         Sample sample = new Sample(sampleMetadata);
 
         ClonotypeStreamParser clonotypeStreamParser = ClonotypeStreamParser.create(inputStream, software, sample);
 
-        boolean sorted = true;
+        boolean sorted = !collapse;
         int prevCount = Integer.MAX_VALUE;
+
+        Map<Clonotype, Clonotype> existingClonotypes = new HashMap<>();
 
         for (Clonotype clonotype : clonotypeStreamParser) {
             if (top > -1 && sample.getDiversity() == top)
@@ -92,7 +94,19 @@ public class Sample implements ClonotypeContainer {
                     prevCount = count;
                 }
 
-                sample.addClonotype(clonotype, store);
+                Clonotype existing = null;
+
+                if (collapse) {
+                    existing = existingClonotypes.get(clonotype);
+
+                    if (existing != null) {
+                        existing.append(clonotype);
+                    } else {
+                        existingClonotypes.put(clonotype, clonotype);
+                    }
+                }
+
+                sample.addClonotype(clonotype, store, existing);
             }
         }
 
@@ -108,19 +122,22 @@ public class Sample implements ClonotypeContainer {
     public static Sample fromInputStream(InputStream inputStream,
                                          SampleMetadata sampleMetadata,
                                          Software software) {
-        return fromInputStream(inputStream, sampleMetadata, software, -1, true);
+        return fromInputStream(inputStream, sampleMetadata, software, -1, true, false);
     }
 
     private void addClonotype(Clonotype clonotype) {
-        addClonotype(clonotype, true);
+        addClonotype(clonotype, true, null);
     }
 
-    private void addClonotype(Clonotype clonotype, boolean store) {
+    private void addClonotype(Clonotype clonotype, boolean store, Clonotype existingClonotype) {
         count += clonotype.getCount();
-        diversity++;
         frequency += clonotype.getFreqAsInInput();
-        if (store)
-            clonotypes.add(clonotype);
+
+        if (existingClonotype == null) {
+            diversity++;
+            if (store)
+                clonotypes.add(clonotype);
+        }
     }
 
     public SampleMetadata getSampleMetadata() {

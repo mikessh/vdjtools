@@ -103,7 +103,7 @@ public class SampleStreamConnection implements SampleConnection {
     private Sample _load() {
         println "[${new Date()} SampleStreamConnection] Loading sample $sampleMetadata.sampleId"
         def inputStream = inputStreamFactory.create()
-        def sample = Sample.fromInputStream(inputStream, sampleMetadata, software)
+        def sample = Sample.fromInputStream(inputStream, sampleMetadata, software, -1, true, software.collapseRequired)
         println "[${new Date()} SampleStreamConnection] Loaded sample $sampleMetadata.sampleId with " +
                 "$sample.diversity clonotypes and $sample.count cells. " + ExecUtil.memoryFootprint()
         sample
@@ -122,7 +122,7 @@ public class SampleStreamConnection implements SampleConnection {
      */
     @Override
     public Sample haveAGlance() {
-        _sample ?: Sample.fromInputStream(inputStreamFactory.create(), null, software, -1, false)
+        _sample ?: Sample.fromInputStream(inputStreamFactory.create(), null, software, -1, false, false)
     }
 
     @Override
