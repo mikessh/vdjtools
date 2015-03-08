@@ -100,7 +100,9 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
                 splitString[33].toInteger() - 1 - cdr3start,
                 splitString[34].toInteger() - cdr3start,
                 splitString[35].toInteger() - 1 - cdr3start,
-                splitString[36].toInteger() - cdr3start] as int[]
+                splitString[36].toInteger() - cdr3start].collect { it < 0 ? -1 : it } as int[]
+
+
 
         new Clonotype(sample, count, freq,
                 segmPoints, v, d, j,
