@@ -16,6 +16,7 @@
 
 package com.antigenomics.vdjtools.util
 
+import java.util.regex.Pattern
 import java.util.zip.GZIPInputStream
 
 /**
@@ -344,5 +345,53 @@ public class CommonUtil {
             // zap characters introduced by file editing in external software (Excel,etc)
             major.length() > 0 ? major : "."
         }
+    }
+
+    /*
+     * CDR3 mapping & translation
+     */
+
+    final static String CYS_REGEX = /TG[TC]/,
+                        PHE_TRP_REGEX = /(?:TGG|TT[TC])(?:GG[ATGC]|GC[ATGC])...GG[ATGC]/
+
+    private final static J_REF_PATTERN = Pattern.compile(PHE_TRP_REGEX)
+
+    static int getJReferencePoint(String sequence) {
+        def matcher = J_REF_PATTERN.matcher(sequence)
+        matcher.find() ? (matcher.start() - 1) : -1
+    }
+
+    static String translate(String seq) {
+        def aaSeq = ""
+        def oof = seq.size() % 3
+        if (oof > 0) {
+            def mid = (int) (seq.size() / 2)
+            seq = seq.substring(0, mid) + ("?" * (3 - oof)) + seq.substring(mid, seq.length())
+        }
+
+        def leftEnd = -1, rightEnd = -1
+        for (int i = 0; i <= seq.size() - 3; i += 3) {
+            def codon = seq.substring(i, i + 3)
+            if (codon.contains("?")) {
+                leftEnd = i
+                break
+            }
+            aaSeq += codon2aa(codon)
+        }
+
+        if (oof == 0)
+            return aaSeq
+
+        def aaRight = ""
+        for (int i = seq.size(); i >= 3; i -= 3) {
+            def codon = seq.substring(i - 3, i)
+            if (codon.contains("?")) {
+                rightEnd = i
+                break
+            }
+            aaRight += codon2aa(codon)
+        }
+
+        return aaSeq + seq.substring(leftEnd, rightEnd).toLowerCase() + aaRight.reverse()
     }
 }

@@ -16,12 +16,11 @@
 
 package com.antigenomics.vdjtools.imgt
 
-import java.util.regex.Matcher
-import java.util.regex.Pattern
+import static com.antigenomics.vdjtools.util.CommonUtil.getCYS_REGEX
+import static com.antigenomics.vdjtools.util.CommonUtil.getJReferencePoint
 
 class ImgtToMigecParser {
     final static int IMGT_V_REF = 312, IMGT_V_REF_AUX = 318 // Only way to handle the mess
-    final static String CysRegex = /TG[TC]/, PheTrpRegex = /(?:TGG|TT[TC])(?:GG[ATGC]|GC[ATGC])...GG[ATGC]/
     final boolean onlyFunctional, onlyMajorAllele
 
     final List<ImgtRecord> failedVReferencePoint = new ArrayList<>(),
@@ -60,7 +59,7 @@ class ImgtToMigecParser {
         def ref = [IMGT_V_REF, IMGT_V_REF_AUX].find { ref ->
             if (ref <= sequenceWithGaps.length()) {
                 String codon = sequenceWithGaps.substring(ref - 3, ref)
-                return codon =~ CysRegex
+                return codon =~ CYS_REGEX
             }
             false
         }
@@ -75,8 +74,7 @@ class ImgtToMigecParser {
 
     static int getJReferencePoint(ImgtRecord imgtRecord) {
         String sequenceWithoutGaps = sequenceNoGaps(imgtRecord) // just in case
-        Matcher matcher = Pattern.compile(PheTrpRegex).matcher(sequenceWithoutGaps);
-        matcher.find() ? matcher.start() - 1 : -1
+        getJReferencePoint(sequenceWithoutGaps)
     }
 
     MigecSegmentRecord createRecord(ImgtRecord imgtRecord, String gene, String segment, int referencePoint) {
