@@ -29,12 +29,12 @@ enum Software {
                                       "inFrame", "noStop", "complete",
                                       "blank", "blank", "blank",
                                       "blank"]),
-    ImmunoSEQ("immunoSEQ", "\t", null, 1, ["cdr3nt", "cdr3aa", "count", "freq", "cdr3Length",
+    ImmunoSEQ("immunoseq", "\t", null, 1, ["cdr3nt", "cdr3aa", "count", "freq", "cdr3Length",
                                            "blank", "v", "blank", "blank", "blank", "blank", "blank",
                                            "blank", "d", "blank", "blank", "blank", "blank", "blank",
                                            "blank", "j", "blank", "blank", "blank", "blank", "blank",
                                            "blank", "blank", "blank", "blank", "blank", "blank",
-                                           "VEnd", "DStart", "DEnd", "JStart"]),
+                                           "blank", "VEnd", "DStart", "DEnd", "JStart"]),
     Simple("simple", "\t", "#", 0, ["count", "freq", "cdr3nt", "cdr3aa", "v", "d", "j"])
 
     final String name, delimiter, comment
@@ -50,8 +50,9 @@ enum Software {
     }
 
     static Software byName(String name) {
-        name = name.toLowerCase()
-        def software = values().find { it.name == name }
+        def software = values().find {
+            it.name.toLowerCase() == name.toLowerCase()
+        }
         if (!software)
             throw new IllegalArgumentException("Unknown software $name")
         software

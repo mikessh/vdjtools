@@ -72,6 +72,9 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
             case Software.MiGec:
                 parser = new MiGecParser(innerIter, sample)
                 break
+            case Software.ImmunoSEQ:
+                parser = new AdaptiveParser(innerIter, sample)
+                break
             default:
                 throw new UnsupportedOperationException("Don't know how to parse $software data")
         }

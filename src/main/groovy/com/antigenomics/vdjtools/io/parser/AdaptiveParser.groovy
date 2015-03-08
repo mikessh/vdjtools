@@ -31,8 +31,8 @@ class AdaptiveParser extends ClonotypeStreamParser {
     /**
      * {@inheritDoc}
      */
-    public AdaptiveParser(Iterator<String> innerIter, Software software, Sample sample) {
-        super(innerIter, software, sample)
+    public AdaptiveParser(Iterator<String> innerIter, Sample sample) {
+        super(innerIter, Software.ImmunoSEQ, sample)
     }
 
     /**
@@ -60,8 +60,7 @@ class AdaptiveParser extends ClonotypeStreamParser {
              35    | D end                      |
              36    | J start                    |
              37    | unused                     |
-             38    | status                     | In/Out/Stop
-             39+   | unused                     |
+             38+   | unused                     |
              
              - note that there is no "J end" (perhaps due to J segment identification issues), so
               here we use $32 + length($01) * 3
@@ -72,25 +71,36 @@ class AdaptiveParser extends ClonotypeStreamParser {
         def count = splitString[2].toInteger()
         def freq = splitString[3].toDouble()
 
-        def cdr3start = splitString[32].toInteger()
+        // This field is used to extract CDR3 region, as the data contains unprocessed sequences in $00 field.
+        // For data that was already processed by VDJtools, an extracted CDR3 sequence is stored to $00 field
+        // and $32 is set to "." to indicate that no additional CDR3 nucleotide sequence extraction is needed.
+        def cdr3start = splitString[32].isInteger() ?
+                splitString[32].toInteger() :
+                -1
 
         String cdr1nt = null, cdr2nt = null, cdr3nt, cdr1aa = null, cdr2aa = null, cdr3aa
-        cdr3aa = splitString[1]
-        cdr3nt = cdr3aa.length() > 0 ? splitString[0].substring(cdr3start, cdr3start + cdr3aa.length() * 3) : ""
 
+        cdr3nt = splitString[0]
+        cdr3aa = splitString[1]
+
+        if (cdr3start >= 0)
+            cdr3nt = cdr3aa.length() > 0 ? cdr3nt.substring(cdr3start, cdr3start + cdr3aa.length() * 3) : ""
+
+        // todo: find J ref
 
         String v, d, j
         (v, d, j) = CommonUtil.extractVDJ(splitString[[6, 13, 20]])
 
-        def status = splitString[38].toUpperCase()
+        boolean inFrame = cdr3aa.length() > 0, noStop = !cdr3aa.contains("*"), isComplete = cdr3aa.length() > 0
 
-        boolean inFrame = status != "OUT", noStop = status != "STOP", isComplete = cdr3aa.length() > 0
+        // Correctly record segment points
+        cdr3start = cdr3start < 0 ? 0 : cdr3start
 
         def segmPoints = [
-                splitString[33].toInteger() - 1,
-                splitString[34].toInteger(),
-                splitString[35].toInteger() - 1,
-                splitString[36].toInteger()] as int[]
+                splitString[33].toInteger() - 1 - cdr3start,
+                splitString[34].toInteger() - cdr3start,
+                splitString[35].toInteger() - 1 - cdr3start,
+                splitString[36].toInteger() - cdr3start] as int[]
 
         new Clonotype(sample, count, freq,
                 segmPoints, v, d, j,
