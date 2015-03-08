@@ -69,7 +69,7 @@ class ExactEstimatorTest {
         def goodCounter = new HashMap<String, Integer>()
         DiversityEstimator.ESTIMATE_NAMES.each { goodCounter.put(it, 0) }
 
-        def trials = 100
+        def trials = 300
 
         //println DiversityEstimator.HEADER
         for (int i = 0; i < trials; i++) {
@@ -93,7 +93,7 @@ class ExactEstimatorTest {
         goodCounter.each {
             def rate = it.value / (double) trials
             println "Good estimate rate for $it.key is $rate"
-            assert rate >= 0.8
+            assert rate >= 0.7
         }
     }
 }

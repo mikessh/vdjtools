@@ -19,33 +19,41 @@ package com.antigenomics.vdjtools.io
 import com.antigenomics.vdjtools.Software
 import org.junit.Test
 
+import static com.antigenomics.vdjtools.Software.*
 import static com.antigenomics.vdjtools.TestUtil.getResource
 import static com.antigenomics.vdjtools.io.SampleStreamConnection.load
 
 class SampleLoadTest {
-    private static void loadTest(String sampleName, Software software, int count, int diversity) {
-        def sample = load(getResource("samples/${sampleName}.txt.gz"), software)
+    private static void loadTest(Software software, int count, int diversity) {
+        def resStream = getResource("samples/${software.toString().toLowerCase()}.txt.gz")
+        def sample = load(resStream, software)
+        
         assert sample.count == count
         assert sample.diversity == diversity
     }
 
     @Test
     public void mitcrTest() {
-        loadTest("mitcr", Software.MiTcr, 10000, 6493)
+        loadTest(MiTcr, 10000, 6493)
     }
 
     @Test
     public void migecTest() {
-        loadTest("migec", Software.MiGec, 6147, 2420)
+        loadTest(MiGec, 6147, 2420)
     }
 
     @Test
     public void igblastTest() {
-        loadTest("igblast", Software.IgBlast, 8408, 7274)
+        loadTest(IgBlast, 8408, 7274)
     }
 
     @Test
     public void simpleTest() {
-        loadTest("simple", Software.Simple, 11878, 2257)
+        loadTest(Simple, 11878, 2257)
+    }
+
+    @Test
+    public void immunoseqTest() {
+        loadTest(ImmunoSeq, 10000, 2057)
     }
 }
