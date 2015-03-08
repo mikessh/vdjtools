@@ -352,13 +352,16 @@ public class CommonUtil {
      */
 
     final static String CYS_REGEX = /TG[TC]/,
-                        PHE_TRP_REGEX = /(?:TGG|TT[TC])(?:GG[ATGC]|GC[ATGC])...GG[ATGC]/
+                        PHE_TRP_REGEX = /(?:TGG|TT[TC])(?:GG[ATGC]|GC[ATGC])...GG[ATGC]/,
+                        PHE_TRP_SHORT_REGEX = /(?:TGG|TT[TC])(?:GG[ATGC]|GC[ATGC])/
 
-    private final static J_REF_PATTERN = Pattern.compile(PHE_TRP_REGEX)
+    private final static J_REF_PATTERN = Pattern.compile(PHE_TRP_REGEX),
+                         J_REF_SHORT_PATTERN = Pattern.compile(PHE_TRP_SHORT_REGEX)
 
     static int getJReferencePoint(String sequence) {
-        def matcher = J_REF_PATTERN.matcher(sequence)
-        matcher.find() ? (matcher.start() - 1) : -1
+        def matchers = [J_REF_PATTERN, J_REF_SHORT_PATTERN].collect { it.matcher(sequence) }
+        def matcher = matchers.find { it.find() }
+        matcher ? (matcher.start() - 1) : -1
     }
 
     static String translate(String seq) {

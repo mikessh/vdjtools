@@ -83,15 +83,30 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
         cdr3nt = splitString[0]
         cdr3aa = splitString[1]
 
-        if (cdr3start >= 0)
-            cdr3nt = cdr3aa.length() > 0 ? cdr3nt.substring(cdr3start, cdr3start + cdr3aa.length() * 3) : ""
+        def jStart = splitString[36].toInteger()
 
-        // todo: find J ref
+        if (cdr3start >= 0) {
+            if (cdr3aa.length() > 0) {
+                cdr3nt = cdr3nt.substring(cdr3start, cdr3start + cdr3aa.length() * 3) // in-frame
+            } else {
+                // it seems to be hard to get conventional out-of-frame translation here
+                // but we'll try to reconstruct it
+                if (jStart >= 0) {
+                    def jRef = CommonUtil.getJReferencePoint(cdr3nt.substring(jStart))
+                    if (jRef >= 0) {
+                        cdr3nt = cdr3nt.substring(cdr3start, jStart + jRef + 4)
+                        cdr3aa = CommonUtil.translate(cdr3nt)
+                    }
+                }
+            }
+            //cdr3nt = cdr3aa.length() > 0 ? cdr3nt.substring(cdr3start, cdr3start + cdr3aa.length() * 3) : ""
+        }
 
         String v, d, j
         (v, d, j) = CommonUtil.extractVDJ(splitString[[6, 13, 20]])
 
-        boolean inFrame = cdr3aa.length() > 0, noStop = !cdr3aa.contains("*"), isComplete = cdr3aa.length() > 0
+        boolean inFrame = cdr3aa.length() > 0 && cdr3aa.contains("?"),
+                noStop = !cdr3aa.contains("*"), isComplete = cdr3aa.length() > 0
 
         // Correctly record segment points
         cdr3start = cdr3start < 0 ? 0 : cdr3start
@@ -100,9 +115,7 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
                 splitString[33].toInteger() - 1 - cdr3start,
                 splitString[34].toInteger() - cdr3start,
                 splitString[35].toInteger() - 1 - cdr3start,
-                splitString[36].toInteger() - cdr3start].collect { it < 0 ? -1 : it } as int[]
-
-
+                jStart - cdr3start].collect { it < 0 ? -1 : it } as int[]
 
         new Clonotype(sample, count, freq,
                 segmPoints, v, d, j,
