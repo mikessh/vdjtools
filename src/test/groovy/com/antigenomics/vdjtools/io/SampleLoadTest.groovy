@@ -27,7 +27,7 @@ class SampleLoadTest {
     private static void loadTest(Software software, int count, int diversity) {
         def resStream = getResource("samples/${software.toString().toLowerCase()}.txt.gz")
         def sample = load(resStream, software)
-        
+
         assert sample.count == count
         assert sample.diversity == diversity
     }
@@ -55,5 +55,10 @@ class SampleLoadTest {
     @Test
     public void immunoseqTest() {
         loadTest(ImmunoSeq, 10000, 2057)
+    }
+
+    @Test
+    public void imgtTest() {
+        loadTest(ImgtHighVQuest, 9528, 6997)
     }
 }

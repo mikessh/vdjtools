@@ -33,7 +33,7 @@ public class IgBlastParser extends ClonotypeStreamParser {
     /**
      * {@inheritDoc}
      */
-    public IgBlastParser(Iterator<String> innerIter, Sample sample) {
+    protected IgBlastParser(Iterator<String> innerIter, Sample sample) {
         super(innerIter, Software.IgBlast, sample)
     }
 

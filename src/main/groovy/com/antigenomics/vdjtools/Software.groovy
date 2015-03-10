@@ -19,28 +19,33 @@ package com.antigenomics.vdjtools
 enum Software {
     // todo : output mutations
     MiTcr("\t", null, 2, false, false, ["count", "freq",
-                                        "cdr3nt", "blank", "blank", "cdr3aa",
-                                        "blank", "v", "blank", "j", "blank", "d",
+                                        "cdr3nt", _, _, "cdr3aa",
+                                        _, "v", _, "j", _, "d",
                                         "VEnd", "DStart", "DEnd", "JStart"]),
     MiGec("\t", null, 1, false, false, ["count", "freq",
                                         "cdr3nt", "cdr3aa",
                                         "v", "j", "d",
                                         "VEnd", "DStart", "DEnd", "JStart"]),
-    IgBlast("\t", "#", 0, false, false, ["blank", "blank", "count", "freq",
+    IgBlast("\t", "#", 0, false, false, [_, _, "count", "freq",
                                          "cdr1nt", "cdr2nt", "cdr3nt", "cdr1aa", "cdr2aa", "cdr3aa",
                                          "inFrame", "noStop", "complete",
-                                         "blank", "blank", "blank",
-                                         "blank"]),
+                                         4.times { _ }].flatten()),
     ImmunoSeq("\t", null, 1, true, false, ["cdr3nt", "cdr3aa", "count", "freq", "cdr3Length",
-                                           "blank", "v", "blank", "blank", "blank", "blank", "blank",
-                                           "blank", "d", "blank", "blank", "blank", "blank", "blank",
-                                           "blank", "j", "blank", "blank", "blank", "blank", "blank",
-                                           "blank", "blank", "blank", "blank", "blank", "blank",
-                                           "blank", "VEnd", "DStart", "DEnd", "JStart"]),
+                                           _, "v", 5.times { _ },
+                                           _, "d", 5.times { _ },
+                                           _, "j", 5.times { _ },
+                                           6.times { _ },
+                                           _, "VEnd", "DStart", "DEnd", "JStart"].flatten()),
+    ImgtHighVQuest("\t", null, 1, true, true, [3.times { _ }, "v", "j", "d",
+                                     8.times { _ }, "cdr3nt", 48.times { _ }, // comprehensive output
+                                     "VEnd", 12.times { _ }, "DStart", "DEnd", 28.times { _ }, "JStart"
+    ].flatten()),
     Simple("\t", "#", 0, false, false, ["count", "freq",
                                         "cdr3nt", "cdr3aa",
                                         "v", "d", "j",
                                         "VEnd", "DStart", "DEnd", "JStart"])
+
+    static final String _ = "BLANK"
 
     final String delimiter, comment
     final boolean collapseRequired, perReadOutput

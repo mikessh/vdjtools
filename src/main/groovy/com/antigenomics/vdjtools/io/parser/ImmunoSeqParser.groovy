@@ -32,7 +32,7 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
     /**
      * {@inheritDoc}
      */
-    public ImmunoSeqParser(Iterator<String> innerIter, Sample sample) {
+    protected ImmunoSeqParser(Iterator<String> innerIter, Sample sample) {
         super(innerIter, Software.ImmunoSeq, sample)
     }
 

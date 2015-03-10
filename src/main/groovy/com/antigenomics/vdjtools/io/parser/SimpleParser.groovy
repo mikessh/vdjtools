@@ -30,7 +30,7 @@ public class SimpleParser extends ClonotypeStreamParser {
     /**
      * {@inheritDoc}
      */
-    public SimpleParser(Iterator<String> innerIter, Sample sample) {
+    protected SimpleParser(Iterator<String> innerIter, Sample sample) {
         super(innerIter, Software.Simple, sample)
     }
 

@@ -367,6 +367,9 @@ public class CommonUtil {
     final static String OOF_SYMBOLS_POSSIBLE = /([atgc#~\?])+/, OOF_CHAR = "~", STOP_CHAR = "*"
 
     static String translate(String seq) {
+        if (seq.length() == 0)
+            return ""
+
         def aaSeq = ""
         def oof = seq.size() % 3
         if (oof > 0) {

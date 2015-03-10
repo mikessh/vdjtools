@@ -17,8 +17,8 @@
 
 package com.antigenomics.vdjtools.io.parser
 
-import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 
 /**
@@ -78,11 +78,14 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
             case Software.ImmunoSeq:
                 parser = new ImmunoSeqParser(innerIter, sample)
                 break
+            case Software.ImgtHighVQuest:
+                parser = new ImgtHighVQuestParser(innerIter, sample)
+                break
             default:
                 throw new UnsupportedOperationException("Don't know how to parse $software data")
         }
 
-        (0..<software.headerLineCount).each { header.add(innerIter.next()) }
+        (0..<software.headerLineCount).each { parser.header.add(innerIter.next()) }
 
         return parser
     }
@@ -106,14 +109,15 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
             return null
         }
 
-        def clontoype = innerParse(clonotypeString)
+        def clonotype = innerParse(clonotypeString)
 
-        def badFieldMap = ["no_cdr3nt" : missingEntry(clontoype.cdr3nt),
-                           "no_cdr3aa" : missingEntry(clontoype.cdr3aa),
-                           "no_v"      : missingEntry(clontoype.v),
-                           "no_j"      : missingEntry(clontoype.j),
-                           "zero_count": clontoype.count == 0,
-                           "zero_freq" : !software.perReadOutput && clontoype.freqAsInInput == 0]
+        def badFieldMap = clonotype ? ["no_cdr3nt" : missingEntry(clonotype.cdr3nt),
+                                       "no_cdr3aa" : missingEntry(clonotype.cdr3aa),
+                                       "no_v"      : missingEntry(clonotype.v),
+                                       "no_j"      : missingEntry(clonotype.j),
+                                       "zero_count": clonotype.count == 0,
+                                       "zero_freq" : !software.perReadOutput && clonotype.freqAsInInput == 0] :
+                ["bad_line": true]
 
         if (badFieldMap.any { it.value }) {
             if (!printedWarning) {
@@ -128,7 +132,7 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
             return null
         }
 
-        return clontoype
+        return clonotype
     }
 
     /**

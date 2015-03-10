@@ -31,7 +31,7 @@ public class MiGecParser extends ClonotypeStreamParser {
     /**
      * {@inheritDoc}
      */
-    public MiGecParser(Iterator<String> innerIter, Sample sample) {
+    protected MiGecParser(Iterator<String> innerIter, Sample sample) {
         super(innerIter, Software.MiGec, sample)
     }
 
