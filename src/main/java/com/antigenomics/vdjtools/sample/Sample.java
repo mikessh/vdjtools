@@ -116,6 +116,11 @@ public class Sample implements ClonotypeContainer {
         if (!sorted)
             Collections.sort(sample.clonotypes);
 
+        // Re-calculate frequencies for per read storing software
+        if (software.isPerReadOutput())
+            for (Clonotype clonotype : sample)
+                clonotype.recalculateFrequency();
+
         return sample;
     }
 

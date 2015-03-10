@@ -396,6 +396,10 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
         this.freq += other.freq;
     }
 
+    public void recalculateFrequency() {
+        this.freq = getFreq();
+    }
+
     private static final String KEY_SEP = "_",
             MUT_SEP = "|";
 

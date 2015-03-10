@@ -26,6 +26,7 @@ import com.antigenomics.vdjtools.sample.Sample
  * The stream parser is not thread-safe. 
  */
 public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
+    protected final List<String> header = new ArrayList<>()
     protected final Software software
     protected final Iterator<String> innerIter
     protected final Sample sample
@@ -81,7 +82,7 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
                 throw new UnsupportedOperationException("Don't know how to parse $software data")
         }
 
-        (0..<software.headerLineCount).each { innerIter.next() }
+        (0..<software.headerLineCount).each { header.add(innerIter.next()) }
 
         return parser
     }
