@@ -15,13 +15,13 @@
  */
 
 
-
 package com.antigenomics.vdjtools.io.parser
 
-import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
-import com.antigenomics.vdjtools.util.CommonUtil
+
+import static com.antigenomics.vdjtools.util.CommonUtil.*
 
 /**
  * A clonotype parser implementation that handles output from MiGEC software, see
@@ -65,13 +65,13 @@ public class MiGecParser extends ClonotypeStreamParser {
 
         String cdr1nt = null, cdr2nt = null, cdr3nt, cdr1aa = null, cdr2aa = null, cdr3aa
         cdr3nt = splitString[2]
-        cdr3aa = splitString[3]
+        cdr3aa = toUnifiedCdr3Aa(splitString[3])
 
 
         String v, j, d
-        (v, j, d) = CommonUtil.extractVDJ(splitString[4..6])
+        (v, j, d) = extractVDJ(splitString[4..6])
 
-        boolean inFrame = !cdr3aa.contains("?"), noStop = !cdr3aa.contains("*"), isComplete = true
+        boolean inFrame = inFrame(cdr3aa), noStop = noStop(cdr3aa), isComplete = true
 
         def segmPoints = [
                 splitString[7].toInteger(),

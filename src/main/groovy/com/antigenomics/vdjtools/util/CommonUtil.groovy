@@ -364,6 +364,8 @@ public class CommonUtil {
         matcher ? (matcher.start() - 1) : -1
     }
 
+    final static String OOF_SYMBOLS_POSSIBLE = /([atgc#~\?])+/, OOF_CHAR = "~", STOP_CHAR = "*"
+
     static String translate(String seq) {
         def aaSeq = ""
         def oof = seq.size() % 3
@@ -396,5 +398,17 @@ public class CommonUtil {
         }
 
         return aaSeq + seq.substring(leftEnd, rightEnd).toLowerCase() + aaRight.reverse()
+    }
+
+    static String toUnifiedCdr3Aa(String seq) {
+        seq.replaceAll(OOF_SYMBOLS_POSSIBLE, OOF_CHAR)
+    }
+
+    static boolean noStop(String seq) {
+        !(seq.contains(STOP_CHAR))
+    }
+
+    static boolean inFrame(String seq) {
+        !((boolean) (seq =~ OOF_SYMBOLS_POSSIBLE))
     }
 }

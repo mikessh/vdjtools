@@ -17,10 +17,11 @@
 
 package com.antigenomics.vdjtools.io.parser
 
-import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
-import com.antigenomics.vdjtools.util.CommonUtil
+
+import static com.antigenomics.vdjtools.util.CommonUtil.*
 
 /**
  * A clonotype parser implementation that handles Adaptive Biotechnologies (tm) immunoSEQ (tm) assay
@@ -92,10 +93,10 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
                 // it seems to be hard to get conventional out-of-frame translation here
                 // but we'll try to reconstruct it
                 if (jStart >= 0) {
-                    def jRef = CommonUtil.getJReferencePoint(cdr3nt.substring(jStart))
+                    def jRef = getJReferencePoint(cdr3nt.substring(jStart))
                     if (jRef >= 0) {
                         cdr3nt = cdr3nt.substring(cdr3start, jStart + jRef + 4)
-                        cdr3aa = CommonUtil.translate(cdr3nt)
+                        cdr3aa = translate(cdr3nt).replaceAll(/([atgc#\?])+/, "~") // to unified look
                     }
                 }
             }
@@ -103,10 +104,10 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
         }
 
         String v, d, j
-        (v, d, j) = CommonUtil.extractVDJ(splitString[[6, 13, 20]])
+        (v, d, j) = extractVDJ(splitString[[6, 13, 20]])
 
-        boolean inFrame = cdr3aa.length() > 0 && cdr3aa.contains("?"),
-                noStop = !cdr3aa.contains("*"), isComplete = cdr3aa.length() > 0
+        boolean inFrame = cdr3aa.length() > 0 && inFrame(cdr3aa),
+                noStop = noStop(cdr3aa), isComplete = cdr3aa.length() > 0
 
         // Correctly record segment points
         cdr3start = cdr3start < 0 ? 0 : cdr3start

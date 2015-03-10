@@ -113,7 +113,7 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
                            "no_v"      : missingEntry(clontoype.v),
                            "no_j"      : missingEntry(clontoype.j),
                            "zero_count": clontoype.count == 0,
-                           "zero_freq" : clontoype.freqAsInInput == 0]
+                           "zero_freq" : !software.perReadOutput && clontoype.freqAsInInput == 0]
 
         if (badFieldMap.any { it.value }) {
             if (!printedWarning) {
