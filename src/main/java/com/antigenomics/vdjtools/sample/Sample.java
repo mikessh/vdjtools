@@ -16,7 +16,6 @@
 
 package com.antigenomics.vdjtools.sample;
 
-import com.antigenomics.vdjtools.Clonotype;
 import com.antigenomics.vdjtools.ClonotypeContainer;
 import com.antigenomics.vdjtools.Software;
 import com.antigenomics.vdjtools.io.parser.ClonotypeStreamParser;

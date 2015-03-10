@@ -16,7 +16,7 @@
 
 package com.antigenomics.vdjtools.pool;
 
-import com.antigenomics.vdjtools.Clonotype;
+import com.antigenomics.vdjtools.sample.Clonotype;
 
 public class MaxClonotypeAggregatorFactory implements ClonotypeAggregatorFactory<MaxClonotypeAggregator> {
     @Override

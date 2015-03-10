@@ -16,7 +16,7 @@
 
 package com.antigenomics.vdjtools.basic
 
-import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.ExecUtil

@@ -16,7 +16,7 @@
 
 package com.antigenomics.vdjtools.join;
 
-import com.antigenomics.vdjtools.Clonotype;
+import com.antigenomics.vdjtools.sample.Clonotype;
 import com.antigenomics.vdjtools.intersection.IntersectionType;
 import com.antigenomics.vdjtools.join.key.ClonotypeKey;
 import com.antigenomics.vdjtools.sample.Sample;

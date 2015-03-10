@@ -18,7 +18,7 @@ package com.antigenomics.vdjtools.db
 
 import com.antigenomics.vdjdb.core.db.CdrEntry
 import com.antigenomics.vdjdb.core.query.CdrSearchResult
-import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.sample.Clonotype
 import com.milaboratory.core.alignment.Alignment
 import com.milaboratory.core.sequence.AminoAcidSequence
 

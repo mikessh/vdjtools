@@ -16,6 +16,8 @@
 
 package com.antigenomics.vdjtools;
 
+import com.antigenomics.vdjtools.sample.Clonotype;
+
 public interface ClonotypeContainer extends Iterable<Clonotype> {
 
     public double getFreq();

@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools;
+package com.antigenomics.vdjtools.sample;
+
+import com.antigenomics.vdjtools.ClonotypeContainer;
+import com.antigenomics.vdjtools.Countable;
+import com.antigenomics.vdjtools.Mutation;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -391,12 +395,12 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
         return mutations != null ? Collections.unmodifiableSet(mutations) : null;
     }
 
-    public void append(Clonotype other) {
+    void append(Clonotype other) {
         this.count += other.count;
         this.freq += other.freq;
     }
 
-    public void recalculateFrequency() {
+    void recalculateFrequency() {
         this.freq = getFreq();
     }
 

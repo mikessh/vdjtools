@@ -16,6 +16,8 @@
 
 package com.antigenomics.vdjtools
 
+import com.antigenomics.vdjtools.sample.Clonotype
+
 class Mutation {
     final String key, ntString, aaString, region
     final int ntPos, aaPos

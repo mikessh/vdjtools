@@ -16,8 +16,6 @@
 
 package com.antigenomics.vdjtools.sample;
 
-import com.antigenomics.vdjtools.Clonotype;
-
 public class CompositeClonotypeFilter extends ClonotypeFilter {
     private final ClonotypeFilter[] filters;
 

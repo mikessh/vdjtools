@@ -16,8 +16,6 @@
 
 package com.antigenomics.vdjtools.sample;
 
-import com.antigenomics.vdjtools.Clonotype;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;

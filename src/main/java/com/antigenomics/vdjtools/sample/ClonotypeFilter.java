@@ -16,7 +16,6 @@
 
 package com.antigenomics.vdjtools.sample;
 
-import com.antigenomics.vdjtools.Clonotype;
 import com.google.common.util.concurrent.AtomicDouble;
 
 import java.util.concurrent.atomic.AtomicInteger;

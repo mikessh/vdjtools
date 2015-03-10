@@ -16,8 +16,6 @@
 
 package com.antigenomics.vdjtools.sample;
 
-import com.antigenomics.vdjtools.Clonotype;
-
 public class BlankClonotypeFilter extends ClonotypeFilter {
     private BlankClonotypeFilter() {
         super(false);

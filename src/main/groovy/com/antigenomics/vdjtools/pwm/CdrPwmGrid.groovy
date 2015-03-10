@@ -16,7 +16,7 @@
 
 package com.antigenomics.vdjtools.pwm
 
-import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.ClonotypeContainer
 import com.antigenomics.vdjtools.util.CommonUtil
 import com.antigenomics.vdjtools.util.ExecUtil

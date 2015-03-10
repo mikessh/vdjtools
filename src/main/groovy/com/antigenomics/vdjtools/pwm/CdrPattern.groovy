@@ -16,7 +16,7 @@
 
 package com.antigenomics.vdjtools.pwm
 
-import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.sample.Clonotype
 
 import java.util.regex.Pattern
 

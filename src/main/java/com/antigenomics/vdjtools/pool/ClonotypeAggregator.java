@@ -16,7 +16,7 @@
 
 package com.antigenomics.vdjtools.pool;
 
-import com.antigenomics.vdjtools.Clonotype;
+import com.antigenomics.vdjtools.sample.Clonotype;
 import com.antigenomics.vdjtools.Misc;
 
 public abstract class ClonotypeAggregator {

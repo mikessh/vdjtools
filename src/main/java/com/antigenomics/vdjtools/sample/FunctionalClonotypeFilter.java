@@ -16,8 +16,6 @@
 
 package com.antigenomics.vdjtools.sample;
 
-import com.antigenomics.vdjtools.Clonotype;
-
 public class FunctionalClonotypeFilter extends ClonotypeFilter {
     public FunctionalClonotypeFilter(boolean negative) {
         super(negative);

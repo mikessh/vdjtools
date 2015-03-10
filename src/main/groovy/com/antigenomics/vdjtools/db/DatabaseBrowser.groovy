@@ -19,7 +19,7 @@ package com.antigenomics.vdjtools.db
 import com.antigenomics.vdjdb.core.db.CdrDatabase
 import com.antigenomics.vdjdb.core.query.CdrDatabaseSearcher
 import com.antigenomics.vdjdb.core.query.CdrSearchResult
-import com.antigenomics.vdjtools.Clonotype
+import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.util.ExecUtil
 import com.google.common.util.concurrent.AtomicDouble
