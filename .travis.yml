@@ -1,1 +1,6 @@
 language: groovy
+
+install:
+  - git clone https://github.com/mikessh/vdjdb.git
+  - cd vdjdb/
+  - mvn clean install
