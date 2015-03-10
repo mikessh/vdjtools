@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/mikessh/vdjtools.svg?branch=master)](https://travis-ci.org/mikessh/vdjtools)
+
 # VDJ tools
 
 A comprehensive framework for post-analysis of immune repertoire sequencing data.
@@ -13,7 +15,7 @@ git clone https://github.com/mikessh/vdjtools
 cd vdjtools && mvn clean install
 ```
 
-## Prerequisites
+### Prerequisites
 
 The following steps should be performed to compile VDJtools from sources:
 
