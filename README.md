@@ -10,9 +10,22 @@ The software is cross-platform and requires Java v1.7+ to run and R to generate 
 
 ## Documentation
 
-* Wiki: https://github.com/mikessh/vdjtools/wiki
+* See project wiki for detailed documentation: https://github.com/mikessh/vdjtools/wiki
 
 * Examples: in `examples/` folder together with corresponding shell scripts.
+
+* An example snippet to perform rarefaction, Variable segment usage analysis and repertoire clustering for RepSeq samples coming from donors of different ages
+
+```bash
+git clone https://github.com/mikessh/vdjtools-examples
+VDJTOOLS="java -Xmx6G -jar vdjtools-1.0-SNAPSHOT.jar"
+PARAMS="-S mitcr -m ./vdjtools-examples/aging_lite/samples/metadata.txt"
+PLOT_PARAMS="-p -f age -n"
+$VDJTOOLS RarefactionPlot $PARAMS $PLOT_PARAMS ./vdjtools/
+$VDJTOOLS CalcSegmentUsage $PARAMS $PLOT_PARAMS ./vdjtools/
+$VDJTOOLS BatchIntersectPair $PARAMS ./vdjtools/
+$VDJTOOLS BatchIntersectPairPlot $PLOT_PARAMS ./vdjtools/
+```
 
 ## Compiling from source
 
