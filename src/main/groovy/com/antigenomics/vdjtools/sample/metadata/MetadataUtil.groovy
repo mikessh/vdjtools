@@ -22,7 +22,7 @@ import org.apache.commons.io.FilenameUtils
  * Some useful utils for metadata manipulation 
  */
 public class MetadataUtil {
-    private static int sampleCounter = 0
+    private static final Map<String, Integer> sampleHash = new HashMap<>()
 
     /**
      * Converts a file name to sample id 
@@ -42,7 +42,9 @@ public class MetadataUtil {
      * @return sample metadata object assigned to a generic metadata table
      */
     public static SampleMetadata createSampleMetadata(String sampleId) {
-        defaultMetadataTable.createRow((sampleCounter++) + "-" + sampleId, new ArrayList<String>())
+        def idCount = (sampleHash[sampleId] ?: 0) + 1
+        sampleHash.put(sampleId, idCount)
+        defaultMetadataTable.createRow((idCount > 0 ? "$idCount." : "") + sampleId, new ArrayList<String>())
     }
 
     /**
