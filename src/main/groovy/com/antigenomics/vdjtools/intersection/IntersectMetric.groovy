@@ -55,7 +55,15 @@ public enum IntersectMetric {
     /**
      * Jensen-Shannon divergence between spectratypes
      */
-            sJSD("sJSD", None)
+            sJSD("sJSD", None),
+    /**
+     * Jaccard index
+     */
+            Jaccard("Jaccard", None),
+    /**
+     * MorisitaHorn index
+     */
+            MorisitaHorn("MorisitaHorn", None)
 
     public final String shortName
     public final IntersectMetricNormalization normalization

@@ -25,6 +25,8 @@ import com.antigenomics.vdjtools.util.MathUtil
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
+import static com.antigenomics.vdjtools.intersection.IntersectMetric.*
+
 /**
  * A helper class to compute various intersection metrics for joint intersection
  */
@@ -84,23 +86,23 @@ class IntersectionEvaluator {
                                               int i, int j) {
         ExecUtil.report(this, "Computing $metric", VERBOSE)
         switch (metric) {
-            case IntersectMetric.Diversity:
+            case Diversity:
                 def div1 = jointSample.getSample(i).diversity,
                         div2 = jointSample.getSample(j).diversity,
                         div12 = jointSample.getIntersectionDiv(i, j)
                 return div12 / div1 / div2
 
-            case IntersectMetric.Frequency:
+            case Frequency:
                 return Math.sqrt(jointSample.getIntersectionFreq(i, j) * jointSample.getIntersectionFreq(j, i))
 
-            case IntersectMetric.Frequency2:
+            case Frequency2:
                 double F2 = 0;
                 jointSample.each {
                     F2 += Math.sqrt(it.getFreq(i) * it.getFreq(j))
                 }
                 return F2
 
-            case IntersectMetric.Correlation:
+            case Correlation:
                 double R = Double.NaN
 
                 int n = jointSample.getIntersectionDiv(i, j)
@@ -121,22 +123,42 @@ class IntersectionEvaluator {
                 }
                 return R
 
-            case IntersectMetric.vJSD:
+            case Jaccard:
+                def div1 = jointSample.getSample(i).diversity,
+                        div2 = jointSample.getSample(j).diversity,
+                        div12 = jointSample.getIntersectionDiv(i, j)
+                return 1.0 - div12 / (div1 + div2 - div12)
+
+
+            case MorisitaHorn:
+                double xy = 0, Dx = 0, Dy = 0, x, y
+
+                jointSample.each {
+                    x = it.getFreq(i)
+                    y = it.getFreq(j)
+                    xy += x * y
+                    Dx += x * x
+                    Dy += y * y
+                }
+
+                return 1.0 - 2 * xy / (Dx + Dy)
+
+            case vJSD:
                 return MathUtil.JSD(
                         segmentUsage.vUsageVector(0),
                         segmentUsage.vUsageVector(1))
 
-            case IntersectMetric.vjJSD:
+            case vjJSD:
                 return MathUtil.JSD(
                         [segmentUsage.vUsageVector(0).collect(), segmentUsage.jUsageVector(0).collect()].flatten() as double[],
                         [segmentUsage.vUsageVector(1).collect(), segmentUsage.jUsageVector(1).collect()].flatten() as double[])
 
-            case IntersectMetric.vj2JSD:
+            case vj2JSD:
                 return MathUtil.JSD(
                         segmentUsage.vjUsageMatrix(0).collect().flatten() as double[],
                         segmentUsage.vjUsageMatrix(1).collect().flatten() as double[])
 
-            case IntersectMetric.sJSD:
+            case sJSD:
                 return MathUtil.JSD(getSpectratype(i).histogram,
                         getSpectratype(j).histogram)
 
