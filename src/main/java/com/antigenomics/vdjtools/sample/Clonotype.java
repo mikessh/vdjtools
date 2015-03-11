@@ -18,11 +18,8 @@ package com.antigenomics.vdjtools.sample;
 
 import com.antigenomics.vdjtools.ClonotypeContainer;
 import com.antigenomics.vdjtools.Countable;
-import com.antigenomics.vdjtools.Mutation;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import com.antigenomics.vdjtools.join.key.ClonotypeKey;
+import com.antigenomics.vdjtools.join.key.StrictKey;
 
 /**
  * A class holding comprehensive info on a T- or B-cell clonotype.
@@ -32,14 +29,12 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
     private ClonotypeContainer parent;
     private int count;
     private double freq;
-    private final String key;
 
     private final int[] segmPoints;
     private final String v, d, j;
     private final String cdr3nt, cdr3aa;
 
     private final boolean inFrame, isComplete, noStop;
-
 
     /**
      * Creates a new clonotype explicitly setting all fields
@@ -73,14 +68,6 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
         this.inFrame = inFrame;
         this.isComplete = isComplete;
         this.noStop = noStop;
-
-        StringBuilder key = new StringBuilder(v).append(KEY_SEP).
-                append(cdr3nt).append(KEY_SEP).
-                append(j).append(KEY_SEP);
-
-        key.setLength(key.length() - 1);
-
-        this.key = key.toString();
     }
 
     /**
@@ -334,33 +321,33 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
         this.freq = getFreq();
     }
 
-    private static final String KEY_SEP = "_",
-            MUT_SEP = "|";
-
-    /**
-     * Get unique key that is associated with a given clonotype
-     * todo: consider replacing / on-demand computation
-     *
-     * @return clonotype key generated based on Variable segment, Joining segment, CDR3 nucleotide sequence and hypermutations
-     */
-    public String getKey() {
-        return key;
-    }
-
     @Override
     public int compareTo(Clonotype o) {
         return -Integer.compare(this.count, o.count);
     }
 
+
     @Override
     public boolean equals(Object o) {
-        Clonotype that = (Clonotype) o;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        return key.equals(that.key) && parent.equals(that.parent);
+        Clonotype clonotype = (Clonotype) o;
+
+        if (!cdr3nt.equals(clonotype.cdr3nt)) return false;
+        if (!j.equals(clonotype.j)) return false;
+        if (!parent.equals(clonotype.parent)) return false;
+        if (!v.equals(clonotype.v)) return false;
+
+        return true;
     }
 
     @Override
     public int hashCode() {
-        return 31 * parent.hashCode() + key.hashCode();
+        int result = parent.hashCode();
+        result = 31 * result + v.hashCode();
+        result = 31 * result + j.hashCode();
+        result = 31 * result + cdr3nt.hashCode();
+        return result;
     }
 }

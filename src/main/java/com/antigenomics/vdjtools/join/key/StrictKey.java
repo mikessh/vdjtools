@@ -25,11 +25,14 @@ public final class StrictKey extends ClonotypeKey {
 
     @Override
     public boolean equals(Clonotype other) {
-        return clonotype.getKey().equals(other.getKey());
+        return clonotype.getCdr3nt().equals(other.getCdr3nt()) &&
+                clonotype.getV().equals(other.getV()) &&
+                clonotype.getJ().equals(other.getJ());
     }
 
     @Override
     public int hashCode() {
-        return clonotype.getKey().hashCode();
+        return 31 * (clonotype.getCdr3nt().hashCode() * 31 + clonotype.getV().hashCode()) +
+                clonotype.getJ().hashCode();
     }
 }

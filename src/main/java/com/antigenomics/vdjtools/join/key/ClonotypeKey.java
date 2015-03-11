@@ -19,7 +19,6 @@ package com.antigenomics.vdjtools.join.key;
 import com.antigenomics.vdjtools.sample.Clonotype;
 
 public abstract class ClonotypeKey {
-    // todo: optimize memory usage
     protected final Clonotype clonotype;
 
     public ClonotypeKey(Clonotype clonotype) {
