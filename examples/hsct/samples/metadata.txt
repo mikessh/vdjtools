@@ -1,5 +1,0 @@
-#file_name	sample_id	Time post HSCT, months
-4months.txt.gz	4m	4
-10months.txt.gz	10m	10
-37months.txt.gz	37m	37
-minus48months.txt.gz	before	-48
