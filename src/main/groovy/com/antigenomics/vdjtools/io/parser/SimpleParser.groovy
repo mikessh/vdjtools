@@ -44,10 +44,8 @@ public class SimpleParser extends ClonotypeStreamParser {
         def count = splitString[0].toInteger()
         def freq = splitString[1].toDouble()
 
-        String cdr1nt = null, cdr2nt = null, cdr3nt, cdr1aa = null, cdr2aa = null, cdr3aa
-
-        cdr3nt = splitString[2]
-        cdr3aa = toUnifiedCdr3Aa(splitString[3])
+        def cdr3nt = splitString[2]
+        def cdr3aa = toUnifiedCdr3Aa(splitString[3])
 
         String v, d, j
         (v, d, j) = extractVDJ(splitString[4..6])
@@ -63,9 +61,7 @@ public class SimpleParser extends ClonotypeStreamParser {
 
         new Clonotype(sample, count, freq,
                 segmPoints, v, d, j,
-                cdr1nt, cdr2nt, cdr3nt,
-                cdr1aa, cdr2aa, cdr3aa,
-                inFrame, noStop, isComplete,
-                null)
+                cdr3nt, cdr3aa,
+                inFrame, noStop, isComplete)
     }
 }

@@ -79,10 +79,8 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
                 splitString[32].toInteger() :
                 -1
 
-        String cdr1nt = null, cdr2nt = null, cdr3nt, cdr1aa = null, cdr2aa = null, cdr3aa
-
-        cdr3nt = splitString[0]
-        cdr3aa = splitString[1]
+        def cdr3nt = splitString[0]
+        def cdr3aa = splitString[1]
 
         def jStart = splitString[36].toInteger()
 
@@ -120,9 +118,7 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
 
         new Clonotype(sample, count, freq,
                 segmPoints, v, d, j,
-                cdr1nt, cdr2nt, cdr3nt,
-                cdr1aa, cdr2aa, cdr3aa,
-                inFrame, noStop, isComplete,
-                new HashSet<>())
+                cdr3nt, cdr3aa,
+                inFrame, noStop, isComplete)
     }
 }

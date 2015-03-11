@@ -15,13 +15,11 @@
  */
 
 
-
-
 package com.antigenomics.vdjtools.io.parser
 
-import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.Mutation
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.util.CommonUtil
 
@@ -61,9 +59,7 @@ public class IgBlastParser extends ClonotypeStreamParser {
 
         def count = splitString[2].toInteger()
         def freq = splitString[3].toDouble()
-
-        String cdr1nt, cdr2nt, cdr3nt, cdr1aa, cdr2aa, cdr3aa
-        (cdr1nt, cdr2nt, cdr3nt, cdr1aa, cdr2aa, cdr3aa) = splitString[4..9]
+        def cdr3nt = splitString[6], cdr3aa = splitString[9]
 
         String v, d, j
         (v, d, j) = CommonUtil.extractVDJ(splitString[13..15])
@@ -71,20 +67,16 @@ public class IgBlastParser extends ClonotypeStreamParser {
         boolean inFrame, noStop, isComplete
         (inFrame, noStop, isComplete) = splitString[10..12].collect { it.toBoolean() }
 
-        def mutations = new HashSet<Mutation>()
-
         def clonotype = new Clonotype(sample,
                 count, freq,
                 [-1, -1, -1, -1] as int[], v, d, j,
-                cdr1nt, cdr2nt, cdr3nt,
-                cdr1aa, cdr2aa, cdr3aa,
-                inFrame, noStop, isComplete,
-                mutations)
+                cdr3nt, cdr3aa,
+                inFrame, noStop, isComplete)
 
-        if (splitString[19] != ".")
-            mutations.addAll(splitString[19].split("\\|").collect { String mutString ->
-                parseIgBlastMutation(mutString, clonotype)
-            })
+        //if (splitString[19] != ".")
+        //    mutations.addAll(splitString[19].split("\\|").collect { String mutString ->
+        //        parseIgBlastMutation(mutString, clonotype)
+        //    })
 
         return clonotype
     }

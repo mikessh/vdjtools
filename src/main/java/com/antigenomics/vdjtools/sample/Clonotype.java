@@ -36,12 +36,10 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
 
     private final int[] segmPoints;
     private final String v, d, j;
-    private final String cdr1nt, cdr2nt, cdr3nt,
-            cdr1aa, cdr2aa, cdr3aa;
+    private final String cdr3nt, cdr3aa;
 
     private final boolean inFrame, isComplete, noStop;
 
-    private final Set<Mutation> mutations;
 
     /**
      * Creates a new clonotype explicitly setting all fields
@@ -53,23 +51,16 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
      * @param v          Variable segment identifier
      * @param d          Diversity segment identifier
      * @param j          Joining segment identifier
-     * @param cdr1nt     nucleotide sequence of CDR1
-     * @param cdr2nt     nucleotide sequence of CDR2
      * @param cdr3nt     nucleotide sequence of CDR3
-     * @param cdr1aa     amino acid sequence of CDR1
-     * @param cdr2aa     amino acid sequence of CDR2
      * @param cdr3aa     amino acid sequence of CDR3
      * @param inFrame    tells if this clonotype is in frame, i.e. it's sequence doesn't contain frameshifts
      * @param noStop     tells if the sequence of this clonotype doesn't contain any stop codon
      * @param isComplete tells if this clonotype is complete, i.e. CDR3 sequence for this clonotype is completely determined
-     * @param mutations  a set of mutations in the Variable region that is associated with this clonotype
      */
     public Clonotype(ClonotypeContainer parent, int count, double freq,
                      int[] segmPoints, String v, String d, String j,
-                     String cdr1nt, String cdr2nt, String cdr3nt,
-                     String cdr1aa, String cdr2aa, String cdr3aa,
-                     boolean inFrame, boolean noStop, boolean isComplete,
-                     Set<Mutation> mutations) {
+                     String cdr3nt, String cdr3aa,
+                     boolean inFrame, boolean noStop, boolean isComplete) {
         this.parent = parent;
         this.count = count;
         this.freq = freq;
@@ -77,25 +68,15 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
         this.v = v;
         this.d = d;
         this.j = j;
-        this.cdr1nt = cdr1nt;
-        this.cdr2nt = cdr2nt;
         this.cdr3nt = cdr3nt;
-        this.cdr1aa = cdr1aa;
-        this.cdr2aa = cdr2aa;
         this.cdr3aa = cdr3aa;
         this.inFrame = inFrame;
         this.isComplete = isComplete;
         this.noStop = noStop;
-        this.mutations = mutations;
 
         StringBuilder key = new StringBuilder(v).append(KEY_SEP).
                 append(cdr3nt).append(KEY_SEP).
                 append(j).append(KEY_SEP);
-
-        if (mutations != null)
-            for (Mutation mutation : mutations) {
-                key.append(mutation.getNtString()).append(MUT_SEP);
-            }
 
         key.setLength(key.length() - 1);
 
@@ -131,14 +112,8 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
     public Clonotype(Clonotype toCopy, ClonotypeContainer newParent, int newCount) {
         this(newParent, newCount, toCopy.freq,
                 toCopy.segmPoints, toCopy.v, toCopy.d, toCopy.j,
-                toCopy.cdr1nt, toCopy.cdr2nt, toCopy.cdr3nt,
-                toCopy.cdr1aa, toCopy.cdr2aa, toCopy.cdr3aa,
-                toCopy.inFrame, toCopy.noStop, toCopy.isComplete,
-                toCopy.mutations != null ? new HashSet<Mutation>() : null);
-
-        if (toCopy.mutations != null)
-            for (Mutation mutation : toCopy.mutations)
-                mutations.add(mutation.reassignParent(this));
+                toCopy.cdr3nt, toCopy.cdr3aa,
+                toCopy.inFrame, toCopy.noStop, toCopy.isComplete);
     }
 
     /**
@@ -196,48 +171,12 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
     }
 
     /**
-     * Gets the nucleotide sequence of CDR1 region of this clonotype
-     *
-     * @return
-     */
-    public String getCdr1nt() {
-        return cdr1nt;
-    }
-
-    /**
-     * Gets the nucleotide sequence of CDR2 region of this clonotype
-     *
-     * @return
-     */
-    public String getCdr2nt() {
-        return cdr2nt;
-    }
-
-    /**
      * Gets the nucleotide sequence of CDR3 region of this clonotype
      *
      * @return
      */
     public String getCdr3nt() {
         return cdr3nt;
-    }
-
-    /**
-     * Gets the amino acid sequence of CDR1 region of this clonotype
-     *
-     * @return
-     */
-    public String getCdr1aa() {
-        return cdr1aa;
-    }
-
-    /**
-     * Gets the amino acid sequence of CDR2 region of this clonotype
-     *
-     * @return
-     */
-    public String getCdr2aa() {
-        return cdr2aa;
     }
 
     /**
@@ -384,15 +323,6 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
      */
     public ClonotypeContainer getParent() {
         return parent;
-    }
-
-    /**
-     * Get the set of B-cell receptor hypermutations
-     *
-     * @return an immutable set of sample mutations, or {@code null} if mutations are not defined
-     */
-    public Set<Mutation> getMutations() {
-        return mutations != null ? Collections.unmodifiableSet(mutations) : null;
     }
 
     void append(Clonotype other) {

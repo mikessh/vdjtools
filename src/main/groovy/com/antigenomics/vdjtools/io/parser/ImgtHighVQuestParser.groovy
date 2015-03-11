@@ -47,10 +47,8 @@ class ImgtHighVQuestParser extends ClonotypeStreamParser {
                 splitString[60].toInteger() :
                 -1 // this is called "junction start" here. Junction = CDR3 + conserved C, F/W
 
-        String cdr1nt = null, cdr2nt = null, cdr3nt, cdr1aa = null, cdr2aa = null, cdr3aa
-
-        cdr3nt = splitString[15].toUpperCase()
-        cdr3aa = toUnifiedCdr3Aa(translate(cdr3nt))
+        def cdr3nt = splitString[15].toUpperCase()
+        def cdr3aa = toUnifiedCdr3Aa(translate(cdr3nt))
 
         String v, d, j
         (v, j, d) = extractVDJ(splitString[3..5]).collect {
@@ -76,9 +74,7 @@ class ImgtHighVQuestParser extends ClonotypeStreamParser {
 
         new Clonotype(sample, count, freq,
                 segmPoints, v, d, j,
-                cdr1nt, cdr2nt, cdr3nt,
-                cdr1aa, cdr2aa, cdr3aa,
-                inFrame, noStop, isComplete,
-                new HashSet<>())
+                cdr3nt, cdr3aa,
+                inFrame, noStop, isComplete)
     }
 }
