@@ -22,6 +22,8 @@ import org.apache.commons.io.FilenameUtils
  * Some useful utils for metadata manipulation 
  */
 public class MetadataUtil {
+    private static int sampleCounter = 0
+
     /**
      * Converts a file name to sample id 
      * @param fileName file name to convert
@@ -40,7 +42,7 @@ public class MetadataUtil {
      * @return sample metadata object assigned to a generic metadata table
      */
     public static SampleMetadata createSampleMetadata(String sampleId) {
-        defaultMetadataTable.createRow(sampleId, new ArrayList<String>())
+        defaultMetadataTable.createRow((sampleCounter++) + "-" + sampleId, new ArrayList<String>())
     }
 
     /**
