@@ -78,6 +78,11 @@ class DistanceMeasureTest {
                 def val1 = smallIntersection.getMetricValue(it),
                     val2 = largeIntersection.getMetricValue(it),
                     val3 = selfIntersection.getMetricValue(it)
+                
+                // check values
+                checkMetricValue(it, val1)
+                checkMetricValue(it, val2)
+                checkMetricValue(it, val3)
 
                 // Assure that distance has decreased
                 // Note that due to the scaling used in diversity measure (overlap size / (sample1 size * sample2 size))
@@ -91,11 +96,6 @@ class DistanceMeasureTest {
 
                 // self intersection is always the closest one
                 assert it.normalization.normalize(val2) > it.normalization.normalize(val3)
-
-                // check values
-                checkMetricValue(it, val1)
-                checkMetricValue(it, val2)
-                checkMetricValue(it, val3)
             }
         }
     }
