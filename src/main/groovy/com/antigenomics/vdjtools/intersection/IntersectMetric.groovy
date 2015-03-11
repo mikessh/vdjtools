@@ -27,7 +27,7 @@ public enum IntersectMetric {
     /**
      * Correlation between sample frequencies of _overlapping_ clonotypes
      */
-    /*   */ Correlation("R", Correlation),
+    /*   */ Correlation("R", R),
     /**
      * Ratio of observed to expected numbers of unique overlapping clonotypes, {@code div12 / div1 / div2}
      */

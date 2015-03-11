@@ -28,7 +28,7 @@ public enum IntersectMetricNormalization {
     /**
      * Correlation metrics, normalized as {@code ( 1 - x ) /2}.
      */
-            Correlation(1),
+            R(1),
     /**
      * Metrics for which normalization is not required.
      */
@@ -52,7 +52,7 @@ public enum IntersectMetricNormalization {
         switch (this) {
             case NegLog:
                 return -Math.log10(x + 1e-9)
-            case Correlation:
+            case R:
                 return (1.0 - x) / 2
         }
         x

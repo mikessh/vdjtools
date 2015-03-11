@@ -15,7 +15,6 @@
  */
 
 
-
 package com.antigenomics.vdjtools.intersection
 
 import com.antigenomics.vdjtools.join.JointSample
@@ -107,6 +106,18 @@ public class PairedIntersection {
      * Intersects a pair of samples and stores all results.
      * Will load both samples into memory for the initialization step.
      * Pre-computes all intersection metrics.
+     * @param sample1 first sample to be intersected.
+     * @param sample2 second sample to be intersected.
+     * @param intersectionType clonotype matching rule
+     */
+    public PairedIntersection(Sample sample1, Sample sample2, IntersectionType intersectionType) {
+        this(new SamplePair(sample1, sample2), intersectionType, false)
+    }
+
+    /**
+     * Intersects a pair of samples and stores all results.
+     * Will load both samples into memory for the initialization step.
+     * Pre-computes all intersection metrics.
      * @param samplePair an object holding samples to be intersected
      * @param intersectionType clonotype matching rule
      */
@@ -179,7 +190,7 @@ public class PairedIntersection {
      */
     public double getMetricValue(IntersectMetric intersectMetric) {
         def value = intersectMetricCache[intersectMetric]
-        if (!value) {
+        if (value == null) {
             if (!store)
                 throw new Exception("Cannot provided value for ${intersectMetric.shortName} as " +
                         "\$store=false and the value is not precomputed")
@@ -350,6 +361,16 @@ public class PairedIntersection {
          OUTPUT_FIELDS.collect(), intersectMetrics.collect { it.shortName },
          header1, header2].flatten().join("\t")
     }
+
+    /**
+     * Generic header string
+     */
+    public static String HEADER =
+            ["#1_$MetadataTable.GENERIC_METADATA_TABLE.SAMPLE_ID_COLUMN",
+             "2_$MetadataTable.GENERIC_METADATA_TABLE.SAMPLE_ID_COLUMN",
+             OUTPUT_FIELDS.collect(), IntersectMetric.collect { it.shortName },
+             MetadataTable.GENERIC_METADATA_TABLE.columnHeader1,
+             MetadataTable.GENERIC_METADATA_TABLE.columnHeader2].flatten().join("\t")
 
     /**
      * Plain text row for tabular output
