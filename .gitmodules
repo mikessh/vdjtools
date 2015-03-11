@@ -1,0 +1,3 @@
+[submodule "examples"]
+	path = examples
+	url = https://mikessh@github.com/mikessh/vdjtools-examples.git
