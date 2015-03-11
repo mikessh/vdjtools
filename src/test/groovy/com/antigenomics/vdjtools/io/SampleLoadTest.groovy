@@ -59,6 +59,6 @@ class SampleLoadTest {
 
     @Test
     public void imgtTest() {
-        loadTest(ImgtHighVQuest, 9528, 6997)
+        loadTest(ImgtHighVQuest, 9681, 7199)
     }
 }

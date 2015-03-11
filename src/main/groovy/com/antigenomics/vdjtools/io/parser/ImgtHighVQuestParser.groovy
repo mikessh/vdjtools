@@ -19,10 +19,8 @@ package com.antigenomics.vdjtools.io.parser
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
-import com.antigenomics.vdjtools.util.CommonUtil
 
-import static com.antigenomics.vdjtools.util.CommonUtil.inFrame
-import static com.antigenomics.vdjtools.util.CommonUtil.noStop
+import static com.antigenomics.vdjtools.util.CommonUtil.*
 
 class ImgtHighVQuestParser extends ClonotypeStreamParser {
     /**
@@ -45,24 +43,32 @@ class ImgtHighVQuestParser extends ClonotypeStreamParser {
         def count = 1
         def freq = 0
 
-        def cdr3start = splitString[58].isInteger() ?
-                splitString[58].toInteger() :
-                -1
+        def cdr3start = splitString[60].isInteger() ?
+                splitString[60].toInteger() :
+                -1 // this is called "junction start" here. Junction = CDR3 + conserved C, F/W
 
         String cdr1nt = null, cdr2nt = null, cdr3nt, cdr1aa = null, cdr2aa = null, cdr3aa
 
-        cdr3nt = splitString[14]
-        cdr3aa = CommonUtil.translate(cdr3nt)
+        cdr3nt = splitString[15].toUpperCase()
+        cdr3aa = toUnifiedCdr3Aa(translate(cdr3nt))
 
         String v, d, j
-        (v, d, j) = CommonUtil.extractVDJ(splitString[3..5])
+        (v, j, d) = extractVDJ(splitString[3..5]).collect {
+            def splitRecord = it.split(" ")
+            splitRecord.length > 1 ? splitRecord[1] : splitRecord[0]
+        }
 
 
         def segmPoints = [
-                splitString[58],
+                splitString[63],
                 splitString[76],
                 splitString[77],
-                splitString[106]].collect { it.isInteger() ? (it.toInteger() - cdr3start) : -1 } as int[]
+                splitString[106]
+        ].collect {
+            it.isInteger() ? (it.toInteger() - cdr3start) : -1 // subtract cdr3start
+        }.collect {
+            (it >= 0 && it < cdr3nt.length()) ? it : -1 // sometimes segment bounds appear out of junction region
+        } as int[]
 
         boolean inFrame = inFrame(cdr3aa),
                 noStop = noStop(cdr3aa), isComplete = cdr3aa.length() > 0

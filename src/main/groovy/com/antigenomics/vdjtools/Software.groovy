@@ -37,7 +37,7 @@ enum Software {
                                            6.times { _ },
                                            _, "VEnd", "DStart", "DEnd", "JStart"].flatten()),
     ImgtHighVQuest("\t", null, 1, true, true, [3.times { _ }, "v", "j", "d",
-                                     8.times { _ }, "cdr3nt", 48.times { _ }, // comprehensive output
+                                     9.times { _ }, "cdr3nt", 47.times { _ }, // comprehensive output
                                      "VEnd", 12.times { _ }, "DStart", "DEnd", 28.times { _ }, "JStart"
     ].flatten()),
     Simple("\t", "#", 0, false, false, ["count", "freq",
