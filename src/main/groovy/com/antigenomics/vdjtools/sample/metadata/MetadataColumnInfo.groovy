@@ -19,19 +19,19 @@
 package com.antigenomics.vdjtools.sample.metadata
 
 /**
- * An object containing general information for a metadata column
+ * An object containing general information for a metadata column.
  */
 public class MetadataColumnInfo {
     private final MetadataColumnType metadataColumnType
     private final int numericSamples, factorSamples
-    private final Set<MetadataEntry> uniqueEntries = new HashSet<>()
+    private final Set<MetadataEntry> _uniqueEntries = new HashSet<>()
     private final String columnId
     private final MetadataTable parent
 
     /**
-     * Generates an info for a specified column of metadata table
-     * @param table metadata table
-     * @param columnId id of column to summarize
+     * Generates an info for a specified column of metadata table.
+     * @param table metadata table.
+     * @param columnId id of column to summarize.
      */
     public MetadataColumnInfo(MetadataTable table, String columnId) {
         this.parent = table
@@ -42,7 +42,7 @@ public class MetadataColumnInfo {
                 numericSamples++
             else
                 factorSamples++
-            this.uniqueEntries.add(it) // getter/member mess in groovy
+            this._uniqueEntries.add(it) // getter/member mess in groovy
         }
 
         if (factorSamples > 0) {
@@ -58,48 +58,48 @@ public class MetadataColumnInfo {
     }
 
     /**
-     * Gets the type of metadata column 
-     * @return numeric , semi-numeric or factor, depending on column content
+     * Gets the type of metadata column.
+     * @return numeric, semi-numeric or factor, depending on column content.
      */
     public MetadataColumnType getMetadataColumnType() {
         metadataColumnType
     }
 
     /**
-     * Gets the number of numeric samples 
-     * @return number of samples that have a numeric value in a given metadata column
+     * Gets the number of numeric samples.
+     * @return number of samples that have a numeric value in a given metadata column.
      */
     public int getNumericSamples() {
         numericSamples
     }
 
     /**
-     * Gets the number of factor samples 
-     * @return number of samples that have a non-numeric value in a given metadata column
+     * Gets the number of factor samples.
+     * @return number of samples that have a non-numeric value in a given metadata column.
      */
     public int getFactorSamples() {
         factorSamples
     }
 
     /**
-     * Gets the set of unique entries 
-     * @return and unmodifiable set contaiting unique column values 
+     * Gets the set of unique entries.
+     * @return and unmodifiable set contaiting unique column values.
      */
     public Set<MetadataEntry> getUniqueEntries() {
-        Collections.unmodifiableSet(uniqueEntries)
+        Collections.unmodifiableSet(_uniqueEntries)
     }
 
     /**
-     * Gets the column id 
-     * @return id of metadata column
+     * Gets the column id.
+     * @return id of metadata column.
      */
     public String getColumnId() {
         columnId
     }
 
     /**
-     * Gets parent table
-     * @return parent metadata table
+     * Gets parent table.
+     * @return parent metadata table.
      */
     public MetadataTable getParent() {
         parent
@@ -110,6 +110,6 @@ public class MetadataColumnInfo {
         "Info($columnId):\n" +
                 "columnType=$metadataColumnType;\n" +
                 "numericSamples=$numericSamples,factorSamples=$factorSamples;\n" +
-                "uniqueEntries=${uniqueEntries.join(",")}"
+                "uniqueEntries=${_uniqueEntries.join(",")}"
     }
 }
