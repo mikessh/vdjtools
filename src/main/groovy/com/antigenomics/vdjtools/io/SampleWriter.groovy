@@ -49,7 +49,7 @@ public class SampleWriter {
     public SampleWriter(Software software, boolean compress) {
         this.software = software
         this.header = (software.headerLineCount > 1 ?
-                "$software.name-header-blank\n" * (software.headerLineCount - 1) : "") +
+                "${software.name()}-header-blank\n" * (software.headerLineCount - 1) : "") +
                 (software.comment ?: "") +
                 software.printFields.join("\t")
         this.compress = compress
