@@ -161,7 +161,7 @@ public class SampleWriter {
 
         def sampleIndices = (0..<jointSample.numberOfSamples)
 
-        printWriter.println(header + "\tpeak\t" +
+        printWriter.println(header + "\tpeak\toccurences\t" +
                 sampleIndices.collect { jointSample.getSample(it).sampleMetadata.sampleId }.join("\t"))
 
         double collapsedMeanFreq = 0.0
@@ -188,6 +188,7 @@ public class SampleWriter {
                             clonotype."$it"
                     },
                      jointClonotype.peak,
+                     jointClonotype.occurences,
                      sampleIndices.collect { int j ->
                          jointClonotype.getFreq(j)
                      }].flatten().join("\t"))
@@ -209,6 +210,7 @@ public class SampleWriter {
                             "NotShown"
                     },
                      collapsedFreqArr.findIndexOf { it == collapsedFreqArr.max() },
+                     collapsedFreqArr.findAll { it > 0 }.sum(),
                      collapsedFreqArr
                     ].flatten().join("\t"))
         }
@@ -227,6 +229,7 @@ public class SampleWriter {
                         "NonOverlapping"
                 },
                  nonOverlappingFreqArr.findIndexOf { it == nonOverlappingFreqArr.max() },
+                 nonOverlappingFreqArr.findAll { it > 0 }.sum(),
                  nonOverlappingFreqArr
                 ].flatten().join("\t"))
 

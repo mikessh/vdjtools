@@ -16,8 +16,8 @@
 
 package com.antigenomics.vdjtools.join;
 
-import com.antigenomics.vdjtools.sample.Clonotype;
 import com.antigenomics.vdjtools.Misc;
+import com.antigenomics.vdjtools.sample.Clonotype;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -26,7 +26,7 @@ public class JointClonotype implements Comparable<JointClonotype> {
     private final JointSample parent;
     private final List[] variantsBySample;
     private final int[] counts;
-    private int peak = -1;
+    private int peak = -1, occurences = -1;
     private Clonotype representative = null;
     private double meanFreq = -1;
 
@@ -70,6 +70,17 @@ public class JointClonotype implements Comparable<JointClonotype> {
             }
         }
         return parent.getIndex(peak);
+    }
+
+    public int getOccurences() {
+        if (occurences < 0) {
+            occurences = 0;
+            for (int i = 0; i < counts.length; i++) {
+                if (present(i))
+                    occurences++;
+            }
+        }
+        return occurences;
     }
 
     public Clonotype getRepresentative() {
