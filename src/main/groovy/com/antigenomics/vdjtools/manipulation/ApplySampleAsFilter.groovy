@@ -31,7 +31,7 @@ import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 def I_TYPE_DEFAULT = "strict"
-def cli = new CliBuilder(usage: "ApplySampleAsFilter [options] filter_sample " +
+def cli = new CliBuilder(usage: "ApplySampleAsFilter [options] " +
         "[sample1 sample2 ... if not -m] filter_sample output_prefix")
 cli.h("display help message")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
@@ -43,7 +43,10 @@ cli.i(longOpt: "intersect-type", argName: "string", args: 1,
                 "Will use '$I_TYPE_DEFAULT' by default.")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
-cli.n(longOpt: "negative", "Will report clonotypes present in filter_sample. The default action is to remove them")
+cli.S2(longOpt: "software2", argName: "string", args: 1,
+        "Software format for filter sample. If not set, -S is used.")
+cli.n(longOpt: "negative", "Will report clonotypes that are not present in filter_sample. " +
+        "The default action is to retain only them.")
 cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
@@ -79,7 +82,8 @@ def filterFileName = opt.arguments()[-2],
 
 // Parameters
 
-def software = Software.byName(opt.S), intersectionType = IntersectionType.getByShortName((opt.i ?: I_TYPE_DEFAULT)),
+def software = Software.byName(opt.S), software2 = opt.S2 ? Software.byName(opt.S2) : software,
+    intersectionType = IntersectionType.getByShortName((opt.i ?: I_TYPE_DEFAULT)),
     negative = (boolean) opt.n
 
 if (!intersectionType) {
@@ -100,7 +104,7 @@ def sampleCollection = metadataFileName ?
 
 println "[${new Date()} $scriptName] Loading filter sample"
 
-def filterSample = SampleFileConnection.load(filterFileName, software)
+def filterSample = SampleFileConnection.load(filterFileName, software2)
 
 def clonotypeFilter = new IntersectionClonotypeFilter(intersectionType, filterSample, negative)
 

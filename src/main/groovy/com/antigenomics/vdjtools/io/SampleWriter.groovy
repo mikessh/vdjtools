@@ -34,7 +34,7 @@ public class SampleWriter {
 
     /**
      * Creates a sample writer capable to output samples in plain-text files according to specified software format 
-     * @param software table layour that will be used during output
+     * @param software table layout that will be used during output
      */
     public SampleWriter(Software software) {
         this(software, false)
@@ -43,7 +43,7 @@ public class SampleWriter {
     /**
      * Creates a sample writer capable to output samples in plain-text files according to specified software format.
      * Will compress the resulting output file if {@code compress = true} and append ".gz" to the file name.
-     * @param software table layour that will be used during output
+     * @param software table layout that will be used during output
      * @param compress specifies whether to compress resulting output file
      */
     public SampleWriter(Software software, boolean compress) {

@@ -64,6 +64,7 @@ def printHelp = {
     println "Decontaminate"
     println "FilterBySegment"
     println "Convert"
+    println "PoolSamples"
     println ""
     println "[Annotation]"
     println "ScanDatabase"
@@ -114,6 +115,8 @@ def getScript = { String scriptName ->
             return new FilterBySegment()
         case "CONVERT":
             return new Convert()
+        case "POOLSAMPLES":
+            return new PoolSamples()
         case "RINSTALL":
             return new RInstall()
         case "-H":

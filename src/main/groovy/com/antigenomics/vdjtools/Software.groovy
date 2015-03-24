@@ -45,7 +45,7 @@ enum Software {
                                         "v", "d", "j",
                                         "VEnd", "DStart", "DEnd", "JStart"])
 
-    static final String _ = "BLANK"
+    static final String _ = "blank"
 
     final String delimiter, comment
     final boolean collapseRequired, perReadOutput
