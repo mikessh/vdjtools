@@ -16,13 +16,14 @@
 
 package com.antigenomics.vdjtools.join;
 
+import com.antigenomics.vdjtools.ClonotypeWrapper;
 import com.antigenomics.vdjtools.Misc;
 import com.antigenomics.vdjtools.sample.Clonotype;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class JointClonotype implements Comparable<JointClonotype> {
+public class JointClonotype implements Comparable<JointClonotype>, ClonotypeWrapper {
     private final JointSample parent;
     private final List[] variantsBySample;
     private final int[] counts;
@@ -83,7 +84,8 @@ public class JointClonotype implements Comparable<JointClonotype> {
         return occurences;
     }
 
-    public Clonotype getRepresentative() {
+    @Override
+    public Clonotype getClonotype() {
         if (representative == null) {
             int max = 0;
             getPeak();

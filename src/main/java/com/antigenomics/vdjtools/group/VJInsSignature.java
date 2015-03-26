@@ -18,8 +18,8 @@ package com.antigenomics.vdjtools.group;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
 
-public class VJLenSignature extends GroupSignature {
-    public VJLenSignature(Clonotype parent) {
+public class VJInsSignature extends GroupSignature {
+    public VJInsSignature(Clonotype parent) {
         super(parent);
     }
 
@@ -31,22 +31,22 @@ public class VJLenSignature extends GroupSignature {
         return parent.getJ();
     }
 
-    public int getCdr3Length() {
-        return parent.getCdr3Length();
+    public int getInsertSize() {
+        return parent.getInsertSize();
     }
 
     @Override
     public int hashCode() {
         return 31 * (getV().hashCode() +
                 31 * getJ().hashCode()) +
-                getCdr3Length();
+                getInsertSize();
     }
 
     @Override
     public boolean equals(Object o) {
-        VJLenSignature key = (VJLenSignature) o;
+        VJInsSignature key = (VJInsSignature) o;
         return getV().equals(key.getV()) &&
                 getJ().equals(key.getJ()) &&
-                getCdr3Length() == key.getCdr3Length();
+                getInsertSize() == key.getInsertSize();
     }
 }

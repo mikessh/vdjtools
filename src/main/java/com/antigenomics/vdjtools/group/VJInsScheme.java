@@ -18,9 +18,9 @@ package com.antigenomics.vdjtools.group;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
 
-public class VJLenScheme implements GroupingScheme<VJLenSignature> {
+public class VJInsScheme implements GroupingScheme<VJInsSignature> {
     @Override
-    public VJLenSignature getSignature(Clonotype parent) {
-        return new VJLenSignature(parent);
+    public VJInsSignature getSignature(Clonotype parent) {
+        return new VJInsSignature(parent);
     }
 }

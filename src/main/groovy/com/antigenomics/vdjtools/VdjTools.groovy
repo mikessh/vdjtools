@@ -18,7 +18,9 @@
 package com.antigenomics.vdjtools
 
 import com.antigenomics.vdjtools.basic.*
+import com.antigenomics.vdjtools.compare.PoolSamples
 import com.antigenomics.vdjtools.db.ScanDatabase
+import com.antigenomics.vdjtools.compare.Enrichment
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.PlotQuantileStats
 import com.antigenomics.vdjtools.diversity.RarefactionPlot
@@ -55,20 +57,22 @@ def printHelp = {
     println "BatchIntersectPair"
     println "BatchIntersectPairPlot"
     println "IntersectSequential"
-    println "PoolSamples"
     println ""
-    println "[Manipulation]"
+    println "[Preprocessing]"
     println "ApplySampleAsFilter"
     println "FilterNonFunctional"
     println "DownSample"
     println "Decontaminate"
     println "FilterBySegment"
     println "Convert"
+    println ""
+    println "[Comparison]"
     println "PoolSamples"
+    println "JoinSamples"
+    println "Enrichment"
     println ""
     println "[Annotation]"
     println "ScanDatabase"
-    //println "ComputePwms"
 }
 
 def getScript = { String scriptName ->
@@ -115,8 +119,8 @@ def getScript = { String scriptName ->
             return new FilterBySegment()
         case "CONVERT":
             return new Convert()
-        case "POOLSAMPLES":
-            return new PoolSamples()
+        case "ENRICHMENT":
+            return new Enrichment()
         case "RINSTALL":
             return new RInstall()
         case "-H":

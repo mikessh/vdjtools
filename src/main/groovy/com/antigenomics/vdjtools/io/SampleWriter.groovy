@@ -19,6 +19,7 @@ package com.antigenomics.vdjtools.io
 import com.antigenomics.vdjtools.ClonotypeContainer
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.join.JointSample
+import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.util.ExecUtil
 
@@ -31,6 +32,16 @@ public class SampleWriter {
     private final Software software
     private final String header
     private final boolean compress
+
+    public String getHeader() {
+        header
+    }
+
+    public String getClonotypeString(Clonotype clonotype) {
+        software.printFields.collect {
+            clonotype."$it"
+        }.join("\t")
+    }
 
     /**
      * Creates a sample writer capable to output samples in plain-text files according to specified software format 
@@ -127,9 +138,7 @@ public class SampleWriter {
                 freq += clonotype.freq
             }
 
-            printWriter.println(software.printFields.collect {
-                clonotype."$it"
-            }.join("\t"))
+            printWriter.println(getClonotypeString(clonotype))
         }
 
         if (collapse && top < sample.diversity) {
@@ -169,7 +178,7 @@ public class SampleWriter {
 
         for (int i = 0; i < top; i++) {
             def jointClonotype = jointSample[i],
-                clonotype = jointClonotype.representative
+                clonotype = jointClonotype.clonotype
 
             if (collapse) {
                 collapsedMeanFreq += jointClonotype.baseFreq

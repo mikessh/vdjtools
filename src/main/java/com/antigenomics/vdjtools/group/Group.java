@@ -17,6 +17,8 @@
 package com.antigenomics.vdjtools.group;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.inference.TestUtils;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -25,6 +27,7 @@ import java.util.List;
 public class Group<SignatureType extends GroupSignature> {
     private final List<Clonotype> clonotypes = new LinkedList<>();
     private final SignatureType signature;
+    private final DescriptiveStatistics statistics = new DescriptiveStatistics();
 
     public Group(SignatureType signature) {
         this.signature = signature;
@@ -32,6 +35,7 @@ public class Group<SignatureType extends GroupSignature> {
 
     public void add(Clonotype clonotype) {
         clonotypes.add(clonotype);
+        statistics.addValue(Math.log10(clonotype.getFreq()));
     }
 
     public SignatureType getSignature() {
@@ -43,15 +47,11 @@ public class Group<SignatureType extends GroupSignature> {
     }
 
     public double getAbundancePValue(Clonotype clonotype) {
-        double pValue = 0;
-        for (Clonotype other : clonotypes) {
-            if (clonotype.getFreq() < other.getFreq()) {
-                pValue++;
-            } else if (clonotype.getFreq() == other.getFreq()) {
-                pValue += 0.5;
-            }
-        }
-        return pValue / clonotypes.size();
+        return TestUtils.t(Math.log10(clonotype.getFreq()), statistics);
+    }
+
+    public boolean isEnriched(Clonotype clonotype) {
+        return getAbundancePValue(clonotype) < 0.05;
     }
 
     public int size() {

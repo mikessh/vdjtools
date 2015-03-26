@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GroupedSample {
-    private final Map<GroupSignature, Group> bins = new HashMap<>();
+    private final Map<GroupSignature, Group> groups = new HashMap<>();
     private final GroupingScheme groupingScheme;
     private int total = 0;
 
@@ -39,37 +39,31 @@ public class GroupedSample {
 
     public void add(Clonotype clonotype) {
         GroupSignature groupSignature = groupingScheme.getSignature(clonotype);
-        Group group = bins.get(groupSignature);
+        Group group = groups.get(groupSignature);
         if (group == null) {
-            bins.put(groupSignature, group = new Group(groupSignature));
+            groups.put(groupSignature, group = new Group(groupSignature));
         }
         group.add(clonotype);
         total++;
     }
 
-    public Group getBin(Clonotype clonotype) {
-        return bins.get(groupingScheme.getSignature(clonotype));
+    public Group getGroup(Clonotype clonotype) {
+        return groups.get(groupingScheme.getSignature(clonotype));
     }
 
     public int getTotal() {
         return total;
     }
 
-    public double getAssemblyPValue(Group group) {
-        double pValue = 0;
-
-        for (Group other : bins.values()) {
-            if (other.size() > group.size()) {
-                pValue++;
-            } else if (other.size() == group.size()) {
-                pValue += 0.5;
-            }
-        }
-
-        return pValue / bins.size();
+    public double getAssemblyProbability(Group group) {
+        return group.size() / (double) total;
     }
 
-    public int getNumberOfBins() {
-        return bins.size();
+    public boolean isRare(Group group) {
+        return getAssemblyProbability(group) < 1.0 / getNumberOfGroups(); // less than uniform
+    }
+
+    public int getNumberOfGroups() {
+        return groups.size();
     }
 }

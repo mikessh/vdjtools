@@ -16,9 +16,10 @@
 
 // todo: UNTESTED
 
-package com.antigenomics.vdjtools.intersection
+package com.antigenomics.vdjtools.compare
 
 import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.intersection.IntersectionType
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.pool.*
 import com.antigenomics.vdjtools.sample.SampleCollection

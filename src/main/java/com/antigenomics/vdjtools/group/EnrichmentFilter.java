@@ -14,29 +14,30 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools.pool;
+package com.antigenomics.vdjtools.group;
 
-import com.antigenomics.vdjtools.ClonotypeWrapper;
 import com.antigenomics.vdjtools.sample.Clonotype;
+import com.antigenomics.vdjtools.sample.ClonotypeFilter;
 
-public class StoringClonotypeAggregator extends MaxClonotypeAggregator implements ClonotypeWrapper {
-    private Clonotype clonotype;
+public class EnrichmentFilter extends ClonotypeFilter {
+    private final GroupedSample control;
 
-    public StoringClonotypeAggregator(Clonotype clonotype, int sampleId) {
-        super(clonotype, sampleId);
-        this.clonotype = clonotype;
+    public EnrichmentFilter(boolean negative, GroupedSample control) {
+        super(negative);
+        this.control = control;
     }
 
     @Override
-    protected boolean tryReplace(Clonotype clonotype, int sampleId) {
-        if (super.tryReplace(clonotype, sampleId)) {
-            this.clonotype = clonotype;
-            return true;
+    protected boolean checkPass(Clonotype clonotype) {
+        Group group = control.getGroup(clonotype);
+        if (group == null || group.size() < 3) {
+            return clonotype.getCount() > 3;
+        } else {
+            return control.isRare(group) && group.isEnriched(clonotype);
         }
-        return false;
     }
 
-    public Clonotype getClonotype() {
-        return clonotype;
+    public GroupedSample getControl() {
+        return control;
     }
 }
