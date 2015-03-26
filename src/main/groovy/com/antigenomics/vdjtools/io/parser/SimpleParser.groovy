@@ -31,7 +31,7 @@ public class SimpleParser extends ClonotypeStreamParser {
      * {@inheritDoc}
      */
     protected SimpleParser(Iterator<String> innerIter, Sample sample) {
-        super(innerIter, Software.Simple, sample)
+        super(innerIter, Software.VDJtools, sample)
     }
 
     /**

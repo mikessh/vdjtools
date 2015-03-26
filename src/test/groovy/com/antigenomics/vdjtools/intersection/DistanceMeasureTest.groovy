@@ -51,7 +51,7 @@ class DistanceMeasureTest {
 
     @Test
     public void test() {
-        def software = Software.Simple
+        def software = Software.VDJtools
         def resStream = getResource("samples/${software.toString().toLowerCase()}.txt.gz")
         def sample = load(resStream, software)
 

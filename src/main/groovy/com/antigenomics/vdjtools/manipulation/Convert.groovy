@@ -26,8 +26,6 @@ def cli = new CliBuilder(usage: "Convert [options] " +
 cli.h("display help message")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Input RepSeq data format. Currently supported: ${Software.values().join(", ")}")
-cli.S2(longOpt: "software2", argName: "string", required: true, args: 1,
-        "Output RepSeq data format. Currently supported: ${Software.values().join(", ")}")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
@@ -59,7 +57,6 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 // Remaining arguments
 
 def software = Software.byName(opt.S),
-    software2 = Software.byName(opt.S2),
     compress = (boolean) opt.c,
     outputPrefix = opt.arguments()[-1]
 
@@ -81,7 +78,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 // Iterate over samples & write them in new format
 //
 
-def sampleWriter = new SampleWriter(software2, compress)
+def sampleWriter = new SampleWriter(Software.VDJtools, compress)
 
 sampleCollection.eachWithIndex { sample, ind ->
     println "[${new Date()} $scriptName] Processed ${ind + 1} sample(s).. Writing output"
@@ -90,6 +87,6 @@ sampleCollection.eachWithIndex { sample, ind ->
     sampleWriter.writeConventional(sample, outputPrefix)
 }
 
-sampleCollection.metadataTable.storeWithOutput(outputPrefix, compress, "conv:$software:$software2")
+sampleCollection.metadataTable.storeWithOutput(outputPrefix, compress, "conv:$software")
 
 println "[${new Date()} $scriptName] Finished"

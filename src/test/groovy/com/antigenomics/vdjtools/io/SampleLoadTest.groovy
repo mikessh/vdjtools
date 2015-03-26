@@ -49,7 +49,7 @@ class SampleLoadTest {
 
     @Test
     public void simpleTest() {
-        loadTest(Simple, 11878, 2257)
+        loadTest(VDJtools, 11878, 2257)
     }
 
     @Test

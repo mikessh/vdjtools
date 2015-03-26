@@ -40,7 +40,7 @@ enum Software {
                                      9.times { _ }, "cdr3nt", 47.times { _ }, // comprehensive output
                                      "VEnd", 12.times { _ }, "DStart", "DEnd", 28.times { _ }, "JStart"
     ].flatten()),
-    Simple("\t", "#", 0, false, false, ["count", "freq",
+    VDJtools("\t", "#", 0, false, false, ["count", "freq",
                                         "cdr3nt", "cdr3aa",
                                         "v", "d", "j",
                                         "VEnd", "DStart", "DEnd", "JStart"])

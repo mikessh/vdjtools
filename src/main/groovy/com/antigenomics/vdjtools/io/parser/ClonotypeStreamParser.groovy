@@ -26,6 +26,7 @@ import com.antigenomics.vdjtools.sample.Sample
  * The stream parser is not thread-safe. 
  */
 public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
+    private static final int WARNINGS_TO_DISPLAY = 5
     protected final List<String> header = new ArrayList<>()
     protected final Software software
     protected final Iterator<String> innerIter
@@ -69,7 +70,7 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
             case Software.IgBlast:
                 parser = new IgBlastParser(innerIter, sample)
                 break
-            case Software.Simple:
+            case Software.VDJtools:
                 parser = new SimpleParser(innerIter, sample)
                 break
             case Software.MiGec:
@@ -104,35 +105,40 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
      * @return a clonotype instance or {@code null} if input string was skipped
      */
     public Clonotype parse(String clonotypeString) {
-        if (hasComment && clonotypeString.startsWith(software.comment)) {
-            commentLineCount++
-            return null
-        }
-
-        def clonotype = innerParse(clonotypeString)
-
-        def badFieldMap = clonotype ? ["no_cdr3nt" : missingEntry(clonotype.cdr3nt),
-                                       "no_cdr3aa" : missingEntry(clonotype.cdr3aa),
-                                       "no_v"      : missingEntry(clonotype.v),
-                                       "no_j"      : missingEntry(clonotype.j),
-                                       "zero_count": clonotype.count == 0,
-                                       "zero_freq" : !software.perReadOutput && clonotype.freqAsInInput == 0] :
-                ["bad_line": true]
-
-        if (badFieldMap.any { it.value }) {
-            if (!printedWarning) {
-                printedWarning = true
-                println "[WARNING] Some of the essential fields are bad/missing " +
-                        "for the following clonotype string (displaying first 5 warnings)"
+        try {
+            if (hasComment && clonotypeString.startsWith(software.comment)) {
+                commentLineCount++
+                return null
             }
-            if (skippedLineCount++ < 5) {
-                println badFieldMap.findAll { it.value }.collect { it.key }.join(",") + ":"
-                println "$clonotypeString"
-            }
-            return null
-        }
 
-        return clonotype
+            def clonotype = innerParse(clonotypeString)
+
+            def badFieldMap = clonotype ? ["no_cdr3nt" : missingEntry(clonotype.cdr3nt),
+                                           "no_cdr3aa" : missingEntry(clonotype.cdr3aa),
+                                           "no_v"      : missingEntry(clonotype.v),
+                                           "no_j"      : missingEntry(clonotype.j),
+                                           "zero_count": clonotype.count == 0,
+                                           "zero_freq" : !software.perReadOutput && clonotype.freqAsInInput == 0] :
+                    ["bad_line": true]
+
+            if (badFieldMap.any { it.value }) {
+                if (!printedWarning) {
+                    printedWarning = true
+                    println "[WARNING] Some of the essential fields are bad/missing " +
+                            "for the following clonotype string (displaying first $WARNINGS_TO_DISPLAY warnings)"
+                }
+                if (skippedLineCount++ < WARNINGS_TO_DISPLAY) {
+                    println badFieldMap.findAll { it.value }.collect { it.key }.join(",") + ":"
+                    println "$clonotypeString"
+                }
+                return null
+            }
+
+            return clonotype
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to parse clonotype string $clonotypeString " +
+                    "for $software input type.")
+        }
     }
 
     /**
