@@ -37,7 +37,7 @@ if(lbl_col1_index < 1) {
 }
 
 ## Read data
-df <- read.table(file_in, header = T, sep = "\t", comment ="")
+df <- read.table(file_in, header = T, sep = "\t", comment ="", quote="")
 
 # convert factor columns depending on if continuous coloring is desired or not
 

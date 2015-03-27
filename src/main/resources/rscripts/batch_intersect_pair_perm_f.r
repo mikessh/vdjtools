@@ -5,7 +5,7 @@ args<-commandArgs(TRUE)
 file_in  <- args[1]
 file_out <- args[2]
 
-df <- read.table(file_in, sep="\t", comment="", header=T, stringsAsFactors=F)
+df <- read.table(file_in, sep="\t", comment="", header=T, stringsAsFactors=F, quote="")
 df[,3:5]<-apply(df[,3:5],2,as.numeric)
 
 df.l<-data.frame(factor=df$factor,type=df$type,obs=df$obs,p=df$p)

@@ -24,7 +24,7 @@ getcol_c = function(lst, col){
 	apply(lst[col], 2, as.character)
 }
 
-table <- read.delim(file_xy, skip = skip, sep="\t")
+table <- read.delim(file_xy, skip = skip, sep="\t", quote="")
 n <- nrow(table)
 m <- ncol(table)
 table <- table[n:1, ] # reorder, bring non-overlapping / not-shown to the top

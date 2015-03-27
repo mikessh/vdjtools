@@ -57,7 +57,7 @@ class DistanceMeasureTest {
 
         // downsample
         def downSampler = new DownSampler(sample)
-        def nResamples = 50
+        def nResamples = 100
         int smallCount = sample.count * 0.1, largeCount = sample.count * 0.5
 
         ExecUtil.quiet()
