@@ -16,7 +16,7 @@
 
 package com.antigenomics.vdjtools.diversity
 
-import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.sample.Sample
 
 /**
@@ -45,7 +45,7 @@ class Rarefaction {
      * @param sample sample to analyze.
      * @param intersectionType specifies a method that will be used to collapse clonotypes when computing a {@link com.antigenomics.vdjtools.diversity.FrequencyTable}.
      */
-    Rarefaction(Sample sample, IntersectionType intersectionType) {
+    Rarefaction(Sample sample, OverlapType intersectionType) {
         this.frequencyTable = new FrequencyTable(sample, intersectionType)
         this.n = frequencyTable.count
         this.chaoEstimator = new ChaoEstimator(frequencyTable)
@@ -63,11 +63,11 @@ class Rarefaction {
 
     /**
      * Creates an instance that will perform rarefaction for a given sample. 
-     * Will use {@code com.antigenomics.vdjtools.intersection.IntersectionType # Strict} to build a {@link com.antigenomics.vdjtools.diversity.FrequencyTable}.
+     * Will use {@code com.antigenomics.vdjtools.overlap.IntersectionType # Strict} to build a {@link com.antigenomics.vdjtools.diversity.FrequencyTable}.
      * @param sample sample to analyze.
      */
     Rarefaction(Sample sample) {
-        this(sample, IntersectionType.Strict)
+        this(sample, OverlapType.Strict)
     }
 
     /**

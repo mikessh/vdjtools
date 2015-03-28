@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools.intersection
+package com.antigenomics.vdjtools.overlap
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.basic.SegmentUsage
@@ -23,7 +23,7 @@ import com.antigenomics.vdjtools.sample.SampleCollection
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
 def I_TYPE_DEFAULT = "aa"
-def cli = new CliBuilder(usage: "BatchIntersectPair [options] " +
+def cli = new CliBuilder(usage: "CalcPairwiseDistances [options] " +
         "[sample1 sample2 sample3 ... if not -m] output_prefix")
 cli.h("display help message")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
@@ -32,11 +32,9 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
 cli._(longOpt: "low-mem", "Will process all sample pairs sequentially, avoiding" +
         " loading all of them into memory. Slower but memory-efficient mode.")
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
-        "Intersection rule to apply. Allowed values: $IntersectionType.allowedNames. " +
+        "Intersection rule to apply. Allowed values: $OverlapType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
-cli.S(longOpt: "software", argName: "string", required: true, args: 1,
-        "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
-// todo: provide an option - redundant (i,j) , (j,i) output for the Großtable
+// todo: provide an option - redundant (i,j) , (j,i) output for the
 def opt = cli.parse(args)
 
 if (opt == null) {
@@ -62,19 +60,19 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 4)
     System.exit(-1)
 }
 
-def software = Software.byName(opt.S), outputPrefix = opt.arguments()[-1],
+def outputPrefix = opt.arguments()[-1],
     lowMem = (boolean) opt.'low-mem'
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
-// Select intersection type
+// Select overlap type
 
 def iName = opt.i ?: I_TYPE_DEFAULT
-def intersectionType = IntersectionType.getByShortName(iName)
+def intersectionType = OverlapType.getByShortName(iName)
 
 if (!intersectionType) {
-    println "[ERROR] Bad intersection type specified ($iName). " +
-            "Allowed values are: $IntersectionType.allowedNames"
+    println "[ERROR] Bad overlap type specified ($iName). " +
+            "Allowed values are: $OverlapType.allowedNames"
     System.exit(-1)
 }
 
@@ -88,8 +86,8 @@ boolean store, lazy
 (store, lazy) = lowMem ? [false, true] : [true, false]
 
 def sampleCollection = metadataFileName ?
-        new SampleCollection((String) metadataFileName, software, store, lazy) :
-        new SampleCollection(opt.arguments()[0..-2], software, store, lazy)
+        new SampleCollection((String) metadataFileName, Software.VDJtools, store, lazy) :
+        new SampleCollection(opt.arguments()[0..-2], Software.VDJtools, store, lazy)
 
 if (sampleCollection.size() < 3) {
     println "[ERROR] Metadata file should contain at least 3 samples"
@@ -99,16 +97,16 @@ if (sampleCollection.size() < 3) {
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
 //
-// Perform intersection for all specified intersection types
+// Perform overlap for all specified overlap types
 //
 
 println "[${new Date()} $scriptName] Intersecting by $intersectionType"
 
 SegmentUsage.VERBOSE = false
-PairedIntersection.VERBOSE = false
-IntersectionEvaluator.VERBOSE = false
+Overlap.VERBOSE = false
+OverlapEvaluator.VERBOSE = false
 
-def pairedIntersectionBatch = new PairedIntersectionBatch(sampleCollection, intersectionType)
+def pairedIntersectionBatch = new PairwiseOverlap(sampleCollection, intersectionType)
 
 println "[${new Date()} $scriptName] Writing results"
 

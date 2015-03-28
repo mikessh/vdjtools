@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools.intersection
+package com.antigenomics.vdjtools.overlap
 
 import com.antigenomics.vdjtools.basic.SegmentUsage
 import com.antigenomics.vdjtools.basic.Spectratype
@@ -25,12 +25,12 @@ import com.antigenomics.vdjtools.util.MathUtil
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
-import static com.antigenomics.vdjtools.intersection.IntersectMetric.*
+import static OverlapMetric.*
 
 /**
- * A helper class to compute various intersection metrics for joint intersection
+ * A helper class to compute various overlap metrics for joint overlap
  */
-class IntersectionEvaluator {
+class OverlapEvaluator {
     public static boolean VERBOSE = true
 
     private final JointSample jointSample
@@ -40,9 +40,9 @@ class IntersectionEvaluator {
 
     /**
      * Sets up an instance that can compute overlap metrics for a pre-defined set of sample intersections
-     * @param jointSample a result of intersection between sample pair(s)
+     * @param jointSample a result of overlap between sample pair(s)
      */
-    public IntersectionEvaluator(JointSample jointSample) {
+    public OverlapEvaluator(JointSample jointSample) {
         this.jointSample = jointSample
         this.spectratypeCache = new Spectratype[jointSample.numberOfSamples]
     }
@@ -55,7 +55,7 @@ class IntersectionEvaluator {
     private Spectratype getSpectratype(int sampleIndex) {
         if (!spectratypeCache[sampleIndex]) {
             spectratypeCache[sampleIndex] = new Spectratype(jointSample.getSample(sampleIndex),
-                    jointSample.intersectionType,
+                    jointSample.overlapType,
                     false)
         }
         spectratypeCache[sampleIndex]
@@ -76,13 +76,13 @@ class IntersectionEvaluator {
     }
 
     /**
-     * INTERNAL main routine that calculates a specified intersection metric
+     * INTERNAL main routine that calculates a specified overlap metric
      * @param metric metric type
      * @param i index of first sample in pair
      * @param j index of second sample in pair
      * @return
      */
-    private double _computeIntersectionMetric(IntersectMetric metric,
+    private double _computeIntersectionMetric(OverlapMetric metric,
                                               int i, int j) {
         ExecUtil.report(this, "Computing $metric", VERBOSE)
         switch (metric) {
@@ -168,13 +168,13 @@ class IntersectionEvaluator {
     }
 
     /**
-     * Computes specified intersection metric for a pair of samples
-     * @param metric intersection metric type
+     * Computes specified overlap metric for a pair of samples
+     * @param metric overlap metric type
      * @param i index of first sample in pair
      * @param j index of second sample in pair
-     * @return intersection metric value
+     * @return overlap metric value
      */
-    public double computeIntersectionMetric(IntersectMetric metric,
+    public double computeIntersectionMetric(OverlapMetric metric,
                                             int i, int j) {
         def key = [metric.shortName, i, j].join("_")
         def value = metricCache[key]
@@ -184,11 +184,11 @@ class IntersectionEvaluator {
     }
 
     /**
-     * Computes specified intersection metric for the first pair of samples
-     * @param metric intersection metric type
-     * @return intersection metric value
+     * Computes specified overlap metric for the first pair of samples
+     * @param metric overlap metric type
+     * @return overlap metric value
      */
-    public double computeIntersectionMetric(IntersectMetric intersectMetric) {
+    public double computeIntersectionMetric(OverlapMetric intersectMetric) {
         computeIntersectionMetric(intersectMetric, 0, 1)
     }
 }

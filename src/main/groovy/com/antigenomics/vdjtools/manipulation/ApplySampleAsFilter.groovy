@@ -16,7 +16,7 @@
 
 package com.antigenomics.vdjtools.manipulation
 
-import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.io.SampleFileConnection
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.sample.ClonotypeFilter
@@ -38,7 +38,7 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
                 "Header is mandatory and will be used to assign column names for metadata.")
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Intersection type to apply. " +
-                "Allowed values: $IntersectionType.allowedNames. " +
+                "Allowed values: $OverlapType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
 cli.n(longOpt: "negative", "Will report clonotypes that are not present in filter_sample. " +
         "The default action is to retain only them.")
@@ -77,12 +77,12 @@ def filterFileName = opt.arguments()[-2],
 
 // Parameters
 
-def intersectionType = IntersectionType.getByShortName((opt.i ?: I_TYPE_DEFAULT)),
+def intersectionType = OverlapType.getByShortName((opt.i ?: I_TYPE_DEFAULT)),
     negative = (boolean) opt.n
 
 if (!intersectionType) {
-    println "[ERROR] Bad intersection type specified ($opt.i). " +
-            "Allowed values are: $IntersectionType.allowedNames"
+    println "[ERROR] Bad overlap type specified ($opt.i). " +
+            "Allowed values are: $OverlapType.allowedNames"
     System.exit(-1)
 }
 

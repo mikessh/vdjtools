@@ -17,7 +17,7 @@
 
 package com.antigenomics.vdjtools.basic
 
-import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.join.ClonotypeKeyGen
 import com.antigenomics.vdjtools.join.key.ClonotypeKey
 import com.antigenomics.vdjtools.sample.Sample
@@ -62,8 +62,8 @@ public class BasicStats {
 
         this.weighted = weighted
 
-        def keyGenAA = new ClonotypeKeyGen(IntersectionType.AminoAcid),
-            keyGenNT = new ClonotypeKeyGen(IntersectionType.Nucleotide)
+        def keyGenAA = new ClonotypeKeyGen(OverlapType.AminoAcid),
+            keyGenNT = new ClonotypeKeyGen(OverlapType.Nucleotide)
         def aaSet = new HashSet<ClonotypeKey>(),
             ntSet = new HashSet<ClonotypeKey>()
 

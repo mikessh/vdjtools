@@ -19,7 +19,7 @@
 package com.antigenomics.vdjtools.compare
 
 import com.antigenomics.vdjtools.Software
-import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.pool.*
 import com.antigenomics.vdjtools.sample.SampleCollection
@@ -37,8 +37,8 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
 cli._(longOpt: "low-mem", "Will process all sample pairs sequentially, avoiding" +
         " loading all of them into memory. Slower but memory-efficient mode.")
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
-        "Comma-separated list of intersection types to apply. " +
-                "Allowed values: $IntersectionType.allowedNames. " +
+        "Comma-separated list of overlap types to apply. " +
+                "Allowed values: $OverlapType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
 cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
@@ -79,14 +79,14 @@ ExecUtil.ensureDir(outputPrefix)
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
-// Select intersection type
+// Select overlap type
 
 def iName = opt.i ?: I_TYPE_DEFAULT
-def intersectionType = IntersectionType.getByShortName(iName)
+def intersectionType = OverlapType.getByShortName(iName)
 
 if (!intersectionType) {
-    println "[ERROR] Bad intersection type specified ($iName). " +
-            "Allowed values are: $IntersectionType.allowedNames"
+    println "[ERROR] Bad overlap type specified ($iName). " +
+            "Allowed values are: $OverlapType.allowedNames"
     System.exit(-1)
 }
 

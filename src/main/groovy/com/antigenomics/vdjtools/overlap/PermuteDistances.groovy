@@ -14,37 +14,41 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools.intersection
+package com.antigenomics.vdjtools.overlap
 
-import com.antigenomics.vdjtools.intersection.mds.DiscreteFactorClusterStats
-import com.antigenomics.vdjtools.sample.metadata.MetadataTable
-import com.antigenomics.vdjtools.util.RUtil
+import com.antigenomics.vdjtools.overlap.permutations.DiscreteFactorClusterStats
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
+import static com.antigenomics.vdjtools.util.RUtil.execute
 
-def MEASURE_DEFAULT = "F2", I_TYPE_DEFAULT = "aa"
-def cli = new CliBuilder(usage: "BatchIntersectPairPlot [options] input_prefix [output_prefix]\n" +
-        "input_prefix should be the same as the output_prefix" +
-        "specified during BatchIntersectPair execution")
+def MEASURE_DEFAULT = "F", I_TYPE_DEFAULT = "aa"
+
+// todo: take distances directly from data
+
+def cli = new CliBuilder(usage: "PermuteDistances [options] input_prefix [output_prefix]\n" +
+        "NOTE: input_prefix should be equal to output_prefix specified for" +
+        "CalcPairwiseDistances execution, -i parameters should also match.")
+
 cli.h("display help message")
-cli.m(longOpt: "measure", argName: "string", args: 1,
-        "Distance measure to use, allowed values are ${IntersectMetric.allowedNames}. " +
+
+// General
+
+cli.e(longOpt: "measure", argName: "string", args: 1,
+        "Distance measure to use, allowed values are ${OverlapMetric.allowedNames}. " +
                 "[default = $MEASURE_DEFAULT]")
-cli.p(longOpt: "plot", "[plotting] Unused.")
-cli.f(longOpt: "factor", argName: "string", args: 1,
-        "Column name, as in metadata. Factor used to color the plot. [default = no factor]")
-cli.n(longOpt: "num-factor", "Factor will be treated as numeric value and gradient plot coloring will be used. " +
-        "Factor can still contain non-numeric values which will be converted to NA (grey). " +
-        "Should contain at least one numeric value. [default = off]")
-cli.l(longOpt: "label", argName: "string", args: 1,
-        "Column name, as in metadata. Row values will be used as sample labels. [default = sample_id]")
-cli.k(longOpt: "hcl-cutoff", argName: "int, >0", args: 1,
-        "Number of clusters to cut the dendrogram into. No output is generated for values <1. [default = 3]")
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
-        "Intersection rule, as used in BatchIntersectPairPlot." +
-                "Allowed values: $IntersectionType.allowedNames. " +
+        "Intersection rule, as used in CalcPairwiseDistances." +
+                "Allowed values: $OverlapType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
+
+// Plotting
+
+cli.f(longOpt: "factor", argName: "string", args: 1, required: true,
+        "Column name, as in metadata. Factor used to test for association with sample clustering.")
+cli.n(longOpt: "num-factor",
+        "If set, factor will be treated as numeric variable and distance correlation will be used. " +
+                "Will run permutation testing for factor levels otherwise.")
 
 def opt = cli.parse(args)
 
@@ -59,11 +63,11 @@ if (opt.h || opt.arguments().size() < 1) {
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 def iName = opt.i ?: I_TYPE_DEFAULT
-def intersectionType = IntersectionType.getByShortName(iName)
+def intersectionType = OverlapType.getByShortName(iName)
 
 if (!intersectionType) {
-    println "[ERROR] Bad intersection type specified ($iName). " +
-            "Allowed values are: $IntersectionType.allowedNames"
+    println "[ERROR] Bad overlap type specified ($iName). " +
+            "Allowed values are: $OverlapType.allowedNames"
     System.exit(-1)
 }
 
@@ -78,17 +82,11 @@ if (!new File(inputFileName).exists()) {
 intersectionType = intersectionType.shortName
 
 def outputPrefix = opt.arguments().size() > 1 ? opt.arguments()[1] : inputPrefix,
-    sampleId = MetadataTable.SAMPLE_ID_COLUMN.toUpperCase(), factorName = opt.f, numFactor = opt.n,
-    measureName = (opt.m ?: MEASURE_DEFAULT).toUpperCase(), labelName = (opt.l ?: MetadataTable.SAMPLE_ID_COLUMN).toUpperCase(),
-    hcFileName = formOutputPath(outputPrefix, "hc", intersectionType, measureName, "pdf"),
-    mdsFileName = formOutputPath(outputPrefix, "mds", intersectionType, measureName, "pdf"),
-    k = (opt.k ?: 3),
-    clustFileName = formOutputPath(outputPrefix, "hc", "cut$k", intersectionType, measureName),
-    coordFileName = formOutputPath(outputPrefix, "mds", "coords", intersectionType, measureName)
+    factorName = opt.f, numFactor = opt.n,
+    measureName = (opt.e ?: MEASURE_DEFAULT).toUpperCase(),
+    mdsFileName = formOutputPath(outputPrefix, "mds", intersectionType, measureName, ".txt")
 
-def factorNameOrig = null
 if (factorName) {
-    factorNameOrig = factorName
     factorName = factorName.toUpperCase()
 }
 
@@ -103,13 +101,9 @@ new File(inputFileName).withReader { reader ->
 
 // Match column indices
 
-def idCol1Ind = (header.findIndexOf { it.contains("1_$sampleId") } + 1).toString(),
-    idCol2Ind = (header.findIndexOf { it.contains("2_$sampleId") } + 1).toString(),
-    measureColInd = (header.findIndexOf { it.equals(measureName) } + 1).toString(),
+def measureColInd = (header.findIndexOf { it.equals(measureName) } + 1).toString(),
     factorCol1Ind = ((factorName ? header.findIndexOf { it.contains("1_$factorName") } : -1) + 1).toString(),
-    factorCol2Ind = ((factorName ? header.findIndexOf { it.contains("2_$factorName") } : -1) + 1).toString(),
-    labelCol1Ind = (header.findIndexOf { it.contains("1_$labelName") } + 1).toString(),
-    labelCol2Ind = (header.findIndexOf { it.contains("2_$labelName") } + 1).toString()
+    factorCol2Ind = ((factorName ? header.findIndexOf { it.contains("2_$factorName") } : -1) + 1).toString()
 
 if (measureColInd.toInteger() < 1) {
     println "[ERROR] Measure column ($measureName) is absent. Terminating"
@@ -142,23 +136,6 @@ if (numFactor && specifiedFactor) {
 }
 
 //
-// Cluster & plot
-//
-
-println "[${new Date()} $scriptName] Clustering and plotting data"
-
-RUtil.execute("batch_intersect_pair_clust.r",
-        inputFileName,
-        idCol1Ind, idCol2Ind,
-        measureColInd, IntersectMetric.getByShortName(measureName).normalization.id.toString(),
-        factorCol1Ind, factorCol2Ind,
-        labelCol1Ind, labelCol2Ind,
-        factorNameOrig ?: "NA", numFactor ? "TRUE" : "FALSE",
-        hcFileName, mdsFileName,
-        k.toString(), clustFileName, coordFileName
-)
-
-//
 // Permutation testing
 //
 
@@ -168,10 +145,10 @@ if (specifiedFactor) {
     } else {
         println "[${new Date()} $scriptName] Running permutation testing for factor ~ cluster dependence"
         def permsOutputPath = formOutputPath(outputPrefix, "perms", intersectionType, measureName)
-        def summary = new DiscreteFactorClusterStats(coordFileName).performPermutations(10000)
+        def summary = new DiscreteFactorClusterStats(mdsFileName).performPermutations(10000)
         if (summary) {
             DiscreteFactorClusterStats.writeSummary(summary, permsOutputPath)
-            RUtil.execute("batch_intersect_pair_perm_f.r",
+            execute("batch_intersect_pair_perm_f.r",
                     permsOutputPath,
                     toPlotPath(permsOutputPath)
             )

@@ -119,7 +119,7 @@ public class JointClonotype implements Comparable<JointClonotype>, ClonotypeWrap
     }
 
     /**
-     * Gets clonotype frequency at a given sample relative to intersection size of this sample
+     * Gets clonotype frequency at a given sample relative to overlap size of this sample
      *
      * @param sampleIndex
      * @return

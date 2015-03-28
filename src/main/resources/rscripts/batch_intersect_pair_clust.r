@@ -8,7 +8,7 @@ file_in           = args[1]              # Input filename
 id_col1_index     = as.integer(args[2])  # Index of first id column
 id_col2_index     = as.integer(args[3])  # Index of second id column
 measure_col_index = as.integer(args[4])  # Index of overlap measure column
-measure_type      = as.integer(args[5])  # Mesure normalization type
+measure_type      = as.integer(args[5])  # Measure normalization to apply
 factor_col1_index = as.integer(args[6])  # Index of first column with factor values
 factor_col2_index = as.integer(args[7])  # Index of second column with factor values
 lbl_col1_index    = as.integer(args[8])  # Index of first column with labels
@@ -17,9 +17,9 @@ factor_name       = args[10]             # Coloring factor
 cont_factor       = args[11]             # Continuous factor?
 file_out_hc       = args[12]             # Dendrogram plot filename
 file_out_mds      = args[13]             # MDS plot filename
-k_clust           = args[14]             # number of clusters to output
-file_out_clust    = args[15]             # HCL clusters
-file_out_coord    = args[16]             # MDS coords
+plot              = as.logical(args[14]) # Create plots?
+file_out_clust    = args[15]             # HCL clusters filename
+file_out_coord    = args[16]             # MDS coords filename
 
 # handle no factor case
 color_by_factor <- TRUE
@@ -133,16 +133,6 @@ df.d <- as.dist(df.m)
 
 hcl <- hclust(df.d)
 
-k_clust <- as.integer(k_clust)
-
-# write clusters
-if (k_clust > 0) {
-   clusters <- cutree(hcl, k = k_clust)
-   clusters <- data.frame(id_col1 = names(clusters), cluster = clusters)
-   ctbl <- merge(aux, clusters, by = "id_col1")
-   write.table(ctbl, file_out_clust, sep = "\t", quote = FALSE, row.names = FALSE)
-}
-
 ## Dendrogram
 
 # for matching colors and labels
@@ -156,11 +146,15 @@ if (color_by_factor) {
 
 lbl  <- sapply(aux[match(hcl$labels, aux[, "id_col1"]), "lbl_col1"], as.character)
 
-# set lables
 phylo <- as.phylo(hcl)
+
+# save clusters
+write.tree(phy=phylo, file="file_out_clust")
+
+# set lables
 phylo$tip.label <- lbl
 
-# plotting functions
+# plotting functions, mostly layout optimization
 
 my.plot <- function(hcl, ...) {
    if (color_by_factor) {
@@ -222,12 +216,15 @@ my.legend <- function(hcl) {
 }
 
 # plot
-pdf(file_out_hc)
 
-my.plot(TRUE, phylo, tip.color = cc_final)
-my.legend(TRUE)
+if (plot) {
+   pdf(file_out_hc)
 
-dev.off()
+   my.plot(TRUE, phylo, tip.color = cc_final)
+   my.legend(TRUE)
+
+   dev.off()
+}
 
 ## MDS
 
@@ -269,15 +266,17 @@ fac  <- sapply(aux[match(row.names(as.matrix(df.d)), aux[, "id_col1"]), "factor_
 
 # plot
 
-pdf(file_out_mds, useDingbats=FALSE)
+if (plot) {
+   pdf(file_out_mds, useDingbats=FALSE)
 
-my.plot(FALSE, xy$x, xy$y, xlab="mds1", ylab="mds2", type = "n")
-#points(xy$x, xy$y, col = alpha(cc_final, 0.5), pch = 19)
-text(xy$x, xy$y, labels = lbl, col = cc_final, cex=.5)
-#text(xy$x, xy$y, labels = lbl, cex=.5)
-my.legend(FALSE)
+   my.plot(FALSE, xy$x, xy$y, xlab="mds1", ylab="mds2", type = "n")
+   #points(xy$x, xy$y, col = alpha(cc_final, 0.5), pch = 19)
+   text(xy$x, xy$y, labels = lbl, col = cc_final, cex=.5)
+   #text(xy$x, xy$y, labels = lbl, cex=.5)
+   my.legend(FALSE)
 
-dev.off()
+   dev.off()
+}
 
 # table with mds coordinates
 # it will be later used in permutation testing

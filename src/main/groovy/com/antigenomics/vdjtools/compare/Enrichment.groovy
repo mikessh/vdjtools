@@ -19,7 +19,7 @@ package com.antigenomics.vdjtools.compare
 import com.antigenomics.vdjtools.group.EnrichmentFilter
 import com.antigenomics.vdjtools.group.GroupedSample
 import com.antigenomics.vdjtools.group.VJInsScheme
-import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.io.SampleFileConnection
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.sample.ClonotypeFilter
@@ -73,7 +73,7 @@ def controlFileName = opt.arguments()[-2],
 
 // Parameters
 
-def intersectionType = IntersectionType.AminoAcidVJ
+def intersectionType = OverlapType.AminoAcidVJ
 
 //
 // Load samples

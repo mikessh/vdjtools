@@ -17,7 +17,7 @@
 package com.antigenomics.vdjtools.join;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
-import com.antigenomics.vdjtools.intersection.IntersectionType;
+import com.antigenomics.vdjtools.overlap.OverlapType;
 import com.antigenomics.vdjtools.join.key.*;
 import com.antigenomics.vdjtools.sample.Sample;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
@@ -26,10 +26,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class ClonotypeKeyGen {
-    private final IntersectionType intersectionType;
+    private final OverlapType overlapType;
 
-    public ClonotypeKeyGen(IntersectionType intersectionType) {
-        this.intersectionType = intersectionType;
+    public ClonotypeKeyGen(OverlapType overlapType) {
+        this.overlapType = overlapType;
     }
 
     public Set<ClonotypeKey> generateKeySet(Sample sample) {
@@ -41,7 +41,7 @@ public class ClonotypeKeyGen {
     }
 
     public ClonotypeKey generateKey(Clonotype clonotype) {
-        switch (intersectionType) {
+        switch (overlapType) {
             case Nucleotide:
                 return new NtKey(clonotype);
 

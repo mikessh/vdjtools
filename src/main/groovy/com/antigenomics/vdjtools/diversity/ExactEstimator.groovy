@@ -16,7 +16,7 @@
 
 package com.antigenomics.vdjtools.diversity
 
-import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.pool.SampleAggregator
 import com.antigenomics.vdjtools.sample.Sample
 import groovy.transform.PackageScope
@@ -25,10 +25,10 @@ import org.apache.commons.math3.util.CombinatoricsUtils
 /**
  * Class that computes richness estimates and diversity indices. 
  * All computations are performed via the {@link com.antigenomics.vdjtools.diversity.FrequencyTable} object.
- * Note that the clonotype is always computed based on certain {@link com.antigenomics.vdjtools.intersection.IntersectionType},
+ * Note that the clonotype is always computed based on certain {@link OverlapType},
  * which tells how to collapse clonotypes, e.g. consider identical CDR3 nucleotide or amino acid sequences, etc.
  * Therefore in some cases the result will be different from one obtained using raw clonotype frequencies.
- * This will not happen in case {@link com.antigenomics.vdjtools.intersection.IntersectionType#Strict} is used,
+ * This will not happen in case {@link OverlapType#Strict} is used,
  * which is recommended for most purposes.
  *
  * @see ResamplingEstimator
@@ -63,13 +63,13 @@ class ExactEstimator extends DiversityEstimator {
      * Creates an instance of individual-based diversity estimates class.
      * Will compute {@link com.antigenomics.vdjtools.diversity.FrequencyTable} for a given sample.
      * @param sample a sample to analyze.
-     * @param intersectionType {@link com.antigenomics.vdjtools.intersection.IntersectionType} that will be used
+     * @param intersectionType {@link OverlapType} that will be used
      *                         to collapse sample during {@link com.antigenomics.vdjtools.diversity.FrequencyTable} computation
      * @param extrapolateTo desired extrapolation extent. Used to compute the
      * {@link com.antigenomics.vdjtools.diversity.ChaoEstimator#chaoE} estimate.
      *                      For most cases, it should be set to the size of the largest sample when several samples are to be compared.
      */
-    ExactEstimator(Sample sample, IntersectionType intersectionType, long extrapolateTo) {
+    ExactEstimator(Sample sample, OverlapType intersectionType, long extrapolateTo) {
         this(new FrequencyTable(sample, intersectionType), extrapolateTo)
     }
 

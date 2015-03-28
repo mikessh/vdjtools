@@ -16,8 +16,7 @@
 
 package com.antigenomics.vdjtools.diversity
 
-import com.antigenomics.vdjtools.Software
-import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
@@ -26,7 +25,7 @@ import com.antigenomics.vdjtools.util.RUtil
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
 
-def STEPS_DEFAULT = "101", I_TYPE_DEFAULT = IntersectionType.Strict
+def STEPS_DEFAULT = "101", I_TYPE_DEFAULT = OverlapType.Strict
 def cli = new CliBuilder(usage: "RarefactionPlot [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
@@ -40,7 +39,7 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
 // algorithm
 
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
-        "Intersection rule to apply. Allowed values: $IntersectionType.allowedNames. " +
+        "Intersection rule to apply. Allowed values: $OverlapType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
 cli.s(longOpt: "steps", argName: "int", args: 1, "Number of steps (points) in the rarefaction curve " +
         "(including 0 and the observed diversity). [default=$STEPS_DEFAULT]")
@@ -82,7 +81,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 // Other arguments
 
-def intersectionType = opt.i ? IntersectionType.getByShortName((String) opt.i) : I_TYPE_DEFAULT,
+def intersectionType = opt.i ? OverlapType.getByShortName((String) opt.i) : I_TYPE_DEFAULT,
     steps = (opt.s ?: STEPS_DEFAULT).toInteger(),
     optL = opt.'l', optF = opt.'f',
     numericFactor = (boolean) opt.'n',

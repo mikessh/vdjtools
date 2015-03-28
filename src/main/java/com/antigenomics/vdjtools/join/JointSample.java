@@ -17,7 +17,7 @@
 package com.antigenomics.vdjtools.join;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
-import com.antigenomics.vdjtools.intersection.IntersectionType;
+import com.antigenomics.vdjtools.overlap.OverlapType;
 import com.antigenomics.vdjtools.join.key.ClonotypeKey;
 import com.antigenomics.vdjtools.sample.Sample;
 
@@ -35,7 +35,7 @@ public class JointSample implements Iterable<JointClonotype> {
     private final double totalMeanFreq, minMeanFreq;
     private final int numberOfSamples;
     private final int count;
-    private final IntersectionType intersectionType;
+    private final OverlapType overlapType;
     private final boolean reverse;
 
     private JointSample(Sample[] samples,
@@ -45,7 +45,7 @@ public class JointSample implements Iterable<JointClonotype> {
                         List<JointClonotype> jointClonotypes,
                         double totalMeanFreq, double minMeanFreq,
                         int numberOfSamples, int count,
-                        IntersectionType intersectionType, boolean reverse) {
+                        OverlapType overlapType, boolean reverse) {
         this.samples = samples;
         this.intersectionFreq = intersectionFreq;
         this.intersectionFreqMatrix = intersectionFreqMatrix;
@@ -58,15 +58,15 @@ public class JointSample implements Iterable<JointClonotype> {
         this.minMeanFreq = minMeanFreq;
         this.numberOfSamples = numberOfSamples;
         this.count = count;
-        this.intersectionType = intersectionType;
+        this.overlapType = overlapType;
         this.reverse = reverse;
     }
 
-    public JointSample(IntersectionType intersectionType, Sample[] samples) {
-        this(intersectionType, samples, new OccurenceJoinFilter());
+    public JointSample(OverlapType overlapType, Sample[] samples) {
+        this(overlapType, samples, new OccurenceJoinFilter());
     }
 
-    public JointSample(IntersectionType intersectionType, Sample[] samples, JoinFilter joinFilter) {
+    public JointSample(OverlapType overlapType, Sample[] samples, JoinFilter joinFilter) {
         this.numberOfSamples = samples.length;
         this.samples = samples;
         this.intersectionDiv = new int[numberOfSamples];
@@ -75,10 +75,10 @@ public class JointSample implements Iterable<JointClonotype> {
         this.intersectionCount = new long[numberOfSamples];
         this.intersectionCountMatrix = new long[numberOfSamples][numberOfSamples];
         this.intersectionDivMatrix = new int[numberOfSamples][numberOfSamples];
-        this.intersectionType = intersectionType;
+        this.overlapType = overlapType;
         this.reverse = false;
 
-        ClonotypeKeyGen clonotypeKeyGen = new ClonotypeKeyGen(intersectionType);
+        ClonotypeKeyGen clonotypeKeyGen = new ClonotypeKeyGen(overlapType);
 
         Map<ClonotypeKey, JointClonotype> clonotypeMap = new HashMap<>();
         int sampleIndex = 0;
@@ -193,8 +193,8 @@ public class JointSample implements Iterable<JointClonotype> {
         return intersectionCountMatrix[getIndex(sampleIndex1)][getIndex(sampleIndex2)];
     }
 
-    public IntersectionType getIntersectionType() {
-        return intersectionType;
+    public OverlapType getOverlapType() {
+        return overlapType;
     }
 
     public double getTotalMeanFreq() {
@@ -264,6 +264,6 @@ public class JointSample implements Iterable<JointClonotype> {
                 intersectionDiv, intersectionDivMatrix,
                 jointClonotypes,
                 totalMeanFreq, minMeanFreq,
-                numberOfSamples, count, intersectionType, true);
+                numberOfSamples, count, overlapType, true);
     }
 }

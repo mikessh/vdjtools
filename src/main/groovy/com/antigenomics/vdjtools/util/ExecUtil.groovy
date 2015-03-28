@@ -18,8 +18,8 @@
 package com.antigenomics.vdjtools.util
 
 import com.antigenomics.vdjtools.basic.SegmentUsage
-import com.antigenomics.vdjtools.intersection.IntersectionEvaluator
-import com.antigenomics.vdjtools.intersection.PairedIntersection
+import com.antigenomics.vdjtools.overlap.OverlapEvaluator
+import com.antigenomics.vdjtools.overlap.Overlap
 import com.antigenomics.vdjtools.sample.Sample
 
 import java.nio.file.FileSystems
@@ -206,7 +206,7 @@ public class ExecUtil {
 
     public static void quiet() {
         SegmentUsage.VERBOSE = false
-        IntersectionEvaluator.VERBOSE = false
-        PairedIntersection.VERBOSE = false
+        OverlapEvaluator.VERBOSE = false
+        Overlap.VERBOSE = false
     }
 }

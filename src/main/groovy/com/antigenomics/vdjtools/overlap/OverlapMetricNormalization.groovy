@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools.intersection
+package com.antigenomics.vdjtools.overlap
 
 /**
  * Normalization type that is recommended for a given IntersectMetric,
- * should transform intersection metric value to {@code [0, +inf)} scale.
+ * should transform overlap metric value to {@code [0, +inf)} scale.
  */
-public enum IntersectMetricNormalization {
+public enum OverlapMetricNormalization {
     /**
      * Negative logarithm normalization {@code -log10(x + 1e-9)}.
      */
@@ -39,13 +39,13 @@ public enum IntersectMetricNormalization {
      */
     public final int id
 
-    private IntersectMetricNormalization(int id) {
+    private OverlapMetricNormalization(int id) {
         this.id = id
     }
 
     /**
-     * Normalize raw intersection metric accordingly.
-     * @param x intersection metric value.
+     * Normalize raw overlap metric accordingly.
+     * @param x overlap metric value.
      * @return normalized value.
      */
     public double normalize(double x) {

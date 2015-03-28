@@ -17,7 +17,7 @@
 package com.antigenomics.vdjtools.pool;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
-import com.antigenomics.vdjtools.intersection.IntersectionType;
+import com.antigenomics.vdjtools.overlap.OverlapType;
 import com.antigenomics.vdjtools.join.ClonotypeKeyGen;
 import com.antigenomics.vdjtools.join.key.ClonotypeKey;
 import com.antigenomics.vdjtools.sample.Sample;
@@ -34,13 +34,13 @@ public class SampleAggregator<T extends ClonotypeAggregator> implements Iterable
 
     public SampleAggregator(Iterable<Sample> samples,
                             ClonotypeAggregatorFactory<T> clonotypeAggregatorFactory) {
-        this(samples, clonotypeAggregatorFactory, IntersectionType.Strict);
+        this(samples, clonotypeAggregatorFactory, OverlapType.Strict);
     }
 
     public SampleAggregator(Iterable<Sample> samples,
                             ClonotypeAggregatorFactory<T> clonotypeAggregatorFactory,
-                            IntersectionType intersectionType) {
-        this.clonotypeKeyGen = new ClonotypeKeyGen(intersectionType);
+                            OverlapType overlapType) {
+        this.clonotypeKeyGen = new ClonotypeKeyGen(overlapType);
         int sampleId = 0;
         long count = 0;
 

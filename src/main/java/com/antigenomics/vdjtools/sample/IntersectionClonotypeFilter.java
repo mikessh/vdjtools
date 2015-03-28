@@ -16,7 +16,7 @@
 
 package com.antigenomics.vdjtools.sample;
 
-import com.antigenomics.vdjtools.intersection.IntersectionType;
+import com.antigenomics.vdjtools.overlap.OverlapType;
 import com.antigenomics.vdjtools.join.ClonotypeKeyGen;
 import com.antigenomics.vdjtools.join.key.ClonotypeKey;
 
@@ -26,14 +26,14 @@ public class IntersectionClonotypeFilter extends ClonotypeFilter {
     private final ClonotypeKeyGen clonotypeKeyGen;
     private final Set<ClonotypeKey> keySet;
 
-    public IntersectionClonotypeFilter(IntersectionType intersectionType, Sample sample, boolean negative) {
+    public IntersectionClonotypeFilter(OverlapType overlapType, Sample sample, boolean negative) {
         super(negative);
-        this.clonotypeKeyGen = new ClonotypeKeyGen(intersectionType);
-        this.keySet = new ClonotypeKeyGen(intersectionType).generateKeySet(sample);
+        this.clonotypeKeyGen = new ClonotypeKeyGen(overlapType);
+        this.keySet = new ClonotypeKeyGen(overlapType).generateKeySet(sample);
     }
 
-    public IntersectionClonotypeFilter(IntersectionType intersectionType, Sample sample) {
-        this(intersectionType, sample, false);
+    public IntersectionClonotypeFilter(OverlapType overlapType, Sample sample) {
+        this(overlapType, sample, false);
     }
 
     @Override

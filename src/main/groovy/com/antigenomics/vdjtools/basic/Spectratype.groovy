@@ -18,7 +18,7 @@
 package com.antigenomics.vdjtools.basic
 
 import com.antigenomics.vdjtools.sample.Clonotype
-import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.sample.Sample
 
 /**
@@ -50,20 +50,20 @@ public class Spectratype {
      * Creates a spectratype instance with a given sample. All calculations are performed within constructor.
      * Internal constructor 
      * @param sample sample sample to initialize with
-     * @param intersectionType intersection type to deduce whether amino acid or nucleotide sequence CDR3 should be used 
+     * @param intersectionType overlap type to deduce whether amino acid or nucleotide sequence CDR3 should be used
      * @param unweighted will count each unique clonotype once if set to true. Will weight each clonotype by its frequency otherwise
      */
-    public Spectratype(Sample sample, IntersectionType intersectionType, boolean unweighted) {
+    public Spectratype(Sample sample, OverlapType intersectionType, boolean unweighted) {
         this(intersectionType.aminoAcid, unweighted)
         addAll(sample)
     }
 
     /**
      * Creates a blank spectratype instance.
-     * @param intersectionType intersection type to deduce whether amino acid or nucleotide sequence CDR3 should be used
+     * @param intersectionType overlap type to deduce whether amino acid or nucleotide sequence CDR3 should be used
      * @param unweighted will count each unique clonotype once if set to true. Will weight each clonotype by its frequency otherwise
      */
-    public Spectratype(IntersectionType intersectionType, boolean unweighted) {
+    public Spectratype(OverlapType intersectionType, boolean unweighted) {
         this(intersectionType.aminoAcid, unweighted)
     }
 

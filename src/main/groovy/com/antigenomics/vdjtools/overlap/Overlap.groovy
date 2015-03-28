@@ -15,7 +15,7 @@
  */
 
 
-package com.antigenomics.vdjtools.intersection
+package com.antigenomics.vdjtools.overlap
 
 import com.antigenomics.vdjtools.join.JointSample
 import com.antigenomics.vdjtools.sample.Sample
@@ -24,18 +24,18 @@ import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 import com.antigenomics.vdjtools.util.ExecUtil
 
 /**
- * A class that performs an intersection between a pair of samples,
- * holds an exhaustive information on the extent of an intersection and
- * computes a set of intersection metrics
+ * A class that performs an overlap between a pair of samples,
+ * holds an exhaustive information on the extent of an overlap and
+ * computes a set of overlap metrics
  */
-public class PairedIntersection {
+public class Overlap {
     public static boolean VERBOSE = true
 
     private final SamplePair samplePair
     private final JointSample jointSample
-    private final IntersectionEvaluator intersectionEvaluator
-    private final Map<IntersectMetric, Double> intersectMetricCache
-    private final Collection<IntersectMetric> intersectMetrics
+    private final OverlapEvaluator intersectionEvaluator
+    private final Map<OverlapMetric, Double> intersectMetricCache
+    private final Collection<OverlapMetric> intersectMetrics
     private final int div1, div2, div12, div21, count1, count2, count12, count21
     private final double freq1, freq2, freq12, freq21
     private final boolean store
@@ -69,8 +69,8 @@ public class PairedIntersection {
      * @param meta2
      * @param store
      */
-    private PairedIntersection(SamplePair samplePair, JointSample jointSample, IntersectionEvaluator intersectionEvaluator,
-                               Collection<IntersectMetric> intersectMetrics, Map<IntersectMetric, Double> intersectMetricCache,
+    private Overlap(SamplePair samplePair, JointSample jointSample, OverlapEvaluator intersectionEvaluator,
+                               Collection<OverlapMetric> intersectMetrics, Map<OverlapMetric, Double> intersectMetricCache,
                                int div1, int div2, int div12, int div21,
                                int count1, int count2, int count12, int count21,
                                double freq1, double freq2, double freq12, double freq21,
@@ -105,35 +105,35 @@ public class PairedIntersection {
     /**
      * Intersects a pair of samples and stores all results.
      * Will load both samples into memory for the initialization step.
-     * Pre-computes all intersection metrics.
+     * Pre-computes all overlap metrics.
      * @param sample1 first sample to be intersected.
      * @param sample2 second sample to be intersected.
      * @param intersectionType clonotype matching rule
      */
-    public PairedIntersection(Sample sample1, Sample sample2, IntersectionType intersectionType) {
+    public Overlap(Sample sample1, Sample sample2, OverlapType intersectionType) {
         this(new SamplePair(sample1, sample2), intersectionType, false)
     }
 
     /**
      * Intersects a pair of samples and stores all results.
      * Will load both samples into memory for the initialization step.
-     * Pre-computes all intersection metrics.
+     * Pre-computes all overlap metrics.
      * @param samplePair an object holding samples to be intersected
      * @param intersectionType clonotype matching rule
      */
-    public PairedIntersection(SamplePair samplePair, IntersectionType intersectionType) {
+    public Overlap(SamplePair samplePair, OverlapType intersectionType) {
         this(samplePair, intersectionType, false)
     }
 
     /**
      * Intersects a pair of samples and stores all results. 
-     * Pre-computes all intersection metrics.
+     * Pre-computes all overlap metrics.
      * @param samplePair an object holding samples to be intersected
      * @param intersectionType clonotype matching rule
      * @param store holds all samples in memory if set to {@code true}
      */
-    public PairedIntersection(SamplePair samplePair, IntersectionType intersectionType, boolean store) {
-        this(samplePair, intersectionType, store, IntersectMetric.values())
+    public Overlap(SamplePair samplePair, OverlapType intersectionType, boolean store) {
+        this(samplePair, intersectionType, store, OverlapMetric.values())
     }
 
     /**
@@ -141,18 +141,18 @@ public class PairedIntersection {
      * @param samplePair an object holding samples to be intersected
      * @param intersectionType clonotype matching rule
      * @param store holds all samples in memory if set to {@code true}
-     * @param intersectMetrics a list of intersection metrics that should be pre-computed
+     * @param intersectMetrics a list of overlap metrics that should be pre-computed
      */
-    public PairedIntersection(SamplePair samplePair,
-                              IntersectionType intersectionType,
+    public Overlap(SamplePair samplePair,
+                              OverlapType intersectionType,
                               boolean store,
-                              Collection<IntersectMetric> intersectMetrics) {
+                              Collection<OverlapMetric> intersectMetrics) {
         this.store = store
         this.samplePair = store ? samplePair : null
         ExecUtil.report(this, "Intersecting samples #${samplePair.i} and ${samplePair.j}", VERBOSE)
         def jointSample = new JointSample(intersectionType, [samplePair[0], samplePair[1]] as Sample[])
         this.jointSample = store ? jointSample : null
-        def intersectionEvaluator = new IntersectionEvaluator(jointSample)
+        def intersectionEvaluator = new OverlapEvaluator(jointSample)
         this.intersectionEvaluator = store ? intersectionEvaluator : null
         this.intersectMetrics = intersectMetrics
         this.intersectMetricCache = new HashMap<>()
@@ -183,12 +183,12 @@ public class PairedIntersection {
     }
 
     /**
-     * Gets the value of a specified intersection metric. Uses cache.
-     * @param intersectMetric intersection metric type
-     * @return value of intersection metric which can lie in {@code ( - inf , + inf )}
+     * Gets the value of a specified overlap metric. Uses cache.
+     * @param intersectMetric overlap metric type
+     * @return value of overlap metric which can lie in {@code ( - inf , + inf )}
      * @throws Exception if metric is not pre-computed and {@code store=false}
      */
-    public double getMetricValue(IntersectMetric intersectMetric) {
+    public double getMetricValue(OverlapMetric intersectMetric) {
         def value = intersectMetricCache[intersectMetric]
         if (value == null) {
             if (!store)
@@ -202,7 +202,7 @@ public class PairedIntersection {
     }
 
     /**
-     * Gets the first sample in intersection 
+     * Gets the first sample in overlap
      * @return sample object
      * @throws Exception if {@code store=false}
      */
@@ -213,7 +213,7 @@ public class PairedIntersection {
     }
 
     /**
-     * Gets the second sample in intersection 
+     * Gets the second sample in overlap
      * @return sample object
      * @throws Exception if {@code store=false}
      */
@@ -340,11 +340,11 @@ public class PairedIntersection {
 
     /**
      * Swaps samples and all fields: {@code div1} is swapped with {@code div2}, etc.
-     * Method is mostly used for output as by default only the lower triangular of intersection matrix is stored
-     * @return a paired intersection instance for swapped pair of samples
+     * Method is mostly used for output as by default only the lower triangular of overlap matrix is stored
+     * @return a paired overlap instance for swapped pair of samples
      */
-    public PairedIntersection getReverse() {
-        new PairedIntersection(store ? samplePair.reverse : null, store ? jointSample.reverse : null,
+    public Overlap getReverse() {
+        new Overlap(store ? samplePair.reverse : null, store ? jointSample.reverse : null,
                 intersectionEvaluator, intersectMetrics, intersectMetricCache,
                 div2, div1, div21, div12,
                 count2, count1, count21, count12,
@@ -368,7 +368,7 @@ public class PairedIntersection {
     public static String HEADER =
             ["#1_$MetadataTable.GENERIC_METADATA_TABLE.SAMPLE_ID_COLUMN",
              "2_$MetadataTable.GENERIC_METADATA_TABLE.SAMPLE_ID_COLUMN",
-             OUTPUT_FIELDS.collect(), IntersectMetric.collect { it.shortName },
+             OUTPUT_FIELDS.collect(), OverlapMetric.collect { it.shortName },
              MetadataTable.GENERIC_METADATA_TABLE.columnHeader1,
              MetadataTable.GENERIC_METADATA_TABLE.columnHeader2].flatten().join("\t")
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools.intersection.mds
+package com.antigenomics.vdjtools.overlap.permutations
 
 class DiscreteFactorClusterStats {
     private final List<String> factorList = new ArrayList<>()

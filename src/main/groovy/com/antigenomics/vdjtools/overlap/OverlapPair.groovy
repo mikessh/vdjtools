@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools.intersection
+package com.antigenomics.vdjtools.overlap
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.io.SampleWriter
@@ -25,10 +25,10 @@ import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
 
 def I_TYPE_DEFAULT = "strict", TOP_DEFAULT = "20", TOP_MAX = 100
-def cli = new CliBuilder(usage: "IntersectPair [options] sample1 sample2 output_prefix")
+def cli = new CliBuilder(usage: "OverlapPair [options] sample1 sample2 output_prefix")
 cli.h("display help message")
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
-        "Intersection rule to apply. Allowed values: $IntersectionType.allowedNames. " +
+        "Intersection rule to apply. Allowed values: $OverlapType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
 cli.t(longOpt: "top", args: 1, "Number of top clonotypes which will be provided in the collapsed joint table " +
         "and shown on the summary stacked area plot. " +
@@ -54,14 +54,14 @@ def sample1FileName = opt.arguments()[0], sample2FileName = opt.arguments()[1],
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
-// Select intersection type
+// Select overlap type
 
 def iName = opt.i ?: I_TYPE_DEFAULT
-def intersectionType = IntersectionType.getByShortName(iName)
+def intersectionType = OverlapType.getByShortName(iName)
 
 if (!intersectionType) {
-    println "[ERROR] Bad intersection type specified ($iName). " +
-            "Allowed values are: $IntersectionType.allowedNames"
+    println "[ERROR] Bad overlap type specified ($iName). " +
+            "Allowed values are: $OverlapType.allowedNames"
     System.exit(-1)
 }
 
@@ -83,12 +83,12 @@ println "[${new Date()} $scriptName] Reading samples $sample1FileName and $sampl
 def sampleCollection = new SampleCollection([sample1FileName, sample2FileName], Software.VDJtools, true, false)
 
 //
-// Perform an intersection by CDR3NT & V segment
+// Perform an overlap by CDR3NT & V segment
 //
 
 println "[${new Date()} $scriptName] Intersecting"
 
-def pairedIntersection = new PairedIntersection(sampleCollection.listPairs()[0], intersectionType, true)
+def pairedIntersection = new Overlap(sampleCollection.listPairs()[0], intersectionType, true)
 def jointSample = pairedIntersection.jointSample
 
 //

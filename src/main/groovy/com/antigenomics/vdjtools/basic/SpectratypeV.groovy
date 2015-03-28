@@ -16,7 +16,7 @@
 
 package com.antigenomics.vdjtools.basic
 
-import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.sample.Clonotype
 
 /**
@@ -38,18 +38,18 @@ public class SpectratypeV {
 
     /**
      * Creates a blank Variable segment spectratype instance.
-     * @param intersectionType intersection type to deduce whether amino acid or nucleotide sequence CDR3 should be used to determine the histogram bin
+     * @param intersectionType overlap type to deduce whether amino acid or nucleotide sequence CDR3 should be used to determine the histogram bin
      */
-    public SpectratypeV(IntersectionType intersectionType) {
+    public SpectratypeV(OverlapType intersectionType) {
         this(intersectionType.aminoAcid, false)
     }
 
     /**
      * Creates a blank Variable segment spectratype instance.
-     * @param intersectionType intersection type to deduce whether amino acid or nucleotide sequence CDR3 should be used to determine the histogram bin
+     * @param intersectionType overlap type to deduce whether amino acid or nucleotide sequence CDR3 should be used to determine the histogram bin
      * @param unweighted will count each unique clonotype once if set to true. Will weight each clonotype by its frequency otherwise
      */
-    public SpectratypeV(IntersectionType intersectionType, boolean unweighted) {
+    public SpectratypeV(OverlapType intersectionType, boolean unweighted) {
         this(intersectionType.aminoAcid, unweighted)
     }
 

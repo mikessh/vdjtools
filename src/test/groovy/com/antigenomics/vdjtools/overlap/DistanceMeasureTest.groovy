@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools.intersection
+package com.antigenomics.vdjtools.overlap
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.manipulation.DownSampler
@@ -25,24 +25,24 @@ import static com.antigenomics.vdjtools.TestUtil.getResource
 import static com.antigenomics.vdjtools.io.SampleStreamConnection.load
 
 class DistanceMeasureTest {
-    static void checkMetricValue(IntersectMetric intersectMetric, double val) {
+    static void checkMetricValue(OverlapMetric intersectMetric, double val) {
         switch (intersectMetric) {
-            case IntersectMetric.Correlation:
+            case OverlapMetric.Correlation:
                 assert val >= -1 && val <= 1
                 break
 
-            case IntersectMetric.Frequency:
-            case IntersectMetric.Frequency2:
-            case IntersectMetric.Diversity:
-            case IntersectMetric.MorisitaHorn:
-            case IntersectMetric.Jaccard:
+            case OverlapMetric.Frequency:
+            case OverlapMetric.Frequency2:
+            case OverlapMetric.Diversity:
+            case OverlapMetric.MorisitaHorn:
+            case OverlapMetric.Jaccard:
                 assert val >= 0 && val <= 1
                 break
 
-            case IntersectMetric.sJSD:
-            case IntersectMetric.vJSD:
-            case IntersectMetric.vj2JSD:
-            case IntersectMetric.vjJSD:
+            case OverlapMetric.sJSD:
+            case OverlapMetric.vJSD:
+            case OverlapMetric.vj2JSD:
+            case OverlapMetric.vjJSD:
                 assert val >= 0
                 break
         }
@@ -66,15 +66,15 @@ class DistanceMeasureTest {
             def s1 = downSampler.reSample(smallCount),
                 s2 = downSampler.reSample(smallCount)
 
-            def smallIntersection = new PairedIntersection(s1, s2, IntersectionType.AminoAcid)
+            def smallIntersection = new Overlap(s1, s2, OverlapType.AminoAcid)
 
             s1 = downSampler.reSample(largeCount)
             s2 = downSampler.reSample(largeCount)
 
-            def largeIntersection = new PairedIntersection(s1, s2, IntersectionType.AminoAcid),
-                selfIntersection = new PairedIntersection(s1, s1, IntersectionType.AminoAcid)
+            def largeIntersection = new Overlap(s1, s2, OverlapType.AminoAcid),
+                selfIntersection = new Overlap(s1, s1, OverlapType.AminoAcid)
 
-            IntersectMetric.values().each {
+            OverlapMetric.values().each {
                 def val1 = smallIntersection.getMetricValue(it),
                     val2 = largeIntersection.getMetricValue(it),
                     val3 = selfIntersection.getMetricValue(it)
@@ -91,10 +91,10 @@ class DistanceMeasureTest {
                 // For RepSeq data, the other possible normalization (overlap size / sqrt(sample1 size * sample2 size))
                 // will actually bias towards larger samples, due to higher probability of grabbing similar variants
                 // It was empirically estimated that pow(sample1 size * sample2 size, 0.8) is the optimal choice
-                if (it != IntersectMetric.Diversity)
+                if (it != OverlapMetric.Diversity)
                     assert it.normalization.normalize(val1) > it.normalization.normalize(val2)
 
-                // self intersection is always the closest one
+                // self overlap is always the closest one
                 assert it.normalization.normalize(val2) > it.normalization.normalize(val3)
             }
         }

@@ -18,7 +18,7 @@ package com.antigenomics.vdjtools.diversity
 
 import com.antigenomics.vdjtools.Countable
 import com.antigenomics.vdjtools.Counter
-import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.join.ClonotypeKeyGen
 import com.antigenomics.vdjtools.join.key.ClonotypeKey
 import com.antigenomics.vdjtools.pool.ClonotypeAggregator
@@ -65,15 +65,15 @@ class FrequencyTable {
      * @param sample sample to tabulate.
      */
     FrequencyTable(Sample sample) {
-        this(sample, IntersectionType.Strict)
+        this(sample, OverlapType.Strict)
     }
 
     /**
      * Creates frequency table that bins clonotypes according to their frequency.
      * @param sample sample to tabulate.
-     * @param intersectionType intersection type used to collapse clonotypes.
+     * @param intersectionType overlap type used to collapse clonotypes.
      */
-    FrequencyTable(Sample sample, IntersectionType intersectionType) {
+    FrequencyTable(Sample sample, OverlapType intersectionType) {
         Iterable<Countable> counters
 
         // collapse clonotypes by a specific key
@@ -129,7 +129,7 @@ class FrequencyTable {
 
     /**
      * Gets the total number of clonotypes in this table, 
-     * in accordance with {@link com.antigenomics.vdjtools.intersection.IntersectionType} used to collapse the sample.
+     * in accordance with {@link OverlapType} used to collapse the sample.
      * @return total number of clonotypes in the table after they were collapsed.
      */
     long getDiversity() {

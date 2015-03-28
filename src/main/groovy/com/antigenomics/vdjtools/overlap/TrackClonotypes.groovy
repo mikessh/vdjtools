@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.antigenomics.vdjtools.intersection
+package com.antigenomics.vdjtools.overlap
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.io.SampleWriter
@@ -29,32 +29,38 @@ import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
 
 def I_TYPE_DEFAULT = "strict", TOP_DEFAULT = "100", TOP_MAX = 200
-def cli = new CliBuilder(usage: "IntersectSequential [options] " +
+def cli = new CliBuilder(usage: "TrackClonotypes [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
-cli.S(longOpt: "software", argName: "string", required: true, args: 1,
-        "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
-cli.x(longOpt: "track-sample", argName: "int", args: 1,
-        "A zero-based index of time point to track. " +
-                "Will otherwise consider all clonotypes that were detected in 2+ samples")
+
+// General
+
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata." +
                 "If column named 'time' is present, it will be used to specify time point sequence.")
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
-        "Intersection rule to apply. Allowed values: $IntersectionType.allowedNames. " +
+        "Intersection rule to apply. Allowed values: $OverlapType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
-cli.s(longOpt: "sequence", argName: "[t1,t2,t3,...]", args: 1,
-        "Time point sequence. Unused if -m is specified. " +
-                "If not specified, either time values from metadata, " +
-                "or sample indexes (as in command line) are used.")
+// Tracking and output
+
+cli.x(longOpt: "track-sample", argName: "int", args: 1,
+        "A zero-based index of time point to track. " +
+                "Will otherwise consider all clonotypes that were detected in 2+ samples")
 cli.t(longOpt: "top", args: 1, "Number of top clonotypes which will be provided in the collapsed joint table " +
         "and shown on the summary stacked area plot. " +
         "Values > $TOP_MAX are not allowed, as they would make the plot unreadable. [default = $TOP_DEFAULT]")
-cli.f(longOpt: "factor", argName: "string", args: 1,
-        "Column name, as in metadata. Factor to be treated as time variable. [default = \"time\"]")
-cli.p(longOpt: "plot", "Turns on plotting.")
 cli.c(longOpt: "compress", "Compress output sample files.")
+
+// Plotting
+
+cli.s(longOpt: "sequence", argName: "[t1,t2,t3,...]", args: 1,
+        "[plotting] Time point sequence. Unused if -m is specified. " +
+                "If not specified, either time values from metadata, " +
+                "or sample indexes (as in command line) are used.")
+cli.f(longOpt: "factor", argName: "string", args: 1,
+        "[plotting] Column name, as in metadata. Factor to be treated as time variable. [default = \"time\"]")
+cli.p(longOpt: "plot", "[plotting] Turns on plotting.")
 
 def opt = cli.parse(args)
 
@@ -82,22 +88,21 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 4)
 
 // Other parameters
 
-def software = Software.byName(opt.S),
-    trackSample = (opt.x ?: "-1").toInteger(),
+def trackSample = (opt.x ?: "-1").toInteger(),
     plot = opt.p,
     timeFactor = opt.f ?: "time",
     outputPrefix = opt.arguments()[-1]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
-// Select intersection type
+// Select overlap type
 
 def iName = opt.i ?: I_TYPE_DEFAULT
-def intersectionType = IntersectionType.getByShortName(iName)
+def intersectionType = OverlapType.getByShortName(iName)
 
 if (!intersectionType) {
-    println "[ERROR] Bad intersection type specified ($iName). " +
-            "Allowed values are: $IntersectionType.allowedNames"
+    println "[ERROR] Bad overlap type specified ($iName). " +
+            "Allowed values are: $OverlapType.allowedNames"
     System.exit(-1)
 }
 
@@ -117,8 +122,8 @@ if (top > TOP_MAX) {
 println "[${new Date()} $scriptName] Reading in all samples"
 
 def sampleCollection = metadataFileName ?
-        new SampleCollection((String) metadataFileName, software, true, false) :
-        new SampleCollection(opt.arguments()[0..-2], software, true, false)
+        new SampleCollection((String) metadataFileName, Software.VDJtools, true, false) :
+        new SampleCollection(opt.arguments()[0..-2], Software.VDJtools, true, false)
 
 def metadataTable = sampleCollection.metadataTable
 

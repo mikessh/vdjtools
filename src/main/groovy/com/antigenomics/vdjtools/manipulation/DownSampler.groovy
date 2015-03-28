@@ -57,7 +57,7 @@ public class DownSampler {
         } else {
             MathUtil.shuffle(flattenedClonotypes)
 
-            def countMap = new HashMap<Clonotype, Integer>() // same as with strict intersection
+            def countMap = new HashMap<Clonotype, Integer>() // same as with strict overlap
 
             for (int i = 0; i < count; i++) {
                 def clonotype = flattenedClonotypes[i]

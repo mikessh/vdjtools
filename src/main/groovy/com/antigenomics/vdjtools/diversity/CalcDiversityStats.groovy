@@ -16,15 +16,14 @@
 
 package com.antigenomics.vdjtools.diversity
 
-import com.antigenomics.vdjtools.Software
-import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
-def I_TYPE_DEFAULT = IntersectionType.Strict, RESAMPLES_DEFAULT = "3"
+def I_TYPE_DEFAULT = OverlapType.Strict, RESAMPLES_DEFAULT = "3"
 def cli = new CliBuilder(usage: "CalcDiversityStats [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
@@ -38,7 +37,7 @@ cli.X(longOpt: "extrapolate-to", argName: "integer", args: 1,
         "Number of reads to take for extrapolated sample diversity estimate." +
                 "[default=number of reads in the largest sample]")
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
-        "Intersection rule to apply. Allowed values: $IntersectionType.allowedNames. " +
+        "Intersection rule to apply. Allowed values: $OverlapType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
 cli._(longOpt: "resample-trials", argName: "integer", args: 1,
         "Number of resamples for corresponding estimator. [default = $RESAMPLES_DEFAULT]")
@@ -68,7 +67,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 // Other arguments
 
-def intersectionType = opt.i ? IntersectionType.getByShortName((String) opt.i) : I_TYPE_DEFAULT,
+def intersectionType = opt.i ? OverlapType.getByShortName((String) opt.i) : I_TYPE_DEFAULT,
     resampleCount = (opt."resample-trials" ?: RESAMPLES_DEFAULT).toInteger(),
     outputPrefix = opt.arguments()[-1]
 

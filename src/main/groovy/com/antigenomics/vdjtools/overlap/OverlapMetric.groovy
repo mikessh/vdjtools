@@ -16,14 +16,14 @@
 
 
 
-package com.antigenomics.vdjtools.intersection
+package com.antigenomics.vdjtools.overlap
 
-import static com.antigenomics.vdjtools.intersection.IntersectMetricNormalization.*
+import static OverlapMetricNormalization.*
 
 /**
- * An enum that defines intersection metric, a function that characterizes the extent of overlap between a pair of samples.
+ * An enum that defines overlap metric, a function that characterizes the extent of overlap between a pair of samples.
  */
-public enum IntersectMetric {
+public enum OverlapMetric {
     /**
      * Correlation between sample frequencies of _overlapping_ clonotypes
      */
@@ -66,14 +66,14 @@ public enum IntersectMetric {
             MorisitaHorn("MorisitaHorn", None)
 
     public final String shortName
-    public final IntersectMetricNormalization normalization
+    public final OverlapMetricNormalization normalization
 
     /**
-     * Defines a new intersection metric 
+     * Defines a new overlap metric
      * @param shortName short name
      * @param normalization normalization type
      */
-    public IntersectMetric(String shortName, IntersectMetricNormalization normalization) {
+    public OverlapMetric(String shortName, OverlapMetricNormalization normalization) {
         this.shortName = shortName
         this.normalization = normalization
     }
@@ -83,7 +83,7 @@ public enum IntersectMetric {
      * @param shortName short name
      * @return
      */
-    public static IntersectMetric getByShortName(String name) {
+    public static OverlapMetric getByShortName(String name) {
         name = name.toUpperCase()
         values().find { it.shortName.toUpperCase() == name }
     }

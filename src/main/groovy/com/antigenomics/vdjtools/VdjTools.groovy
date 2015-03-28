@@ -24,7 +24,7 @@ import com.antigenomics.vdjtools.compare.Enrichment
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.PlotQuantileStats
 import com.antigenomics.vdjtools.diversity.RarefactionPlot
-import com.antigenomics.vdjtools.intersection.*
+import com.antigenomics.vdjtools.overlap.*
 import com.antigenomics.vdjtools.manipulation.*
 import com.antigenomics.vdjtools.util.ExecUtil
 import com.antigenomics.vdjtools.util.RInstall
@@ -53,10 +53,10 @@ def printHelp = {
     println "PlotQuantileStats"
     println ""
     println "[Intersection]"
-    println "IntersectPair"
-    println "BatchIntersectPair"
-    println "BatchIntersectPairPlot"
-    println "IntersectSequential"
+    println "OverlapPair"
+    println "CalcPairwiseDistances"
+    println "ClusterSamples"
+    println "TrackClonotypes"
     println ""
     println "[Preprocessing]"
     println "ApplySampleAsFilter"
@@ -96,13 +96,13 @@ def getScript = { String scriptName ->
         case "DOWNSAMPLE":
             return new DownSample()
         case "INTERSECTPAIR":
-            return new IntersectPair()
+            return new OverlapPair()
         case "BATCHINTERSECTPAIR":
-            return new BatchIntersectPair()
+            return new CalcPairwiseDistances()
         case "BATCHINTERSECTPAIRPLOT":
-            return new BatchIntersectPairPlot()
+            return new ClusterSamples()
         case "INTERSECTSEQUENTIAL":
-            return new IntersectSequential()
+            return new TrackClonotypes()
         case "SCANDATABASE":
             return new ScanDatabase()
         case "POOLSAMPLES":

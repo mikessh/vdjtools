@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools.intersection
+package com.antigenomics.vdjtools.overlap
 
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.SamplePair
@@ -25,40 +25,40 @@ import groovyx.gpars.GParsPool
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * A class that implements all-vs-all paired intersection for a sample collection and 
+ * A class that implements all-vs-all paired overlap for a sample collection and
  * holds information on those intersections in a manner it could be easily accessed
  */
-public class PairedIntersectionBatch {
+public class PairwiseOverlap {
     private final SampleCollection sampleCollection
-    private final IntersectionType intersectionType
-    private final Collection<IntersectMetric> intersectMetrics
-    private final PairedIntersection[][] pairedIntersectionCache
+    private final OverlapType intersectionType
+    private final Collection<OverlapMetric> intersectMetrics
+    private final Overlap[][] pairedIntersectionCache
     private final int numberOfSamples
 
     /**
      * Intersects clonotype lists for all unique pairs of samples in a given sample collection.
      * Will load both samples into memory for the initialization step. 
-     * Pre-computes all intersection metrics.
+     * Pre-computes all overlap metrics.
      * @param sampleCollection a list of samples
      * @param intersectionType clonotype matching rule
      */
-    public PairedIntersectionBatch(SampleCollection sampleCollection,
-                                   IntersectionType intersectionType) {
+    public PairwiseOverlap(SampleCollection sampleCollection,
+                                   OverlapType intersectionType) {
         this(sampleCollection, intersectionType, false, false)
     }
 
     /**
      * Intersects clonotype lists for all unique pairs of samples in a given sample collection.
-     * Pre-computes all intersection metrics.
+     * Pre-computes all overlap metrics.
      * @param sampleCollection a list of samples
      * @param intersectionType clonotype matching rule
      * @param store holds all samples in memory if set to {@code true}
      * @param lowMem if set to {@code true}, will not load all samples in memory, but rather load a sample pair at each step
      */
-    public PairedIntersectionBatch(SampleCollection sampleCollection,
-                                   IntersectionType intersectionType,
+    public PairwiseOverlap(SampleCollection sampleCollection,
+                                   OverlapType intersectionType,
                                    boolean store, boolean lowMem) {
-        this(sampleCollection, intersectionType, store, lowMem, IntersectMetric.values())
+        this(sampleCollection, intersectionType, store, lowMem, OverlapMetric.values())
     }
 
     /**
@@ -67,12 +67,12 @@ public class PairedIntersectionBatch {
      * @param intersectionType clonotype matching rule
      * @param store holds all samples in memory if set to {@code true}
      * @param lowMem if set to {@code true}, will not load all samples in memory, but rather load a sample pair at each step
-     * @param intersectMetrics a list of intersection metrics that should be pre-computed
+     * @param intersectMetrics a list of overlap metrics that should be pre-computed
      */
-    public PairedIntersectionBatch(SampleCollection sampleCollection,
-                                   IntersectionType intersectionType,
+    public PairwiseOverlap(SampleCollection sampleCollection,
+                                   OverlapType intersectionType,
                                    boolean store, boolean lowMem,
-                                   Collection<IntersectMetric> intersectMetrics) {
+                                   Collection<OverlapMetric> intersectMetrics) {
         if (store && lowMem)
             throw new Exception("Isn't it illogical to use 'store' and 'lowMem' options simultaneously?")
 
@@ -80,21 +80,21 @@ public class PairedIntersectionBatch {
         this.intersectionType = intersectionType
         this.intersectMetrics = intersectMetrics
         this.numberOfSamples = sampleCollection.size()
-        this.pairedIntersectionCache = new PairedIntersection[numberOfSamples][numberOfSamples]
+        this.pairedIntersectionCache = new Overlap[numberOfSamples][numberOfSamples]
 
         int totalPairs = numberOfSamples * (numberOfSamples - 1) / 2
         def progressCounter = new AtomicInteger()
 
         def intersect = { SamplePair pair ->
             pairedIntersectionCache[pair.i][pair.j] =
-                    new PairedIntersection(pair, intersectionType, store, intersectMetrics)
+                    new Overlap(pair, intersectionType, store, intersectMetrics)
             int progr
             if ((progr = progressCounter.incrementAndGet()) % 10 == 0) {
                 ExecUtil.report(this, "Processed $progr of $totalPairs pairs. " + ExecUtil.memoryFootprint())
             }
         }
 
-        ExecUtil.report(this, "Started batch intersection for $numberOfSamples samples ($totalPairs pairs)")
+        ExecUtil.report(this, "Started batch overlap for $numberOfSamples samples ($totalPairs pairs)")
 
         if (lowMem) {
             for (int i = 0; i < numberOfSamples - 1; i++) {
@@ -111,15 +111,15 @@ public class PairedIntersectionBatch {
     }
 
     /**
-     * Gets a paired intersection for a given pair of samples 
+     * Gets a paired overlap for a given pair of samples
      * @param i first sample index
      * @param j second sample index
      * @return {@code PairedIntersection} for samples ordered as {@code [i , j]}. Will return {@code null} if {@code i == j}
      * @throws {@code IndexOutOfBoundsException} if {@code i} or {@code j} are not in {@code [0 , numberOfSamples)}
      */
-    public PairedIntersection getAt(int i, int j) {
+    public Overlap getAt(int i, int j) {
         if (i == j)
-            return null // todo: re-implement with dummy batch intersection
+            return null // todo: re-implement with dummy batch overlap
 
         boolean reverse = i > j
         if (reverse)
@@ -136,7 +136,7 @@ public class PairedIntersectionBatch {
      */
     public String getHeader() {
         ["#1_$MetadataTable.SAMPLE_ID_COLUMN", "2_$MetadataTable.SAMPLE_ID_COLUMN",
-         PairedIntersection.OUTPUT_FIELDS.collect(), intersectMetrics.collect { it.shortName },
+         Overlap.OUTPUT_FIELDS.collect(), intersectMetrics.collect { it.shortName },
          sampleCollection.metadataTable.columnHeader1,
          sampleCollection.metadataTable.columnHeader2].flatten().join("\t")
     }

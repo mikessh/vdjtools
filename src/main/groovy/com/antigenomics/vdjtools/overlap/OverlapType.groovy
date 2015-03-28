@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools.intersection
+package com.antigenomics.vdjtools.overlap
 
 /**
  * An enum that defines the clonotype matching rule. 
  * Used both when collapsing "identical" clonotypes in a sample and when matching clonotypes between samples 
  */
-public enum IntersectionType {
+public enum OverlapType {
 
     /**
      * Intersection rule. Clonotypes match if their CDR3 nucleotide sequences match 
@@ -64,7 +64,7 @@ public enum IntersectionType {
      * @param shortName short name
      * @param aminoAcid if {@code true} matching relies on amino acid sequences; {@code false} for nucleotide sequences
      */
-    public IntersectionType(String shortName, boolean aminoAcid) {
+    public OverlapType(String shortName, boolean aminoAcid) {
         this.shortName = shortName
         this.aminoAcid = aminoAcid
     }
@@ -74,7 +74,7 @@ public enum IntersectionType {
      * @param shortName short name
      * @return
      */
-    public static IntersectionType getByShortName(String shortName) {
+    public static OverlapType getByShortName(String shortName) {
         values().find { it.shortName.toUpperCase() == shortName.toUpperCase() }
     }
 

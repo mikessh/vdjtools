@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools.intersection.mds
+package com.antigenomics.vdjtools.overlap.permutations
 
 /**
  * Created by mikesh on 1/1/15.
