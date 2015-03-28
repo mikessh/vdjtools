@@ -16,8 +16,8 @@
 
 package com.antigenomics.vdjtools.basic
 
-import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.intersection.IntersectionType
+import com.antigenomics.vdjtools.sample.Clonotype
 
 /**
  * Class that represents spectratype collection grouped by Variable segments,
@@ -104,7 +104,7 @@ public class SpectratypeV {
     /**
      * Selects spectratypes for {@code 0..top-1} Variable segments. 
      * Note that you should not normalize the resulting histograms if you want to see the correct picture,
-     * so call {@code spectratype.getHistogram(false)}
+     * so call {@code spectratype.getHistogram ( false )}
      * @param top number of most frequent Variable segments to take
      * @return map with Variable segment name {@code String} as key and {@code Spectratype} as value
      */

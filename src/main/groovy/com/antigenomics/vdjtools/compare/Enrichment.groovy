@@ -95,7 +95,7 @@ println "[${new Date()} $scriptName] Filtering control clonotypes from input sam
 
 def controlFilter = new IntersectionClonotypeFilter(intersectionType, controlSample, true)
 
-def filteredSamples = new SampleCollection(inputSamples.collect { new Sample(it, controlFilter) })
+def filteredSamples = SampleCollection.fromSampleList(inputSamples.collect { new Sample(it, controlFilter) })
 
 //
 // Compute statistics

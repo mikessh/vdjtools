@@ -44,23 +44,30 @@ class SampleCollection implements Iterable<Sample> {
         metadataTable
     }
 
+    protected SampleCollection(Software software, boolean strict, boolean lazy, boolean store,
+                               MetadataTable metadataTable) {
+        this.software = software
+        this.strict = strict
+        this.lazy = lazy
+        this.store = store
+        this.metadataTable = metadataTable
+    }
+
     /**
      * Builds a sample collection from a pre-defined list of samples.
      * Samples should belong to the same metadata table, sample order will be preserved.
      * @param samples list of samples.
      */
-    public SampleCollection(List<Sample> samples) {
-        this.software = null
-        this.strict = true
-        this.lazy = false
-        this.store = true
-        this.metadataTable = samples[0].sampleMetadata.parent
+    public static SampleCollection fromSampleList(List<Sample> samples) {
+        def sampleCollection = new SampleCollection(Software.VDJtools,
+                true, false, true, samples[0].sampleMetadata.parent)
         samples.each {
-            if (it.sampleMetadata.parent != metadataTable)
+            if (it.sampleMetadata.parent != sampleCollection.metadataTable)
                 throw new Exception("Only samples coming from same metadata table are allowed")
             def sampleId = it.sampleMetadata.sampleId
-            sampleMap.put(sampleId, new DummySampleConnection(it))
+            sampleCollection.sampleMap.put(sampleId, new DummySampleConnection(it))
         }
+        sampleCollection
     }
 
     /**
@@ -130,7 +137,7 @@ class SampleCollection implements Iterable<Sample> {
     /**
      * Builds a sample collection from a pre-defined list of sample file names.
      * Samples will be assigned to generic metadata table, sample order will be preserved.
-     * Samples should be in VDJtools format.*
+     * Samples should be in VDJtools format.
      * @param sampleFileNames list of sample file names.
      */
     public SampleCollection(List<String> sampleFileNames) {
