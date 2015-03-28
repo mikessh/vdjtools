@@ -164,28 +164,4 @@ execute("batch_intersect_pair_clust.r",
         logical(plot), hcFileName, mdsFileName
 )
 
-//
-// Permutation testing
-//
-
-if (specifiedFactor) {
-    if (numFactor) {
-        // todo: finish with distance correlation
-    } else {
-        println "[${new Date()} $scriptName] Running permutation testing for factor ~ cluster dependence"
-        def permsOutputPath = formOutputPath(outputPrefix, "perms", intersectionType, measureName)
-        def summary = new DiscreteFactorClusterStats(mdsFileName).performPermutations(10000)
-        if (summary) {
-            DiscreteFactorClusterStats.writeSummary(summary, permsOutputPath)
-            execute("batch_intersect_pair_perm_f.r",
-                    permsOutputPath,
-                    toPlotPath(permsOutputPath)
-            )
-            new File(permsOutputPath).delete()
-        } else {
-            println "[${new Date()} $scriptName] No way - less than 2 factor levels are present."
-        }
-    }
-}
-
 println "[${new Date()} $scriptName] Finished"

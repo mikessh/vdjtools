@@ -52,7 +52,7 @@ def printHelp = {
     println "RarefactionPlot"
     println "PlotQuantileStats"
     println ""
-    println "[Intersection]"
+    println "[Overlap]"
     println "OverlapPair"
     println "CalcPairwiseDistances"
     println "ClusterSamples"
@@ -89,38 +89,44 @@ def getScript = { String scriptName ->
             return new PlotSpectratypeV()
         case "PLOTFANCYVJUSAGE":
             return new PlotFancyVJUsage()
+        
         case "CALCDIVERSITYSTATS":
             return new CalcDiversityStats()
-        case "FILTERNONFUNCTIONAL":
-            return new FilterNonFunctional()
-        case "DOWNSAMPLE":
-            return new DownSample()
-        case "INTERSECTPAIR":
-            return new OverlapPair()
-        case "BATCHINTERSECTPAIR":
-            return new CalcPairwiseDistances()
-        case "BATCHINTERSECTPAIRPLOT":
-            return new ClusterSamples()
-        case "INTERSECTSEQUENTIAL":
-            return new TrackClonotypes()
-        case "SCANDATABASE":
-            return new ScanDatabase()
-        case "POOLSAMPLES":
-            return new PoolSamples()
-        case "APPLYSAMPLEASFILTER":
-            return new ApplySampleAsFilter()
         case "RAREFACTIONPLOT":
             return new RarefactionPlot()
         case "PLOTQUANTILESTATS":
             return new PlotQuantileStats()
+        
+        case "OVERLAPPAIR":
+            return new OverlapPair()
+        case "CALCPAIRWISEDISTANCES":
+            return new CalcPairwiseDistances()
+        case "CLUSTERSAMPLES":
+            return new ClusterSamples()
+        case "TRACKCLONOTYPES":
+            return new TrackClonotypes()
+
+        case "APPLYSAMPLEASFILTER":
+            return new ApplySampleAsFilter()
         case "DECONTAMINATE":
             return new Decontaminate()
         case "FILTERBYSEGMENT":
             return new FilterBySegment()
+        case "FILTERNONFUNCTIONAL":
+            return new FilterNonFunctional()
+        case "DOWNSAMPLE":
+            return new DownSample()
+        
         case "CONVERT":
             return new Convert()
+        case "POOLSAMPLES":
+            return new PoolSamples()
         case "ENRICHMENT":
             return new Enrichment()
+
+        case "SCANDATABASE":
+            return new ScanDatabase()
+        
         case "RINSTALL":
             return new RInstall()
         case "-H":
