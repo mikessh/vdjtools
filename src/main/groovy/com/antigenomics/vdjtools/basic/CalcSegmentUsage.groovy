@@ -27,8 +27,6 @@ import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
 def cli = new CliBuilder(usage: "CalcSegmentUsage [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
-cli.S(longOpt: "software", argName: "string", required: true, args: 1,
-        "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
@@ -61,8 +59,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
     System.exit(-1)
 }
 
-def software = Software.byName(opt.S),
-    outputFilePrefix = opt.arguments()[-1],
+def outputFilePrefix = opt.arguments()[-1],
     unweighted = opt.u,
     plot = (boolean) opt.p
 
@@ -75,8 +72,8 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 println "[${new Date()} $scriptName] Reading samples"
 
 def sampleCollection = metadataFileName ?
-        new SampleCollection((String) metadataFileName, software) :
-        new SampleCollection(opt.arguments()[0..-2], software)
+        new SampleCollection((String) metadataFileName) :
+        new SampleCollection(opt.arguments()[0..-2])
 def metadataTable = sampleCollection.metadataTable
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"

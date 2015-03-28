@@ -44,11 +44,11 @@ public class SampleWriter {
     }
 
     /**
-     * Creates a sample writer capable to output samples in plain-text files according to specified software format 
-     * @param software table layout that will be used during output
+     * Creates a sample writer capable to output samples in plain-text files according to specified software format.
+     * @param compress specifies whether to compress resulting output file
      */
-    public SampleWriter(Software software) {
-        this(software, false)
+    public SampleWriter(boolean compress) {
+        this(Software.VDJtools, compress)
     }
 
     /**

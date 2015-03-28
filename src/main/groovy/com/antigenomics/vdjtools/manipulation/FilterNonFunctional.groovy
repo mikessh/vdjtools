@@ -17,7 +17,6 @@
 
 package com.antigenomics.vdjtools.manipulation
 
-import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.sample.ClonotypeFilter
 import com.antigenomics.vdjtools.sample.FunctionalClonotypeFilter
@@ -30,8 +29,6 @@ import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 def cli = new CliBuilder(usage: "FilterNonFunctional [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
-cli.S(longOpt: "software", argName: "string", required: true, args: 1,
-        "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
@@ -63,8 +60,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 // Remaining arguments
 
-def software = Software.byName(opt.S),
-    outputFilePrefix = opt.arguments()[-1],
+def outputFilePrefix = opt.arguments()[-1],
     compress = (boolean) opt.c,
     negative = (boolean) opt.e
 
@@ -77,8 +73,8 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 println "[${new Date()} $scriptName] Reading sample(s)"
 
 def sampleCollection = metadataFileName ?
-        new SampleCollection((String) metadataFileName, software) :
-        new SampleCollection(opt.arguments()[0..-2], software)
+        new SampleCollection((String) metadataFileName) :
+        new SampleCollection(opt.arguments()[0..-2])
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded"
 
@@ -86,7 +82,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 // Iterate over samples & filter
 //
 
-def writer = new SampleWriter(software, compress)
+def writer = new SampleWriter(compress)
 
 new File(formOutputPath(outputFilePrefix, "ncfilter", "summary")).withPrintWriter { pw ->
     def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +

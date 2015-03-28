@@ -78,7 +78,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 // Iterate over samples & write them in new format
 //
 
-def sampleWriter = new SampleWriter(Software.VDJtools, compress)
+def sampleWriter = new SampleWriter(compress)
 
 sampleCollection.eachWithIndex { sample, ind ->
     println "[${new Date()} $scriptName] Processed ${ind + 1} sample(s).. Writing output"

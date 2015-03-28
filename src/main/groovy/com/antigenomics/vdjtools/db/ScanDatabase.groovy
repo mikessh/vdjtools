@@ -29,8 +29,6 @@ import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 def cli = new CliBuilder(usage: "ScanDatabase [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
-cli.S(longOpt: "software", argName: "string", required: true, args: 1,
-        "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.D(longOpt: "database", argName: "string", args: 1, "Path to an external database file.")
 cli._(longOpt: "filter", argName: "logical expression(__field__,...)", args: 1,
         "Logical filter on database columns. Supports Regex, .contains(), .startsWith(), etc")
@@ -69,7 +67,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 // Remaining arguments
 
-def software = Software.byName(opt.S), dbName = (String) (opt.D ?: null), fuzzy = (boolean) opt.f,
+def dbName = (String) (opt.D ?: null), fuzzy = (boolean) opt.f,
     vMatch = (boolean) opt."v-match", jMatch = (boolean) opt."j-match",
     details = (boolean) opt.d, filter = (String) (opt.'filter' ?: null),
     outputFileName = opt.arguments()[-1]
@@ -83,8 +81,8 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 println "[${new Date()} $scriptName] Reading sample(s)"
 
 def sampleCollection = metadataFileName ?
-        new SampleCollection((String) metadataFileName, software) :
-        new SampleCollection(opt.arguments()[0..-2], software)
+        new SampleCollection((String) metadataFileName) :
+        new SampleCollection(opt.arguments()[0..-2])
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) to process"
 

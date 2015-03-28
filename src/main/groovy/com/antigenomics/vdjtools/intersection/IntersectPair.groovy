@@ -27,8 +27,6 @@ import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
 def I_TYPE_DEFAULT = "strict", TOP_DEFAULT = "20", TOP_MAX = 100
 def cli = new CliBuilder(usage: "IntersectPair [options] sample1 sample2 output_prefix")
 cli.h("display help message")
-cli.S(longOpt: "software", argName: "string", required: true, args: 1,
-        "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Intersection rule to apply. Allowed values: $IntersectionType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
@@ -38,6 +36,7 @@ cli.t(longOpt: "top", args: 1, "Number of top clonotypes which will be provided 
 cli.p(longOpt: "plot", "Generate a scatterplot to characterize overlapping clonotypes. " +
         "Also generate abundance difference plot if -c option is specified. " +
         "(R installation with ggplot2, grid and gridExtra packages required).")
+cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
 
@@ -49,9 +48,9 @@ if (opt.h || opt.arguments().size() < 3) {
     System.exit(-1)
 }
 
-def software = Software.byName(opt.S),
-    sample1FileName = opt.arguments()[0], sample2FileName = opt.arguments()[1],
-    outputPrefix = opt.arguments()[2]
+def sample1FileName = opt.arguments()[0], sample2FileName = opt.arguments()[1],
+    outputPrefix = opt.arguments()[2],
+    compress = (boolean) opt.c
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -81,7 +80,7 @@ if (top > TOP_MAX) {
 
 println "[${new Date()} $scriptName] Reading samples $sample1FileName and $sample2FileName"
 
-def sampleCollection = new SampleCollection([sample1FileName, sample2FileName], software, true, false)
+def sampleCollection = new SampleCollection([sample1FileName, sample2FileName], Software.VDJtools, true, false)
 
 //
 // Perform an intersection by CDR3NT & V segment
@@ -104,7 +103,7 @@ new File(formOutputPath(outputPrefix, "paired", intersectionType.shortName, "sum
 }
 
 
-def sampleWriter = new SampleWriter(software)
+def sampleWriter = new SampleWriter(compress)
 sampleWriter.write(jointSample, formOutputPath(outputPrefix, "paired", intersectionType.shortName, "table"))
 
 def tableCollapsedOutputPath = formOutputPath(outputPrefix, "paired", intersectionType.shortName, "table", "collapsed")
@@ -148,5 +147,5 @@ if (opt.p) {
 
     RUtil.execute("intersect_pair_area.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
             tableCollapsedOutputPath, toPlotPath(tableCollapsedOutputPath),
-            Math.max(0, software.headerLineCount - 1).toString())
+            Math.max(0, Software.VDJtools.headerLineCount - 1).toString())
 }

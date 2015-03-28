@@ -33,8 +33,6 @@ cli.h("display help message")
 
 // general
 
-cli.S(longOpt: "software", argName: "string", required: true, args: 1,
-        "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
@@ -84,8 +82,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 // Other arguments
 
-def software = Software.byName(opt.S),
-    intersectionType = opt.i ? IntersectionType.getByShortName((String) opt.i) : I_TYPE_DEFAULT,
+def intersectionType = opt.i ? IntersectionType.getByShortName((String) opt.i) : I_TYPE_DEFAULT,
     steps = (opt.s ?: STEPS_DEFAULT).toInteger(),
     optL = opt.'l', optF = opt.'f',
     numericFactor = (boolean) opt.'n',
@@ -102,8 +99,8 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 println "[${new Date()} $scriptName] Reading samples"
 
 def sampleCollection = metadataFileName ?
-        new SampleCollection((String) metadataFileName, software) :
-        new SampleCollection(opt.arguments()[0..-2], software)
+        new SampleCollection((String) metadataFileName) :
+        new SampleCollection(opt.arguments()[0..-2])
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples to analyze"
 

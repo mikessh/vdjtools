@@ -54,6 +54,7 @@ cli.t(longOpt: "top", args: 1, "Number of top clonotypes which will be provided 
 cli.f(longOpt: "factor", argName: "string", args: 1,
         "Column name, as in metadata. Factor to be treated as time variable. [default = \"time\"]")
 cli.p(longOpt: "plot", "Turns on plotting.")
+cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
 

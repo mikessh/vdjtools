@@ -44,6 +44,7 @@ cli.S(longOpt: "software", argName: "string", required: true, args: 1,
         "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.w(longOpt: "write-cloneset", "Will create a separate file with pooled sample, " +
         "greatly increases memory requirements and potentially creates a very large file.")
+cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
 
@@ -71,7 +72,8 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 3)
 }
 
 def software = Software.byName(opt.S), outputPrefix = opt.arguments()[-1],
-    writeCloneset = (boolean) opt.'w'
+    writeCloneset = (boolean) opt.'w',
+    compress = (boolean) opt.c
 
 ExecUtil.ensureDir(outputPrefix)
 
@@ -126,7 +128,7 @@ new File(formOutputPath(outputPrefix, "pool", intersectionType.shortName, "freqs
 
 if (writeCloneset) {
     println "[${new Date()} $scriptName] Normalizing and sorting pooled clonotypes. Writing output"
-    def writer = new SampleWriter(software)
+    def writer = new SampleWriter(compress)
     writer.write(new PooledSample(sampleAggr), formOutputPath(outputPrefix, "pool", intersectionType.shortName, "table"))
 }
 

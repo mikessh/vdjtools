@@ -36,8 +36,6 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
                 "Header is mandatory and will be used to assign column names for metadata.")
 cli.r(longOpt: "ratio", argName: "double", args: 1,
         "Parent-to-child clonotype frequency ratio for contamination filtering [default = $DEFAULT_CONT_RATIO]")
-cli.S(longOpt: "software", argName: "string", required: true, args: 1,
-        "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli._(longOpt: "low-mem", "Will process all sample pairs sequentially, avoiding" +
         " loading all of them into memory. Slower but memory-efficient mode.")
 cli.c(longOpt: "compress", "Compress output sample files.")
@@ -66,7 +64,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 3)
     System.exit(-1)
 }
 
-def software = Software.byName(opt.S), outputFilePrefix = opt.arguments()[-1],
+def outputFilePrefix = opt.arguments()[-1],
 // todo: implement low-mem version
 // this will lead eventually to the problem of removing Clonotype ref from dynamic clonotype
     lowMem = (boolean) opt.'low-mem',
@@ -82,8 +80,8 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 println "[${new Date()} $scriptName] Reading samples"
 
 def sampleCollection = metadataFileName ?
-        new SampleCollection((String) metadataFileName, software, false, true) :
-        new SampleCollection(opt.arguments()[0..-2], software, false, true)
+        new SampleCollection((String) metadataFileName, Software.VDJtools, false, true) :
+        new SampleCollection(opt.arguments()[0..-2], Software.VDJtools, false, true)
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples prepared"
 
@@ -98,7 +96,7 @@ def ratioFilter = new RatioFilter(sampleCollection, ratio)
 //
 // Go through all sample once more and perform freq-based filtering
 //
-def sw = new SampleWriter(software, compress)
+def sw = new SampleWriter(compress)
 
 new File(formOutputPath(outputFilePrefix, "dec", "summary")).withPrintWriter { pw ->
     def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +

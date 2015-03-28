@@ -16,7 +16,6 @@
 
 package com.antigenomics.vdjtools.manipulation
 
-import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.intersection.IntersectionType
 import com.antigenomics.vdjtools.io.SampleFileConnection
 import com.antigenomics.vdjtools.io.SampleWriter
@@ -41,10 +40,6 @@ cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Intersection type to apply. " +
                 "Allowed values: $IntersectionType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
-cli.S(longOpt: "software", argName: "string", required: true, args: 1,
-        "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
-cli.S2(longOpt: "software2", argName: "string", args: 1,
-        "Software format for filter sample. If not set, -S is used.")
 cli.n(longOpt: "negative", "Will report clonotypes that are not present in filter_sample. " +
         "The default action is to retain only them.")
 cli.c(longOpt: "compress", "Compress output sample files.")
@@ -82,8 +77,7 @@ def filterFileName = opt.arguments()[-2],
 
 // Parameters
 
-def software = Software.byName(opt.S), software2 = opt.S2 ? Software.byName(opt.S2) : software,
-    intersectionType = IntersectionType.getByShortName((opt.i ?: I_TYPE_DEFAULT)),
+def intersectionType = IntersectionType.getByShortName((opt.i ?: I_TYPE_DEFAULT)),
     negative = (boolean) opt.n
 
 if (!intersectionType) {
@@ -99,12 +93,12 @@ if (!intersectionType) {
 println "[${new Date()} $scriptName] Reading input samples & filter sample"
 
 def sampleCollection = metadataFileName ?
-        new SampleCollection((String) metadataFileName, software) :
-        new SampleCollection(opt.arguments()[0..-3], software)
+        new SampleCollection((String) metadataFileName) :
+        new SampleCollection(opt.arguments()[0..-3])
 
 println "[${new Date()} $scriptName] Loading filter sample"
 
-def filterSample = SampleFileConnection.load(filterFileName, software2)
+def filterSample = SampleFileConnection.load(filterFileName)
 
 def clonotypeFilter = new IntersectionClonotypeFilter(intersectionType, filterSample, negative)
 
@@ -114,7 +108,7 @@ def clonotypeFilter = new IntersectionClonotypeFilter(intersectionType, filterSa
 
 println "[${new Date()} $scriptName] Filtering (${negative ? "negative" : "positive"}) and writing output"
 
-def sw = new SampleWriter(software, compress)
+def sw = new SampleWriter(compress)
 
 new File(formOutputPath(outputFilePrefix, "asaf", "summary")).withPrintWriter { pw ->
     def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +

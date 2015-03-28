@@ -16,7 +16,6 @@
 
 package com.antigenomics.vdjtools.compare
 
-import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.group.EnrichmentFilter
 import com.antigenomics.vdjtools.group.GroupedSample
 import com.antigenomics.vdjtools.group.VJInsScheme
@@ -36,8 +35,6 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 def cli = new CliBuilder(usage: "ApplySampleAsFilter [options] " +
         "[sample1 sample2 ... if not -m] control_sample output_prefix")
 cli.h("display help message")
-cli.S(longOpt: "software", argName: "string", required: true, args: 1,
-        "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
@@ -76,8 +73,7 @@ def controlFileName = opt.arguments()[-2],
 
 // Parameters
 
-def software = Software.byName(opt.S),
-    intersectionType = IntersectionType.AminoAcidVJ
+def intersectionType = IntersectionType.AminoAcidVJ
 
 //
 // Load samples
@@ -86,10 +82,10 @@ def software = Software.byName(opt.S),
 println "[${new Date()} $scriptName] Reading input samples & control sample"
 
 def inputSamples = metadataFileName ?
-        new SampleCollection((String) metadataFileName, software) :
-        new SampleCollection(opt.arguments()[0..-3], software)
+        new SampleCollection((String) metadataFileName) :
+        new SampleCollection(opt.arguments()[0..-3])
 
-def controlSample = SampleFileConnection.load(controlFileName, software)
+def controlSample = SampleFileConnection.load(controlFileName)
 
 //
 // Filter samples
@@ -114,7 +110,7 @@ def enrichmentFilter = new EnrichmentFilter(false, groupedSample)
 
 println "[${new Date()} $scriptName] Computing enrichment statistics for input clonotypes and writing output."
 
-def sw = new SampleWriter(software, compress)
+def sw = new SampleWriter(compress)
 
 new File(formOutputPath(outputFilePrefix, "enrich", "summary")).withPrintWriter { pw ->
     def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
