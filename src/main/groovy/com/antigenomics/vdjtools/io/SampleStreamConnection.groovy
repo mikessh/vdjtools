@@ -25,7 +25,7 @@ import static com.antigenomics.vdjtools.sample.metadata.MetadataUtil.createSampl
 
 /**
  * A wrapper for plain-text clonotype table that could be accessed using {@code InputStream}.
- * This is a semi-internal class to provide lazy-loading support for SampleCollection
+ * This is a semi-internal class to provide lazy-loading support for SampleCollection.
  */
 public class SampleStreamConnection implements SampleConnection {
     private final InputStreamFactory inputStreamFactory
@@ -35,21 +35,30 @@ public class SampleStreamConnection implements SampleConnection {
     private final boolean lazy, store
 
     /**
-     * Loads a sample from a given input stream provider
-     * @param inputStreamFactory an input stream provider
-     * @param software type of software used to create clonotype table. Specifies how the plain-text input will be parsed
-     * @return sample object filled with clonotypes
+     * Loads a sample from a given input stream provider.
+     * @param inputStreamFactory an input stream provider.
+     * @return sample object filled with clonotypes.
+     */
+    public static Sample load(InputStreamFactory inputStreamFactory) {
+        load(inputStreamFactory, Software.VDJtools)
+    }
+
+    /**
+     * Loads a sample from a given input stream provider.
+     * @param inputStreamFactory an input stream provider.
+     * @param software type of software used to create clonotype table. Specifies how the plain-text input will be parsed.
+     * @return sample object filled with clonotypes.
      */
     public static Sample load(InputStreamFactory inputStreamFactory, Software software) {
         new SampleStreamConnection(inputStreamFactory, software).sample
     }
 
     /**
-     * Loads a sample from a given input stream provider
-     * @param inputStreamFactory an input stream provider
-     * @param software type of software used to create clonotype table. Specifies how the plain-text input will be parsed
-     * @param sampleMetadata a metadata object that will be associated with a given sample
-     * @return sample object filled with clonotypes
+     * Loads a sample from a given input stream provider.
+     * @param inputStreamFactory an input stream provider.
+     * @param software type of software used to create clonotype table. Specifies how the plain-text input will be parsed.
+     * @param sampleMetadata a metadata object that will be associated with a given sample.
+     * @return sample object filled with clonotypes.
      */
     public static Sample load(InputStreamFactory inputStreamFactory, Software software, SampleMetadata sampleMetadata) {
         new SampleStreamConnection(inputStreamFactory, software, sampleMetadata).sample
@@ -57,9 +66,9 @@ public class SampleStreamConnection implements SampleConnection {
 
     /**
      * Creates a sample connection, an object that could be used to access (load to memory, store, etc) a sample stored as plain text.
-     * Will load the sample upon initialization and store it into memory. Generic sample metadata will be associated with the underlying sample
-     * @param inputStreamFactory an input stream provider
-     * @param software type of software used to create clonotype table. Specifies how the plain-text input will be parsed
+     * Will load the sample upon initialization and store it into memory. Generic sample metadata will be associated with the underlying sample.
+     * @param inputStreamFactory an input stream provider.
+     * @param software type of software used to create clonotype table. Specifies how the plain-text input will be parsed.
      */
     public SampleStreamConnection(InputStreamFactory inputStreamFactory, Software software) {
         this(inputStreamFactory, software, createSampleMetadata(inputStreamFactory.getId()))
@@ -68,21 +77,21 @@ public class SampleStreamConnection implements SampleConnection {
     /**
      * Creates a sample connection, an object that could be used to access (load to memory, store, etc) a sample stored as plain text.
      * Will load the sample upon initialization and store it into memory.
-     * @param inputStreamFactory an input stream provider
-     * @param software type of software used to create clonotype table. Specifies how the plain-text input will be parsed
-     * @param sampleMetadata a metadata object that will be associated with a given sample
+     * @param inputStreamFactory an input stream provider.
+     * @param software type of software used to create clonotype table. Specifies how the plain-text input will be parsed.
+     * @param sampleMetadata a metadata object that will be associated with a given sample.
      */
     public SampleStreamConnection(InputStreamFactory inputStreamFactory, Software software, SampleMetadata sampleMetadata) {
         this(inputStreamFactory, software, sampleMetadata, false, true)
     }
 
     /**
-     * Creates a sample connection, an object that could be used to access (load to memory, store, etc) a sample stored as plain text
-     * @param inputStreamFactory an input stream provider
-     * @param software type of software used to create clonotype table. Specifies how the plain-text input will be parsed
-     * @param sampleMetadata a metadata object that will be associated with a given sample
-     * @param lazy will load the sample only when {@code getSample ( )} is called
-     * @param store sample will be stored into memory after loading
+     * Creates a sample connection, an object that could be used to access (load to memory, store, etc) a sample stored as plain text.
+     * @param inputStreamFactory an input stream provider.
+     * @param software type of software used to create clonotype table. Specifies how the plain-text input will be parsed.
+     * @param sampleMetadata a metadata object that will be associated with a given sample.
+     * @param lazy will load the sample only when {@code getSample ( )} is called.
+     * @param store sample will be stored into memory after loading.
      */
     public SampleStreamConnection(InputStreamFactory inputStreamFactory, Software software, SampleMetadata sampleMetadata,
                                   boolean lazy, boolean store) {
@@ -97,8 +106,8 @@ public class SampleStreamConnection implements SampleConnection {
     }
 
     /**
-     * INTERNAL loads a given sample into memory 
-     * @return loaded sample filled with clonotypes
+     * INTERNAL loads a given sample into memory.
+     * @return loaded sample filled with clonotypes.
      */
     private Sample _load() {
         println "[${new Date()} SampleStreamConnection] Loading sample $sampleMetadata.sampleId"
