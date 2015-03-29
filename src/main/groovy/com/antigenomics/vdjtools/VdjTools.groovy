@@ -18,14 +18,18 @@
 package com.antigenomics.vdjtools
 
 import com.antigenomics.vdjtools.basic.*
+import com.antigenomics.vdjtools.compare.Enrichment
+import com.antigenomics.vdjtools.compare.JoinSamples
 import com.antigenomics.vdjtools.compare.PoolSamples
 import com.antigenomics.vdjtools.db.ScanDatabase
-import com.antigenomics.vdjtools.compare.Enrichment
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.PlotQuantileStats
 import com.antigenomics.vdjtools.diversity.RarefactionPlot
-import com.antigenomics.vdjtools.overlap.*
 import com.antigenomics.vdjtools.manipulation.*
+import com.antigenomics.vdjtools.overlap.CalcPairwiseDistances
+import com.antigenomics.vdjtools.overlap.ClusterSamples
+import com.antigenomics.vdjtools.overlap.OverlapPair
+import com.antigenomics.vdjtools.overlap.TrackClonotypes
 import com.antigenomics.vdjtools.util.ExecUtil
 import com.antigenomics.vdjtools.util.RInstall
 
@@ -64,7 +68,6 @@ def printHelp = {
     println "DownSample"
     println "Decontaminate"
     println "FilterBySegment"
-    println "Convert"
     println ""
     println "[Comparison]"
     println "PoolSamples"
@@ -73,6 +76,10 @@ def printHelp = {
     println ""
     println "[Annotation]"
     println "ScanDatabase"
+    println ""
+    println "[Util]"
+    println "Convert"
+    println "RInstall"
 }
 
 def getScript = { String scriptName ->
@@ -89,14 +96,14 @@ def getScript = { String scriptName ->
             return new PlotSpectratypeV()
         case "PLOTFANCYVJUSAGE":
             return new PlotFancyVJUsage()
-        
+
         case "CALCDIVERSITYSTATS":
             return new CalcDiversityStats()
         case "RAREFACTIONPLOT":
             return new RarefactionPlot()
         case "PLOTQUANTILESTATS":
             return new PlotQuantileStats()
-        
+
         case "OVERLAPPAIR":
             return new OverlapPair()
         case "CALCPAIRWISEDISTANCES":
@@ -116,17 +123,19 @@ def getScript = { String scriptName ->
             return new FilterNonFunctional()
         case "DOWNSAMPLE":
             return new DownSample()
-        
-        case "CONVERT":
-            return new Convert()
+
         case "POOLSAMPLES":
             return new PoolSamples()
+        case "JOINSAMPLES":
+            return new JoinSamples()
         case "ENRICHMENT":
             return new Enrichment()
 
         case "SCANDATABASE":
             return new ScanDatabase()
-        
+
+        case "CONVERT":
+            return new Convert()
         case "RINSTALL":
             return new RInstall()
         case "-H":

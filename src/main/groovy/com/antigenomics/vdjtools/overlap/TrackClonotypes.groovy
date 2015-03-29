@@ -89,7 +89,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 4)
 // Other parameters
 
 def trackSample = (opt.x ?: "-1").toInteger(),
-    plot = opt.p,
+    plot = (boolean) opt.p, compress = (boolean) opt.c,
     timeFactor = opt.f ?: "time",
     outputPrefix = opt.arguments()[-1]
 
@@ -180,10 +180,10 @@ def jointSample = new JointSample(intersectionType, sampleCollection.collect() a
 
 println "[${new Date()} $scriptName] Writing tabular output"
 
-def sampleWriter = new SampleWriter(software)
-sampleWriter.write(jointSample, formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "table"))
+def sampleWriter = new SampleWriter(compress)
+sampleWriter.write(jointSample, formOutputPath(outputPrefix, "tracking", intersectionType.shortName, "table"))
 
-def tableCollapsedOutputPath = formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "table", "collapsed")
+def tableCollapsedOutputPath = formOutputPath(outputPrefix, "tracking", intersectionType.shortName, "table", "collapsed")
 if (top >= 0)
     sampleWriter.write(jointSample, tableCollapsedOutputPath, top, true)
 
@@ -193,7 +193,7 @@ if (top >= 0)
 
 println "[${new Date()} $scriptName] Writing output"
 
-def summaryOutputPath = formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "summary")
+def summaryOutputPath = formOutputPath(outputPrefix, "tracking", intersectionType.shortName, "summary")
 new File(summaryOutputPath).withPrintWriter { pw ->
     pw.println("#1_$MetadataTable.SAMPLE_ID_COLUMN\t2_$MetadataTable.SAMPLE_ID_COLUMN\t" +
             "value\tmetric\t1_time\t2_time\t" +
@@ -239,21 +239,21 @@ if (plot) {
     println "[${new Date()} $scriptName] Writing plots"
 
     // Plot all the heatmaps
-    RUtil.execute("sequential_intersect_similarity_map.r",
+    RUtil.execute("tracking_similarity_map.r",
             summaryOutputPath,
             toPlotPath(summaryOutputPath))
 
     // Plot a stack plot of top X clonotype abundances
-    RUtil.execute("sequential_intersect_stack.r",
+    RUtil.execute("tracking_starckplot.r",
             timeFactor,
             timePoints.join(","),
             tableCollapsedOutputPath,
-            formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "stackplot", "pdf"))
+            formOutputPath(outputPrefix, "tracking", intersectionType.shortName, "stackplot", "pdf"))
 
     // Plot a "heatcourse" plot of top X clonotype abundances
-    RUtil.execute("sequential_intersect_heatcourse.r",
+    RUtil.execute("tracking_heatcourse.r",
             timeFactor,
             timePoints.join(","),
             tableCollapsedOutputPath,
-            formOutputPath(outputPrefix, "sequential", intersectionType.shortName, "heatplot", "pdf"))
+            formOutputPath(outputPrefix, "tracking", intersectionType.shortName, "heatplot", "pdf"))
 }

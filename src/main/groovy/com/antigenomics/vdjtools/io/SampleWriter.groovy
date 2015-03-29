@@ -203,46 +203,48 @@ public class SampleWriter {
                      }].flatten().join("\t"))
         }
 
-        if (collapse && top < jointSample.diversity) {
-            // Collapsed
-            def collapsedFreq = jointSample.totalMeanFreq - collapsedMeanFreq,
-                collapsedFreqArr = sampleIndices.collect { int j ->
-                    jointSample.getIntersectionFreq(j) - freqArr[j]
-                }
+        if (collapse) {
+            if (top < jointSample.diversity) {
+                // Collapsed
+                def collapsedFreq = jointSample.totalMeanFreq - collapsedMeanFreq,
+                    collapsedFreqArr = sampleIndices.collect { int j ->
+                        jointSample.getIntersectionFreq(j) - freqArr[j]
+                    }
+                printWriter.println(
+                        [software.printFields.collect {
+                            if (it == "count")
+                                jointSample.calcCount(collapsedFreq)
+                            else if (it == "freq")
+                                jointSample.calcFreq(collapsedFreq)
+                            else
+                                "NotShown"
+                        },
+                         collapsedFreqArr.findIndexOf { it == collapsedFreqArr.max() },
+                         collapsedFreqArr.findAll { it > 0 }.sum(),
+                         collapsedFreqArr
+                        ].flatten().join("\t"))
+            }
+
+            // Not in the overlap
+            def nonOverlappingFreqArr = sampleIndices.collect { int j ->
+                jointSample.getSample(j).freq - jointSample.getIntersectionFreq(j)
+            }
             printWriter.println(
                     [software.printFields.collect {
                         if (it == "count")
-                            jointSample.calcCount(collapsedFreq)
+                            0
                         else if (it == "freq")
-                            jointSample.calcFreq(collapsedFreq)
+                            0.0
                         else
-                            "NotShown"
+                            "NonOverlapping"
                     },
-                     collapsedFreqArr.findIndexOf { it == collapsedFreqArr.max() },
-                     collapsedFreqArr.findAll { it > 0 }.sum(),
-                     collapsedFreqArr
+                     nonOverlappingFreqArr.findIndexOf { it == nonOverlappingFreqArr.max() },
+                     nonOverlappingFreqArr.findAll { it > 0 }.sum(),
+                     nonOverlappingFreqArr
                     ].flatten().join("\t"))
-        }
 
-        // Not in the overlap
-        def nonOverlappingFreqArr = sampleIndices.collect { int j ->
-            jointSample.getSample(j).freq - jointSample.getIntersectionFreq(j)
+            printWriter.close()
         }
-        printWriter.println(
-                [software.printFields.collect {
-                    if (it == "count")
-                        0
-                    else if (it == "freq")
-                        0.0
-                    else
-                        "NonOverlapping"
-                },
-                 nonOverlappingFreqArr.findIndexOf { it == nonOverlappingFreqArr.max() },
-                 nonOverlappingFreqArr.findAll { it > 0 }.sum(),
-                 nonOverlappingFreqArr
-                ].flatten().join("\t"))
-
-        printWriter.close()
     }
 
     /**

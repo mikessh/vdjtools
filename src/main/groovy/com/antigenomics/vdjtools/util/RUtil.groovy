@@ -21,7 +21,7 @@ package com.antigenomics.vdjtools.util
  */
 public class RUtil {
     public static final String PACKAGES_PATH = "$ExecUtil.MY_PATH/Rpackages/" // Local R library path
-    public static final String NA = "NA" // NaN in R
+    public static final String NA = "NA", NULL = "NULL" // NaN and null in R
 
     /**
      * Converts a given object to numeric variable
@@ -29,6 +29,8 @@ public class RUtil {
      * @return a numeric string or NA if object couldn't be converted
      */
     public static String asNumeric(smth) {
+        if (smth == null)
+            return NULL
         def smthStr = smth.toString()
         if (!smthStr.isDouble())
             return NA
