@@ -15,7 +15,7 @@
  */
 
 
-package com.antigenomics.vdjtools.manipulation
+package com.antigenomics.vdjtools.operate
 
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.sample.SampleCollection

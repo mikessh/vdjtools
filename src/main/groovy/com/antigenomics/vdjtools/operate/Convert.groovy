@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools.manipulation
+package com.antigenomics.vdjtools.operate
 
 
 import com.antigenomics.vdjtools.Software

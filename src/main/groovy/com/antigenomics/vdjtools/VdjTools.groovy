@@ -19,13 +19,13 @@ package com.antigenomics.vdjtools
 
 import com.antigenomics.vdjtools.basic.*
 import com.antigenomics.vdjtools.compare.Enrichment
-import com.antigenomics.vdjtools.compare.JoinSamples
-import com.antigenomics.vdjtools.compare.PoolSamples
+import com.antigenomics.vdjtools.operate.JoinSamples
+import com.antigenomics.vdjtools.operate.PoolSamples
 import com.antigenomics.vdjtools.db.ScanDatabase
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.PlotQuantileStats
 import com.antigenomics.vdjtools.diversity.RarefactionPlot
-import com.antigenomics.vdjtools.manipulation.*
+import com.antigenomics.vdjtools.operate.*
 import com.antigenomics.vdjtools.overlap.CalcPairwiseDistances
 import com.antigenomics.vdjtools.overlap.ClusterSamples
 import com.antigenomics.vdjtools.overlap.OverlapPair

@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools.manipulation
+
+package com.antigenomics.vdjtools.operate
 
 import com.antigenomics.vdjtools.io.SampleWriter
-import com.antigenomics.vdjtools.sample.*
+import com.antigenomics.vdjtools.sample.ClonotypeFilter
+import com.antigenomics.vdjtools.sample.FunctionalClonotypeFilter
+import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
-def cli = new CliBuilder(usage: "FilterBySegment [options] " +
+def cli = new CliBuilder(usage: "FilterNonFunctional [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
-cli.e(longOpt: "negative", "Will retain only clonotypes that lack specified V/D/J segments")
+cli.e(longOpt: "negative", "Will retain only non-functional clonotypes")
 cli.c(longOpt: "compress", "Compress output sample files.")
-
-cli.v(longOpt: "v-segments", argName: "v1,v2,...", args: 1, "A comma-separated list of Variable segments")
-cli.d(longOpt: "d-segments", argName: "d1,d2,...", args: 1, "A comma-separated list of Diversity segments")
-cli.j(longOpt: "j-segments", argName: "j1,j2,...", args: 1, "A comma-separated list of Joining segments")
 
 def opt = cli.parse(args)
 
@@ -64,10 +64,6 @@ def outputFilePrefix = opt.arguments()[-1],
     compress = (boolean) opt.c,
     negative = (boolean) opt.e
 
-def vFilter = opt.v ? new VFilter(((String) opt.v).split(",") as String[]) : BlankClonotypeFilter.INSTANCE,
-    dFilter = opt.d ? new VFilter(((String) opt.d).split(",") as String[]) : BlankClonotypeFilter.INSTANCE,
-    jFilter = opt.j ? new VFilter(((String) opt.j).split(",") as String[]) : BlankClonotypeFilter.INSTANCE
-
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 //
@@ -88,7 +84,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 
 def writer = new SampleWriter(compress)
 
-new File(formOutputPath(outputFilePrefix, "segfilter", "summary")).withPrintWriter { pw ->
+new File(formOutputPath(outputFilePrefix, "ncfilter", "summary")).withPrintWriter { pw ->
     def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\t" +
             ClonotypeFilter.ClonotypeFilterStats.HEADER
@@ -99,7 +95,7 @@ new File(formOutputPath(outputFilePrefix, "segfilter", "summary")).withPrintWrit
         def sampleId = sample.sampleMetadata.sampleId
         println "[${new Date()} $scriptName] Filtering $sampleId.."
 
-        def filter = new CompositeClonotypeFilter(negative, vFilter, dFilter, jFilter)
+        def filter = new FunctionalClonotypeFilter(negative)
         def filteredSample = new Sample(sample, filter)
 
         // print output
@@ -111,7 +107,6 @@ new File(formOutputPath(outputFilePrefix, "segfilter", "summary")).withPrintWrit
     }
 }
 
-sampleCollection.metadataTable.storeWithOutput(outputFilePrefix, compress,
-        "segfilter:${negative ? "remove" : "keep"}:${opt.v ?: "."}:${opt.d ?: "."}:${opt.j ?: "."}")
+sampleCollection.metadataTable.storeWithOutput(outputFilePrefix, compress, "ncfilter:${negative ? "keep" : "remove"}")
 
 println "[${new Date()} $scriptName] Finished"

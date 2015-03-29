@@ -16,7 +16,7 @@
 
 // todo: UNTESTED
 
-package com.antigenomics.vdjtools.compare
+package com.antigenomics.vdjtools.operate
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.io.SampleWriter
