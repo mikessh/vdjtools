@@ -16,11 +16,9 @@
 
 package com.antigenomics.vdjtools.overlap
 
-import com.antigenomics.vdjtools.overlap.permutations.DiscreteFactorClusterStats
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
-import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
 import static com.antigenomics.vdjtools.util.RUtil.*
 
 def MEASURE_DEFAULT = "F", I_TYPE_DEFAULT = "aa"
@@ -151,9 +149,9 @@ if (numFactor && specifiedFactor) {
 // Cluster & plot
 //
 
-println "[${new Date()} $scriptName] Clustering and plotting data"
+println "[${new Date()} $scriptName] Clustering samples${plot ? " and plotting" : ""}."
 
-execute("batch_intersect_pair_clust.r",
+execute("cluster_samples.r",
         inputFileName,
         idCol1Ind, idCol2Ind,
         measureColInd, OverlapMetric.getByShortName(measureName).normalization.id.toString(),

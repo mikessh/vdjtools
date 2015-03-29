@@ -21,6 +21,8 @@ import com.antigenomics.vdjtools.basic.SegmentUsage
 import com.antigenomics.vdjtools.sample.SampleCollection
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
+import static com.antigenomics.vdjtools.util.RUtil.execute
 
 def I_TYPE_DEFAULT = "aa"
 def cli = new CliBuilder(usage: "CalcPairwiseDistances [options] " +
@@ -34,7 +36,8 @@ cli._(longOpt: "low-mem", "Will process all sample pairs sequentially, avoiding"
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Intersection rule to apply. Allowed values: $OverlapType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
-// todo: provide an option - redundant (i,j) , (j,i) output for the
+cli.p(longOpt: "plot", "[plotting] Turns plotting on.")
+
 def opt = cli.parse(args)
 
 if (opt == null) {
@@ -61,7 +64,8 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 4)
 }
 
 def outputPrefix = opt.arguments()[-1],
-    lowMem = (boolean) opt.'low-mem'
+    lowMem = (boolean) opt.'low-mem',
+    plot = (boolean) opt.p
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -110,7 +114,16 @@ def pairedIntersectionBatch = new PairwiseOverlap(sampleCollection, intersection
 
 println "[${new Date()} $scriptName] Writing results"
 
-new File(formOutputPath(outputPrefix, "intersect", "batch", intersectionType.shortName)).withPrintWriter { pw ->
+def outputFileName = formOutputPath(outputPrefix, "intersect", "batch", intersectionType.shortName)
+
+new File(outputFileName).withPrintWriter { pw ->
     pw.println(pairedIntersectionBatch.header)
     pw.println(pairedIntersectionBatch.toString())
 }
+
+if (plot) {
+    println "[${new Date()} $scriptName] Plotting"
+    execute("pairwise_overlap_plot.r", outputFileName, toPlotPath(outputFileName))
+}
+
+println "[${new Date()} $scriptName] Finished"

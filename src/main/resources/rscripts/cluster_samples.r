@@ -17,7 +17,7 @@ factor_name       = args[10]             # Coloring factor
 cont_factor       = args[11]             # Continuous factor?
 file_out_hc       = args[12]             # Dendrogram plot filename
 file_out_mds      = args[13]             # MDS plot filename
-plot              = as.logical(args[14]) # Create plots?
+render_plot       = as.logical(args[14]) # Create plots?
 file_out_clust    = args[15]             # HCL clusters filename
 file_out_coord    = args[16]             # MDS coords filename
 
@@ -217,7 +217,7 @@ my.legend <- function(hcl) {
 
 # plot
 
-if (plot) {
+if (render_plot) {
    pdf(file_out_hc)
 
    my.plot(TRUE, phylo, tip.color = cc_final)
@@ -266,7 +266,7 @@ fac  <- sapply(aux[match(row.names(as.matrix(df.d)), aux[, "id_col1"]), "factor_
 
 # plot
 
-if (plot) {
+if (render_plot) {
    pdf(file_out_mds, useDingbats=FALSE)
 
    my.plot(FALSE, xy$x, xy$y, xlab="mds1", ylab="mds2", type = "n")

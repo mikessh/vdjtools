@@ -148,7 +148,7 @@ if (specifiedFactor) {
         def summary = new DiscreteFactorClusterStats(mdsFileName).performPermutations(10000)
         if (summary) {
             DiscreteFactorClusterStats.writeSummary(summary, permsOutputPath)
-            execute("batch_intersect_pair_perm_f.r",
+            execute("cluster_permutations_plot.r",
                     permsOutputPath,
                     toPlotPath(permsOutputPath)
             )

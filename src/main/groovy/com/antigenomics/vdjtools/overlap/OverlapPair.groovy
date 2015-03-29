@@ -19,10 +19,10 @@ package com.antigenomics.vdjtools.overlap
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.util.RUtil
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
+import static com.antigenomics.vdjtools.util.RUtil.execute
 
 def I_TYPE_DEFAULT = "strict", TOP_DEFAULT = "20", TOP_MAX = 100
 def cli = new CliBuilder(usage: "OverlapPair [options] sample1 sample2 output_prefix")
@@ -141,11 +141,13 @@ if (opt.p) {
     }
     yyFile.deleteOnExit()
 
-    RUtil.execute("intersect_pair_scatter.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
+    execute("intersect_pair_scatter.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
             outputPrefix + ".xy.txt", outputPrefix + ".xx.txt", outputPrefix + ".yy.txt",
             formOutputPath(outputPrefix, intersectionType.shortName, "paired", "scatter", "pdf"))
 
-    RUtil.execute("intersect_pair_area.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
+    execute("intersect_pair_area.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
             tableCollapsedOutputPath, toPlotPath(tableCollapsedOutputPath),
             Math.max(0, Software.VDJtools.headerLineCount - 1).toString())
 }
+
+println "[${new Date()} $scriptName] Finished"
