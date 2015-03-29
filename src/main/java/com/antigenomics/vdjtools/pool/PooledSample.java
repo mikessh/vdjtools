@@ -16,16 +16,12 @@
 
 package com.antigenomics.vdjtools.pool;
 
-import com.antigenomics.vdjtools.sample.Clonotype;
-import com.antigenomics.vdjtools.ClonotypeContainer;
+import com.antigenomics.vdjtools.ClonotypeWrapperContainer;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
-public class PooledSample implements ClonotypeContainer {
-    private final List<Clonotype> clonotypes;
+public class PooledSample implements ClonotypeWrapperContainer<StoringClonotypeAggregator> {
+    private final List<StoringClonotypeAggregator> clonotypes;
     private final long count;
 
     public PooledSample(SampleAggregator<StoringClonotypeAggregator> sampleAggregator) {
@@ -36,14 +32,18 @@ public class PooledSample implements ClonotypeContainer {
         for (StoringClonotypeAggregator clonotypeAggregator : sampleAggregator) {
             int x = clonotypeAggregator.getCount();
             count += x;
-            clonotypes.add(new Clonotype(clonotypeAggregator.getClonotype(),
-                    this,
-                    x));
+            clonotypes.add(clonotypeAggregator);
         }
 
         this.count = count;
 
-        Collections.sort(clonotypes);
+        Collections.sort(clonotypes,
+                new Comparator<StoringClonotypeAggregator>() {
+                    @Override
+                    public int compare(StoringClonotypeAggregator o1, StoringClonotypeAggregator o2) {
+                        return Integer.compare(o2.getCount(), o1.getCount()); // inverse - sort descending
+                    }
+                });
     }
 
 
@@ -63,7 +63,7 @@ public class PooledSample implements ClonotypeContainer {
     }
 
     @Override
-    public Clonotype getAt(int index) {
+    public StoringClonotypeAggregator getAt(int index) {
         return clonotypes.get(index);
     }
 
@@ -73,7 +73,7 @@ public class PooledSample implements ClonotypeContainer {
     }
 
     @Override
-    public Iterator<Clonotype> iterator() {
+    public Iterator<StoringClonotypeAggregator> iterator() {
         return clonotypes.iterator();
     }
 }

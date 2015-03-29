@@ -19,6 +19,7 @@ package com.antigenomics.vdjtools.io
 import com.antigenomics.vdjtools.ClonotypeContainer
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.join.JointSample
+import com.antigenomics.vdjtools.pool.PooledSample
 import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.util.ExecUtil
@@ -244,6 +245,33 @@ public class SampleWriter {
                     ].flatten().join("\t"))
 
             printWriter.close()
+        }
+    }
+
+    /**
+     * Writes a pooled sample as a plain-text table to the specified path.
+     * @param sample sample to write.
+     * @param fileName output path.
+     */
+    public void write(PooledSample pooledSample, String fileName) {
+        def printWriter = getWriter(fileName)
+
+
+        printWriter.println(header + "\tincidence\tconvergence")
+
+        pooledSample.each { pooledClonotype ->
+            printWriter.println(
+                    [software.printFields.collect {
+                        if (it == "count")
+                            pooledClonotype.count
+                        else if (it == "freq")
+                            pooledClonotype.count / (double) pooledSample.count
+                        else
+                            pooledClonotype.clonotype."$it"
+                    },
+                     pooledClonotype.incidenceCount,
+                     pooledClonotype.convergence
+                    ].flatten().join("\t"))
         }
     }
 

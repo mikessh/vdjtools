@@ -16,8 +16,11 @@
 
 package com.antigenomics.vdjtools.pool;
 
-import com.antigenomics.vdjtools.sample.Clonotype;
 import com.antigenomics.vdjtools.Misc;
+import com.antigenomics.vdjtools.sample.Clonotype;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class ClonotypeAggregator {
     private int sampleId;
@@ -37,8 +40,9 @@ public abstract class ClonotypeAggregator {
             incidenceCount++;
             freq += freqRem > 0 ? Math.log10(freqRem) : 0;  // add remainder
             freqRem = other.getFreq();                      // start accumulating freq
-        } else
+        } else {
             freqRem += other.getFreq();                     // continue accumulating freq
+        }
 
         count += other.getCount();
 

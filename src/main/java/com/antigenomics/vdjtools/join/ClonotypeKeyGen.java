@@ -16,9 +16,9 @@
 
 package com.antigenomics.vdjtools.join;
 
-import com.antigenomics.vdjtools.sample.Clonotype;
-import com.antigenomics.vdjtools.overlap.OverlapType;
 import com.antigenomics.vdjtools.join.key.*;
+import com.antigenomics.vdjtools.overlap.OverlapType;
+import com.antigenomics.vdjtools.sample.Clonotype;
 import com.antigenomics.vdjtools.sample.Sample;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -27,6 +27,10 @@ import java.util.Set;
 
 public class ClonotypeKeyGen {
     private final OverlapType overlapType;
+
+    public ClonotypeKeyGen() {
+        this(OverlapType.Strict);
+    }
 
     public ClonotypeKeyGen(OverlapType overlapType) {
         this.overlapType = overlapType;

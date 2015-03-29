@@ -17,18 +17,35 @@
 package com.antigenomics.vdjtools.pool;
 
 import com.antigenomics.vdjtools.ClonotypeWrapper;
+import com.antigenomics.vdjtools.join.ClonotypeKeyGen;
+import com.antigenomics.vdjtools.join.key.ClonotypeKey;
 import com.antigenomics.vdjtools.sample.Clonotype;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class StoringClonotypeAggregator extends MaxClonotypeAggregator implements ClonotypeWrapper {
     private Clonotype clonotype;
+    private int convergence; 
+    private final Set<ClonotypeKey> variants = new HashSet<>();
+    private final ClonotypeKeyGen clonotypeKeyGen = new ClonotypeKeyGen();
 
     public StoringClonotypeAggregator(Clonotype clonotype, int sampleId) {
         super(clonotype, sampleId);
         this.clonotype = clonotype;
+        this.convergence = 1;
+        this.variants.add(clonotypeKeyGen.generateKey(clonotype));
     }
 
     @Override
     protected boolean tryReplace(Clonotype clonotype, int sampleId) {
+        ClonotypeKey clonotypeKey = clonotypeKeyGen.generateKey(clonotype);
+        
+        if (!variants.contains(clonotypeKey)) {
+            convergence++;
+            variants.add(clonotypeKey);
+        }
+        
         if (super.tryReplace(clonotype, sampleId)) {
             this.clonotype = clonotype;
             return true;
@@ -38,5 +55,9 @@ public class StoringClonotypeAggregator extends MaxClonotypeAggregator implement
 
     public Clonotype getClonotype() {
         return clonotype;
+    }
+
+    public int getConvergence() {
+        return convergence;
     }
 }
