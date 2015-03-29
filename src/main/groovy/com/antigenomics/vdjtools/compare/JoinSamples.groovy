@@ -115,7 +115,6 @@ if (sampleCollection.size() < 3) {
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
-
 //
 // Join samples
 //
@@ -138,7 +137,7 @@ sampleWriter.write(jointSample, formOutputPath(outputPrefix, "join", intersectio
 // Write summary output
 //
 def div = (0..<sampleCollection.size()).collectEntries {
-    [("${it + 1}"): sampleCollection[it].diversity]
+    [((it + 1).toString()): sampleCollection[it].diversity] // toString is crucial here, remember GString != String
 }
 def freqMap = new HashMap<String, Integer>()
 
@@ -149,17 +148,39 @@ jointSample.each { clonotype ->
     freqMap.put(mask, (freqMap[mask] ?: 0) + 1)
 }
 
-def countArea = { String sample ->
-    asNumeric(div[sample])
+new File(formOutputPath(outputPrefix, "join", intersectionType.shortName, "summary")).withPrintWriter { pw ->
+    pw.println(sampleCollection.collect { it.sampleMetadata.sampleId }.join("\t") + "\tclonotypes")
+    sampleIds = (1..sampleCollection.size()).collect { it.toString() }
+    div.each { entry ->
+        pw.println(
+                sampleIds.collect {
+                    it == entry.key ? 1 : 0
+                }.join("\t") + "\t" + entry.value
+        )
+    }
+    freqMap.sort { -it.value }.each { entry ->
+        pw.println(
+                sampleIds.collect {
+                    entry.key.contains(it) ? 1 : 0
+                }.join("\t") + "\t" + entry.value
+        )
+    }
 }
 
-def countFreq = { String mask ->
-    asNumeric(freqMap[mask] ?: 0)
-}
-
+// Plot Venn diagram
 if (plot) {
+    def countArea = { String sample ->
+        asNumeric(div[sample])
+    }
+
+    def countFreq = { String mask ->
+        asNumeric(freqMap[mask] ?: 0)
+    }
+
+
     println "[${new Date()} $scriptName] Plotting"
-    // looks overly redundant, but thats how input arguments are passed in VennDiagram package
+
+    // looks overly redundant, but that's how input arguments are passed in VennDiagram package
     execute("join_venn.r",
             countArea("1"), countArea("2"), countArea("3"), countArea("4"), countArea("5"),
             countFreq("12"), countFreq("13"), countFreq("14"),

@@ -1,4 +1,4 @@
-require(VennDiagram)
+require(VennDiagram); require(RColorBrewer)
 
 args<-commandArgs(TRUE)
 
@@ -12,7 +12,7 @@ n12345   <- as.integer(args[31])
 
 # yes we have to integrate so that the VennDiagram will recalculate back
 # no option to provide raw counts unfortunately
-# havent found any other package that accepts collapsed counts
+# haven't found any other package that accepts collapsed counts
 # (imagine writing to file and loading 20mln binary strings to R)
 
 n1234    <- as.integer(args[26])+n12345
@@ -46,30 +46,36 @@ n45      <- as.integer(args[15])+n145+n245+n345
 category <- strsplit(args[32],split=",")[[1]]
 out_file <- args[33]
 
+cols <- brewer.pal(5, "Paired")
+
+pdf(out_file)
+
 if (is.na(area3)) {
-  venn.plot <- draw.pairwise.venn(area1, area2,
+  dummy <- draw.pairwise.venn(area1, area2,
                                   n12,
-                                  category[1:2], fill=brewer.pal(2, "Paired"), alpha=rep(0.5,2))
+                                  category[1:2], fill=cols[1:2], alpha=rep(0.5,2),
+                                  col=rep("gray50",2), lwd=rep(1,2), margin=0.1)
 } else if (is.na(area4)) {
-  venn.plot <- draw.triple.venn(area1, area2, area3,
+  dummy <- draw.triple.venn(area1, area2, area3,
                                 n12, n23, n13,
                                 n123,
-                                category[1:3], fill=brewer.pal(3, "Paired"), alpha=rep(0.5,3))
+                                category[1:3], fill=cols[1:3], alpha=rep(0.5,3),
+                                col=rep("gray50",3), lwd=rep(1,3), margin=0.1)
 } else if (is.na(area5)) {
-  venn.plot <- draw.quad.venn(area1, area2, area3, area4,
+  dummy <- draw.quad.venn(area1, area2, area3, area4,
                               n12, n13, n14, n23, n24, n34,
                               n123, n124,
                               n134, n234, n1234,
-                              category[1:4], fill=brewer.pal(4, "Paired"), alpha=rep(0.5,4))
+                              category[1:4], fill=cols[1:4], alpha=rep(0.5,4),
+                              col=rep("gray50",4), lwd=rep(1,4), margin=0.1)
 } else {
-  venn.plot <- draw.quintuple.venn(area1, area2, area3, area4, area5,
+  dummy <- draw.quintuple.venn(area1, area2, area3, area4, area5,
                                    n12, n13, n14, n15, n23, n24, n25,
                                    n34, n35, n45, n123, n124, n125, n134,
                                    n135, n145, n234, n235, n245, n345,
                                    n1234, n1235, n1245, n1345, n2345, n12345,
-                                   category[1:5], fill=brewer.pal(5, "Paired"), alpha=rep(0.5,5))
+                                   category[1:5], fill=cols[1:5], alpha=rep(0.5,5), 
+                                   col=rep("gray50",5), lwd=rep(1,5), margin=0.1)
 }
 
-pdf(out_file)
-grid.draw(venn.plot)
 dev.off()
