@@ -16,7 +16,6 @@
 
 package com.antigenomics.vdjtools.basic
 
-import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.RUtil
 
@@ -26,8 +25,6 @@ import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
 def TOP_DEFAULT = "12", TOP_MAX = 12
 def cli = new CliBuilder(usage: "PlotSpectratypeV [options] input_name output_prefix")
 cli.h("display help message")
-cli.S(longOpt: "software", argName: "string", required: true, args: 1,
-        "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.t(longOpt: "top", args: 1, "Number of top V segments to present on the histogram. " +
         "Values > $TOP_MAX are not allowed, as they would make the plot unreadable. [default = $TOP_DEFAULT]")
 cli.u(longOpt: "unweighted", "Will count each clonotype only once, apart from conventional frequency-weighted histogram.")
@@ -42,8 +39,7 @@ if (opt.h || opt.arguments().size() != 2) {
     System.exit(-1)
 }
 
-def software = Software.byName(opt.S),
-    outputFilePrefix = opt.arguments()[1],
+def outputFilePrefix = opt.arguments()[1],
     top = (opt.t ?: TOP_DEFAULT).toInteger(),
     unweighted = (boolean) opt.u
 
@@ -60,7 +56,7 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 println "[${new Date()} $scriptName] Reading sample"
 
-def sampleCollection = new SampleCollection([opt.arguments()[0]], software)
+def sampleCollection = new SampleCollection([opt.arguments()[0]])
 
 def sample = sampleCollection[0]
 

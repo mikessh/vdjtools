@@ -69,7 +69,7 @@ def printHelp = {
     println "Decontaminate"
     println "FilterBySegment"
     println ""
-    println "[Comparison]"
+    println "[Operation]"
     println "PoolSamples"
     println "JoinSamples"
     println "Enrichment"

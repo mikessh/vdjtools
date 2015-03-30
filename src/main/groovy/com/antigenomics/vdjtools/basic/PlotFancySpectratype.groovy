@@ -16,7 +16,6 @@
 
 package com.antigenomics.vdjtools.basic
 
-import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.util.RUtil
 
@@ -26,8 +25,6 @@ import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
 def TOP_DEFAULT = "10", TOP_MAX = 20
 def cli = new CliBuilder(usage: "PlotFancySpectratype [options] input_name output_prefix")
 cli.h("display help message")
-cli.S(longOpt: "software", argName: "string", required: true, args: 1,
-        "Software used to process RepSeq data. Currently supported: ${Software.values().join(", ")}")
 cli.t(longOpt: "top", args: 1, "Number of top clonotypes to present on the histogram. " +
         "Values > $TOP_MAX are not allowed, as they would make the plot legend unreadable. [default = $TOP_DEFAULT]")
 
@@ -41,8 +38,7 @@ if (opt.h || opt.arguments().size() != 2) {
     System.exit(-1)
 }
 
-def software = Software.byName(opt.S),
-    outputFilePrefix = opt.arguments()[1],
+def outputFilePrefix = opt.arguments()[1],
     top = (opt.t ?: TOP_DEFAULT).toInteger()
 
 if (top > TOP_MAX) {
@@ -58,7 +54,7 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 println "[${new Date()} $scriptName] Reading sample"
 
-def sampleCollection = new SampleCollection([opt.arguments()[0]], software)
+def sampleCollection = new SampleCollection([opt.arguments()[0]])
 
 def sample = sampleCollection[0]
 
@@ -71,7 +67,6 @@ def spectratype = new Spectratype(false, false)
 def topClonotypes = spectratype.addAllFancy(sample, top)
 
 def spectratypeHist = spectratype.histogram
-
 
 // Prepare output table
 
@@ -90,7 +85,6 @@ def table = "Len\tOther\t" + topClonotypes.reverse().collect { it.cdr3aa }.join(
 for (int i = 0; i < spectratype.span; i++) {
     table += "\n" + spectratype.lengths[i] + "\t" + spectraMatrix[i].collect().join("\t")
 }
-
 
 // Output
 
