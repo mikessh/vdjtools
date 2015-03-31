@@ -8,4 +8,4 @@ A comprehensive framework for post-analysis of immune repertoire sequencing data
 Compiled binaries are available from [here](https://github.com/mikessh/vdjtools/releases/latest).
 The software is cross-platform and requires Java v1.7+ to run and R to generate publication-ready graphics.
 
-Further information and detailed documentation could be found at [ReadTheDocs](http://migec.readthedocs.org/en/latest/index.html).
+List of features and detailed documentation can be found at [ReadTheDocs](http://migec.readthedocs.org/en/latest/index.html).
