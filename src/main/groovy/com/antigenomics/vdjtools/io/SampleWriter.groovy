@@ -255,8 +255,7 @@ public class SampleWriter {
      */
     public void write(PooledSample pooledSample, String fileName) {
         def printWriter = getWriter(fileName)
-
-
+        
         printWriter.println(header + "\tincidence\tconvergence")
 
         pooledSample.each { pooledClonotype ->
@@ -273,6 +272,8 @@ public class SampleWriter {
                      pooledClonotype.convergence
                     ].flatten().join("\t"))
         }
+
+        printWriter.close()
     }
 
     /**
