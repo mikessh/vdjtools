@@ -31,15 +31,15 @@ public class VJLenSignature extends GroupSignature {
         return parent.getJ();
     }
 
-    public int getLength() {
-        return parent.getCdr3Length();
+    public int getCdr3aaLength() {
+        return parent.getCdr3Length() / 3;
     }
 
     @Override
     public int hashCode() {
         return 31 * (getV().hashCode() +
                 31 * getJ().hashCode()) +
-                getLength();
+                getCdr3aaLength();
     }
 
     @Override
@@ -47,6 +47,6 @@ public class VJLenSignature extends GroupSignature {
         VJLenSignature key = (VJLenSignature) o;
         return getV().equals(key.getV()) &&
                 getJ().equals(key.getJ()) &&
-                getLength() == key.getLength();
+                getCdr3aaLength() == key.getCdr3aaLength();
     }
 }

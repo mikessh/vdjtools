@@ -18,10 +18,10 @@ package com.antigenomics.vdjtools.compare
 
 import com.antigenomics.vdjtools.group.EnrichmentFilter
 import com.antigenomics.vdjtools.group.GroupedSample
-import com.antigenomics.vdjtools.group.VJInsScheme
-import com.antigenomics.vdjtools.overlap.OverlapType
+import com.antigenomics.vdjtools.group.VJLenScheme
 import com.antigenomics.vdjtools.io.SampleFileConnection
 import com.antigenomics.vdjtools.io.SampleWriter
+import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.sample.ClonotypeFilter
 import com.antigenomics.vdjtools.sample.IntersectionClonotypeFilter
 import com.antigenomics.vdjtools.sample.Sample
@@ -103,7 +103,7 @@ def filteredSamples = SampleCollection.fromSampleList(inputSamples.collect { new
 
 println "[${new Date()} $scriptName] Pre-processing control sample."
 
-def groupedSample = new GroupedSample(new VJInsScheme())
+def groupedSample = new GroupedSample(new VJLenScheme())
 groupedSample.addAll(controlSample)
 
 def enrichmentFilter = new EnrichmentFilter(false, groupedSample)

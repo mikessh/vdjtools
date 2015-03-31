@@ -18,6 +18,8 @@ package com.antigenomics.vdjtools.group;
 
 import com.antigenomics.vdjtools.ClonotypeContainer;
 import com.antigenomics.vdjtools.sample.Clonotype;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.inference.TestUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,6 +28,7 @@ public class GroupedSample {
     private final Map<GroupSignature, Group> groups = new HashMap<>();
     private final GroupingScheme groupingScheme;
     private int total = 0;
+    private final DescriptiveStatistics statistics = new DescriptiveStatistics();
 
     public GroupedSample(GroupingScheme groupingScheme) {
         this.groupingScheme = groupingScheme;
@@ -35,16 +38,26 @@ public class GroupedSample {
         for (Clonotype clonotype : clonotypes) {
             add(clonotype);
         }
+        summarize();
     }
 
     public void add(Clonotype clonotype) {
-        GroupSignature groupSignature = groupingScheme.getSignature(clonotype);
-        Group group = groups.get(groupSignature);
-        if (group == null) {
-            groups.put(groupSignature, group = new Group(groupSignature));
+        if (clonotype.isCoding()) {
+            GroupSignature groupSignature = groupingScheme.getSignature(clonotype);
+            Group group = groups.get(groupSignature);
+            if (group == null) {
+                groups.put(groupSignature, group = new Group(groupSignature));
+            }
+            group.add(clonotype);
+            total++;
         }
-        group.add(clonotype);
-        total++;
+    }
+
+    public void summarize() {
+        statistics.clear();
+
+        for (Group group : groups.values())
+            statistics.addValue(Math.log10(group.size()));
     }
 
     public Group getGroup(Clonotype clonotype) {
@@ -55,12 +68,8 @@ public class GroupedSample {
         return total;
     }
 
-    public double getAssemblyProbability(Group group) {
-        return group.size() / (double) total;
-    }
-
     public boolean isRare(Group group) {
-        return getAssemblyProbability(group) < 1.0 / getNumberOfGroups(); // less than uniform
+        return TestUtils.t(Math.log10(group.size()), statistics) < 0.05;
     }
 
     public int getNumberOfGroups() {
