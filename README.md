@@ -9,3 +9,5 @@ Compiled binaries are available from [here](https://github.com/mikessh/vdjtools/
 The software is cross-platform and requires Java v1.7+ to run and R to generate publication-ready graphics.
 
 List of features and detailed documentation can be found at [ReadTheDocs](http://vdjtools-doc.readthedocs.org/en/latest/).
+
+Example datasets and shell scripts are provided in a separate [repository](https://github.com/mikessh/vdjtools-examples).
