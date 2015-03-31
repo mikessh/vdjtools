@@ -14,25 +14,21 @@
  * limitations under the License.
  */
 
+package com.antigenomics.vdjtools.util
 
-package com.antigenomics.vdjtools.operate
 
+import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.io.SampleWriter
-import com.antigenomics.vdjtools.sample.ClonotypeFilter
-import com.antigenomics.vdjtools.sample.FunctionalClonotypeFilter
-import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
-import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
-
-def cli = new CliBuilder(usage: "FilterNonFunctional [options] " +
+def cli = new CliBuilder(usage: "Convert [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
+cli.S(longOpt: "software", argName: "string", required: true, args: 1,
+        "Input RepSeq data format. Currently supported: ${Software.values().join(", ")}")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
-cli.e(longOpt: "negative", "Will retain only non-functional clonotypes")
 cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
@@ -60,9 +56,9 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 // Remaining arguments
 
-def outputFilePrefix = opt.arguments()[-1],
+def software = Software.byName(opt.S),
     compress = (boolean) opt.c,
-    negative = (boolean) opt.e
+    outputPrefix = opt.arguments()[-1]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -73,40 +69,24 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 println "[${new Date()} $scriptName] Reading sample(s)"
 
 def sampleCollection = metadataFileName ?
-        new SampleCollection((String) metadataFileName) :
-        new SampleCollection(opt.arguments()[0..-2])
+        new SampleCollection((String) metadataFileName, software) :
+        new SampleCollection(opt.arguments()[0..-2], software)
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded"
 
 //
-// Iterate over samples & filter
+// Iterate over samples & write them in new format
 //
 
-def writer = new SampleWriter(compress)
+def sampleWriter = new SampleWriter(compress)
 
-new File(formOutputPath(outputFilePrefix, "ncfilter", "summary")).withPrintWriter { pw ->
-    def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
-            sampleCollection.metadataTable.columnHeader + "\t" +
-            ClonotypeFilter.ClonotypeFilterStats.HEADER
+sampleCollection.eachWithIndex { sample, ind ->
+    println "[${new Date()} $scriptName] Processed ${ind + 1} sample(s).. Writing output"
 
-    pw.println(header)
-
-    sampleCollection.eachWithIndex { sample, ind ->
-        def sampleId = sample.sampleMetadata.sampleId
-        println "[${new Date()} $scriptName] Filtering $sampleId.."
-
-        def filter = new FunctionalClonotypeFilter(negative)
-        def filteredSample = new Sample(sample, filter)
-
-        // print output
-        writer.writeConventional(filteredSample, outputFilePrefix)
-
-        def stats = filter.getStatsAndFlush()
-
-        pw.println([sampleId, sample.sampleMetadata, stats].join("\t"))
-    }
+    // print output
+    sampleWriter.writeConventional(sample, outputPrefix)
 }
 
-sampleCollection.metadataTable.storeWithOutput(outputFilePrefix, compress, "ncfilter:${negative ? "keep" : "remove"}")
+sampleCollection.metadataTable.storeWithOutput(outputPrefix, compress, "conv:$software")
 
 println "[${new Date()} $scriptName] Finished"

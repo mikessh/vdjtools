@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools.operate
+package com.antigenomics.vdjtools.preprocess
 
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.io.SampleWriter

@@ -17,7 +17,7 @@
 package com.antigenomics.vdjtools.overlap
 
 import com.antigenomics.vdjtools.Software
-import com.antigenomics.vdjtools.operate.DownSampler
+import com.antigenomics.vdjtools.preprocess.DownSampler
 import com.antigenomics.vdjtools.util.ExecUtil
 import org.junit.Test
 

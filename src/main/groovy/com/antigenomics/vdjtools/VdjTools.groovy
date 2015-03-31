@@ -21,15 +21,20 @@ import com.antigenomics.vdjtools.basic.*
 import com.antigenomics.vdjtools.compare.Enrichment
 import com.antigenomics.vdjtools.operate.JoinSamples
 import com.antigenomics.vdjtools.operate.PoolSamples
-import com.antigenomics.vdjtools.db.ScanDatabase
+import com.antigenomics.vdjtools.util.ScanDatabase
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.PlotQuantileStats
 import com.antigenomics.vdjtools.diversity.RarefactionPlot
-import com.antigenomics.vdjtools.operate.*
 import com.antigenomics.vdjtools.overlap.CalcPairwiseDistances
 import com.antigenomics.vdjtools.overlap.ClusterSamples
 import com.antigenomics.vdjtools.overlap.OverlapPair
 import com.antigenomics.vdjtools.overlap.TrackClonotypes
+import com.antigenomics.vdjtools.preprocess.ApplySampleAsFilter
+import com.antigenomics.vdjtools.preprocess.Decontaminate
+import com.antigenomics.vdjtools.preprocess.DownSample
+import com.antigenomics.vdjtools.preprocess.FilterBySegment
+import com.antigenomics.vdjtools.preprocess.FilterNonFunctional
+import com.antigenomics.vdjtools.util.Convert
 import com.antigenomics.vdjtools.util.ExecUtil
 import com.antigenomics.vdjtools.util.RInstall
 

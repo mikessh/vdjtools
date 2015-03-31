@@ -15,13 +15,15 @@
  */
 
 
-package com.antigenomics.vdjtools.db
+package com.antigenomics.vdjtools.util
 
 import com.antigenomics.vdjdb.core.db.CdrDatabase
-import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
+import com.antigenomics.vdjtools.util.db.BrowserResult
+import com.antigenomics.vdjtools.util.db.CdrMatch
+import com.antigenomics.vdjtools.util.db.DatabaseBrowser
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 

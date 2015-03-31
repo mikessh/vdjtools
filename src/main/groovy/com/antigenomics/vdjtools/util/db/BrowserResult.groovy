@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools.db
+package com.antigenomics.vdjtools.util.db
 
 /**
  * A class representing the result of querying CDR3 database with a list of clonotypes.

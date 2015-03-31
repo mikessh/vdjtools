@@ -17,7 +17,7 @@
 package com.antigenomics.vdjtools.diversity
 
 import com.antigenomics.vdjtools.overlap.OverlapType
-import com.antigenomics.vdjtools.operate.DownSampler
+import com.antigenomics.vdjtools.preprocess.DownSampler
 import com.antigenomics.vdjtools.sample.Sample
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 import sun.reflect.generics.reflectiveObjects.NotImplementedException

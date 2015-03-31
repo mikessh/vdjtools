@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools.db
+package com.antigenomics.vdjtools.util.db
 
 import com.antigenomics.vdjdb.core.db.CdrEntry
 import com.antigenomics.vdjdb.core.query.CdrSearchResult

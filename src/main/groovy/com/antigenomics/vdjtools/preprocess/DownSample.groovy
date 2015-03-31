@@ -15,7 +15,7 @@
  */
 
 
-package com.antigenomics.vdjtools.operate
+package com.antigenomics.vdjtools.preprocess
 
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.sample.SampleCollection
