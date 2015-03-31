@@ -14,25 +14,29 @@
  * limitations under the License.
  */
 
-
 package com.antigenomics.vdjtools.preprocess
 
 import com.antigenomics.vdjtools.io.SampleWriter
-import com.antigenomics.vdjtools.sample.ClonotypeFilter
-import com.antigenomics.vdjtools.sample.FunctionalClonotypeFilter
-import com.antigenomics.vdjtools.sample.Sample
-import com.antigenomics.vdjtools.sample.SampleCollection
+import com.antigenomics.vdjtools.sample.*
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
-def cli = new CliBuilder(usage: "FilterNonFunctional [options] " +
+def DEFAULT_FREQ_THRESHOLD = "0.01", DEFAULT_QUANTILE_THRESHOLD = "0.25"
+def cli = new CliBuilder(usage: "FilterByFrequency [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
-cli.e(longOpt: "negative", "Will retain only non-functional clonotypes")
+cli.f(longOpt: "freq-threshold", argName: "double", args: 1,
+        "Default clonotype frequency threshold. Set it to 0 to disable. " +
+                "[default = $DEFAULT_FREQ_THRESHOLD]")
+cli.q(longOpt: "quantile-threshold", argName: "double", args: 1,
+        "Default quantile threshold. Will retain a set of top clonotypes " +
+                "with a total frequency specified by this threhsold. " +
+                "Set it to 1 to disable." +
+                "[default = $DEFAULT_QUANTILE_THRESHOLD]")
 cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
@@ -61,8 +65,9 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 // Remaining arguments
 
 def outputFilePrefix = opt.arguments()[-1],
-    compress = (boolean) opt.c,
-    negative = (boolean) opt.e
+    freqThreshold = (opt.f ?: DEFAULT_FREQ_THRESHOLD).toDouble(),
+    quantileThreshold = (opt.q ?: DEFAULT_QUANTILE_THRESHOLD).toDouble(),
+    compress = (boolean) opt.c
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -84,8 +89,12 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 
 def writer = new SampleWriter(compress)
 
-def filter = new FunctionalClonotypeFilter(negative)
-new File(formOutputPath(outputFilePrefix, "ncfilter", "summary")).withPrintWriter { pw ->
+def filter = new CompositeClonotypeFilter(
+        new FrequencyFilter(freqThreshold),
+        new QuantileFilter(quantileThreshold)
+)
+
+new File(formOutputPath(outputFilePrefix, "freqfilter", "summary")).withPrintWriter { pw ->
     def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\t" +
             ClonotypeFilter.ClonotypeFilterStats.HEADER
@@ -107,6 +116,7 @@ new File(formOutputPath(outputFilePrefix, "ncfilter", "summary")).withPrintWrite
     }
 }
 
-sampleCollection.metadataTable.storeWithOutput(outputFilePrefix, compress, "ncfilter:${negative ? "keep" : "remove"}")
+sampleCollection.metadataTable.storeWithOutput(outputFilePrefix, compress,
+        "freqfilter:$freqThreshold:$quantileThreshold")
 
 println "[${new Date()} $scriptName] Finished"

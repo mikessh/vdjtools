@@ -88,6 +88,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 
 def writer = new SampleWriter(compress)
 
+def filter = new CompositeClonotypeFilter(negative, vFilter, dFilter, jFilter)
 new File(formOutputPath(outputFilePrefix, "segfilter", "summary")).withPrintWriter { pw ->
     def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\t" +
@@ -99,7 +100,6 @@ new File(formOutputPath(outputFilePrefix, "segfilter", "summary")).withPrintWrit
         def sampleId = sample.sampleMetadata.sampleId
         println "[${new Date()} $scriptName] Filtering $sampleId.."
 
-        def filter = new CompositeClonotypeFilter(negative, vFilter, dFilter, jFilter)
         def filteredSample = new Sample(sample, filter)
 
         // print output
