@@ -86,8 +86,8 @@ def outputPrefix = opt.arguments().size() > 1 ? opt.arguments()[1] : inputPrefix
     measureName = (opt.e ?: MEASURE_DEFAULT).toUpperCase(), labelName = (opt.l ?: MetadataTable.SAMPLE_ID_COLUMN).toUpperCase(),
     hcPlotFileName = formOutputPath(outputPrefix, "hc", intersectionType, measureName, "pdf"),
     mdsPlotFileName = formOutputPath(outputPrefix, "mds", intersectionType, measureName, "pdf"),
-    hcFileName = formOutputPath(outputPrefix, "hc", intersectionType, measureName, ".newick"),
-    mdsFileName = formOutputPath(outputPrefix, "mds", intersectionType, measureName, ".txt"),
+    hcFileName = formOutputPath(outputPrefix, "hc", intersectionType, measureName, "newick"),
+    mdsFileName = formOutputPath(outputPrefix, "mds", intersectionType, measureName, "txt"),
     plot = (boolean) opt.p
 
 def factorNameOrig = null

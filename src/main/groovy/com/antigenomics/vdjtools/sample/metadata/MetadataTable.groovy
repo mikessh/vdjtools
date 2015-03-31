@@ -269,13 +269,13 @@ class MetadataTable implements Iterable<SampleMetadata> {
             throw new IllegalArgumentException("Duplicate samples not allowed")
 
         if (row.entries.size() != columnIds.size())
-            throw new Exception("Bad metadata row - number of entries in row " +
+            throw new Exception("Bad metadata row\n$row\n- number of entries in row " +
                     "and in parent metadata should agree")
 
         for (int i = 0; i < columnIds.size(); i++) {
             def rowValue = row.entries[i].columnId, metadataValue = columnIds[i]
             if (rowValue != metadataValue)
-                throw new Exception("Bad metadata row - ${i}th column don't match between row " +
+                throw new Exception("Bad metadata row\n$row\n- column#${i} don't match between row " +
                         "($rowValue) and parent metadata ($metadataValue)")
         }
     }

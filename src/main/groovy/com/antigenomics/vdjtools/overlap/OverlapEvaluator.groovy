@@ -103,7 +103,7 @@ class OverlapEvaluator {
                 return F2
 
             case Correlation:
-                double R = Double.NaN
+                double R = 0
 
                 int n = jointSample.getIntersectionDiv(i, j)
 
@@ -121,6 +121,7 @@ class OverlapEvaluator {
 
                     R = new PearsonsCorrelation().correlation(x, y)
                 }
+                
                 return R
 
             case Jaccard:

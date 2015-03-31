@@ -21,7 +21,6 @@ package com.antigenomics.vdjtools.operate
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.overlap.OverlapType
-import com.antigenomics.vdjtools.pool.MaxClonotypeAggregatorFactory
 import com.antigenomics.vdjtools.pool.PooledSample
 import com.antigenomics.vdjtools.pool.SampleAggregator
 import com.antigenomics.vdjtools.pool.StoringClonotypeAggregatorFactory
@@ -37,14 +36,10 @@ cli.h("display help message")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
-cli._(longOpt: "low-mem", "Will process all sample pairs sequentially, avoiding" +
-        " loading all of them into memory. Slower but memory-efficient mode.")
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Comma-separated list of overlap types to apply. " +
                 "Allowed values: $OverlapType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
-cli.w(longOpt: "write-cloneset", "Will create a separate file with pooled sample, " +
-        "greatly increases memory requirements and potentially creates a very large file.")
 cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
@@ -73,7 +68,6 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 3)
 }
 
 def outputPrefix = opt.arguments()[-1],
-    writeCloneset = (boolean) opt.'w',
     compress = (boolean) opt.c
 
 ExecUtil.ensureDir(outputPrefix)
@@ -107,36 +101,22 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 // Pool samples
 //
 
-println "[${new Date()} $scriptName] Pooling with $intersectionType" +
-        "${writeCloneset ? ", this may take a while" : ""}.."
+println "[${new Date()} $scriptName] Pooling with $intersectionType, this may take a while"
 
-def cloneAggrFact = writeCloneset ? new StoringClonotypeAggregatorFactory() : new MaxClonotypeAggregatorFactory()
+def cloneAggrFact = new StoringClonotypeAggregatorFactory()
 
 def sampleAggr = new SampleAggregator(sampleCollection, cloneAggrFact, intersectionType)
 
 //
-// Build frequency table for statistics
+// Sort pooled sample and write output
 //
 
-println "[${new Date()} $scriptName] Computing frequency tables for stats"
+println "[${new Date()} $scriptName] Normalizing and sorting pooled clonotypes"
+def pooledSample = new PooledSample(sampleAggr)
 
-new File(formOutputPath(outputPrefix, "pool", intersectionType.shortName, "freqs")).withPrintWriter { pwFreq ->
-    pwFreq.println("incidence.count\tread.count" +
-            (writeCloneset ? "\tconvergence" : ""))
-    sampleAggr.each { cloneAggr ->
-        pwFreq.println(cloneAggr.incidenceCount + "\t" + cloneAggr.count +
-                (writeCloneset ? "\t${cloneAggr.convergence}" : ""))
-    }
-}
-
-if (writeCloneset) {
-    println "[${new Date()} $scriptName] Normalizing and sorting pooled clonotypes"
-    def pooledSample = new PooledSample(sampleAggr)
-
-    println "[${new Date()} $scriptName] Writing output"
-    def writer = new SampleWriter(compress)
-    writer.write(pooledSample, formOutputPath(outputPrefix, "pool", intersectionType.shortName, "table"))
-}
+println "[${new Date()} $scriptName] Writing output"
+def writer = new SampleWriter(compress)
+writer.write(pooledSample, formOutputPath(outputPrefix, "pool", intersectionType.shortName, "table"))
 
 println "[${new Date()} $scriptName] Finished."
 
