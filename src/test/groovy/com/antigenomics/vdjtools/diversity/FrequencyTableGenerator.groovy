@@ -17,6 +17,7 @@
 package com.antigenomics.vdjtools.diversity
 
 import org.apache.commons.math3.distribution.ZipfDistribution
+import org.apache.commons.math3.random.Well19937c
 
 class FrequencyTableGenerator {
     int numberOfSpecies = 500, observedSpecies = 100
@@ -33,7 +34,8 @@ class FrequencyTableGenerator {
     }
 
     public FrequencyTable create() {
-        def distr = new ZipfDistribution(numberOfSpecies, exponent)
+        def distr = new ZipfDistribution(new Well19937c(21051102L),
+                numberOfSpecies, exponent)
 
         def cache = new HashMap<Long, Long>()
 
