@@ -123,7 +123,7 @@ new File(outputFileName).withPrintWriter { pw ->
 
 if (plot) {
     println "[${new Date()} $scriptName] Plotting"
-    execute("pairwise_overlap_plot.r", outputFileName, toPlotPath(outputFileName))
+    execute("pairwise_distance_plot.r", outputFileName, toPlotPath(outputFileName))
 }
 
 println "[${new Date()} $scriptName] Finished"

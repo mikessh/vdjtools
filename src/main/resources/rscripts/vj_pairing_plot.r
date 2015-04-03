@@ -5,7 +5,7 @@ args<-commandArgs(TRUE)
 file_in  <- args[1]
 file_out <- args[2]
 
-require(circlize)
+require(circlize); require(RColorBrewer)
 
 
 # load data and preproc to fit formats
@@ -30,7 +30,6 @@ row_sum = apply(mat, 1, sum)
 
 mat <- mat[order(row_sum), order(col_sum)]
 
-
 # equal number of characters for visualizaiton
 
 rn <- rownames(mat)
@@ -50,14 +49,21 @@ for(i in seq_len(length(cn))) {
 rownames(mat) <- rn
 colnames(mat) <- cn
 
-
 # viz using circlize
 
 pdf(file_out)
 
 circos.par(gap.degree = c(rep(3, nrow(mat)-1), 10, rep(3, ncol(mat)-1), 15), start.degree = 5)
 
-chordDiagram(mat, annotationTrack = "grid", preAllocateTracks = list(track.height = 0.2), transparency = 0.5)
+rcols <- rep(brewer.pal(12, "Paired"), nrow(mat)/12 + 1)[1:nrow(mat)]
+ccols <- rep(brewer.pal(12, "Paired"), ncol(mat)/12 + 1)[1:ncol(mat)]
+
+names(rcols) <- sort(rownames(mat))
+names(ccols) <- sort(colnames(mat))
+
+chordDiagram(mat, annotationTrack = "grid",
+             grid.col = c(rcols, ccols),
+             preAllocateTracks = list(track.height = 0.2), transparency = 0.5)
 
 circos.trackPlotRegion(track.index = 1, bg.border = NA,
        panel.fun = function(x, y) {

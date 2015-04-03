@@ -45,9 +45,13 @@ render_plot <- function(var) {
   # viz using circlize
   #circos.par(gap.degree = c(rep(3, nrow(mat)-1), 10, rep(3, ncol(mat)-1), 10), start.degree = 5)
 
-  cols <- colorRampPalette(brewer.pal(12, "Paired"))(nrow(mat))
+  rcols <- rep(brewer.pal(12, "Paired"), nrow(mat)/12 + 1)[1:nrow(mat)]
+  ccols <- rep(brewer.pal(12, "Paired"), ncol(mat)/12 + 1)[1:ncol(mat)]
 
-  chordDiagram(mat, annotationTrack = "grid", grid.col = cols,
+  names(rcols) <- sort(rownames(mat))
+  names(ccols) <- sort(colnames(mat))
+
+  chordDiagram(mat, annotationTrack = "grid", grid.col = c(rcols, ccols),
                preAllocateTracks = list(track.height = 0.2), transparency = 0.5)
 
   circos.trackPlotRegion(track.index = 1, bg.border = NA,

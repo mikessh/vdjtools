@@ -69,7 +69,7 @@ new File(outputFileName).withPrintWriter { pw ->
 
 println "[${new Date()} $scriptName] Plotting data (be patient, complex graphics)"
 
-RUtil.execute("table_circ.r",
+RUtil.execute("vj_pairing_plot.r",
         outputFileName, toPlotPath(outputFileName)
 )
 
