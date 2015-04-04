@@ -18,7 +18,7 @@ package com.antigenomics.vdjtools.overlap
 
 /**
  * Normalization type that is recommended for a given IntersectMetric,
- * should transform overlap metric value to {@code [0, +inf)} scale.
+ * should transform overlap metric value to {@code [0 , +inf)} scale.
  */
 public enum OverlapMetricNormalization {
     /**
@@ -30,9 +30,13 @@ public enum OverlapMetricNormalization {
      */
             R(1),
     /**
+     * Simialrity index, normalized as {@code ( 1 - x )}.
+     */
+            Index(2),
+    /**
      * Metrics for which normalization is not required.
      */
-            None(2)
+            None(-1)
 
     /**
      * Normalization type ID, used for passing to R scripts as argument.

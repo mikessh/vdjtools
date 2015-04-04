@@ -58,15 +58,15 @@ public enum OverlapMetric {
     /**
      * Jaccard index
      */
-            Jaccard("Jaccard", None),
+            Jaccard("Jaccard", Index),
     /*
-    ChaoJaccard("ChaoJaccard", None),
-    ChaoSorensen("ChaoSorensen", None),
+    ChaoJaccard("ChaoJaccard", Index),
+    ChaoSorensen("ChaoSorensen", Index),
     */
             /**
              * MorisitaHorn index
              */
-            MorisitaHorn("MorisitaHorn", None)
+            MorisitaHorn("MorisitaHorn", Index)
 
     public final String shortName
     public final OverlapMetricNormalization normalization

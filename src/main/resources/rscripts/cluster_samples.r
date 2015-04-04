@@ -72,6 +72,9 @@ if (measure_type == 0) {
 } else if (measure_type == 1) {
     # normalizaiton for correlation coefficients
     df$measure_col <- (1 - df$measure_col) / 2
+} else if (measure_type == 2) {
+      # normalizaiton for similarity indices
+      df$measure_col <- 1 - df$measure_col
 } else {
     # no normalization (jensen-shannon divergence, etc)
 }
