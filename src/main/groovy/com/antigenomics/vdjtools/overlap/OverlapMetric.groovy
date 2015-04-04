@@ -15,10 +15,9 @@
  */
 
 
-
 package com.antigenomics.vdjtools.overlap
 
-import static OverlapMetricNormalization.*
+import static com.antigenomics.vdjtools.overlap.OverlapMetricNormalization.*
 
 /**
  * An enum that defines overlap metric, a function that characterizes the extent of overlap between a pair of samples.
@@ -60,9 +59,13 @@ public enum OverlapMetric {
      * Jaccard index
      */
             Jaccard("Jaccard", None),
-    /**
-     * MorisitaHorn index
-     */
+    /*
+    ChaoJaccard("ChaoJaccard", None),
+    ChaoSorensen("ChaoSorensen", None),
+    */
+            /**
+             * MorisitaHorn index
+             */
             MorisitaHorn("MorisitaHorn", None)
 
     public final String shortName

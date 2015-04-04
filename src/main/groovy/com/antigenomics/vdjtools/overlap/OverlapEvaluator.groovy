@@ -25,7 +25,7 @@ import com.antigenomics.vdjtools.util.MathUtil
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
-import static OverlapMetric.*
+import static com.antigenomics.vdjtools.overlap.OverlapMetric.*
 
 /**
  * A helper class to compute various overlap metrics for joint overlap
@@ -121,7 +121,7 @@ class OverlapEvaluator {
 
                     R = new PearsonsCorrelation().correlation(x, y)
                 }
-                
+
                 return R
 
             case Jaccard:
@@ -129,6 +129,50 @@ class OverlapEvaluator {
                         div2 = jointSample.getSample(j).diversity,
                         div12 = jointSample.getIntersectionDiv(i, j)
                 return 1.0 - div12 / (div1 + div2 - div12)
+
+        /*
+         case ChaoSorensen:
+         case ChaoJaccard:
+             double U1 = 0, U2 = 0, V1 = 0, V2 = 0,
+                     f11 = 0, f12 = 0,
+                     f21 = 0, f22 = 0;
+
+             double n = jointSample.getSample(i).diversity,
+                     m = jointSample.getSample(j).diversity
+
+             jointSample.each {
+                 if (it.present(i) && it.present(j)) {
+                     int x = it.getCount(i), y = it.getCount(j)
+                     if (x == 1) {
+                         f11++
+                         V2 += y
+                     } else if (x == 2) {
+                         f12++
+                     }
+                     if (y == 1) {
+                         f21++
+                         U2 += x
+                     } else if (y == 2) {
+                         f22++
+                     }
+
+                     U1 += x
+                     V1 += y
+                 }
+             }
+
+             f22 = f22 == 0 ? 1 : f22
+             f12 = f12 == 0 ? 1 : f12
+
+             double U = (U1 + f21 / f22 / 2 * (m - 1) / m * U2) / n,
+                     V = (V1 + f11 / f12 / 2 * (n - 1) / n * V2) / m
+
+
+             U = Math.min(U, 1)
+             V = Math.min(V, 1)
+
+             return U * V / (metric == ChaoSorensen ? ((U + V) / 2) : (U + V - U * V))
+             */
 
 
             case MorisitaHorn:

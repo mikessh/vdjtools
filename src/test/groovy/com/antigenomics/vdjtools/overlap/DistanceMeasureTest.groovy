@@ -23,26 +23,29 @@ import org.junit.Test
 
 import static com.antigenomics.vdjtools.TestUtil.getResource
 import static com.antigenomics.vdjtools.io.SampleStreamConnection.load
+import static com.antigenomics.vdjtools.overlap.OverlapMetric.*
 
 class DistanceMeasureTest {
     static void checkMetricValue(OverlapMetric intersectMetric, double val) {
         switch (intersectMetric) {
-            case OverlapMetric.Correlation:
+            case Correlation:
                 assert val >= -1 && val <= 1
                 break
 
-            case OverlapMetric.Frequency:
-            case OverlapMetric.Frequency2:
-            case OverlapMetric.Diversity:
-            case OverlapMetric.MorisitaHorn:
-            case OverlapMetric.Jaccard:
+            case Frequency:
+            case Frequency2:
+            case Diversity:
+            case MorisitaHorn:
+            case Jaccard:
+                //case OverlapMetric.ChaoJaccard:
+                //case OverlapMetric.ChaoSorensen:
                 assert val >= 0 && val <= 1
                 break
 
-            case OverlapMetric.sJSD:
-            case OverlapMetric.vJSD:
-            case OverlapMetric.vj2JSD:
-            case OverlapMetric.vjJSD:
+            case sJSD:
+            case vJSD:
+            case vj2JSD:
+            case vjJSD:
                 assert val >= 0
                 break
         }
@@ -57,10 +60,17 @@ class DistanceMeasureTest {
 
         // downsample
         def downSampler = new DownSampler(sample)
-        def nResamples = 100
+        def nResamples = 200
         int smallCount = sample.count * 0.1, largeCount = sample.count * 0.5
 
         ExecUtil.quiet()
+
+        def largeSampleOverlapWorse = new HashMap(), selfOverlapWorse = new HashMap()
+
+        values().each {
+            largeSampleOverlapWorse.put(it, 0)
+            selfOverlapWorse.put(it, 0)
+        }
 
         nResamples.times {
             def s1 = downSampler.reSample(smallCount),
@@ -74,29 +84,49 @@ class DistanceMeasureTest {
             def largeIntersection = new Overlap(s1, s2, OverlapType.AminoAcid),
                 selfIntersection = new Overlap(s1, s1, OverlapType.AminoAcid)
 
-            OverlapMetric.values().each {
+            values().each {
                 def val1 = smallIntersection.getMetricValue(it),
                     val2 = largeIntersection.getMetricValue(it),
                     val3 = selfIntersection.getMetricValue(it)
-                
+
                 // check values
                 checkMetricValue(it, val1)
                 checkMetricValue(it, val2)
                 checkMetricValue(it, val3)
 
                 // Assure that distance has decreased
-                // Note that due to the scaling used in diversity measure (overlap size / (sample1 size * sample2 size))
-                // when two equally-well intersecting sub-sample pairs are drawn,
-                // the pair with the smallest samples is considered the closest one
-                // For RepSeq data, the other possible normalization (overlap size / sqrt(sample1 size * sample2 size))
-                // will actually bias towards larger samples, due to higher probability of grabbing similar variants
-                // It was empirically estimated that pow(sample1 size * sample2 size, 0.8) is the optimal choice
-                if (it != OverlapMetric.Diversity)
-                    assert it.normalization.normalize(val1) > it.normalization.normalize(val2)
+                if (it.normalization.normalize(val1) < it.normalization.normalize(val2)) {
+                    largeSampleOverlapWorse.put(it, largeSampleOverlapWorse[it] + 1.0)
+                }
 
                 // self overlap is always the closest one
-                assert it.normalization.normalize(val2) > it.normalization.normalize(val3)
+                if (it.normalization.normalize(val2) < it.normalization.normalize(val3)) {
+                    selfOverlapWorse.put(it, selfOverlapWorse[it] + 1.0)
+                }
             }
+        }
+
+        double failureFreq
+
+        println "Larger sample has worse overlap"
+        largeSampleOverlapWorse.each {
+            failureFreq = (it.value / nResamples)
+            println(it.key.toString() + "\t" + failureFreq)
+            // Note that due to the scaling used in diversity measure (overlap size / (sample1 size * sample2 size))
+            // when two equally-well intersecting sub-sample pairs are drawn,
+            // the pair with the smallest samples is considered the closest one
+            // For RepSeq data, the other possible normalization (overlap size / sqrt(sample1 size * sample2 size))
+            // will actually bias towards larger samples, due to higher probability of grabbing similar variants
+            // It was empirically estimated that pow(sample1 size * sample2 size, 0.8) is the optimal choice
+            if (it.key != Diversity)
+                assert failureFreq <= 0.01
+        }
+
+        println "Self overlap is worse than resampled"
+        selfOverlapWorse.each {
+            failureFreq = (it.value / nResamples)
+            println(it.key.toString() + "\t" + failureFreq)
+            assert failureFreq <= 0.01
         }
     }
 }
