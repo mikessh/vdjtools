@@ -58,6 +58,8 @@ public enum OverlapMetricNormalization {
                 return -Math.log10(x + 1e-9)
             case R:
                 return (1.0 - x) / 2
+            case Index:
+                return 1.0 - x
         }
         x
     }

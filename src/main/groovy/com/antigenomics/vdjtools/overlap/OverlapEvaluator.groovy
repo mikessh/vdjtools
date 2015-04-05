@@ -128,7 +128,7 @@ class OverlapEvaluator {
                 def div1 = jointSample.getSample(i).diversity,
                         div2 = jointSample.getSample(j).diversity,
                         div12 = jointSample.getIntersectionDiv(i, j)
-                return 1.0 - div12 / (div1 + div2 - div12)
+                return div12 / (div1 + div2 - div12)
 
         /*
          case ChaoSorensen:
@@ -186,7 +186,7 @@ class OverlapEvaluator {
                     Dy += y * y
                 }
 
-                return 1.0 - 2 * xy / (Dx + Dy)
+                return 2 * xy / (Dx + Dy)
 
             case vJSD:
                 return MathUtil.JSD(
