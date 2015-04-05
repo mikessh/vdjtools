@@ -44,6 +44,7 @@ public class VJLenSignature extends GroupSignature {
 
     @Override
     public boolean equals(Object o) {
+        if (o == null) return false;
         VJLenSignature key = (VJLenSignature) o;
         return getV().equals(key.getV()) &&
                 getJ().equals(key.getJ()) &&

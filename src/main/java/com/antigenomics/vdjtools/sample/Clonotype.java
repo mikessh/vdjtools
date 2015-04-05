@@ -18,8 +18,6 @@ package com.antigenomics.vdjtools.sample;
 
 import com.antigenomics.vdjtools.ClonotypeContainer;
 import com.antigenomics.vdjtools.Countable;
-import com.antigenomics.vdjtools.join.key.ClonotypeKey;
-import com.antigenomics.vdjtools.join.key.StrictKey;
 
 /**
  * A class holding comprehensive info on a T- or B-cell clonotype.

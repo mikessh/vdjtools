@@ -19,9 +19,6 @@ package com.antigenomics.vdjtools.pool;
 import com.antigenomics.vdjtools.Misc;
 import com.antigenomics.vdjtools.sample.Clonotype;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public abstract class ClonotypeAggregator {
     private int sampleId;
     private int incidenceCount, count;
