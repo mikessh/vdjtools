@@ -98,6 +98,7 @@ import java.util.*;
 public class LinkedListExt<E>
         extends AbstractSequentialList<E>
         implements List<E>, Deque<E>, Cloneable, java.io.Serializable {
+    private static final long serialVersionUID = 876323262645176354L;
     private transient Entry<E> header = new Entry<E>(null, null, null);
     private transient int size = 0;
 
@@ -970,8 +971,6 @@ public class LinkedListExt<E>
 
         return a;
     }
-
-    private static final long serialVersionUID = 876323262645176354L;
 
     /**
      * Save the state of this <tt>LinkedList</tt> instance to a stream (that

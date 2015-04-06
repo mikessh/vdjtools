@@ -33,6 +33,6 @@ public abstract class ClonotypeKey {
     @Override
     public boolean equals(Object o) {
         // no it shouldn't
-        return this.equals(((ClonotypeKey) o).clonotype);
+        return o != null && this.equals(((ClonotypeKey) o).clonotype);
     }
 }

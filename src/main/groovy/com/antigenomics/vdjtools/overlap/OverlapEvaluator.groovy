@@ -31,6 +31,7 @@ import static com.antigenomics.vdjtools.overlap.OverlapMetric.*
  * A helper class to compute various overlap metrics for joint overlap
  */
 class OverlapEvaluator {
+    //This static field public but not final, and could be changed by malicious code or by accident from another package. The field could be made final to avoid this vulnerability.
     public static boolean VERBOSE = true
 
     private final JointSample jointSample

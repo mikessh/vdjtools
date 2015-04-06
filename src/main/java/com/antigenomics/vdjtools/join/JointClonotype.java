@@ -176,6 +176,6 @@ public class JointClonotype implements Comparable<JointClonotype>, ClonotypeWrap
 
     @Override
     public int compareTo(JointClonotype o) {
-        return -Double.compare(this.getBaseFreq(), o.getBaseFreq());
+        return Double.compare(o.getBaseFreq(), this.getBaseFreq());
     }
 }
