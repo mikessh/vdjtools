@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-// todo: UNTESTED
-
 package com.antigenomics.vdjtools.operate
 
 import com.antigenomics.vdjtools.Software

@@ -25,7 +25,6 @@ import com.antigenomics.vdjtools.util.ExecUtil
  * Class that represents Variable and Joining segment frequency (usage) vector and V-J pairing matrix
  */
 public class SegmentUsage {
-    //This static field public but not final, and could be changed by malicious code or by accident from another package. The field could be made final to avoid this vulnerability.
     public static boolean VERBOSE = true
 
     private final Map<String, double[]> vSegmentUsage = new HashMap<>(),

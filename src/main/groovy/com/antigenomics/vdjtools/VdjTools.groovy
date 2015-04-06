@@ -166,17 +166,18 @@ else {
     } catch (Exception e) {
         println "[ERROR] $e.message, see _vdjtools_error.log for details"
         new File("_vdjtools_error.log").withWriterAppend { writer ->
-            writer.println("[${new Date()}]")
+            writer.println("[${new Date()} BEGIN]")
             writer.println("[Script]")
             writer.println(args[0])
             writer.println("[CommandLine]")
             writer.println("executing vdjtools-${version}.jar ${args.join(" ")}")
             writer.println("[Message]")
-            writer.println(e.message)
+            writer.println(e.toString())
             writer.println("[StackTrace-Short]")
             writer.println(e.stackTrace.findAll { it.toString().contains("com.antigenomics.vdjtools") }.join("\n"))
             writer.println("[StackTrace-Full]")
             e.printStackTrace(new PrintWriter(writer))
+            writer.println("[END]")
         }
         System.exit(-1)
     }

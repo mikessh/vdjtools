@@ -15,10 +15,8 @@
  */
 
 
-
 package com.antigenomics.vdjtools.basic
 
-import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable

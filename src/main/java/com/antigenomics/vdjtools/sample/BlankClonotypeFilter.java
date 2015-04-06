@@ -17,8 +17,7 @@
 package com.antigenomics.vdjtools.sample;
 
 public class BlankClonotypeFilter extends ClonotypeFilter {
-    //This static field public but not final, and could be changed by malicious code or by accident from another package. The field could be made final to avoid this vulnerability.
-    public static BlankClonotypeFilter INSTANCE = new BlankClonotypeFilter();
+    public static final BlankClonotypeFilter INSTANCE = new BlankClonotypeFilter();
 
     private BlankClonotypeFilter() {
         super(false);

@@ -16,9 +16,9 @@
 
 package com.antigenomics.vdjtools.preprocess
 
-import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.io.SampleFileConnection
 import com.antigenomics.vdjtools.io.SampleWriter
+import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.sample.ClonotypeFilter
 import com.antigenomics.vdjtools.sample.IntersectionClonotypeFilter
 import com.antigenomics.vdjtools.sample.Sample

@@ -16,7 +16,6 @@
 
 package com.antigenomics.vdjtools.basic
 
-import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 import com.antigenomics.vdjtools.util.RUtil
@@ -84,8 +83,8 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
 def segmentUsage = new SegmentUsage(sampleCollection, unweighted)
 
-def outputPathV = formOutputPath(outputFilePrefix, "segments", unweighted ? "unwt" : "wt" ,"V"),
-        outputPathJ = formOutputPath(outputFilePrefix, "segments", unweighted ? "unwt" : "wt" ,"J")
+def outputPathV = formOutputPath(outputFilePrefix, "segments", unweighted ? "unwt" : "wt", "V"),
+    outputPathJ = formOutputPath(outputFilePrefix, "segments", unweighted ? "unwt" : "wt", "J")
 new File(outputPathV).withPrintWriter { pwV ->
     new File(outputPathJ).withPrintWriter { pwJ ->
         def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" + sampleCollection.metadataTable.columnHeader
