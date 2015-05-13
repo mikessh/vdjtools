@@ -25,13 +25,13 @@ public final class AaVKey extends ClonotypeKey {
 
     @Override
     public boolean equals(Clonotype other) {
-        return clonotype.getCdr3aa().equals(other.getCdr3aa()) &&
-                clonotype.getV().equals(other.getV());
+        return clonotype.getCdr3aaBinary().equals(other.getCdr3aaBinary()) &&
+                clonotype.getVBinary().equals(other.getVBinary());
     }
 
     @Override
     public int hashCode() {
-        return clonotype.getCdr3aa().hashCode() * 31 + clonotype.getV().hashCode();
+        return clonotype.getCdr3aaBinary().hashCode() * 31 + clonotype.getVBinary().hashCode();
     }
 }
 

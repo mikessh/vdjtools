@@ -25,12 +25,12 @@ public final class AaNotNtKey extends ClonotypeKey {
 
     @Override
     public boolean equals(Clonotype other) {
-        return clonotype.getCdr3aa().equals(other.getCdr3aa()) &&
-                !clonotype.getCdr3nt().equals(other.getCdr3nt());
+        return clonotype.getCdr3aaBinary().equals(other.getCdr3aaBinary()) &&
+                !clonotype.getCdr3ntBinary().equals(other.getCdr3ntBinary());
     }
 
     @Override
     public int hashCode() {
-        return clonotype.getCdr3aa().hashCode();
+        return clonotype.getCdr3aaBinary().hashCode();
     }
 }

@@ -25,11 +25,11 @@ public final class AaKey extends ClonotypeKey {
 
     @Override
     public boolean equals(Clonotype other) {
-        return clonotype.getCdr3aa().equals(other.getCdr3aa());
+        return clonotype.getCdr3aaBinary().equals(other.getCdr3aaBinary());
     }
 
     @Override
     public int hashCode() {
-        return clonotype.getCdr3aa().hashCode();
+        return clonotype.getCdr3aaBinary().hashCode();
     }
 }

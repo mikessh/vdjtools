@@ -14,23 +14,38 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools.join.key;
+package com.antigenomics.vdjtools;
 
-import com.antigenomics.vdjtools.sample.Clonotype;
+public class Segment {
+    protected final String name;
 
-public final class NtKey extends ClonotypeKey {
-    public NtKey(Clonotype clonotype) {
-        super(clonotype);
+    public Segment(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override
-    public boolean equals(Clonotype other) {
-        return clonotype.getCdr3ntBinary().equals(other.getCdr3ntBinary());
+    public String toString() {
+        return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Segment segment = (Segment) o;
+
+        if (!name.equals(segment.name)) return false;
+
+        return true;
     }
 
     @Override
     public int hashCode() {
-        return clonotype.getCdr3ntBinary().hashCode();
+        return name.hashCode();
     }
 }
-

@@ -23,6 +23,8 @@ import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.util.CommonUtil
 
+import static com.antigenomics.vdjtools.util.CommonUtil.toUnifiedCdr3Aa
+
 /**
  * A clonotype parser implementation that handles output from IgBlastWrapper software.
  * {@url https://github.com/mikessh/igblastwrp}
@@ -59,7 +61,7 @@ public class IgBlastParser extends ClonotypeStreamParser {
 
         def count = splitString[2].toInteger()
         def freq = splitString[3].toDouble()
-        def cdr3nt = splitString[6], cdr3aa = splitString[9]
+        def cdr3nt = splitString[6], cdr3aa = toUnifiedCdr3Aa(splitString[9])
 
         String v, d, j
         (v, d, j) = CommonUtil.extractVDJ(splitString[13..15])
