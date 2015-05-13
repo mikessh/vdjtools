@@ -25,12 +25,12 @@ public final class NtKey extends ClonotypeKey {
 
     @Override
     public boolean equals(Clonotype other) {
-        return clonotype.getCdr3nt().equals(other.getCdr3nt());
+        return clonotype.getCdr3ntBinary().equals(other.getCdr3ntBinary());
     }
 
     @Override
     public int hashCode() {
-        return clonotype.getCdr3nt().hashCode();
+        return clonotype.getCdr3ntBinary().hashCode();
     }
 }
 

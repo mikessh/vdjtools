@@ -20,6 +20,8 @@ import com.antigenomics.vdjtools.ClonotypeContainer;
 import com.antigenomics.vdjtools.Countable;
 import com.antigenomics.vdjtools.Segment;
 import com.antigenomics.vdjtools.SegmentFactory;
+import com.milaboratory.core.sequence.AminoAcidSequence;
+import com.milaboratory.core.sequence.NucleotideSequence;
 
 /**
  * A class holding comprehensive info on a T- or B-cell clonotype.
@@ -32,7 +34,8 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
 
     private final int[] segmPoints;
     private final Segment v, d, j;
-    private final String cdr3nt, cdr3aa;
+    private final NucleotideSequence cdr3nt;
+    private final AminoAcidSequence cdr3aa;
 
     private final boolean inFrame, isComplete, noStop;
 
@@ -54,7 +57,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
      */
     public Clonotype(ClonotypeContainer parent, int count, double freq,
                      int[] segmPoints, Segment v, Segment d, Segment j,
-                     String cdr3nt, String cdr3aa,
+                     NucleotideSequence cdr3nt, AminoAcidSequence cdr3aa,
                      boolean inFrame, boolean noStop, boolean isComplete) {
         this.parent = parent;
         this.count = count;
@@ -92,7 +95,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
                      boolean inFrame, boolean noStop, boolean isComplete) {
         this(parent, count, freq, segmPoints,
                 SegmentFactory.INSTANCE.create(v), SegmentFactory.INSTANCE.create(d), SegmentFactory.INSTANCE.create(j),
-                cdr3nt, cdr3aa,
+                new NucleotideSequence(cdr3nt), new AminoAcidSequence(cdr3aa),
                 inFrame, noStop, isComplete);
     }
 
@@ -165,6 +168,10 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
         return v.toString();
     }
 
+    public Segment getVBinary() {
+        return v;
+    }
+
     /**
      * Gets the Diversity segment of this clonotype
      *
@@ -172,6 +179,10 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
      */
     public String getD() {
         return d.toString();
+    }
+
+    public Segment getDBinary() {
+        return d;
     }
 
     /**
@@ -183,12 +194,20 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
         return j.toString();
     }
 
+    public Segment getJBinary() {
+        return j;
+    }
+
     /**
      * Gets the nucleotide sequence of CDR3 region of this clonotype
      *
      * @return
      */
     public String getCdr3nt() {
+        return cdr3nt.toString();
+    }
+
+    public NucleotideSequence getCdr3ntBinary() {
         return cdr3nt;
     }
 
@@ -198,6 +217,10 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
      * @return
      */
     public String getCdr3aa() {
+        return cdr3aa.toString();
+    }
+
+    public AminoAcidSequence getCdr3aaBinary() {
         return cdr3aa;
     }
 
@@ -281,7 +304,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
      * @return length of CDR3 nucleotide sequence.
      */
     public int getCdr3Length() {
-        return cdr3nt.length();
+        return cdr3nt.size();
     }
 
     /**

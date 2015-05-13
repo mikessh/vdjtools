@@ -364,7 +364,7 @@ public class CommonUtil {
         matcher ? (matcher.start() - 1) : -1
     }
 
-    final static String OOF_SYMBOLS_POSSIBLE = /([atgc#~\?])+/, OOF_CHAR = "~", STOP_CHAR = "*"
+    final static String OOF_SYMBOLS_POSSIBLE = /([atgc#~\?])+/, OOF_CHAR = "_", STOP_CHAR = "*"
 
     static String translate(String seq) {
         if (seq.length() == 0)
