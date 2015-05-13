@@ -16,14 +16,36 @@
 
 package com.antigenomics.vdjtools.sample;
 
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.regex.Pattern;
+
 public class SequenceMatchFilter extends ClonotypeFilter {
-    private final String sequence;
+    private final static Pattern aaAccepted = Pattern.compile("[FLSYCWPHQRIMTNKVADEGX\\*_\\[\\]]+"),
+            ntAccepted = Pattern.compile("[ATGCN\\[\\]]+");
+
+    private final String patternString;
+    private final Pattern pattern;
     private final boolean aminoAcid;
     private final int maxMismatches;
 
-    public SequenceMatchFilter(String sequence, boolean aminoAcid, int maxMismatches) {
+    public SequenceMatchFilter(String patternString, boolean aminoAcid, int maxMismatches) {
         super(false);
-        this.sequence = sequence.toUpperCase();
+        patternString = patternString.toUpperCase();
+
+        if (!(aminoAcid ? aaAccepted : ntAccepted).matcher(patternString).matches()) {
+            throw new IllegalArgumentException("Bad sequence pattern: " + patternString);
+        }
+
+        if (StringUtils.countMatches(patternString, '[') !=
+                StringUtils.countMatches(patternString, ']')) {
+            throw new IllegalArgumentException("Bad sequence pattern: " + patternString);
+        }
+
+        patternString = patternString.replaceAll("[XN]", ".");
+
+        this.pattern = Pattern.compile(patternString);
+        this.patternString = patternString;
         this.aminoAcid = aminoAcid;
         this.maxMismatches = maxMismatches;
     }
@@ -32,26 +54,11 @@ public class SequenceMatchFilter extends ClonotypeFilter {
     protected boolean checkPass(Clonotype clonotype) {
         String query = aminoAcid ? clonotype.getCdr3aa() : clonotype.getCdr3nt();
 
-        if (query.length() != sequence.length()) {
-            return false;
-        } else if (query.equals(sequence)) {
-            return true;
-        }
-
-        int nMismatches = 0;
-        for (int i = 0; i < sequence.length(); i++) {
-            if (sequence.charAt(i) != query.charAt(i)) {
-                if (++nMismatches > maxMismatches) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
+        return pattern.matcher(query).find();
     }
 
-    public String getSequence() {
-        return sequence;
+    public String getPatternString() {
+        return patternString;
     }
 
     public boolean isAminoAcid() {
