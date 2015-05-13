@@ -115,8 +115,8 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
 
             def badFieldMap = clonotype ? ["no_cdr3nt" : missingEntry(clonotype.cdr3nt),
                                            "no_cdr3aa" : missingEntry(clonotype.cdr3aa),
-                                           "no_v"      : missingEntry(clonotype.v),
-                                           "no_j"      : missingEntry(clonotype.j),
+                                           "no_v"      : missingEntry(clonotype.v.toString()),
+                                           "no_j"      : missingEntry(clonotype.j.toString()),
                                            "zero_count": clonotype.count == 0,
                                            "zero_freq" : !software.perReadOutput && clonotype.freqAsInInput == 0] :
                     ["bad_line": true]

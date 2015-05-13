@@ -18,6 +18,8 @@ package com.antigenomics.vdjtools.sample;
 
 import com.antigenomics.vdjtools.ClonotypeContainer;
 import com.antigenomics.vdjtools.Countable;
+import com.antigenomics.vdjtools.Segment;
+import com.antigenomics.vdjtools.SegmentFactory;
 
 /**
  * A class holding comprehensive info on a T- or B-cell clonotype.
@@ -29,7 +31,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
     private double freq;
 
     private final int[] segmPoints;
-    private final String v, d, j;
+    private final Segment v, d, j;
     private final String cdr3nt, cdr3aa;
 
     private final boolean inFrame, isComplete, noStop;
@@ -51,7 +53,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
      * @param isComplete tells if this clonotype is complete, i.e. CDR3 sequence for this clonotype is completely determined
      */
     public Clonotype(ClonotypeContainer parent, int count, double freq,
-                     int[] segmPoints, String v, String d, String j,
+                     int[] segmPoints, Segment v, Segment d, Segment j,
                      String cdr3nt, String cdr3aa,
                      boolean inFrame, boolean noStop, boolean isComplete) {
         this.parent = parent;
@@ -66,6 +68,32 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
         this.inFrame = inFrame;
         this.isComplete = isComplete;
         this.noStop = noStop;
+    }
+
+    /**
+     * Creates a new clonotype explicitly setting all fields
+     *
+     * @param parent     parent sample
+     * @param count      clonotype count, number of reads associated with this clonotype
+     * @param freq       clonotype frequency, fraction of reads associated with this clonotype in the parent sample
+     * @param segmPoints an array containing Variable segment end, Diversity segment start, Diversity segment end and Joining segment start in CDR3 coordinates
+     * @param v          Variable segment identifier
+     * @param d          Diversity segment identifier
+     * @param j          Joining segment identifier
+     * @param cdr3nt     nucleotide sequence of CDR3
+     * @param cdr3aa     amino acid sequence of CDR3
+     * @param inFrame    tells if this clonotype is in frame, i.e. it's sequence doesn't contain frameshifts
+     * @param noStop     tells if the sequence of this clonotype doesn't contain any stop codon
+     * @param isComplete tells if this clonotype is complete, i.e. CDR3 sequence for this clonotype is completely determined
+     */
+    public Clonotype(ClonotypeContainer parent, int count, double freq,
+                     int[] segmPoints, String v, String d, String j,
+                     String cdr3nt, String cdr3aa,
+                     boolean inFrame, boolean noStop, boolean isComplete) {
+        this(parent, count, freq, segmPoints,
+                SegmentFactory.INSTANCE.create(v), SegmentFactory.INSTANCE.create(d), SegmentFactory.INSTANCE.create(j),
+                cdr3nt, cdr3aa,
+                inFrame, noStop, isComplete);
     }
 
     /**
@@ -134,7 +162,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
      * @return string identifier of Variable segment
      */
     public String getV() {
-        return v;
+        return v.toString();
     }
 
     /**
@@ -143,7 +171,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
      * @return string identifier of Diversity segment
      */
     public String getD() {
-        return d;
+        return d.toString();
     }
 
     /**
@@ -152,7 +180,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
      * @return string identifier of Joining segment
      */
     public String getJ() {
-        return j;
+        return j.toString();
     }
 
     /**
