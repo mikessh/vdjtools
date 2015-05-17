@@ -82,6 +82,9 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
             case Software.ImgtHighVQuest:
                 parser = new ImgtHighVQuestParser(innerIter, sample)
                 break
+            case Software.MiXcr:
+                parser = new MiXcrParser(innerIter, sample)
+                break
             default:
                 throw new UnsupportedOperationException("Don't know how to parse $software data")
         }
