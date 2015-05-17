@@ -22,6 +22,10 @@ enum Software {
                                         "cdr3nt", _, _, "cdr3aa",
                                         _, "v", _, "j", _, "d",
                                         "VEnd", "DStart", "DEnd", "JStart"]),
+    MiXcr("\t", null, 1, false, false, ["count", "freq",
+                                        "cdr3nt", "cdr3aa",
+                                        "v", "d", "j",
+                                        "VEnd", "DStart", "DEnd", "JStart"]),
     MiGec("\t", null, 1, false, false, ["count", "freq",
                                         "cdr3nt", "cdr3aa",
                                         "v", "j", "d",
@@ -37,13 +41,13 @@ enum Software {
                                            6.times { _ },
                                            _, "VEnd", "DStart", "DEnd", "JStart"].flatten()),
     ImgtHighVQuest("\t", null, 1, true, true, [3.times { _ }, "v", "j", "d",
-                                     9.times { _ }, "cdr3nt", 47.times { _ }, // comprehensive output
-                                     "VEnd", 12.times { _ }, "DStart", "DEnd", 28.times { _ }, "JStart"
+                                               9.times { _ }, "cdr3nt", 47.times { _ }, // comprehensive output
+                                               "VEnd", 12.times { _ }, "DStart", "DEnd", 28.times { _ }, "JStart"
     ].flatten()),
     VDJtools("\t", "#", 0, false, false, ["count", "freq",
-                                        "cdr3nt", "cdr3aa",
-                                        "v", "d", "j",
-                                        "VEnd", "DStart", "DEnd", "JStart"])
+                                          "cdr3nt", "cdr3aa",
+                                          "v", "d", "j",
+                                          "VEnd", "DStart", "DEnd", "JStart"])
 
     static final String _ = "blank"
 
