@@ -46,8 +46,7 @@ public class MiTcrParser extends ClonotypeStreamParser {
         def freq = splitString[1].toDouble()
 
         def cdr3nt = splitString[2]
-        def cdr3aa = splitString[5]
-
+        def cdr3aa = toUnifiedCdr3Aa(splitString[5]) // replace ~
 
         String v, d, j
         (v, d, j) = extractVDJ(splitString[[7, 11, 9]])
