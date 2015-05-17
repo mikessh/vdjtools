@@ -61,4 +61,9 @@ class SampleLoadTest {
     public void imgtTest() {
         loadTest(ImgtHighVQuest, 9681, 7199)
     }
+
+    @Test
+    public void mixcrTest() {
+        loadTest(MiXcr, 596804, 64027)
+    }
 }
