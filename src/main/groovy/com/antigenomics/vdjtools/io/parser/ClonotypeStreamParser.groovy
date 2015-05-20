@@ -140,7 +140,7 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
             return clonotype
         } catch (Exception e) {
             throw new RuntimeException("Unable to parse clonotype string $clonotypeString " +
-                    "for $software input type.")
+                    "for $software input type.", e)
         }
     }
 

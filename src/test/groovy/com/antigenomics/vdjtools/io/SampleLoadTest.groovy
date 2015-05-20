@@ -64,6 +64,6 @@ class SampleLoadTest {
 
     @Test
     public void mixcrTest() {
-        loadTest(MiXcr, 596804, 64027)
+        loadTest(MiXcr, 96132, 262)
     }
 }
