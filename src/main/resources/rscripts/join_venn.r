@@ -44,11 +44,17 @@ n35      <- as.integer(args[14])+n135+n235+n345
 n45      <- as.integer(args[15])+n145+n245+n345
 
 category <- strsplit(args[32],split=",")[[1]]
-out_file <- args[33]
+file_out <- args[33]
 
 cols <- brewer.pal(5, "Paired")
 
-pdf(out_file)
+if (grepl("\\.pdf$",file_out)){
+   pdf(file_out)
+} else if (grepl("\\.png$",file_out)) {
+   png(file_out)
+} else {
+   stop('Unknown plotting format')
+}
 
 if (is.na(area3)) {
   dummy <- draw.pairwise.venn(area1, area2,

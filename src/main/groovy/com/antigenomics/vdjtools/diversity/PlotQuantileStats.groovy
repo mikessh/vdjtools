@@ -27,6 +27,7 @@ def cli = new CliBuilder(usage: "PlotQuantileStats [options] input_name output_p
 cli.h("display help message")
 cli.t(longOpt: "top", args: 1, "Number of top clonotypes to present on the histogram. " +
         "Values > $TOP_MAX are not allowed, as they would make the plot unreadable. [default = $TOP_DEFAULT]")
+cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
 
 def opt = cli.parse(args)
 
@@ -39,7 +40,8 @@ if (opt.h || opt.arguments().size() != 2) {
 }
 
 def top = (opt.t ?: TOP_DEFAULT).toInteger(),
-    outputFilePrefix = opt.arguments()[1]
+    outputFilePrefix = opt.arguments()[1],
+    plotType = (opt.'plot-type' ?: "pdf").toString()
 
 if (top > TOP_MAX) {
     println "[ERROR] Specified number of top clonotypes should not exceed $TOP_MAX"
@@ -91,7 +93,7 @@ println "[${new Date()} $scriptName] Plotting"
 
 RUtil.execute("quantile_stats.r",
         outputFileName,
-        toPlotPath(outputFileName)
+        toPlotPath(outputFileName, plotType)
 )
 
 println "[${new Date()} $scriptName] Finished"

@@ -18,8 +18,8 @@
 package com.antigenomics.vdjtools.util
 
 import com.antigenomics.vdjtools.basic.SegmentUsage
-import com.antigenomics.vdjtools.overlap.OverlapEvaluator
 import com.antigenomics.vdjtools.overlap.Overlap
+import com.antigenomics.vdjtools.overlap.OverlapEvaluator
 import com.antigenomics.vdjtools.sample.Sample
 
 import java.nio.file.FileSystems
@@ -174,11 +174,11 @@ public class ExecUtil {
         def s = outputSuffix.join(".")
 
         (dir ? (outputPrefix + s) : (outputPrefix + "." + s)) +
-                ((s.endsWith(".txt") || s.endsWith(".pdf")) ? "" : ".txt")
+                ((s.endsWith(".txt") || s.endsWith(".pdf") || s.endsWith(".png")) ? "" : ".txt")
     }
 
-    public static String toPlotPath(String outputPath) {
-        outputPath[-4] == "." ? (outputPath[0..-5] + ".pdf") : (outputPath + ".pdf")
+    public static String toPlotPath(String outputPath, String plotType) {
+        outputPath[-4] == "." ? (outputPath[0..-5] + "." + plotType) : (outputPath + "." + plotType)
     }
 
     /**

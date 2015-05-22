@@ -45,6 +45,7 @@ cli.s(longOpt: "steps", argName: "int", args: 1, "Number of steps (points) in th
         "(including 0 and the observed diversity). [default=$STEPS_DEFAULT]")
 
 // plotting:
+cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
 cli.p(longOpt: "plot", "[plotting] Unused.")
 cli.l(longOpt: "label", argName: "string", args: 1,
         "[plotting] Name of metadata column which should be used as label")
@@ -87,7 +88,8 @@ def intersectionType = opt.i ? OverlapType.getByShortName((String) opt.i) : I_TY
     numericFactor = (boolean) opt.'n',
     widePlot = (boolean) opt.'wide-plot',
     labelExact = (boolean) opt.'label-exact',
-    outputPrefix = opt.arguments()[-1]
+    outputPrefix = opt.arguments()[-1],
+    plotType = (opt.'plot-type' ?: "pdf").toString()
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -160,7 +162,7 @@ RUtil.execute("rarefaction_curve.r",
         addLbl,
         RUtil.logical(widePlot),
         RUtil.logical(labelExact),
-        toPlotPath(outputTablePath)
+        toPlotPath(outputTablePath, plotType)
 )
 
 println "[${new Date()} $scriptName] Finished"

@@ -34,7 +34,13 @@ g1 <- get_plot("count")
 g2 <- get_plot("diversity")
 g3 <- get_plot("frequency")
 
-pdf(file_out)
+if (grepl("\\.pdf$",file_out)){
+   pdf(file_out)
+} else if (grepl("\\.png$",file_out)) {
+   png(file_out)
+} else {
+   stop('Unknown plotting format')
+}
              
 grid.arrange(g1, g2, g3, ncol=3, nrow=1)
 

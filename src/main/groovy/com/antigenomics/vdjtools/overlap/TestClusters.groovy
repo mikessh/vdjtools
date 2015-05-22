@@ -37,6 +37,7 @@ cli.i(longOpt: "intersect-type", argName: "string", args: 1,
                 "Allowed values: $OverlapType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
 cli.n(longOpt: "num-factor", "Treat factor as numeric")
+cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
 
 def opt = cli.parse(args)
 
@@ -65,7 +66,8 @@ def measureName = (opt.e ?: MEASURE_DEFAULT).toUpperCase(),
     numFactor = (boolean) opt.n,
     inputPrefix = opt.arguments()[0],
     mdsFileName = formOutputPath(inputPrefix, "mds", intersectionType, measureName),
-    outputPrefix = opt.arguments().size() > 1 ? opt.arguments()[1] : inputPrefix
+    outputPrefix = opt.arguments().size() > 1 ? opt.arguments()[1] : inputPrefix,
+    plotType = (opt.'plot-type' ?: "pdf").toString()
 
 //
 // Permutation testing
@@ -81,7 +83,7 @@ if (numFactor) {
         DiscreteFactorClusterStats.writeSummary(summary, permsOutputPath)
         execute("cluster_permutations_plot.r",
                 permsOutputPath,
-                toPlotPath(permsOutputPath)
+                toPlotPath(permsOutputPath, plotType)
         )
         new File(permsOutputPath).delete()
     } else {

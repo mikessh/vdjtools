@@ -30,6 +30,7 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
 cli.u(longOpt: "unweighted", "Will count each clonotype only once, apart from conventional frequency-weighted histogram.")
+cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
 cli.p(longOpt: "plot", "Plot V/J usage heatmaps and perform cluster analysis")
 cli.n(longOpt: "num-factor", "Numeric factor variable")
 cli.l(longOpt: "label", argName: "string", args: 1, "Metadata entry used to annotate the heatmap")
@@ -60,7 +61,8 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 def outputFilePrefix = opt.arguments()[-1],
     unweighted = opt.u,
-    plot = (boolean) opt.p
+    plot = (boolean) opt.p,
+    plotType = (opt.'plot-type' ?: "pdf").toString()
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -108,7 +110,7 @@ if (plot) {
             opt.l ? (metadataTable.getColumnIndex(opt.l) + 2).toString() : "0", // first column is sample id
             opt.f ? (metadataTable.getColumnIndex(opt.f) + 2).toString() : "0",
             opt.n ? "TRUE" : "FALSE",
-            toPlotPath(outputPathV)
+            toPlotPath(outputPathV, plotType)
     )
 
     RUtil.execute("vexpr_plot.r",
@@ -117,7 +119,7 @@ if (plot) {
             opt.l ? (metadataTable.getColumnIndex(opt.l) + 2).toString() : "0",
             opt.f ? (metadataTable.getColumnIndex(opt.f) + 2).toString() : "0",
             opt.n ? "TRUE" : "FALSE",
-            toPlotPath(outputPathJ)
+            toPlotPath(outputPathJ, plotType)
     )
 }
 

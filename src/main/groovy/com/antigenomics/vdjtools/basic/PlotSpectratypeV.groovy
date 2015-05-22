@@ -28,6 +28,7 @@ cli.h("display help message")
 cli.t(longOpt: "top", args: 1, "Number of top V segments to present on the histogram. " +
         "Values > $TOP_MAX are not allowed, as they would make the plot unreadable. [default = $TOP_DEFAULT]")
 cli.u(longOpt: "unweighted", "Will count each clonotype only once, apart from conventional frequency-weighted histogram.")
+cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
 
 def opt = cli.parse(args)
 
@@ -41,7 +42,8 @@ if (opt.h || opt.arguments().size() != 2) {
 
 def outputFilePrefix = opt.arguments()[1],
     top = (opt.t ?: TOP_DEFAULT).toInteger(),
-    unweighted = (boolean) opt.u
+    unweighted = (boolean) opt.u,
+    plotType = (opt.'plot-type' ?: "pdf").toString()
 
 if (top > TOP_MAX) {
     println "[ERROR] Specified number of top V segments should not exceed 20"
@@ -100,7 +102,7 @@ new File(outputFileName).withPrintWriter { pw ->
 }
 
 RUtil.execute("fancy_spectratype.r",
-        outputFileName, toPlotPath(outputFileName), "Variable segment", RUtil.logical(false)
+        outputFileName, toPlotPath(outputFileName, plotType), "Variable segment", RUtil.logical(false)
 )
 
 println "[${new Date()} $scriptName] Finished"

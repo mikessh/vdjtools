@@ -7,7 +7,7 @@ v_col_count <- as.numeric(args[2])
 lbl_col     <- as.numeric(args[3])
 fac_col     <- as.numeric(args[4])
 cont_factor <- as.logical(args[5]) # continuous factor?
-output_file <- args[6]
+file_out <- args[6]
 
 if (lbl_col < 1) {
    lbl_col = 1 # use sample id if not specified
@@ -50,8 +50,18 @@ my.plot <- function(...) {
       ...)
 }
 
+customdev <- function(fname, ...) {
+   if (grepl("\\.pdf$",fname)){
+      pdf(fname, ...)
+   } else if (grepl("\\.png$",fname)) {
+      png(fname, ...)
+   } else {
+      stop('Unknown plotting format')
+   }
+}
+
 if (color_by_factor) {
-   pdf(output_file)
+   customdev(file_out)
 
    # layout plot
    fig <- c(0.05, 0.75, 0, 1.0)
@@ -92,7 +102,7 @@ if (color_by_factor) {
 
    dev.off()
 } else {
-   pdf(output_file)
+   customdev(file_out)
 
    # layout plot
    fig <- c(0.05, 0.95, 0, 1.0)

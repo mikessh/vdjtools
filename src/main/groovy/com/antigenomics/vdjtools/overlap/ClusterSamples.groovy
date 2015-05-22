@@ -41,6 +41,7 @@ cli.i(longOpt: "intersect-type", argName: "string", args: 1,
 
 // Plotting
 
+cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
 cli.f(longOpt: "factor", argName: "string", args: 1,
         "[plotting] Column name, as in metadata. Factor used to color the plot. [default = no factor]")
 cli.n(longOpt: "num-factor", "[plotting] Factor will be treated as numeric value and gradient plot coloring will be used. " +
@@ -84,8 +85,9 @@ intersectionType = intersectionType.shortName
 def outputPrefix = opt.arguments().size() > 1 ? opt.arguments()[1] : inputPrefix,
     sampleId = MetadataTable.SAMPLE_ID_COLUMN.toUpperCase(), factorName = opt.f, numFactor = opt.n,
     measureName = (opt.e ?: MEASURE_DEFAULT).toUpperCase(), labelName = (opt.l ?: MetadataTable.SAMPLE_ID_COLUMN).toUpperCase(),
-    hcPlotFileName = formOutputPath(outputPrefix, "hc", intersectionType, measureName, "pdf"),
-    mdsPlotFileName = formOutputPath(outputPrefix, "mds", intersectionType, measureName, "pdf"),
+    plotType = (opt.'plot-type' ?: "pdf").toString(),
+    hcPlotFileName = formOutputPath(outputPrefix, "hc", intersectionType, measureName, plotType),
+    mdsPlotFileName = formOutputPath(outputPrefix, "mds", intersectionType, measureName, plotType),
     hcFileName = formOutputPath(outputPrefix, "hc", intersectionType, measureName, "newick"),
     mdsFileName = formOutputPath(outputPrefix, "mds", intersectionType, measureName, "txt"),
     plot = (boolean) opt.p

@@ -61,6 +61,7 @@ cli.s(longOpt: "sequence", argName: "[t1,t2,t3,...]", args: 1,
 cli.f(longOpt: "factor", argName: "string", args: 1,
         "[plotting] Column name, as in metadata. Factor to be treated as time variable. [default = \"time\"]")
 cli.p(longOpt: "plot", "[plotting] Turns on plotting.")
+cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
 
 def opt = cli.parse(args)
 
@@ -91,7 +92,8 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 4)
 def trackSample = (opt.x ?: "-1").toInteger(),
     plot = (boolean) opt.p, compress = (boolean) opt.c,
     timeFactor = opt.f ?: "time",
-    outputPrefix = opt.arguments()[-1]
+    outputPrefix = opt.arguments()[-1],
+    plotType = (opt.'plot-type' ?: "pdf").toString()
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -241,7 +243,7 @@ if (plot) {
     // Plot all the heatmaps
     RUtil.execute("tracking_similarity_map.r",
             summaryOutputPath,
-            toPlotPath(summaryOutputPath))
+            toPlotPath(summaryOutputPath, plotType))
 
     // Plot a stack plot of top X clonotype abundances
     RUtil.execute("tracking_starckplot.r",

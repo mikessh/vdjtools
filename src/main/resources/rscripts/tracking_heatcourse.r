@@ -31,7 +31,13 @@ pal <- colorRampPalette(c("#2b8cbe", "#e0f3db", "#fdbb84"))
 
 # plot
 
-pdf(file_out)
+if (grepl("\\.pdf$",file_out)){
+   pdf(file_out)
+} else if (grepl("\\.png$",file_out)) {
+   png(file_out)
+} else {
+   stop('Unknown plotting format')
+}
 
 heatmap.2(x, labRow = df$cdr3aa, labCol = t, Colv = FALSE, dendrogram = "row",
           scale = "none", cexRow = 0.2 + 0.5 / log10(nrow(x)), keysize = 1.0, symkey = FALSE,

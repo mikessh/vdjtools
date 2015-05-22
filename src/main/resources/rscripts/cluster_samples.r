@@ -218,10 +218,22 @@ my.legend <- function(hcl) {
    }
 }
 
+# Plotting device
+
+customdev <- function(fname, ...) {
+   if (grepl("\\.pdf$",fname)){
+      pdf(fname, ...)
+   } else if (grepl("\\.png$",fname)) {
+      png(fname, ...)
+   } else {
+      stop('Unknown plotting format')
+   }
+}
+
 # plot
 
 if (render_plot) {
-   pdf(file_out_hc)
+   customdev(file_out_hc)
 
    my.plot(TRUE, phylo, tip.color = cc_final)
    my.legend(TRUE)
@@ -270,7 +282,7 @@ fac  <- sapply(aux[match(row.names(as.matrix(df.d)), aux[, "id_col1"]), "factor_
 # plot
 
 if (render_plot) {
-   pdf(file_out_mds, useDingbats=FALSE)
+   customdev(file_out_mds, useDingbats=FALSE)
 
    my.plot(FALSE, xy$x, xy$y, xlab="mds1", ylab="mds2", type = "n")
    #points(xy$x, xy$y, col = alpha(cc_final, 0.5), pch = 19)

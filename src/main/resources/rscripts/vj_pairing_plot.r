@@ -51,7 +51,13 @@ colnames(mat) <- cn
 
 # viz using circlize
 
-pdf(file_out)
+if (grepl("\\.pdf$",file_out)){
+   pdf(file_out)
+} else if (grepl("\\.png$",file_out)) {
+   png(file_out)
+} else {
+   stop('Unknown plotting format')
+}
 
 circos.par(gap.degree = c(rep(3, nrow(mat)-1), 10, rep(3, ncol(mat)-1), 15), start.degree = 5)
 
