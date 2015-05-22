@@ -89,7 +89,7 @@ class ExactEstimator extends DiversityEstimator {
      * {@inheritDoc}
      */
     @Override
-    DiversityIndex getShannonWeinerIndex() {
+    DiversityIndex getShannonWienerIndex() {
         // todo: std computaiton ?
         def mean = 0
         frequencyTable.bins.each { FrequencyTable.FrequencyTableBin bin ->

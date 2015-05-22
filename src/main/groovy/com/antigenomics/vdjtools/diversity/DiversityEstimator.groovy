@@ -42,7 +42,7 @@ abstract class DiversityEstimator {
      * Computes the Shannon-Weiner diversity index.
      * @return {@link com.antigenomics.vdjtools.diversity.DiversityEstimate} object handling the result.
      */
-    abstract DiversityIndex getShannonWeinerIndex()
+    abstract DiversityIndex getShannonWienerIndex()
 
     /**
      * Computes the Inverse Simpson diversity index.
@@ -133,7 +133,7 @@ abstract class DiversityEstimator {
     static final String[] ESTIMATE_NAMES = ["observedDiversity",
                                             "chaoE",
                                             "efronThisted", "chao1",
-                                            "d50Index", "shannonWeinerIndex", "inverseSimpsonIndex"]
+                                            "d50Index", "shannonWienerIndex", "inverseSimpsonIndex"]
 
     /**
      * Computes all the diversity estimates.

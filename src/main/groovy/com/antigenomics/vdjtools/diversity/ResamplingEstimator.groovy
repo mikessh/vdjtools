@@ -35,7 +35,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException
  * which is recommended for most purposes.
  */
 class ResamplingEstimator extends DiversityEstimator {
-    private final DiversityIndex d50Index, shannonWeinerIndex, inverseSimpsonIndex
+    private final DiversityIndex d50Index, shannonWienerIndex, inverseSimpsonIndex
     private final SpeciesRichness observedDiversity, efronThisted, chao1
 
     protected final int subSampleSize, resampleCount
@@ -85,7 +85,7 @@ class ResamplingEstimator extends DiversityEstimator {
             efronThistedStat.addValue(diversityEstimates.efronThisted.mean)
             chao1Stat.addValue(diversityEstimates.chao1.mean)
             d50Index.addValue(diversityEstimates.d50Index.mean)
-            shannonWeaverIndexStat.addValue(diversityEstimates.shannonWeinerIndex.mean)
+            shannonWeaverIndexStat.addValue(diversityEstimates.shannonWienerIndex.mean)
             inverseSimpsonIndexStat.addValue(diversityEstimates.inverseSimpsonIndex.mean)
         }
 
@@ -94,7 +94,7 @@ class ResamplingEstimator extends DiversityEstimator {
                 d50Index.standardDeviation,
                 subSampleSize)
 
-        this.shannonWeinerIndex = new DiversityIndex(
+        this.shannonWienerIndex = new DiversityIndex(
                 shannonWeaverIndexStat.mean,
                 shannonWeaverIndexStat.standardDeviation,
                 subSampleSize)
@@ -143,8 +143,8 @@ class ResamplingEstimator extends DiversityEstimator {
      * {@inheritDoc}
      */
     @Override
-    DiversityIndex getShannonWeinerIndex() {
-        shannonWeinerIndex
+    DiversityIndex getShannonWienerIndex() {
+        shannonWienerIndex
     }
 
     /**

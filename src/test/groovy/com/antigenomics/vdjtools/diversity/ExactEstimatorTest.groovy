@@ -32,7 +32,7 @@ class ExactEstimatorTest {
                     assert lower < 1.001
                     return upper > 0.9
 
-                case "shannonWeinerIndex":
+                case "shannonWienerIndex":
                     assert lower < 1.001 * tableGenerator.observedSpecies
                     return upper > 0.7 * tableGenerator.observedSpecies
 
