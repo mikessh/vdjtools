@@ -194,7 +194,7 @@ if (plot) {
             countFreq("1234"), countFreq("1235"), countFreq("1245"),
             countFreq("1345"), countFreq("2345"),
             countFreq("12345"),
-            sampleCollection.collect { it.sampleMetadata.sampleId.replaceAll(/ +/, ".") }[0..4].join(","),
+            sampleCollection.collect { it.sampleMetadata.sampleId.replaceAll(/ +/, ".") }.join(","),
             formOutputPath(outputPrefix, "join", intersectionType.shortName, "venn", "pdf")
     )
 }
