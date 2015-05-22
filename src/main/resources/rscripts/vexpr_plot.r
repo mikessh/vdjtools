@@ -50,18 +50,22 @@ my.plot <- function(...) {
       ...)
 }
 
-customdev <- function(fname, ...) {
+custom.dev <- function(fname) {
    if (grepl("\\.pdf$",fname)){
-      pdf(fname, ...)
+      pdf(fname)
    } else if (grepl("\\.png$",fname)) {
-      png(fname, ...)
+      png(fname, width     = 3.25,
+                 height    = 3.25,
+                 units     = "in",
+                 res       = 1200,
+                 pointsize = 4)
    } else {
       stop('Unknown plotting format')
    }
 }
 
 if (color_by_factor) {
-   customdev(file_out)
+   custom.dev(file_out)
 
    # layout plot
    fig <- c(0.05, 0.75, 0, 1.0)
@@ -102,7 +106,7 @@ if (color_by_factor) {
 
    dev.off()
 } else {
-   customdev(file_out)
+   custom.dev(file_out)
 
    # layout plot
    fig <- c(0.05, 0.95, 0, 1.0)

@@ -44,7 +44,11 @@ col <- c(col, makecol(df.3, rev(brewer.pal(3,"OrRd"))))
 if (grepl("\\.pdf$",file_out)){
    pdf(file_out)
 } else if (grepl("\\.png$",file_out)) {
-   png(file_out)
+   png(file_out, width     = 3.25,
+                 height    = 3.25,
+                 units     = "in",
+                 res       = 1200,
+                 pointsize = 4)
 } else {
    stop('Unknown plotting format')
 }

@@ -42,7 +42,11 @@ if (gradient) {
 if (grepl("\\.pdf$",file_out)){
    pdf(file_out)
 } else if (grepl("\\.png$",file_out)) {
-   png(file_out)
+   png(file_out, width     = 4.25,
+                  height    = 2.25,
+                  units     = "in",
+                  res       = 1200,
+                  pointsize = 4)
 } else {
    stop('Unknown plotting format')
 }
