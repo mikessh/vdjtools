@@ -52,6 +52,7 @@ cli.c(longOpt: "compress", "Compress output sample files.")
 
 // Plotting
 
+cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
 cli.p(longOpt: "plot", "[plotting] Turns on plotting.")
 
 def opt = cli.parse(args)
@@ -83,7 +84,8 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 4)
 def timesDetected = (opt.x ?: DEFAULT_TIMES_DETECTED).toInteger(),
     plot = (boolean) opt.p,
     outputPrefix = opt.arguments()[-1],
-    compress = (boolean) opt.c
+    compress = (boolean) opt.c,
+    plotType = (opt.'plot-type' ?: "pdf").toString()
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 

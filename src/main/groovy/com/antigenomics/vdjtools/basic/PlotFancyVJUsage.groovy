@@ -25,6 +25,7 @@ import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
 def cli = new CliBuilder(usage: "PlotFancyVJUsage [options] input_name output_prefix")
 cli.h("display help message")
 cli.u(longOpt: "unweighted", "Will count each clonotype only once, apart from conventional frequency-weighted histogram.")
+cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
 
 def opt = cli.parse(args)
 
@@ -37,7 +38,8 @@ if (opt.h || opt.arguments().size() != 2) {
 }
 
 def unweighted = (boolean) opt.u,
-    outputFilePrefix = opt.arguments()[1]
+    outputFilePrefix = opt.arguments()[1],
+    plotType = (opt.'plot-type' ?: "pdf").toString()
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -70,7 +72,7 @@ new File(outputFileName).withPrintWriter { pw ->
 println "[${new Date()} $scriptName] Plotting data (be patient, complex graphics)"
 
 RUtil.execute("vj_pairing_plot.r",
-        outputFileName, toPlotPath(outputFileName)
+        outputFileName, toPlotPath(outputFileName, plotType)
 )
 
 

@@ -27,6 +27,7 @@ def cli = new CliBuilder(usage: "PlotFancySpectratype [options] input_name outpu
 cli.h("display help message")
 cli.t(longOpt: "top", args: 1, "Number of top clonotypes to present on the histogram. " +
         "Values > $TOP_MAX are not allowed, as they would make the plot legend unreadable. [default = $TOP_DEFAULT]")
+cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
 
 def opt = cli.parse(args)
 
@@ -39,7 +40,8 @@ if (opt.h || opt.arguments().size() != 2) {
 }
 
 def outputFilePrefix = opt.arguments()[1],
-    top = (opt.t ?: TOP_DEFAULT).toInteger()
+    top = (opt.t ?: TOP_DEFAULT).toInteger(),
+    plotType = (opt.'plot-type' ?: "pdf").toString()
 
 if (top > TOP_MAX) {
     println "[ERROR] Specified number of top clonotypes should not exceed $TOP_MAX"
@@ -97,7 +99,7 @@ new File(outputFileName).withPrintWriter { pw ->
 }
 
 RUtil.execute("fancy_spectratype.r",
-        outputFileName, toPlotPath(outputFileName), "Clonotype", "TRUE"
+        outputFileName, toPlotPath(outputFileName, plotType), "Clonotype", "TRUE"
 )
 
 println "[${new Date()} $scriptName] Finished"

@@ -79,7 +79,17 @@ if (num_fac) {
 
 g <- g + geom_text(data=df.l, aes(label=lbl), color="black", fontface = "plain", hjust=1.0, vjust=0.5, cex=2.5)
 
-pdf(file_out)
+if (grepl("\\.pdf$",file_out)){
+   pdf(file_out)
+} else if (grepl("\\.png$",file_out)) {
+   png(file_out, width     = 4.25,
+                 height    = 2.25,
+                 units     = "in",
+                 res       = 1200,
+                 pointsize = 4)
+} else {
+   stop('Unknown plotting format')
+}
 
 if (wide) {
    # wide plot layout

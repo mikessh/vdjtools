@@ -36,6 +36,7 @@ cli.t(longOpt: "top", args: 1, "Number of top clonotypes which will be provided 
 cli.p(longOpt: "plot", "Generate a scatterplot to characterize overlapping clonotypes. " +
         "Also generate abundance difference plot if -c option is specified. " +
         "(R installation with ggplot2, grid and gridExtra packages required).")
+cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
 cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
@@ -50,7 +51,8 @@ if (opt.h || opt.arguments().size() < 3) {
 
 def sample1FileName = opt.arguments()[0], sample2FileName = opt.arguments()[1],
     outputPrefix = opt.arguments()[2],
-    compress = (boolean) opt.c
+    compress = (boolean) opt.c,
+    plotType = (opt.'plot-type' ?: "pdf").toString()
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -143,10 +145,10 @@ if (opt.p) {
 
     execute("intersect_pair_scatter.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
             outputPrefix + ".xy.txt", outputPrefix + ".xx.txt", outputPrefix + ".yy.txt",
-            formOutputPath(outputPrefix, intersectionType.shortName, "paired", "scatter", "pdf"))
+            formOutputPath(outputPrefix, intersectionType.shortName, "paired", "scatter", plotType))
 
     execute("intersect_pair_area.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
-            tableCollapsedOutputPath, toPlotPath(tableCollapsedOutputPath),
+            tableCollapsedOutputPath, toPlotPath(tableCollapsedOutputPath, plotType),
             Math.max(0, Software.VDJtools.headerLineCount - 1).toString())
 }
 

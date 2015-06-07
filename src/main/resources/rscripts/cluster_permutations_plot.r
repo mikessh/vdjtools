@@ -17,7 +17,17 @@ theme_bw() + xlab("") + scale_y_continuous(name="permutations") + facet_grid(typ
 
 df.l$perm<-rep(max(ggplot_build(g)$data[[1]]$count),nrow(df.l))
 
-pdf(file_out)
+if (grepl("\\.pdf$",file_out)){
+   pdf(file_out)
+} else if (grepl("\\.png$",file_out)) {
+   png(file_out, width     = 3.25,
+                 height    = 3.25,
+                 units     = "in",
+                 res       = 1200,
+                 pointsize = 4)
+} else {
+   stop('Unknown plotting format')
+}
 
 g+geom_text(data = df.l, aes(x=obs, label=as.character(p), y=perm), hjust=-0.1)
 

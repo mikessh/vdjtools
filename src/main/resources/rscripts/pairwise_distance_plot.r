@@ -64,7 +64,17 @@ render_plot <- function(var) {
   )
 }
 
-pdf(file_out)
+if (grepl("\\.pdf$",file_out)){
+   pdf(file_out)
+} else if (grepl("\\.png$",file_out)) {
+   png(file_out, width     = 3.25,
+                 height    = 3.25,
+                 units     = "in",
+                 res       = 1200,
+                 pointsize = 4)
+} else {
+   stop('Unknown plotting format')
+}
 vars <- c("count", "frequency", "diversity")
 layout(t(matrix(c(0,0,0,1,2,3,0,0,0),3,3)))
 for(var in vars) {

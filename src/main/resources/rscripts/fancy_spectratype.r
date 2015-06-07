@@ -39,7 +39,17 @@ if (gradient) {
 
 # plotting
 
-pdf(file_out)
+if (grepl("\\.pdf$",file_out)){
+   pdf(file_out)
+} else if (grepl("\\.png$",file_out)) {
+   png(file_out, width     = 4.25,
+                  height    = 2.25,
+                  units     = "in",
+                  res       = 1200,
+                  pointsize = 4)
+} else {
+   stop('Unknown plotting format')
+}
 
 ggplot(df.m, aes(x = Len, y = value, fill = variable)) +
   geom_bar(width = 1, stat = "identity") +

@@ -36,6 +36,7 @@ cli._(longOpt: "low-mem", "Will process all sample pairs sequentially, avoiding"
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Intersection rule to apply. Allowed values: $OverlapType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
+cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
 cli.p(longOpt: "plot", "[plotting] Turns plotting on.")
 
 def opt = cli.parse(args)
@@ -65,7 +66,8 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 4)
 
 def outputPrefix = opt.arguments()[-1],
     lowMem = (boolean) opt.'low-mem',
-    plot = (boolean) opt.p
+    plot = (boolean) opt.p,
+    plotType = (opt.'plot-type' ?: "pdf").toString()
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -123,7 +125,7 @@ new File(outputFileName).withPrintWriter { pw ->
 
 if (plot) {
     println "[${new Date()} $scriptName] Plotting"
-    execute("pairwise_distance_plot.r", outputFileName, toPlotPath(outputFileName))
+    execute("pairwise_distance_plot.r", outputFileName, toPlotPath(outputFileName, plotType))
 }
 
 println "[${new Date()} $scriptName] Finished"

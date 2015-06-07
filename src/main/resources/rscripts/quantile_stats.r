@@ -41,7 +41,17 @@ col <- makecol(df.1, brewer.pal(3,"RdYlBu"))
 col <- c(col, makecol(df.2, rev(brewer.pal(3,"Oranges"))))
 col <- c(col, makecol(df.3, rev(brewer.pal(3,"OrRd"))))
 
-pdf(file_out)
+if (grepl("\\.pdf$",file_out)){
+   pdf(file_out)
+} else if (grepl("\\.png$",file_out)) {
+   png(file_out, width     = 3.25,
+                 height    = 3.25,
+                 units     = "in",
+                 res       = 1200,
+                 pointsize = 4)
+} else {
+   stop('Unknown plotting format')
+}
 
 ggplot() +
      geom_rect(data = df.1, colour="grey30", aes(fill=name, ymax=vmax, ymin=vmin, xmax=2,xmin=1)) +
