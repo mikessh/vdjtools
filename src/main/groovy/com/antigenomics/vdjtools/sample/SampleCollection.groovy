@@ -59,12 +59,20 @@ class SampleCollection implements Iterable<Sample> {
      * @param samples list of samples.
      */
     public static SampleCollection fromSampleList(List<Sample> samples) {
+        def originalMetadata = samples[0].sampleMetadata.parent,
+            // create new metadata table
+            metadataTable = new MetadataTable(samples[0].sampleMetadata.parent.columnIterator.collect().toList())
+
         def sampleCollection = new SampleCollection(Software.VDJtools,
-                true, false, true, samples[0].sampleMetadata.parent)
+                true, false, true, metadataTable)
+
         samples.each {
-            if (it.sampleMetadata.parent != sampleCollection.metadataTable)
+            def sampleMetadata = it.sampleMetadata
+            if (sampleMetadata.parent != originalMetadata)
                 throw new Exception("Only samples coming from same metadata table are allowed")
-            def sampleId = it.sampleMetadata.sampleId
+            // clone metadata to a new metadata table
+            sampleMetadata.changeParent(metadataTable)
+            def sampleId = sampleMetadata.sampleId
             sampleCollection.sampleMap.put(sampleId, new DummySampleConnection(it))
         }
         sampleCollection
