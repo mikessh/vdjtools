@@ -19,14 +19,14 @@ package com.antigenomics.vdjtools.basic
 import com.antigenomics.vdjtools.sample.Clonotype
 
 abstract class Histogram {
-    private final boolean unweighted
-    private final int min, max, span
+    protected final boolean unweighted
+    protected final int min, max, span
 
-    private final double[] innerHist
-    private final int[] lengths
+    protected final double[] innerHist
+    protected final int[] lengths
 
-    private int count = 0
-    private double freq = 0
+    protected int count = 0
+    protected double freq = 0
 
     public final String HEADER
 
@@ -168,6 +168,10 @@ abstract class Histogram {
      */
     public int[] getLengths() {
         return lengths
+    }
+
+    boolean isUnweighted() {
+        unweighted
     }
 
     /**

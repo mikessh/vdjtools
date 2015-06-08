@@ -19,17 +19,12 @@ package com.antigenomics.vdjtools.basic
 import com.antigenomics.vdjtools.TestUtil
 import org.junit.Test
 
-class SegmentUsageTest {
+class SpectratypeTest {
     @Test
     void test0() {
         [TestUtil.DEFAULT_SAMPLE_COLLECTION, TestUtil.SINGLE_EMPTY_SAMPLE].each { samples ->
-            def segmentUsage = new SegmentUsage(samples, false)
-
             samples.each {
-                String id = it.sampleMetadata.sampleId
-                assert segmentUsage.jUsageVector(id) != null
-                assert segmentUsage.vUsageVector(id) != null
-                assert segmentUsage.vjUsageMatrix(id) != null
+                new Spectratype(it, false, false)
             }
         }
     }

@@ -26,7 +26,6 @@ import com.antigenomics.vdjtools.sample.Clonotype
  */
 public class SpectratypeV {
     private final Map<String, Spectratype> spectratypes = new HashMap<>()
-    private final boolean aminoAcid, unweighted
     private final Spectratype dummy
 
     /**
@@ -59,8 +58,6 @@ public class SpectratypeV {
      * @param unweighted will count each unique clonotype once if set to true. Will weight each clonotype by its frequency otherwise
      */
     public SpectratypeV(boolean aminoAcid, boolean unweighted) {
-        this.aminoAcid = aminoAcid
-        this.unweighted = unweighted
         this.dummy = new Spectratype(aminoAcid, unweighted)
     }
 
@@ -79,7 +76,7 @@ public class SpectratypeV {
         sample.each { clonotype ->
             def vSpectra = spectratypes[clonotype.v]
             if (!vSpectra)
-                spectratypes.put(clonotype.v, vSpectra = new Spectratype(aminoAcid, unweighted))
+                spectratypes.put(clonotype.v, vSpectra = new Spectratype(dummy.aminoAcid, dummy.unweighted))
             vSpectra.add(clonotype)
         }
     }
@@ -109,8 +106,9 @@ public class SpectratypeV {
      * @return map with Variable segment name {@code String} as key and {@code Spectratype} as value
      */
     public Map<String, Spectratype> collapse(int top) {
-        def collapsedSpectratypes = new HashMap<String, Spectratype>(), otherSpectratype
-        collapsedSpectratypes.put("other", otherSpectratype = new Spectratype(aminoAcid, unweighted))
+        def collapsedSpectratypes = new HashMap<String, Spectratype>()
+        def otherSpectratype
+        collapsedSpectratypes.put("other", otherSpectratype = new Spectratype(dummy.aminoAcid, dummy.unweighted))
 
         spectratypes.sort { -it.value.freq }.eachWithIndex { it, ind ->
             if (ind < top)

@@ -21,18 +21,10 @@ import org.junit.Test
 class BasicStatsTest {
     @Test
     void test0() {
-        def samples = TestUtil.DEFAULT_SAMPLE_COLLECTION
-        
-        samples.each {
-            new BasicStats(it, true)
-            new BasicStats(it, false)
-        }
-
-        samples = TestUtil.SINGLE_EMPTY_SAMPLE
-
-        samples.each {
-            new BasicStats(it, true)
-            new BasicStats(it, false)
+        [TestUtil.DEFAULT_SAMPLE_COLLECTION, TestUtil.SINGLE_EMPTY_SAMPLE].each { samples ->
+            samples.each {
+                new BasicStats(it, true)
+            }
         }
     }
 }

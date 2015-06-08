@@ -26,7 +26,7 @@ import com.antigenomics.vdjtools.sample.Sample
  * CDR3 amino acid / nucleotide sequence length
  */
 public class Spectratype extends Histogram {
-    private final boolean aminoAcid
+    protected final boolean aminoAcid
 
     /**
      * Creates a spectratype instance with a given sample. All calculations are performed within constructor.
