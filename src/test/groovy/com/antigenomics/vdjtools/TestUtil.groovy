@@ -26,7 +26,7 @@ import static com.antigenomics.vdjtools.io.SampleStreamConnection.load
 
 class TestUtil {
     static final SampleCollection DEFAULT_SAMPLE_COLLECTION = loadSamples(),
-                                  EMPTY_SINGLE_SAMPLE = SampleCollection.fromSampleList([load(getResource("samples/empty.txt"), Software.VDJtools)])
+            SINGLE_EMPTY_SAMPLE = SampleCollection.fromSampleList([load(getResource("samples/empty.txt"), Software.VDJtools)])
 
     private static SampleCollection loadSamples() {
         def samples = Software.values().collect {

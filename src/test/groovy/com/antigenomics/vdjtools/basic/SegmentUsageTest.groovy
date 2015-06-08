@@ -1,7 +1,3 @@
-import com.antigenomics.vdjtools.TestUtil
-import com.antigenomics.vdjtools.basic.BasicStats
-import org.junit.Test
-
 /*
  * Copyright 2013-2015 Mikhail Shugay (mikhail.shugay@gmail.com)
  *
@@ -18,21 +14,29 @@ import org.junit.Test
  * limitations under the License.
  */
 
-class BasicStatsTest {
+package com.antigenomics.vdjtools.basic
+
+import com.antigenomics.vdjtools.TestUtil
+import org.junit.Test
+
+class SegmentUsageTest {
     @Test
     void test0() {
         def samples = TestUtil.DEFAULT_SAMPLE_COLLECTION
-        
-        samples.each {
-            new BasicStats(it, true)
-            new BasicStats(it, false)
-        }
+
+        def segmentUsage = new SegmentUsage(samples, false)
+
+        assert segmentUsage.jUsageVector(0) != null
+        assert segmentUsage.vUsageVector(0) != null
+        assert segmentUsage.vjUsageMatrix(0) != null
 
         samples = TestUtil.SINGLE_EMPTY_SAMPLE
 
-        samples.each {
-            new BasicStats(it, true)
-            new BasicStats(it, false)
-        }
+        segmentUsage = new SegmentUsage(samples, false)
+
+        assert segmentUsage.jUsageVector(0) != null
+        assert segmentUsage.vUsageVector(0) != null
+        assert segmentUsage.vjUsageMatrix(0) != null
+
     }
 }

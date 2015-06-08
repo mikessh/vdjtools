@@ -163,7 +163,7 @@ public class SegmentUsage {
      * INTERNAL
      */
     private static double[] usageVector(Map<String, double[]> usageMap, Map<String, Double> totalMap, int sampleIndex) {
-        def sampleTotal = usageMap.values().collect { it[sampleIndex] }.sum()
+        def sampleTotal = usageMap.values().collect { it[sampleIndex] }.sum() ?: 0.0
         totalMap.collect {
             usageMap[it.key][sampleIndex] / (double) (sampleTotal + 1e-7)
         } as double[]
@@ -186,7 +186,7 @@ public class SegmentUsage {
      * @return
      */
     public double[][] vjUsageMatrix(int sampleIndex) {
-        double sampleTotal = (double) jSegmentUsage.values().collect { it[sampleIndex] }.sum()
+        double sampleTotal = (double) jSegmentUsage.values().collect { it[sampleIndex] }.sum() ?: 0.0
 
         def matrix = new double[jSegmentUsage.size()][vSegmentUsage.size()]
 
