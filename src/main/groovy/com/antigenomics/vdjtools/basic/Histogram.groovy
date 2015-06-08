@@ -44,7 +44,7 @@ abstract class Histogram {
 
     protected abstract int getValue(Clonotype clonotype)
 
-    private int bin(Clonotype clonotype) {
+    public int bin(Clonotype clonotype) {
         Math.min(max, Math.max(min, getValue(clonotype))) - min
     }
 
