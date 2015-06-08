@@ -15,14 +15,29 @@
  */
 
 
-
 package com.antigenomics.vdjtools
 
 import com.antigenomics.vdjtools.io.InputStreamFactory
+import com.antigenomics.vdjtools.sample.SampleCollection
 
 import java.util.zip.GZIPInputStream
 
+import static com.antigenomics.vdjtools.io.SampleStreamConnection.load
+
 class TestUtil {
+    static final SampleCollection DEFAULT_SAMPLE_COLLECTION = loadSamples(),
+                                  EMPTY_SINGLE_SAMPLE = SampleCollection.fromSampleList([load(getResource("samples/empty.txt"), Software.VDJtools)])
+
+    private static SampleCollection loadSamples() {
+        def samples = Software.values().collect {
+            load(getResource("samples/${it.toString().toLowerCase()}.txt.gz"), it)
+        }
+        samples.add(load(getResource("samples/empty.txt"), Software.VDJtools))
+
+        SampleCollection.fromSampleList(samples)
+    }
+
+
     public static InputStreamFactory getResource(String resourceName) {
         [
                 create: {
