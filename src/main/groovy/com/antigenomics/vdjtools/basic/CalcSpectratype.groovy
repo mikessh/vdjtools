@@ -77,23 +77,37 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 // Compute and output diversity measures, spectratype, etc
 //
 
-new File(formOutputPath(outputFilePrefix, "spectratype", (aminoAcid ? "aa" : "nt"), (unweighted ? "unwt" : "wt"))).withPrintWriter { pw ->
-    def spectratype = new Spectratype(aminoAcid, unweighted)
+new File(formOutputPath(outputFilePrefix, "spectratype", (aminoAcid ? "aa" : "nt"), (unweighted ? "unwt" : "wt"))).withPrintWriter { pwSpectra ->
+    new File(formOutputPath(outputFilePrefix, "spectratype.insert", (unweighted ? "unwt" : "wt"))).withPrintWriter { pwIns ->
+        new File(formOutputPath(outputFilePrefix, "spectratype.ndn", (unweighted ? "unwt" : "wt"))).withPrintWriter { pwNdn ->
+            def spectratype = new Spectratype(aminoAcid, unweighted),
+                insertHist = new InsertHist(unweighted),
+                ndnHist = new NdnHist(unweighted)
 
-    def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" + sampleCollection.metadataTable.columnHeader + "\t" + spectratype.HEADER
+            def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" + sampleCollection.metadataTable.columnHeader + "\t"
 
-    pw.println(header)
+            pwSpectra.println(header + spectratype.HEADER)
+            pwIns.println(header + insertHist.HEADER)
+            pwNdn.println(header + ndnHist.HEADER)
 
-    def sampleCounter = 0
+            def sampleCounter = 0
 
-    sampleCollection.each { Sample sample ->
-        spectratype.addAll(sample)
+            sampleCollection.each { Sample sample ->
+                spectratype.addAll(sample)
+                insertHist.addAll(sample)
+                ndnHist.addAll(sample)
 
-        println "[${new Date()} $scriptName] ${++sampleCounter} samples processed"
+                println "[${new Date()} $scriptName] ${++sampleCounter} samples processed"
 
-        pw.println([sample.sampleMetadata.sampleId, sample.sampleMetadata, spectratype].join("\t"))
+                pwSpectra.println([sample.sampleMetadata.sampleId, sample.sampleMetadata, spectratype].join("\t"))
+                pwIns.println([sample.sampleMetadata.sampleId, sample.sampleMetadata, insertHist].join("\t"))
+                pwNdn.println([sample.sampleMetadata.sampleId, sample.sampleMetadata, ndnHist].join("\t"))
 
-        spectratype.clear()
+                spectratype.clear()
+                insertHist.clear()
+                ndnHist.clear()
+            }
+        }
     }
 }
 
