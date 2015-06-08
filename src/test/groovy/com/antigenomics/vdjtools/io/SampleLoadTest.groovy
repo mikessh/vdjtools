@@ -66,4 +66,13 @@ class SampleLoadTest {
     public void mixcrTest() {
         loadTest(MiXcr, 96132, 262)
     }
+
+    @Test
+    public void emptyTest() {
+        def resStream = getResource("samples/empty.txt")
+        def sample = load(resStream)
+
+        assert sample.count == 0
+        assert sample.diversity == 0
+    }
 }
