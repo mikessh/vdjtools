@@ -93,12 +93,9 @@ public class MiXcrParser extends ClonotypeStreamParser {
         String v, d, j
         (v, d, j) = extractVDJ(splitString[[vHitsColumn, dHitsColumn, jHitsColumn]])
 
-        List<Alignment> vAlignemtns = parseAlignments(splitString[vAlignmentsColumn],
-                ((splitString[vHitsColumn] =~ /,/).count) + 1)
-        List<Alignment> dAlignemtns = parseAlignments(splitString[dAlignmentsColumn],
-                ((splitString[dHitsColumn] =~ /,/).count) + 1)
-        List<Alignment> jAlignemtns = parseAlignments(splitString[jAlignmentsColumn],
-                ((splitString[jHitsColumn] =~ /,/).count) + 1)
+        List<Alignment> vAlignemtns = parseAlignments(splitString[vAlignmentsColumn])
+        List<Alignment> dAlignemtns = parseAlignments(splitString[dAlignmentsColumn])
+        List<Alignment> jAlignemtns = parseAlignments(splitString[jAlignmentsColumn])
 
         def segmPoints = [vAlignemtns.size() > 0 && vAlignemtns[0] != null ?
                                   vAlignemtns[0].seq2End - 1 : 0,
@@ -118,11 +115,11 @@ public class MiXcrParser extends ClonotypeStreamParser {
                 inFrame, noStop, isComplete)
     }
 
-    private static List<Alignment> parseAlignments(String alignmentsLine, int expectedNumberOfAlignments) {
+    private static List<Alignment> parseAlignments(String alignmentsLine) {
         if (alignmentsLine.isEmpty())
             return Collections.EMPTY_LIST
 
-        String[] splitByAlignments = alignmentsLine.split(";", expectedNumberOfAlignments)
+        String[] splitByAlignments = alignmentsLine.split(";", -1)
         List<Alignment> ret = new ArrayList<>()
         for (String alignmentString : splitByAlignments) {
             if (alignmentString.trim().empty) {
