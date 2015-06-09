@@ -25,7 +25,11 @@ import static com.antigenomics.vdjtools.io.SampleStreamConnection.load
 
 class SampleLoadTest {
     private static void loadTest(Software software, int count, int diversity) {
-        def resStream = getResource("samples/${software.toString().toLowerCase()}.txt.gz")
+        loadTest(software, '', count, diversity);
+    }
+
+    private static void loadTest(Software software, String suffix, int count, int diversity) {
+        def resStream = getResource("samples/${software.toString().toLowerCase()}${suffix}.txt.gz")
         def sample = load(resStream, software)
 
         assert sample.count == count
@@ -65,6 +69,11 @@ class SampleLoadTest {
     @Test
     public void mixcrTest() {
         loadTest(MiXcr, 96132, 262)
+    }
+
+    @Test
+    public void mixcrFullLengthTest() {
+        loadTest(MiXcr, ".fl", 14156, 33)
     }
 
     @Test
