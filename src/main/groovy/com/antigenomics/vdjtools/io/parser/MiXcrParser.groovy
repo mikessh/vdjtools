@@ -30,7 +30,8 @@ public class MiXcrParser extends ClonotypeStreamParser {
     boolean initialized = false;
     int countColumn, freqColumn, cdr3ntColumn, cdr3aaColumn,
         vHitsColumn, dHitsColumn, jHitsColumn,
-        vAlignmentsColumn, dAlignmentsColumn, jAlignmentsColumn
+        vAlignmentsColumn, dAlignmentsColumn, jAlignmentsColumn,
+        numberOfColumns
 
     /**
      * {@inheritDoc}
@@ -67,6 +68,8 @@ public class MiXcrParser extends ClonotypeStreamParser {
                 vAlignmentsColumn == -1 || dAlignmentsColumn == -1 || jAlignmentsColumn == -1)
             throw new RuntimeException("Some mandatory columns are absent in the input file.");
 
+        numberOfColumns = splitHeaderLine.size()
+
         // Initialized
         initialized = true;
     }
@@ -78,7 +81,7 @@ public class MiXcrParser extends ClonotypeStreamParser {
     protected Clonotype innerParse(String clonotypeString) {
         ensureInitialized()
 
-        def splitString = clonotypeString.split(software.delimiter)
+        def splitString = clonotypeString.split(software.delimiter, numberOfColumns)
 
         def count = splitString[countColumn].toInteger()
         def freq = splitString[freqColumn].toDouble()
@@ -86,7 +89,6 @@ public class MiXcrParser extends ClonotypeStreamParser {
         def cdr3nt = splitString[cdr3ntColumn]
 
         def cdr3aa = splitString[cdr3aaColumn] // no need to unify, MiXCR is based on milib
-
 
         String v, d, j
         (v, d, j) = extractVDJ(splitString[[vHitsColumn, dHitsColumn, jHitsColumn]])
