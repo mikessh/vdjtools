@@ -97,10 +97,10 @@ public class MiXcrParser extends ClonotypeStreamParser {
         List<Alignment> dAlignemtns = parseAlignments(splitString[dAlignmentsColumn])
         List<Alignment> jAlignemtns = parseAlignments(splitString[jAlignmentsColumn])
 
-        def segmPoints = [vAlignemtns[0].seq2End - 1,
+        def segmPoints = [vAlignemtns.size() > 0 ? vAlignemtns[0].seq2End - 1 : 0,
                           dAlignemtns.size() > 0 ? dAlignemtns[0].seq2Begin : -1,
                           dAlignemtns.size() > 0 ? dAlignemtns[0].seq2End - 1 : -1,
-                          jAlignemtns[0].seq2Begin] as int[]
+                          jAlignemtns.size() > 0 ? jAlignemtns[0].seq2Begin : cdr3nt.size() - 1] as int[]
 
         boolean inFrame = inFrame(cdr3aa),
                 noStop = noStop(cdr3aa),
