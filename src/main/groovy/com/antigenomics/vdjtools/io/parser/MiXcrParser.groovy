@@ -97,10 +97,14 @@ public class MiXcrParser extends ClonotypeStreamParser {
         List<Alignment> dAlignemtns = parseAlignments(splitString[dAlignmentsColumn])
         List<Alignment> jAlignemtns = parseAlignments(splitString[jAlignmentsColumn])
 
-        def segmPoints = [vAlignemtns.size() > 0 ? vAlignemtns[0].seq2End - 1 : 0,
-                          dAlignemtns.size() > 0 ? dAlignemtns[0].seq2Begin : -1,
-                          dAlignemtns.size() > 0 ? dAlignemtns[0].seq2End - 1 : -1,
-                          jAlignemtns.size() > 0 ? jAlignemtns[0].seq2Begin : cdr3nt.size() - 1] as int[]
+        def segmPoints = [vAlignemtns.size() > 0 && vAlignemtns[0] != null ?
+                                  vAlignemtns[0].seq2End - 1 : 0,
+                          dAlignemtns.size() > 0 && dAlignemtns[0] != null ?
+                                  dAlignemtns[0].seq2Begin : -1,
+                          dAlignemtns.size() > 0 && dAlignemtns[0] != null ?
+                                  dAlignemtns[0].seq2End - 1 : -1,
+                          jAlignemtns.size() > 0 && jAlignemtns[0] != null?
+                                  jAlignemtns[0].seq2Begin : cdr3nt.size() - 1] as int[]
 
         boolean inFrame = inFrame(cdr3aa),
                 noStop = noStop(cdr3aa),
@@ -115,7 +119,7 @@ public class MiXcrParser extends ClonotypeStreamParser {
         if (alignmentsLine.isEmpty())
             return Collections.EMPTY_LIST
 
-        String[] splitByAlignments = alignmentsLine.split(",")
+        String[] splitByAlignments = alignmentsLine.split(";")
         List<Alignment> ret = new ArrayList<>()
         for (String alignmentString : splitByAlignments) {
             String[] splitByFields = alignmentString.split("\\|")
