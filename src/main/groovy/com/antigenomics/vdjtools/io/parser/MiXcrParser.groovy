@@ -93,9 +93,12 @@ public class MiXcrParser extends ClonotypeStreamParser {
         String v, d, j
         (v, d, j) = extractVDJ(splitString[[vHitsColumn, dHitsColumn, jHitsColumn]])
 
-        List<Alignment> vAlignemtns = parseAlignments(splitString[vAlignmentsColumn])
-        List<Alignment> dAlignemtns = parseAlignments(splitString[dAlignmentsColumn])
-        List<Alignment> jAlignemtns = parseAlignments(splitString[jAlignmentsColumn])
+        List<Alignment> vAlignemtns = parseAlignments(splitString[vAlignmentsColumn],
+                ((splitString[vHitsColumn] =~ /,/).count) + 1)
+        List<Alignment> dAlignemtns = parseAlignments(splitString[dAlignmentsColumn],
+                ((splitString[dHitsColumn] =~ /,/).count) + 1)
+        List<Alignment> jAlignemtns = parseAlignments(splitString[jAlignmentsColumn],
+                ((splitString[jHitsColumn] =~ /,/).count) + 1)
 
         def segmPoints = [vAlignemtns.size() > 0 && vAlignemtns[0] != null ?
                                   vAlignemtns[0].seq2End - 1 : 0,
@@ -103,7 +106,7 @@ public class MiXcrParser extends ClonotypeStreamParser {
                                   dAlignemtns[0].seq2Begin : -1,
                           dAlignemtns.size() > 0 && dAlignemtns[0] != null ?
                                   dAlignemtns[0].seq2End - 1 : -1,
-                          jAlignemtns.size() > 0 && jAlignemtns[0] != null?
+                          jAlignemtns.size() > 0 && jAlignemtns[0] != null ?
                                   jAlignemtns[0].seq2Begin : cdr3nt.size() - 1] as int[]
 
         boolean inFrame = inFrame(cdr3aa),
@@ -115,16 +118,20 @@ public class MiXcrParser extends ClonotypeStreamParser {
                 inFrame, noStop, isComplete)
     }
 
-    private static List<Alignment> parseAlignments(String alignmentsLine) {
+    private static List<Alignment> parseAlignments(String alignmentsLine, int expectedNumberOfAlignments) {
         if (alignmentsLine.isEmpty())
             return Collections.EMPTY_LIST
 
-        String[] splitByAlignments = alignmentsLine.split(";")
+        String[] splitByAlignments = alignmentsLine.split(";", expectedNumberOfAlignments)
         List<Alignment> ret = new ArrayList<>()
         for (String alignmentString : splitByAlignments) {
-            String[] splitByFields = alignmentString.split("\\|")
-            ret.add(new Alignment(splitByFields[0].toInteger(), splitByFields[1].toInteger(),
-                    splitByFields[3].toInteger(), splitByFields[4].toInteger()));
+            if (alignmentString.trim().empty) {
+                ret.add(null)
+            } else {
+                String[] splitByFields = alignmentString.split("\\|")
+                ret.add(new Alignment(splitByFields[0].toInteger(), splitByFields[1].toInteger(),
+                        splitByFields[3].toInteger(), splitByFields[4].toInteger()));
+            }
         }
         return ret;
     }
