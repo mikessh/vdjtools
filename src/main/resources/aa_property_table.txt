@@ -1,0 +1,22 @@
+## reference: Pommie, C. et al., J. Mol. Recognit., 17, 17-32 (2004). PMID: 14872534
+amino_acid	hydropathy	volume	chemical	physicochemical	charge	polarity	hydrogen_atom
+A	hydrophobic	very_small	aliphatic	aliphatic	uncharged	nonpolar	none
+R	hydrophilic	large	basic	basic	positive_charged	polar	donor
+N	hydrophilic	small	amide	amide	uncharged	polar	donor_and_acceptor
+D	hydrophilic	small	acidic	acidic	negative_charged	polar	acceptor
+C	hydrophobic	small	sulfur	sulfur	uncharged	nonpolar	none
+Q	hydrophilic	medium	amide	amide	uncharged	polar	donor_and_acceptor
+E	hydrophilic	medium	acidic	acidic	negative_charged	polar	acceptor
+G	neutral	very_small	aliphatic	G	uncharged	nonpolar	none
+H	neutral	medium	basic	basic	positive_charged	polar	donor_and_acceptor
+I	hydrophobic	large	aliphatic	aliphatic	uncharged	nonpolar	none
+L	hydrophobic	large	aliphatic	aliphatic	uncharged	nonpolar	none
+K	hydrophilic	large	basic	basic	positive_charged	polar	donor
+M	hydrophobic	large	sulfur	sulfur	uncharged	nonpolar	none
+F	hydrophobic	very_large	aromatic	F	uncharged	nonpolar	none
+P	neutral	small	aliphatic	P	uncharged	nonpolar	none
+S	neutral	very_small	hydroxyl	hydroxyl	uncharged	polar	donor_and_acceptor
+T	neutral	small	hydroxyl	hydroxyl	uncharged	polar	donor_and_acceptor
+W	hydrophobic	very_large	aromatic	W	uncharged	nonpolar	donor
+Y	neutral	very_large	aromatic	Y	uncharged	polar	donor_and_acceptor
+V	hydrophobic	medium	aliphatic	aliphatic	uncharged	nonpolar	none
