@@ -21,11 +21,11 @@ import com.milaboratory.core.sequence.AminoAcidSequence
 import org.junit.Test
 
 class AAProfileTest {
-    def propertyGroups = AminoAcidPropertyGroup.fromInput(CommonUtil.resourceStream("profile/aa_property_table.txt"))
+    def propertyGroups = BasicAminoAcidProperties.INSTANCE.groups
 
     @Test
     void test1() {
-        def profileBuilder = new AminoAcidProfileBuilder(10, propertyGroups)
+        def profileBuilder = new AminoAcidProfile(10, propertyGroups)
 
         profileBuilder.getBins().each { bin ->
             propertyGroups.each { group ->

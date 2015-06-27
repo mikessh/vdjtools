@@ -26,10 +26,10 @@ import java.util.Set;
 
 import static com.milaboratory.core.sequence.AminoAcidSequence.ALPHABET;
 
-public class AminoAcidPropertyGroup {
+public class AminoAcidPropertySet {
     private static final String MISSING_PROPERTY = "NA";
 
-    public static AminoAcidPropertyGroup[] fromInput(InputStream inputStream) throws IOException {
+    public static AminoAcidPropertySet[] fromInput(InputStream inputStream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
         String line;
@@ -41,10 +41,10 @@ public class AminoAcidPropertyGroup {
 
         String[] splitLine = line.split("\t");
 
-        AminoAcidPropertyGroup[] groups = new AminoAcidPropertyGroup[splitLine.length - 1];
+        AminoAcidPropertySet[] groups = new AminoAcidPropertySet[splitLine.length - 1];
 
         for (int i = 0; i < groups.length; i++) {
-            groups[i] = new AminoAcidPropertyGroup(splitLine[i + 1]);
+            groups[i] = new AminoAcidPropertySet(splitLine[i + 1]);
         }
 
         while ((line = reader.readLine()) != null) {
@@ -62,7 +62,7 @@ public class AminoAcidPropertyGroup {
     private final Set<String> properties = new HashSet<>();
     private final String[] propertyByAA = new String[ALPHABET.size()];
 
-    public AminoAcidPropertyGroup(String name) {
+    public AminoAcidPropertySet(String name) {
         this.name = name;
     }
 

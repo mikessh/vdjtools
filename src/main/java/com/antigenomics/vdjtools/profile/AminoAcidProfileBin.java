@@ -25,10 +25,10 @@ public class AminoAcidProfileBin {
     private final AtomicLong counter = new AtomicLong();
     private final Map<String, PropertyCounter> propertyCounters = new HashMap<>();
 
-    public AminoAcidProfileBin(int index, AminoAcidPropertyGroup... aminoAcidPropertyGroups) {
+    public AminoAcidProfileBin(int index, AminoAcidPropertySet... aminoAcidPropertySets) {
         this.index = index;
-        for (AminoAcidPropertyGroup aminoAcidPropertyGroup : aminoAcidPropertyGroups) {
-            propertyCounters.put(aminoAcidPropertyGroup.getName(), new PropertyCounter(aminoAcidPropertyGroup));
+        for (AminoAcidPropertySet aminoAcidPropertySet : aminoAcidPropertySets) {
+            propertyCounters.put(aminoAcidPropertySet.getName(), new PropertyCounter(aminoAcidPropertySet));
         }
     }
 
@@ -41,10 +41,10 @@ public class AminoAcidProfileBin {
     }
 
     protected final class PropertyCounter {
-        private final AminoAcidPropertyGroup group;
+        private final AminoAcidPropertySet group;
         private final Map<String, AtomicLong> counters = new HashMap<>();
 
-        public PropertyCounter(AminoAcidPropertyGroup group) {
+        public PropertyCounter(AminoAcidPropertySet group) {
             this.group = group;
             for (String property : group.getProperties()) {
                 counters.put(property, new AtomicLong());
@@ -67,7 +67,7 @@ public class AminoAcidProfileBin {
             return counterMap;
         }
 
-        public AminoAcidPropertyGroup getGroup() {
+        public AminoAcidPropertySet getGroup() {
             return group;
         }
     }

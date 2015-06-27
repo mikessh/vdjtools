@@ -20,15 +20,15 @@ import com.milaboratory.core.sequence.AminoAcidSequence;
 
 import java.util.Arrays;
 
-public class AminoAcidProfileBuilder {
+public class AminoAcidProfile {
     private final int nBins;
     private final AminoAcidProfileBin[] aminoAcidProfileBins;
 
-    public AminoAcidProfileBuilder(int nBins, AminoAcidPropertyGroup... aminoAcidPropertyGroups) {
+    public AminoAcidProfile(int nBins, AminoAcidPropertySet... aminoAcidPropertySets) {
         this.nBins = nBins;
         this.aminoAcidProfileBins = new AminoAcidProfileBin[nBins];
         for (int i = 0; i < nBins; i++) {
-            aminoAcidProfileBins[i] = new AminoAcidProfileBin(i, aminoAcidPropertyGroups);
+            aminoAcidProfileBins[i] = new AminoAcidProfileBin(i, aminoAcidPropertySets);
         }
     }
 
