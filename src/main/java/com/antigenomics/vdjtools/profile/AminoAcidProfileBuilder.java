@@ -18,6 +18,8 @@ package com.antigenomics.vdjtools.profile;
 
 import com.milaboratory.core.sequence.AminoAcidSequence;
 
+import java.util.Arrays;
+
 public class AminoAcidProfileBuilder {
     private final int nBins;
     private final AminoAcidProfileBin[] aminoAcidProfileBins;
@@ -46,5 +48,9 @@ public class AminoAcidProfileBuilder {
 
     private void update(int bin, byte code, int weight) {
         aminoAcidProfileBins[bin].update(code, weight);
+    }
+
+    public AminoAcidProfileBin[] getBins() {
+        return Arrays.copyOf(aminoAcidProfileBins, aminoAcidProfileBins.length);
     }
 }
