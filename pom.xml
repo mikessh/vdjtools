@@ -35,9 +35,8 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>segments/*</include>
                     <include>rscripts/*</include>
-                    <include>pwm/*</include>
+                    <include>profile/*</include>
                 </includes>
             </resource>
         </resources>

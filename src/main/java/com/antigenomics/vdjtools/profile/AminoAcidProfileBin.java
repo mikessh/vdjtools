@@ -32,7 +32,7 @@ public class AminoAcidProfileBin {
         }
     }
 
-    public void update(byte code, int weight) {
+    protected void update(byte code, int weight) {
         counter.addAndGet(weight);
 
         for (PropertyCounter propertyCounter : propertyCounters.values()) {
@@ -40,7 +40,7 @@ public class AminoAcidProfileBin {
         }
     }
 
-    private final class PropertyCounter {
+    protected final class PropertyCounter {
         private final AminoAcidPropertyGroup group;
         private final Map<String, AtomicLong> counters = new HashMap<>();
 
@@ -96,7 +96,7 @@ public class AminoAcidProfileBin {
         for (Map.Entry<String, PropertyCounter> entry : propertyCounters.entrySet()) {
             summary.put(entry.getKey(), entry.getValue().getAll());
         }
-        
+
         return summary;
     }
 }

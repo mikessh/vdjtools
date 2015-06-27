@@ -307,7 +307,11 @@ public class CommonUtil {
      * @return resource stream reader
      */
     public static InputStreamReader resourceStreamReader(String resourceName) {
-        new InputStreamReader(CommonUtil.class.classLoader.getResourceAsStream(resourceName))
+        new InputStreamReader(resourceStream(resourceName))
+    }
+
+    public static InputStream resourceStream(String resourceName) {
+        CommonUtil.class.classLoader.getResourceAsStream(resourceName)
     }
 
     /**
