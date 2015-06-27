@@ -16,6 +16,10 @@
 
 package com.antigenomics.vdjtools.profile;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,6 +28,35 @@ import static com.milaboratory.core.sequence.AminoAcidSequence.ALPHABET;
 
 public class AminoAcidPropertyGroup {
     private static final String MISSING_PROPERTY = "NA";
+
+    public static AminoAcidPropertyGroup[] fromInput(InputStream inputStream) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+        String line;
+
+        do {
+            line = reader.readLine();
+        }
+        while (line.startsWith("#"));
+
+        String[] splitLine = line.split("\t");
+
+        AminoAcidPropertyGroup[] groups = new AminoAcidPropertyGroup[splitLine.length - 1];
+
+        for (int i = 0; i < groups.length; i++) {
+            groups[i] = new AminoAcidPropertyGroup(splitLine[i + 1]);
+        }
+
+        while ((line = reader.readLine()) != null) {
+            splitLine = line.split("\t");
+
+            for (int i = 0; i < groups.length; i++) {
+                groups[i].put(splitLine[0].charAt(0), splitLine[i + 1]);
+            }
+        }
+
+        return groups;
+    }
 
     private final String name;
     private final Set<String> properties = new HashSet<>();
