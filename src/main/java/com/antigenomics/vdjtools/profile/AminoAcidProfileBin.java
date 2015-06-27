@@ -18,10 +18,10 @@ package com.antigenomics.vdjtools.profile;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class AminoAcidProfileBin {
-    private final AtomicInteger counter = new AtomicInteger();
+    private final AtomicLong counter = new AtomicLong();
     private final PropertyCounter[] propertyCounters;
 
     public AminoAcidProfileBin(AminoAcidPropertyGroup... aminoAcidPropertyGroups) {
@@ -31,31 +31,38 @@ public class AminoAcidProfileBin {
         }
     }
 
-    public void update(byte code) {
-        counter.incrementAndGet();
+    public void update(byte code, int weight) {
+        counter.addAndGet(weight);
 
         for (PropertyCounter propertyCounter : propertyCounters) {
-            propertyCounter.update(code);
+            propertyCounter.update(code, weight);
         }
     }
 
     private final class PropertyCounter {
         private final AminoAcidPropertyGroup group;
-        private final Map<String, AtomicInteger> counters = new HashMap<>();
+        private final Map<String, AtomicLong> counters = new HashMap<>();
 
         public PropertyCounter(AminoAcidPropertyGroup group) {
             this.group = group;
             for (String property : group.getProperties()) {
-                counters.put(property, new AtomicInteger());
+                counters.put(property, new AtomicLong());
             }
         }
 
-        public void update(byte code) {
-            counters.get(group.getAt(code)).incrementAndGet();
+        public void update(byte code, int weight) {
+            counters.get(group.getAt(code)).addAndGet(weight);
         }
 
         public AminoAcidPropertyGroup getGroup() {
             return group;
         }
     }
+
+    public long getCount() {
+        return counter.get();
+
+    }
+
+    //public Map<String, Map<String, >>
 }

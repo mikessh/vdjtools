@@ -31,16 +31,20 @@ public class AminoAcidProfileBuilder {
     }
 
     public void update(AminoAcidSequence aminoAcidSequence) {
+        update(aminoAcidSequence, 1);
+    }
+
+    public void update(AminoAcidSequence aminoAcidSequence, int weight) {
         int n = aminoAcidSequence.size();
 
         for (int i = 0; i < n; i++) {
             int bin = (int) ((i / (double) n) * nBins);
 
-            update(bin, aminoAcidSequence.codeAt(i));
+            update(bin, aminoAcidSequence.codeAt(i), weight);
         }
     }
 
-    private void update(int bin, byte code) {
-        aminoAcidProfileBins[bin].update(code);
+    private void update(int bin, byte code, int weight) {
+        aminoAcidProfileBins[bin].update(code, weight);
     }
 }
