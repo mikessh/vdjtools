@@ -21,20 +21,21 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class AminoAcidProfileBin {
+    private final int index;
     private final AtomicLong counter = new AtomicLong();
-    private final PropertyCounter[] propertyCounters;
+    private final Map<String, PropertyCounter> propertyCounters = new HashMap<>();
 
-    public AminoAcidProfileBin(AminoAcidPropertyGroup... aminoAcidPropertyGroups) {
-        propertyCounters = new PropertyCounter[aminoAcidPropertyGroups.length];
-        for (int i = 0; i < aminoAcidPropertyGroups.length; i++) {
-            propertyCounters[i] = new PropertyCounter(aminoAcidPropertyGroups[i]);
+    public AminoAcidProfileBin(int index, AminoAcidPropertyGroup... aminoAcidPropertyGroups) {
+        this.index = index;
+        for (AminoAcidPropertyGroup aminoAcidPropertyGroup : aminoAcidPropertyGroups) {
+            propertyCounters.put(aminoAcidPropertyGroup.getName(), new PropertyCounter(aminoAcidPropertyGroup));
         }
     }
 
     public void update(byte code, int weight) {
         counter.addAndGet(weight);
 
-        for (PropertyCounter propertyCounter : propertyCounters) {
+        for (PropertyCounter propertyCounter : propertyCounters.values()) {
             propertyCounter.update(code, weight);
         }
     }
@@ -54,15 +55,48 @@ public class AminoAcidProfileBin {
             counters.get(group.getAt(code)).addAndGet(weight);
         }
 
+        public long get(String property) {
+            return counters.get(property).get();
+        }
+
+        public Map<String, Long> getAll() {
+            Map<String, Long> counterMap = new HashMap<>();
+            for (String property : group.getProperties()) {
+                counterMap.put(property, counters.get(property).get());
+            }
+            return counterMap;
+        }
+
         public AminoAcidPropertyGroup getGroup() {
             return group;
         }
     }
 
-    public long getCount() {
-        return counter.get();
-
+    public int getIndex() {
+        return index;
     }
 
-    //public Map<String, Map<String, >>
+    public long getTotal() {
+        return counter.get();
+    }
+
+    public Map<String, Long> getCount(String groupName) {
+        PropertyCounter propertyCounter = propertyCounters.get(groupName);
+        return propertyCounter.getAll();
+    }
+
+    public long getCount(String groupName, String property) {
+        PropertyCounter propertyCounter = propertyCounters.get(groupName);
+        return propertyCounter.get(property);
+    }
+
+    public Map<String, Map<String, Long>> getSummary() {
+        Map<String, Map<String, Long>> summary = new HashMap<>();
+
+        for (Map.Entry<String, PropertyCounter> entry : propertyCounters.entrySet()) {
+            summary.put(entry.getKey(), entry.getValue().getAll());
+        }
+        
+        return summary;
+    }
 }

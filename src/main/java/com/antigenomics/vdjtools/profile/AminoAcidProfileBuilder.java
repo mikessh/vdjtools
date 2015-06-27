@@ -26,7 +26,7 @@ public class AminoAcidProfileBuilder {
         this.nBins = nBins;
         this.aminoAcidProfileBins = new AminoAcidProfileBin[nBins];
         for (int i = 0; i < nBins; i++) {
-            aminoAcidProfileBins[i] = new AminoAcidProfileBin(aminoAcidPropertyGroups);
+            aminoAcidProfileBins[i] = new AminoAcidProfileBin(i, aminoAcidPropertyGroups);
         }
     }
 
