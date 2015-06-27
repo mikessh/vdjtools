@@ -26,6 +26,7 @@ import com.antigenomics.vdjtools.operate.JoinSamples
 import com.antigenomics.vdjtools.operate.PoolSamples
 import com.antigenomics.vdjtools.overlap.*
 import com.antigenomics.vdjtools.preprocess.*
+import com.antigenomics.vdjtools.profile.CalcCdrAAProfile
 import com.antigenomics.vdjtools.util.Convert
 import com.antigenomics.vdjtools.util.ExecUtil
 import com.antigenomics.vdjtools.util.RInstall
@@ -75,6 +76,7 @@ def printHelp = {
     println ""
     println "[Annotation]"
     println "ScanDatabase"
+    println "CalcCdrAAProfile"
     println ""
     println "[Util]"
     println "Convert"
@@ -134,6 +136,8 @@ def getScript = { String scriptName ->
 
         case "SCANDATABASE":
             return new ScanDatabase()
+        case "CALCCDRAAPROFILE":
+            return new CalcCdrAAProfile()
 
         case "CONVERT":
             return new Convert()
