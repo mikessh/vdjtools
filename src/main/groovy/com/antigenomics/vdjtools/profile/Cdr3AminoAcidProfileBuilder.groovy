@@ -44,7 +44,7 @@ class Cdr3AminoAcidProfileBuilder {
         nBins
     }
 
-    int getWeighted() {
+    boolean getWeighted() {
         weighted
     }
 
