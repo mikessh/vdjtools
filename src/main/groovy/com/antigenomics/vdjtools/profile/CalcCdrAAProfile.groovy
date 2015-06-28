@@ -23,7 +23,7 @@ import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
 def DEFAULT_AA_GROUPS = BasicAminoAcidProperties.INSTANCE.groupNames.join(","),
-    DEFAULT_N_BINS = "10"
+    DEFAULT_BINNING = "CDR3-full:9,V-germ:3,D-germ:1,J-germ:3,VD-junc:1,DJ-junc:1,VJ-junc:3"
 
 def cli = new CliBuilder(usage: "CalcCdrAAProfile [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
@@ -32,12 +32,13 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
 cli.u(longOpt: "unweighted", "Will count each clonotype only once, apart from conventional frequency-weighted histogram.")
-cli.l(longOpt: "property-group-list", argName: "group1,group2,...", args: 1,
+cli.g(longOpt: "group-list", argName: "group1,...", args: 1,
         "Comma-separated list of amino-acid property groups to analyze. " +
                 "Allowed values: $DEFAULT_AA_GROUPS. " +
                 "[default = use all]")
-cli.n(longOpt: "bins-count", argName: "integer", args: 1,
-        "Number of bins in the profile. [default = $DEFAULT_N_BINS]")
+cli.b(longOpt: "segment-bins", argName: "segment1:nbins1,...", args: 1,
+        "Bin by segment (V, J segment part and either D segment, V-D, D-J junction or V-J junction). " +
+                "[default = $DEFAULT_BINNING]")
 
 
 def opt = cli.parse(args)
@@ -65,10 +66,27 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 // Remaining arguments
 
+def knownRegions = [new VGermline(), new DGermline(), new JGermline(),
+                    new VDJunction(), new DJJunction(),
+                    new VJJunction(), new FullCdr3()].collectEntries {
+    [(it.name): it]
+}
+
+def getRegionByName = { String name ->
+    if (!knownRegions.containsKey(name)) {
+        println "[ERROR] Unknown region $name, allowed values are: ${knownRegions.keySet()}"
+        System.exit(-1)
+    }
+    knownRegions[name]
+}
+
 def outputFilePrefix = opt.arguments()[-1],
     unweighted = (boolean) opt.u,
-    nBins = (opt.n ?: DEFAULT_N_BINS).toInteger(),
-    propertyGroups = (opt.l ?: DEFAULT_AA_GROUPS).split(",")
+    binning = (opt.b ?: DEFAULT_BINNING).split(",").collectEntries {
+        def split2 = it.split(":")
+        [(getRegionByName(split2[0])): split2[1].toInteger()]
+    },
+    propertyGroups = (opt.g ?: DEFAULT_AA_GROUPS).split(",")
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -88,29 +106,32 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) prepar
 // Compute and output diversity measures, spectratype, etc
 //
 
-def profileBuilder = new Cdr3AminoAcidProfileBuilder(nBins, !unweighted, propertyGroups)
+def profileBuilder = new Cdr3AAProfileBuilder(binning, !unweighted, propertyGroups)
 
 new File(formOutputPath(outputFilePrefix, "cdr3aa.profile")).withPrintWriter { pw ->
     def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\t" +
-            "bin\tproperty.group\tproperty\tcount\ttotal"
+            "cdr3.segment\tbin\tproperty.group\tproperty\tcount\ttotal"
 
     pw.println(header)
 
     def sampleCounter = 0
 
     sampleCollection.each { Sample sample ->
-        def profile = profileBuilder.create(sample)
+        def profiles = profileBuilder.create(sample)
 
         println "[${new Date()} $scriptName] ${++sampleCounter} sample(s) processed"
 
-        profile.bins.each { bin ->
-            bin.summary.each { groupEntry ->
-                def groupName = groupEntry.key
-                groupEntry.value.each { propertyEntry ->
-                    pw.println([sample.sampleMetadata.sampleId, sample.sampleMetadata,
-                                bin.index, groupName, propertyEntry.key,
-                                propertyEntry.value, bin.total].join("\t"))
+        profiles.each { profileEntry ->
+            def segmentName = profileEntry.key.name
+            profileEntry.value.bins.each { bin ->
+                bin.summary.each { groupEntry ->
+                    def groupName = groupEntry.key
+                    groupEntry.value.each { propertyEntry ->
+                        pw.println([sample.sampleMetadata.sampleId, sample.sampleMetadata,
+                                    segmentName, bin.index, groupName, propertyEntry.key,
+                                    propertyEntry.value, bin.total].join("\t"))
+                    }
                 }
             }
         }
