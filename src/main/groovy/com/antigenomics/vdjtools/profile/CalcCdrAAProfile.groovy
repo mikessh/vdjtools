@@ -19,11 +19,19 @@ package com.antigenomics.vdjtools.profile
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
+import com.antigenomics.vdjtools.util.RUtil
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
+
+def KNOWN_REGIONS = [new VGermline(), new DGermline(), new JGermline(),
+                     new VDJunction(), new DJJunction(),
+                     new VJJunction(), new FullCdr3()].collectEntries {
+    [(it.name): it]
+}
 
 def DEFAULT_AA_PROPERTIES = BasicAminoAcidProperties.INSTANCE.propertyNames.join(","),
-    DEFAULT_BINNING = "CDR3-full:9,V-germ:3,D-germ:1,J-germ:3,VD-junc:1,DJ-junc:1,VJ-junc:3"
+    DEFAULT_BINNING = "V-germ:5,VJ-junc:3,J-germ:5"
 
 def cli = new CliBuilder(usage: "CalcCdrAAProfile [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
@@ -37,8 +45,11 @@ cli.g(longOpt: "group-list", argName: "group1,...", args: 1,
                 "Allowed values: $DEFAULT_AA_PROPERTIES. " +
                 "[default = use all]")
 cli.b(longOpt: "segment-bins", argName: "segment1:nbins1,...", args: 1,
-        "Bin by segment (V, J segment part and either D segment, V-D, D-J junction or V-J junction). " +
+        "List of segments to analyze and corresponding bin counts. " +
+                "Allowed segments: ${KNOWN_REGIONS.keySet().join(",")}. " +
                 "[default = $DEFAULT_BINNING]")
+cli.p(longOpt: "plot", "Plot amino acid property distributions for a specified list of segments.")
+cli.f(longOpt: "factor", argName: "string", args: 1, "Metadata entry used to group samples in plot.")
 
 
 def opt = cli.parse(args)
@@ -66,18 +77,12 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 // Remaining arguments
 
-def knownRegions = [new VGermline(), new DGermline(), new JGermline(),
-                    new VDJunction(), new DJJunction(),
-                    new VJJunction(), new FullCdr3()].collectEntries {
-    [(it.name): it]
-}
-
 def getRegionByName = { String name ->
-    if (!knownRegions.containsKey(name)) {
-        println "[ERROR] Unknown region $name, allowed values are: ${knownRegions.keySet()}"
+    if (!KNOWN_REGIONS.containsKey(name)) {
+        println "[ERROR] Unknown region $name, allowed values are: ${KNOWN_REGIONS.keySet()}"
         System.exit(-1)
     }
-    knownRegions[name]
+    KNOWN_REGIONS[name]
 }
 
 def outputFilePrefix = opt.arguments()[-1],
@@ -86,7 +91,9 @@ def outputFilePrefix = opt.arguments()[-1],
         def split2 = it.split(":")
         [(getRegionByName(split2[0])): split2[1].toInteger()]
     },
-    propertyGroups = (opt.g ?: DEFAULT_AA_PROPERTIES).split(",")
+    propertyGroups = (opt.g ?: DEFAULT_AA_PROPERTIES).split(","),
+    plot = (boolean) opt.p,
+    plotType = (opt.'plot-type' ?: "pdf").toString()
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -108,7 +115,9 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) prepar
 
 def profileBuilder = new Cdr3AAProfileBuilder(binning, !unweighted, propertyGroups)
 
-new File(formOutputPath(outputFilePrefix, "cdr3aa.profile")).withPrintWriter { pw ->
+def outputFileName = formOutputPath(outputFilePrefix, "cdr3aa", "profile", (unweighted ? "unwt" : "wt"))
+
+new File(outputFileName).withPrintWriter { pw ->
     def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\t" +
             "cdr3.segment\tbin\tproperty\tvalue\ttotal"
@@ -133,6 +142,13 @@ new File(formOutputPath(outputFilePrefix, "cdr3aa.profile")).withPrintWriter { p
             }
         }
     }
+}
+if (plot) {
+    RUtil.execute("cdr3aa_profile.r",
+            outputFileName,
+            toPlotPath(outputFileName, plotType),
+            opt.f ? (sampleCollection.metadataTable.getColumnIndex(opt.f) + 2).toString() : "0",
+    )
 }
 
 println "[${new Date()} $scriptName] Finished"
