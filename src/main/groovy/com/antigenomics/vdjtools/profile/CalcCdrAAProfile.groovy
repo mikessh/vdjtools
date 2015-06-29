@@ -24,11 +24,6 @@ import com.antigenomics.vdjtools.util.RUtil
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
 
-def KNOWN_REGIONS = [new VGermline(), new DGermline(), new JGermline(),
-                     new VDJunction(), new DJJunction(),
-                     new VJJunction(), new FullCdr3()].collectEntries {
-    [(it.name): it]
-}
 
 def DEFAULT_AA_PROPERTIES = BasicAminoAcidProperties.INSTANCE.propertyNames.join(","),
     DEFAULT_BINNING = "V-germ:5,VJ-junc:3,J-germ:5"
@@ -46,7 +41,7 @@ cli.g(longOpt: "group-list", argName: "group1,...", args: 1,
                 "[default = use all]")
 cli.b(longOpt: "segment-bins", argName: "segment1:nbins1,...", args: 1,
         "List of segments to analyze and corresponding bin counts. " +
-                "Allowed segments: ${KNOWN_REGIONS.keySet().join(",")}. " +
+                "Allowed segments: ${KnownCdr3Regions.INSTANCE.regionNames.join(",")}. " +
                 "[default = $DEFAULT_BINNING]")
 cli.p(longOpt: "plot", "Plot amino acid property distributions for a specified list of segments.")
 cli.f(longOpt: "factor", argName: "string", args: 1, "Metadata entry used to group samples in plot.")
@@ -77,19 +72,11 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 // Remaining arguments
 
-def getRegionByName = { String name ->
-    if (!KNOWN_REGIONS.containsKey(name)) {
-        println "[ERROR] Unknown region $name, allowed values are: ${KNOWN_REGIONS.keySet()}"
-        System.exit(-1)
-    }
-    KNOWN_REGIONS[name]
-}
-
 def outputFilePrefix = opt.arguments()[-1],
     unweighted = (boolean) opt.u,
     binning = (opt.b ?: DEFAULT_BINNING).split(",").collectEntries {
         def split2 = it.split(":")
-        [(getRegionByName(split2[0])): split2[1].toInteger()]
+        [(KnownCdr3Regions.INSTANCE.getByName(split2[0])): split2[1].toInteger()]
     },
     propertyGroups = (opt.g ?: DEFAULT_AA_PROPERTIES).split(","),
     plot = (boolean) opt.p,
