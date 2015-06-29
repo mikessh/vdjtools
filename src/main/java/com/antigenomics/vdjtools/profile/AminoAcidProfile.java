@@ -24,11 +24,11 @@ public class AminoAcidProfile {
     private final int nBins;
     private final AminoAcidProfileBin[] aminoAcidProfileBins;
 
-    public AminoAcidProfile(int nBins, AminoAcidPropertySet... aminoAcidPropertySets) {
+    public AminoAcidProfile(int nBins, AminoAcidProperty... aminoAcidProperties) {
         this.nBins = nBins;
         this.aminoAcidProfileBins = new AminoAcidProfileBin[nBins];
         for (int i = 0; i < nBins; i++) {
-            aminoAcidProfileBins[i] = new AminoAcidProfileBin(i, aminoAcidPropertySets);
+            aminoAcidProfileBins[i] = new AminoAcidProfileBin(i, aminoAcidProperties);
         }
     }
 
@@ -36,7 +36,7 @@ public class AminoAcidProfile {
         update(aminoAcidSequence, 1);
     }
 
-    public void update(AminoAcidSequence aminoAcidSequence, int weight) {
+    public void update(AminoAcidSequence aminoAcidSequence, double weight) {
         int n = aminoAcidSequence.size();
 
         for (int i = 0; i < n; i++) {
@@ -46,7 +46,7 @@ public class AminoAcidProfile {
         }
     }
 
-    private void update(int bin, byte code, int weight) {
+    private void update(int bin, byte code, double weight) {
         aminoAcidProfileBins[bin].update(code, weight);
     }
 

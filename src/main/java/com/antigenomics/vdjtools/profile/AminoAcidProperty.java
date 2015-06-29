@@ -20,16 +20,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 import static com.milaboratory.core.sequence.AminoAcidSequence.ALPHABET;
 
-public class AminoAcidPropertySet {
-    private static final String MISSING_PROPERTY = "NA";
-
-    public static AminoAcidPropertySet[] fromInput(InputStream inputStream) throws IOException {
+public class AminoAcidProperty {
+    public static AminoAcidProperty[] fromInput(InputStream inputStream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
         String line;
@@ -41,17 +36,17 @@ public class AminoAcidPropertySet {
 
         String[] splitLine = line.split("\t");
 
-        AminoAcidPropertySet[] groups = new AminoAcidPropertySet[splitLine.length - 1];
+        AminoAcidProperty[] groups = new AminoAcidProperty[splitLine.length - 1];
 
         for (int i = 0; i < groups.length; i++) {
-            groups[i] = new AminoAcidPropertySet(splitLine[i + 1]);
+            groups[i] = new AminoAcidProperty(splitLine[i + 1]);
         }
 
         while ((line = reader.readLine()) != null) {
             splitLine = line.split("\t");
 
             for (int i = 0; i < groups.length; i++) {
-                groups[i].put(splitLine[0].charAt(0), splitLine[i + 1]);
+                groups[i].put(splitLine[0].charAt(0), Double.parseDouble(splitLine[i + 1]));
             }
         }
 
@@ -59,36 +54,29 @@ public class AminoAcidPropertySet {
     }
 
     private final String name;
-    private final Set<String> properties = new HashSet<>();
-    private final String[] propertyByAA = new String[ALPHABET.size()];
+    private final double[] propertyByAA = new double[ALPHABET.size()];
 
-    public AminoAcidPropertySet(String name) {
+    public AminoAcidProperty(String name) {
         this.name = name;
     }
 
-    public void put(char aminoAcid, String property) {
-        properties.add(property);
-        propertyByAA[ALPHABET.codeFromSymbol(aminoAcid)] = property;
+    public void put(char aminoAcid, double value) {
+        propertyByAA[ALPHABET.codeFromSymbol(aminoAcid)] = value;
     }
 
-    public String getAt(char aminoAcid) {
+    public double getAt(char aminoAcid) {
         return getAt(ALPHABET.codeFromSymbol(aminoAcid));
     }
 
-    public String getAt(byte code) {
+    public double getAt(byte code) {
         if (code < 0 || code >= propertyByAA.length) {
             throw new IndexOutOfBoundsException("Unknown amino acid code " + code);
         }
 
-        String property = propertyByAA[code];
-        return property.length() > 0 ? property : MISSING_PROPERTY;
+        return propertyByAA[code];
     }
 
     public String getName() {
         return name;
-    }
-
-    public Set<String> getProperties() {
-        return Collections.unmodifiableSet(properties);
     }
 }

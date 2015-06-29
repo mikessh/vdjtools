@@ -21,41 +21,27 @@ import com.milaboratory.core.sequence.AminoAcidSequence
 import org.junit.Test
 
 class AAProfileTest {
-    def propertyGroups = BasicAminoAcidProperties.INSTANCE.groups
+    def properties = BasicAminoAcidProperties.INSTANCE.properties
 
     @Test
     void test1() {
-        def profileBuilder = new AminoAcidProfile(10, propertyGroups)
+        def seq1 = CommonUtil.AAS.collect().join("")
+        def profileBuilder = new AminoAcidProfile(seq1.length(), properties)
 
         profileBuilder.getBins().each { bin ->
-            propertyGroups.each { group ->
-                group.properties.each { prop ->
-                    assert bin.getCount(group.name, prop) == 0
-                }
+            // check all properties added
+            properties.each {
+                assert bin.getValue(it.name) == 0
             }
         }
-
-        def seq1 = CommonUtil.AAS.collect().join("")
 
         profileBuilder.update(new AminoAcidSequence(seq1))
 
-        def propertyCounters = [:]
+        def someProp = properties[0]
 
         profileBuilder.getBins().each { bin ->
-            propertyGroups.each { group ->
-                def total = 0
-                group.properties.each { prop ->
-                    def count = bin.getCount(group.name, prop)
-                    def id = group.name + ":" + prop
-                    propertyCounters.put(id, (propertyCounters[id] ?: 0) + count)
-                    total += count
-                }
-                assert total == bin.total
-            }
-        }
-
-        propertyCounters.values().each {
-            assert it > 0
+            assert bin.total == 1
+            assert bin.getValue(someProp.name) == someProp.getAt(seq1.charAt(bin.index))
         }
     }
 }

@@ -16,23 +16,24 @@
 
 package com.antigenomics.vdjtools.profile;
 
+import com.google.common.util.concurrent.AtomicDouble;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class AminoAcidProfileBin {
     private final int index;
-    private final AtomicLong counter = new AtomicLong();
+    private final AtomicDouble counter = new AtomicDouble();
     private final Map<String, PropertyCounter> propertyCounters = new HashMap<>();
 
-    public AminoAcidProfileBin(int index, AminoAcidPropertySet... aminoAcidPropertySets) {
+    public AminoAcidProfileBin(int index, AminoAcidProperty... aminoAcidProperties) {
         this.index = index;
-        for (AminoAcidPropertySet aminoAcidPropertySet : aminoAcidPropertySets) {
-            propertyCounters.put(aminoAcidPropertySet.getName(), new PropertyCounter(aminoAcidPropertySet));
+        for (AminoAcidProperty aminoAcidProperty : aminoAcidProperties) {
+            propertyCounters.put(aminoAcidProperty.getName(), new PropertyCounter(aminoAcidProperty));
         }
     }
 
-    protected void update(byte code, int weight) {
+    protected void update(byte code, double weight) {
         counter.addAndGet(weight);
 
         for (PropertyCounter propertyCounter : propertyCounters.values()) {
@@ -41,33 +42,22 @@ public class AminoAcidProfileBin {
     }
 
     protected final class PropertyCounter {
-        private final AminoAcidPropertySet group;
-        private final Map<String, AtomicLong> counters = new HashMap<>();
+        private final AminoAcidProperty group;
+        private final AtomicDouble counter = new AtomicDouble();
 
-        public PropertyCounter(AminoAcidPropertySet group) {
+        public PropertyCounter(AminoAcidProperty group) {
             this.group = group;
-            for (String property : group.getProperties()) {
-                counters.put(property, new AtomicLong());
-            }
         }
 
-        public void update(byte code, int weight) {
-            counters.get(group.getAt(code)).addAndGet(weight);
+        public void update(byte code, double weight) {
+            counter.addAndGet(group.getAt(code) * weight);
         }
 
-        public long get(String property) {
-            return counters.get(property).get();
+        public double getValue() {
+            return counter.get();
         }
 
-        public Map<String, Long> getAll() {
-            Map<String, Long> counterMap = new HashMap<>();
-            for (String property : group.getProperties()) {
-                counterMap.put(property, counters.get(property).get());
-            }
-            return counterMap;
-        }
-
-        public AminoAcidPropertySet getGroup() {
+        public AminoAcidProperty getGroup() {
             return group;
         }
     }
@@ -76,25 +66,21 @@ public class AminoAcidProfileBin {
         return index;
     }
 
-    public long getTotal() {
+    public double getTotal() {
         return counter.get();
     }
 
-    public Map<String, Long> getCount(String groupName) {
+    public double getValue(String groupName) {
         PropertyCounter propertyCounter = propertyCounters.get(groupName);
-        return propertyCounter.getAll();
+        return propertyCounter.getValue();
     }
 
-    public long getCount(String groupName, String property) {
-        PropertyCounter propertyCounter = propertyCounters.get(groupName);
-        return propertyCounter.get(property);
-    }
+    public Map<String, Double> getSummary() {
+        Map<String, Double> summary = new HashMap<>();
 
-    public Map<String, Map<String, Long>> getSummary() {
-        Map<String, Map<String, Long>> summary = new HashMap<>();
-
-        for (Map.Entry<String, PropertyCounter> entry : propertyCounters.entrySet()) {
-            summary.put(entry.getKey(), entry.getValue().getAll());
+        for (PropertyCounter propertyCounter : propertyCounters.values()) {
+            summary.put(propertyCounter.group.getName(),
+                    propertyCounter.getValue());
         }
 
         return summary;

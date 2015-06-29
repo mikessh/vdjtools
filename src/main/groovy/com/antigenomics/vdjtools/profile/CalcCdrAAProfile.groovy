@@ -22,7 +22,7 @@ import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
 import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
-def DEFAULT_AA_GROUPS = BasicAminoAcidProperties.INSTANCE.groupNames.join(","),
+def DEFAULT_AA_PROPERTIES = BasicAminoAcidProperties.INSTANCE.propertyNames.join(","),
     DEFAULT_BINNING = "CDR3-full:9,V-germ:3,D-germ:1,J-germ:3,VD-junc:1,DJ-junc:1,VJ-junc:3"
 
 def cli = new CliBuilder(usage: "CalcCdrAAProfile [options] " +
@@ -33,8 +33,8 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
                 "Header is mandatory and will be used to assign column names for metadata.")
 cli.u(longOpt: "unweighted", "Will count each clonotype only once, apart from conventional frequency-weighted histogram.")
 cli.g(longOpt: "group-list", argName: "group1,...", args: 1,
-        "Comma-separated list of amino-acid property groups to analyze. " +
-                "Allowed values: $DEFAULT_AA_GROUPS. " +
+        "Comma-separated list of amino-acid properties to analyze. " +
+                "Allowed values: $DEFAULT_AA_PROPERTIES. " +
                 "[default = use all]")
 cli.b(longOpt: "segment-bins", argName: "segment1:nbins1,...", args: 1,
         "Bin by segment (V, J segment part and either D segment, V-D, D-J junction or V-J junction). " +
@@ -86,7 +86,7 @@ def outputFilePrefix = opt.arguments()[-1],
         def split2 = it.split(":")
         [(getRegionByName(split2[0])): split2[1].toInteger()]
     },
-    propertyGroups = (opt.g ?: DEFAULT_AA_GROUPS).split(",")
+    propertyGroups = (opt.g ?: DEFAULT_AA_PROPERTIES).split(",")
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -111,7 +111,7 @@ def profileBuilder = new Cdr3AAProfileBuilder(binning, !unweighted, propertyGrou
 new File(formOutputPath(outputFilePrefix, "cdr3aa.profile")).withPrintWriter { pw ->
     def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\t" +
-            "cdr3.segment\tbin\tproperty.group\tproperty\tcount\ttotal"
+            "cdr3.segment\tbin\tproperty\tvalue\ttotal"
 
     pw.println(header)
 
@@ -125,13 +125,10 @@ new File(formOutputPath(outputFilePrefix, "cdr3aa.profile")).withPrintWriter { p
         profiles.each { profileEntry ->
             def segmentName = profileEntry.key.name
             profileEntry.value.bins.each { bin ->
-                bin.summary.each { groupEntry ->
-                    def groupName = groupEntry.key
-                    groupEntry.value.each { propertyEntry ->
-                        pw.println([sample.sampleMetadata.sampleId, sample.sampleMetadata,
-                                    segmentName, bin.index, groupName, propertyEntry.key,
-                                    propertyEntry.value, bin.total].join("\t"))
-                    }
+                bin.summary.each {
+                    pw.println([sample.sampleMetadata.sampleId, sample.sampleMetadata,
+                                segmentName, bin.index, it.key,
+                                it.value, bin.total].join("\t"))
                 }
             }
         }

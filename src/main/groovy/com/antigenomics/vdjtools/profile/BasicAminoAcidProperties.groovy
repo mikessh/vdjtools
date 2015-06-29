@@ -21,24 +21,24 @@ import com.antigenomics.vdjtools.util.CommonUtil
 class BasicAminoAcidProperties {
     static final BasicAminoAcidProperties INSTANCE = new BasicAminoAcidProperties()
 
-    private final AminoAcidPropertySet[] aminoAcidPropertyGroups
+    private final AminoAcidProperty[] aminoAcidProperties
 
     private BasicAminoAcidProperties() {
-        aminoAcidPropertyGroups = AminoAcidPropertySet.fromInput(CommonUtil.resourceStream("profile/aa_property_table.txt"))
+        aminoAcidProperties = AminoAcidProperty.fromInput(CommonUtil.resourceStream("profile/aa_property_table.txt"))
     }
 
-    List<String> getGroupNames() {
-        aminoAcidPropertyGroups.collect { it.name }
+    List<String> getPropertyNames() {
+        aminoAcidProperties.collect { it.name }
     }
 
-    AminoAcidPropertySet[] getGroups(List<String> groupNames) {
-        if (groupNames.isEmpty())
-            return getGroups()
+    AminoAcidProperty[] getProperties(List<String> propertyNames) {
+        if (propertyNames.isEmpty())
+            return getProperties()
 
-        aminoAcidPropertyGroups.findAll { groupNames.contains(it.name) } as AminoAcidPropertySet[]
+        aminoAcidProperties.findAll { propertyNames.contains(it.name) } as AminoAcidProperty[]
     }
 
-    AminoAcidPropertySet[] getGroups() {
-        Arrays.copyOf(aminoAcidPropertyGroups, aminoAcidPropertyGroups.length)
+    AminoAcidProperty[] getProperties() {
+        Arrays.copyOf(aminoAcidProperties, aminoAcidProperties.length)
     }
 }

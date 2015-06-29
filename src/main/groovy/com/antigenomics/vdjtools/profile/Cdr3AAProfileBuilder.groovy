@@ -34,7 +34,7 @@ class Cdr3AAProfileBuilder {
 
         binning.each {
             profiles.put(it.key, new AminoAcidProfile(it.value,
-                    BasicAminoAcidProperties.INSTANCE.getGroups(groups)))
+                    BasicAminoAcidProperties.INSTANCE.getProperties(groups)))
         }
 
         clonotypes.each { clonotype ->
@@ -42,8 +42,7 @@ class Cdr3AAProfileBuilder {
                 profiles.each {
                     def aaSeq = it.key.extractAminoAcid(clonotype)
                     if (aaSeq.size() > 0) {
-                        it.value.update(aaSeq,
-                                weighted ? clonotype.count : 1)
+                        it.value.update(aaSeq, weighted ? clonotype.freq : 1.0d)
                     }
                 }
             }
