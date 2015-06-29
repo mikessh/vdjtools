@@ -45,6 +45,7 @@ cli.b(longOpt: "segment-bins", argName: "segment1:nbins1,...", args: 1,
                 "[default = $DEFAULT_BINNING]")
 cli.p(longOpt: "plot", "Plot amino acid property distributions for a specified list of segments.")
 cli.f(longOpt: "factor", argName: "string", args: 1, "Metadata entry used to group samples in plot.")
+cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
 
 
 def opt = cli.parse(args)
