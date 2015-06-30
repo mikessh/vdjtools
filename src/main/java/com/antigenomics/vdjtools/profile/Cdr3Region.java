@@ -29,7 +29,7 @@ public abstract class Cdr3Region implements SequenceRegion {
 
     protected Range getRange(Clonotype clonotype) {
         Range range = innerGetRange(clonotype);
-        return range.isReverse() ? EMPTY : range;
+        return (range.isReverse() || range.getFrom() < 0 || range.getTo() < 0) ? EMPTY : range;
     }
 
     @Override

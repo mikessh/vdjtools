@@ -16,6 +16,7 @@
 
 package com.antigenomics.vdjtools.profile
 
+import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.util.CommonUtil
 import com.milaboratory.core.sequence.AminoAcidSequence
 import org.junit.Test
@@ -42,6 +43,26 @@ class AAProfileTest {
         profileBuilder.getBins().each { bin ->
             assert bin.total == 1
             assert bin.getValue(someProp.name) == someProp.getAt(seq1.charAt(bin.index))
+        }
+    }
+
+    @Test
+    void test2() {
+        def clonotypes = [
+                new Clonotype(null, 1, 1.0d,
+                        [2, -1, -1, -10] as int[], "TRAV5", ".", "TRAJ48",
+                        "TGTCATGAGAAATTAACCTTT",
+                        "CHEKLTF", true, true, true),
+                new Clonotype(null, 1, 1.0d,
+                        [14, -1, -1, 19] as int[], "TRAV5", ".", "TRAJ48",
+                        "TGCCTCGTGGGTGACTCGTACACGGGCAGGAGAGCACTTACTTTT",
+                        "CLVGDSYTGRRALTF", true, true, true)]
+
+        clonotypes.each { clonotype ->
+            KnownCdr3Regions.INSTANCE.each { region ->
+                println region.name + "\t" + region.extractAminoAcid(clonotype)
+                println region.name + "\t" + region.extractNucleotide(clonotype)
+            }
         }
     }
 }

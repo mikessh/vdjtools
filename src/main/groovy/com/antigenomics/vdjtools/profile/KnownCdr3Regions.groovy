@@ -16,7 +16,7 @@
 
 package com.antigenomics.vdjtools.profile
 
-class KnownCdr3Regions {
+class KnownCdr3Regions implements Iterable<Cdr3Region> {
     private final Map<String, Cdr3Region> regions
 
     public static final KnownCdr3Regions INSTANCE = new KnownCdr3Regions()
@@ -38,5 +38,10 @@ class KnownCdr3Regions {
 
     public List<String> getRegionNames() {
         regions.keySet() as List
+    }
+
+    @Override
+    Iterator<Cdr3Region> iterator() {
+        regions.values().iterator()
     }
 }
