@@ -26,6 +26,7 @@ import com.antigenomics.vdjtools.operate.JoinSamples
 import com.antigenomics.vdjtools.operate.PoolSamples
 import com.antigenomics.vdjtools.overlap.*
 import com.antigenomics.vdjtools.preprocess.*
+import com.antigenomics.vdjtools.profile.CalcCdrAAProfile
 import com.antigenomics.vdjtools.util.Convert
 import com.antigenomics.vdjtools.util.ExecUtil
 import com.antigenomics.vdjtools.util.RInstall
@@ -75,6 +76,7 @@ def printHelp = {
     println ""
     println "[Annotation]"
     println "ScanDatabase"
+    println "CalcCdrAAProfile"
     println ""
     println "[Util]"
     println "Convert"
@@ -134,6 +136,8 @@ def getScript = { String scriptName ->
 
         case "SCANDATABASE":
             return new ScanDatabase()
+        case "CALCCDRAAPROFILE":
+            return new CalcCdrAAProfile()
 
         case "CONVERT":
             return new Convert()
@@ -164,7 +168,7 @@ else {
     try {
         ExecUtil.run(script, args.length > 1 ? args[1..-1] : [""])
     } catch (Exception e) {
-        println "[ERROR] $e.message, see _vdjtools_error.log for details"
+        println "[ERROR] ${e.toString()}, see _vdjtools_error.log for details"
         new File("_vdjtools_error.log").withWriterAppend { writer ->
             writer.println("[${new Date()} BEGIN]")
             writer.println("[Script]")

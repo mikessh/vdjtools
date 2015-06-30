@@ -60,7 +60,7 @@ class SampleCollection implements Iterable<Sample> {
      */
     public static SampleCollection fromSampleList(List<Sample> samples) {
         def originalMetadata = samples[0].sampleMetadata.parent,
-            // create new metadata table
+        // create new metadata table
             metadataTable = new MetadataTable(samples[0].sampleMetadata.parent.columnIterator.collect().toList())
 
         def sampleCollection = new SampleCollection(Software.VDJtools,
@@ -182,7 +182,8 @@ class SampleCollection implements Iterable<Sample> {
                 throw new Exception("Metadata header should be marked with hash prefix (#)")
             }
 
-            metadataTable = new MetadataTable(headerLine.split("\t")[2..-1])
+            def metadataColumns = headerLine.split("\t")
+            metadataTable = new MetadataTable(metadataColumns.size() > 2 ? metadataColumns[2..-1] : [])
 
             def line, splitLine
             while ((line = reader.readLine()) != null) {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools.pwm
+package com.antigenomics.vdjtools.profile
 
 import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.ClonotypeContainer
@@ -27,7 +27,7 @@ class CdrPwmGrid {
     private int div = 0
     private final Map<Cell, CdrPwm> pwmGrid = Collections.synchronizedMap(new HashMap<>())
 
-    public static CdrPwmGrid CONTROL = fromInputStream(CommonUtil.resourceStreamReader("pwm/healthy70.txt"))
+    public static CdrPwmGrid CONTROL = fromInputStream(CommonUtil.resourceStreamReader("profile/healthy70.txt"))
 
     private static double convertFreq(String s) {
         double x = s.toDouble()

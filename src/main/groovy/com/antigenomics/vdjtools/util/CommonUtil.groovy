@@ -307,7 +307,11 @@ public class CommonUtil {
      * @return resource stream reader
      */
     public static InputStreamReader resourceStreamReader(String resourceName) {
-        new InputStreamReader(CommonUtil.class.classLoader.getResourceAsStream(resourceName))
+        new InputStreamReader(resourceStream(resourceName))
+    }
+
+    public static InputStream resourceStream(String resourceName) {
+        CommonUtil.class.classLoader.getResourceAsStream(resourceName)
     }
 
     /**
@@ -364,7 +368,7 @@ public class CommonUtil {
         matcher ? (matcher.start() - 1) : -1
     }
 
-    final static String OOF_SYMBOLS_POSSIBLE = /([atgc#~\?])+/, OOF_CHAR = "_", STOP_CHAR = "*"
+    final static String OOF_SYMBOLS_POSSIBLE = /([atgc#~_\?])+/, OOF_CHAR = "_", STOP_CHAR = "*"
 
     static String translate(String seq) {
         if (seq.length() == 0)

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.antigenomics.vdjtools.pwm
+package com.antigenomics.vdjtools.profile
 
-import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 

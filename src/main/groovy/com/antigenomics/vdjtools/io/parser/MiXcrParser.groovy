@@ -30,7 +30,8 @@ public class MiXcrParser extends ClonotypeStreamParser {
     boolean initialized = false;
     int countColumn, freqColumn, cdr3ntColumn, cdr3aaColumn,
         vHitsColumn, dHitsColumn, jHitsColumn,
-        vAlignmentsColumn, dAlignmentsColumn, jAlignmentsColumn
+        vAlignmentsColumn, dAlignmentsColumn, jAlignmentsColumn,
+        numberOfColumns
 
     /**
      * {@inheritDoc}
@@ -67,6 +68,8 @@ public class MiXcrParser extends ClonotypeStreamParser {
                 vAlignmentsColumn == -1 || dAlignmentsColumn == -1 || jAlignmentsColumn == -1)
             throw new RuntimeException("Some mandatory columns are absent in the input file.");
 
+        numberOfColumns = splitHeaderLine.size()
+
         // Initialized
         initialized = true;
     }
@@ -78,7 +81,7 @@ public class MiXcrParser extends ClonotypeStreamParser {
     protected Clonotype innerParse(String clonotypeString) {
         ensureInitialized()
 
-        def splitString = clonotypeString.split(software.delimiter)
+        def splitString = clonotypeString.split(software.delimiter, numberOfColumns)
 
         def count = splitString[countColumn].toInteger()
         def freq = splitString[freqColumn].toDouble()
@@ -87,7 +90,6 @@ public class MiXcrParser extends ClonotypeStreamParser {
 
         def cdr3aa = splitString[cdr3aaColumn] // no need to unify, MiXCR is based on milib
 
-
         String v, d, j
         (v, d, j) = extractVDJ(splitString[[vHitsColumn, dHitsColumn, jHitsColumn]])
 
@@ -95,10 +97,14 @@ public class MiXcrParser extends ClonotypeStreamParser {
         List<Alignment> dAlignemtns = parseAlignments(splitString[dAlignmentsColumn])
         List<Alignment> jAlignemtns = parseAlignments(splitString[jAlignmentsColumn])
 
-        def segmPoints = [vAlignemtns[0].seq2End - 1,
-                          dAlignemtns.size() > 0 ? dAlignemtns[0].seq2Begin : -1,
-                          dAlignemtns.size() > 0 ? dAlignemtns[0].seq2End - 1 : -1,
-                          jAlignemtns[0].seq2Begin] as int[]
+        def segmPoints = [vAlignemtns.size() > 0 && vAlignemtns[0] != null ?
+                                  vAlignemtns[0].seq2End - 1 : 0,
+                          dAlignemtns.size() > 0 && dAlignemtns[0] != null ?
+                                  dAlignemtns[0].seq2Begin : -1,
+                          dAlignemtns.size() > 0 && dAlignemtns[0] != null ?
+                                  dAlignemtns[0].seq2End - 1 : -1,
+                          jAlignemtns.size() > 0 && jAlignemtns[0] != null ?
+                                  jAlignemtns[0].seq2Begin : cdr3nt.size() - 1] as int[]
 
         boolean inFrame = inFrame(cdr3aa),
                 noStop = noStop(cdr3aa),
@@ -113,12 +119,16 @@ public class MiXcrParser extends ClonotypeStreamParser {
         if (alignmentsLine.isEmpty())
             return Collections.EMPTY_LIST
 
-        String[] splitByAlignments = alignmentsLine.split(",")
+        String[] splitByAlignments = alignmentsLine.split(";", -1)
         List<Alignment> ret = new ArrayList<>()
         for (String alignmentString : splitByAlignments) {
-            String[] splitByFields = alignmentString.split("\\|")
-            ret.add(new Alignment(splitByFields[0].toInteger(), splitByFields[1].toInteger(),
-                    splitByFields[3].toInteger(), splitByFields[4].toInteger()));
+            if (alignmentString.trim().empty) {
+                ret.add(null)
+            } else {
+                String[] splitByFields = alignmentString.split("\\|")
+                ret.add(new Alignment(splitByFields[0].toInteger(), splitByFields[1].toInteger(),
+                        splitByFields[3].toInteger(), splitByFields[4].toInteger()));
+            }
         }
         return ret;
     }

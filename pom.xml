@@ -20,7 +20,7 @@
 
     <groupId>com.antigenomics</groupId>
     <artifactId>vdjtools</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>vdjtools</name>
@@ -35,9 +35,8 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>segments/*</include>
                     <include>rscripts/*</include>
-                    <include>pwm/*</include>
+                    <include>profile/*</include>
                 </includes>
             </resource>
         </resources>
