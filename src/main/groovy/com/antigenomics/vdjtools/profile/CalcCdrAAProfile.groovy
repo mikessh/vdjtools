@@ -83,6 +83,14 @@ def outputFilePrefix = opt.arguments()[-1],
     plot = (boolean) opt.p,
     plotType = (opt.'plot-type' ?: "pdf").toString()
 
+def badProperties = properties.findAll { !BasicAminoAcidProperties.INSTANCE.propertyNames.contains(it) }
+
+if (badProperties.size() > 0) {
+    println "[ERROR] Unknown amino acid properties: ${badProperties.join(",")}. " +
+            "Allowed values are $DEFAULT_AA_PROPERTIES"
+    System.exit(-1)
+}
+
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 //
