@@ -46,7 +46,7 @@ if (grepl("\\.pdf$",file_out)){
 ggplot(df, aes(x=bin, y=freq, color=group)) +
   geom_boxplot() + facet_grid(property ~ cdr3.segment, scales="free") +
   xlab("") + ylab("") +
-  theme_bw() + scale_color_brewer(groupName, palette="Set1")
+  theme_bw() + scale_color_brewer(groupName, palette="Set2")
 
 dev.off()
 

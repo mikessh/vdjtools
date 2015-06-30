@@ -35,11 +35,11 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
 cli.u(longOpt: "unweighted", "Will count each clonotype only once, apart from conventional frequency-weighted histogram.")
-cli.g(longOpt: "group-list", argName: "group1,...", args: 1,
+cli.o(longOpt: "property-list", argName: "group1,...", args: 1,
         "Comma-separated list of amino-acid properties to analyze. " +
                 "Allowed values: $DEFAULT_AA_PROPERTIES. " +
                 "[default = use all]")
-cli.b(longOpt: "segment-bins", argName: "segment1:nbins1,...", args: 1,
+cli.r(longOpt: "region-list", argName: "segment1:nbins1,...", args: 1,
         "List of segments to analyze and corresponding bin counts. " +
                 "Allowed segments: ${KnownCdr3Regions.INSTANCE.regionNames.join(",")}. " +
                 "[default = $DEFAULT_BINNING]")
@@ -75,11 +75,11 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 def outputFilePrefix = opt.arguments()[-1],
     unweighted = (boolean) opt.u,
-    binning = (opt.b ?: DEFAULT_BINNING).split(",").collectEntries {
+    binning = (opt.r ?: DEFAULT_BINNING).split(",").collectEntries {
         def split2 = it.split(":")
         [(KnownCdr3Regions.INSTANCE.getByName(split2[0])): split2[1].toInteger()]
     },
-    propertyGroups = (opt.g ?: DEFAULT_AA_PROPERTIES).split(","),
+    properties = (opt.o ?: DEFAULT_AA_PROPERTIES).split(","),
     plot = (boolean) opt.p,
     plotType = (opt.'plot-type' ?: "pdf").toString()
 
@@ -101,7 +101,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) prepar
 // Compute and output diversity measures, spectratype, etc
 //
 
-def profileBuilder = new Cdr3AAProfileBuilder(binning, !unweighted, propertyGroups)
+def profileBuilder = new Cdr3AAProfileBuilder(binning, !unweighted, properties)
 
 def outputFileName = formOutputPath(outputFilePrefix, "cdr3aa", "profile", (unweighted ? "unwt" : "wt"))
 
