@@ -168,7 +168,7 @@ else {
     try {
         ExecUtil.run(script, args.length > 1 ? args[1..-1] : [""])
     } catch (Exception e) {
-        println "[ERROR] $e.message, see _vdjtools_error.log for details"
+        println "[ERROR] ${e.toString()}, see _vdjtools_error.log for details"
         new File("_vdjtools_error.log").withWriterAppend { writer ->
             writer.println("[${new Date()} BEGIN]")
             writer.println("[Script]")
