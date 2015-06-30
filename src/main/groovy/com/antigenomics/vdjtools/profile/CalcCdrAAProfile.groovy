@@ -46,6 +46,7 @@ cli.r(longOpt: "region-list", argName: "segment1:nbins1,...", args: 1,
 cli.p(longOpt: "plot", "Plot amino acid property distributions for a specified list of segments.")
 cli.f(longOpt: "factor", argName: "string", args: 1, "Metadata entry used to group samples in plot.")
 cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
+cli._(longOpt: "include-cfw", "Consider first and last AAs of CDR3, which are normally conserved C and F/W")
 
 
 def opt = cli.parse(args)
@@ -81,7 +82,8 @@ def outputFilePrefix = opt.arguments()[-1],
     },
     properties = (opt.o ?: DEFAULT_AA_PROPERTIES).split(","),
     plot = (boolean) opt.p,
-    plotType = (opt.'plot-type' ?: "pdf").toString()
+    plotType = (opt.'plot-type' ?: "pdf").toString(),
+    includeCFW = (boolean) opt.'include-cfw'
 
 def badProperties = properties.findAll { !BasicAminoAcidProperties.INSTANCE.propertyNames.contains(it) }
 
@@ -109,7 +111,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) prepar
 // Compute and output diversity measures, spectratype, etc
 //
 
-def profileBuilder = new Cdr3AAProfileBuilder(binning, !unweighted, properties)
+def profileBuilder = new Cdr3AAProfileBuilder(binning, !unweighted, !includeCFW, properties)
 
 def outputFileName = formOutputPath(outputFilePrefix, "cdr3aa", "profile", (unweighted ? "unwt" : "wt"))
 

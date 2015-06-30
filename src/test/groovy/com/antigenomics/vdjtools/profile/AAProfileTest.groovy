@@ -60,7 +60,7 @@ class AAProfileTest {
 
         clonotypes.each { clonotype ->
             KnownCdr3Regions.INSTANCE.each { region ->
-                println region.name + "\t" + region.extractAminoAcid(clonotype)
+                println region.name + "\t" + region.extractAminoAcid(clonotype, true)
                 println region.name + "\t" + region.extractNucleotide(clonotype)
             }
         }

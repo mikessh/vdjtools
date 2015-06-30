@@ -34,6 +34,10 @@ public abstract class Cdr3Region implements SequenceRegion {
 
     @Override
     public AminoAcidSequence extractAminoAcid(Clonotype clonotype) {
+        return extractAminoAcid(clonotype, false);
+    }
+
+    public AminoAcidSequence extractAminoAcid(Clonotype clonotype, boolean excludeCysPhe) {
         Range range = getRange(clonotype);
 
         if (range == EMPTY) {
@@ -42,9 +46,23 @@ public abstract class Cdr3Region implements SequenceRegion {
 
         // convert to amino acids,
         // full codon belongs to a given region if at least one base of it belongs to it
-        range = new Range(range.getFrom() / 3, range.getTo() / 3);
+        int from = range.getFrom() / 3, to = range.getTo() / 3;
 
-        return clonotype.getCdr3aaBinary().getRange(range);
+        AminoAcidSequence cdr3aa = clonotype.getCdr3aaBinary();
+
+        if (excludeCysPhe) {
+            if (from == 0)
+                from++;
+            if (to == cdr3aa.size())
+                to--;
+
+            if (from >= to)
+                return new AminoAcidSequence(new byte[0]);
+        }
+
+        range = new Range(from, to);
+
+        return cdr3aa.getRange(range);
     }
 
     @Override

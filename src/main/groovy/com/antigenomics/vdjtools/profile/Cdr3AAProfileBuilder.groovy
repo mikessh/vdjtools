@@ -20,12 +20,15 @@ import com.antigenomics.vdjtools.sample.Clonotype
 
 class Cdr3AAProfileBuilder {
     private final Map<Cdr3Region, Integer> binning
-    private final boolean weighted
+    private final boolean weighted, excludeCysPhe
     private final List<String> groups
 
-    Cdr3AAProfileBuilder(Map<Cdr3Region, Integer> binning, boolean weighted, String... groups) {
+    Cdr3AAProfileBuilder(Map<Cdr3Region, Integer> binning, boolean weighted,
+                         boolean excludeCysPhe,
+                         String... groups) {
         this.binning = binning
         this.weighted = weighted
+        this.excludeCysPhe = excludeCysPhe
         this.groups = groups
     }
 
@@ -40,7 +43,7 @@ class Cdr3AAProfileBuilder {
         clonotypes.each { clonotype ->
             if (clonotype.isCoding()) {
                 profiles.each {
-                    def aaSeq = it.key.extractAminoAcid(clonotype)
+                    def aaSeq = it.key.extractAminoAcid(clonotype, excludeCysPhe)
                     if (aaSeq.size() > 0) {
                         it.value.update(aaSeq, weighted ? clonotype.freq : 1.0d)
                     }
