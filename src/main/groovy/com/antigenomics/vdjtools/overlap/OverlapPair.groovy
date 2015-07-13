@@ -148,8 +148,7 @@ if (opt.p) {
             formOutputPath(outputPrefix, intersectionType.shortName, "paired", "scatter", plotType))
 
     execute("intersect_pair_area.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
-            tableCollapsedOutputPath, toPlotPath(tableCollapsedOutputPath, plotType),
-            Math.max(0, Software.VDJtools.headerLineCount - 1).toString())
+            tableCollapsedOutputPath, toPlotPath(tableCollapsedOutputPath, plotType))
 }
 
 println "[${new Date()} $scriptName] Finished"

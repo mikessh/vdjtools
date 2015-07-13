@@ -12,7 +12,6 @@ sample1_id <- args[1]
 sample2_id <- args[2]
 file_xy    <- args[3] # should contain cdr3nt, cdr3aa cols; two last columns should correspond to clonotype freq in sample pair
 file_out   <- args[4]
-skip       <- args[5]
 
 # transform data
 
@@ -24,7 +23,7 @@ getcol_c = function(lst, col){
 	apply(lst[col], 2, as.character)
 }
 
-table <- read.delim(file_xy, skip = skip, sep="\t", quote="")
+table <- read.delim(file_xy, sep="\t", quote="")
 n <- nrow(table)
 m <- ncol(table)
 table <- table[n:1, ] # reorder, bring non-overlapping / not-shown to the top
