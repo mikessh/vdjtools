@@ -38,6 +38,7 @@ cli.p(longOpt: "plot", "Generate a scatterplot to characterize overlapping clono
         "(R installation with ggplot2, grid and gridExtra packages required).")
 cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
 cli.c(longOpt: "compress", "Compress output sample files.")
+cli._(longOpt: "plot-area-v2", "Use alternative stacked area plot.")
 
 def opt = cli.parse(args)
 
@@ -147,7 +148,8 @@ if (opt.p) {
             outputPrefix + ".xy.txt", outputPrefix + ".xx.txt", outputPrefix + ".yy.txt",
             formOutputPath(outputPrefix, intersectionType.shortName, "paired", "scatter", plotType))
 
-    execute("intersect_pair_area.r", sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
+    def areaPlot = opt.'plot-area-v2' ? "intersect_pair_area_V2.r" : "intersect_pair_area.r"
+    execute(areaPlot, sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
             tableCollapsedOutputPath, toPlotPath(tableCollapsedOutputPath, plotType))
 }
 
