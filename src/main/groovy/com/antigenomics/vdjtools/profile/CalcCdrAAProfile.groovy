@@ -45,7 +45,8 @@ cli.r(longOpt: "region-list", argName: "segment1:nbins1,...", args: 1,
                 "[default = $DEFAULT_BINNING]")
 cli.p(longOpt: "plot", "Plot amino acid property distributions for a specified list of segments.")
 cli.f(longOpt: "factor", argName: "string", args: 1, "Metadata entry used to group samples in plot.")
-cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
+cli._(longOpt: "plot-normalized", "Will normalize regions by the total number of AAs in them.")
+cli._(longOpt: "plot-type", argName: "pdf|png", args: 1, "Plot output format [default=pdf]")
 cli._(longOpt: "include-cfw", "Consider first and last AAs of CDR3, which are normally conserved C and F/W")
 
 
@@ -146,6 +147,7 @@ if (plot) {
             outputFileName,
             toPlotPath(outputFileName, plotType),
             opt.f ? (sampleCollection.metadataTable.getColumnIndex(opt.f) + 2).toString() : "0",
+            RUtil.logical(opt.'plot-normalized')
     )
 }
 
