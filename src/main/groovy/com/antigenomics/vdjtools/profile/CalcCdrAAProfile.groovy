@@ -26,7 +26,7 @@ import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
 
 
 def DEFAULT_AA_PROPERTIES = BasicAminoAcidProperties.INSTANCE.propertyNames.join(","),
-    DEFAULT_BINNING = "V-germ:5,VJ-junc:3,J-germ:5"
+    DEFAULT_BINNING = "V-germ:1,VJ-junc:1,J-germ:1"
 
 def cli = new CliBuilder(usage: "CalcCdrAAProfile [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
