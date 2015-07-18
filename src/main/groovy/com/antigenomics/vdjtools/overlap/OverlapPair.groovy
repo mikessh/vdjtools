@@ -148,7 +148,7 @@ if (opt.p) {
             outputPrefix + ".xy.txt", outputPrefix + ".xx.txt", outputPrefix + ".yy.txt",
             formOutputPath(outputPrefix, intersectionType.shortName, "paired", "scatter", plotType))
 
-    def areaPlot = opt.'plot-area-v2' ? "intersect_pair_area_V2.r" : "intersect_pair_area.r"
+    def areaPlot = opt.'plot-area-v2' ? "intersect_pair_area_v2.r" : "intersect_pair_area.r"
     execute(areaPlot, sample1.sampleMetadata.sampleId, sample2.sampleMetadata.sampleId,
             tableCollapsedOutputPath, toPlotPath(tableCollapsedOutputPath, plotType))
 }
