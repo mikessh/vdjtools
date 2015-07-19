@@ -119,13 +119,13 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
 
             def clonotype = innerParse(clonotypeString)
 
-            def badFieldMap = clonotype ? ["no_cdr3nt" : missingEntry(clonotype.cdr3nt),
-                                           "no_cdr3aa" : missingEntry(clonotype.cdr3aa),
-                                           "no_v"      : missingEntry(clonotype.v.toString()),
-                                           "no_j"      : missingEntry(clonotype.j.toString()),
-                                           "zero_count": clonotype.count == 0,
-                                           "zero_freq" : !software.perReadOutput && clonotype.freqAsInInput == 0] :
-                    ["bad_line": true]
+            def badFieldMap = clonotype ? ["NO_CDR3NT" : missingEntry(clonotype.cdr3nt),
+                                           "NO_CDR3AA" : missingEntry(clonotype.cdr3aa),
+                                           "NO_V"      : missingEntry(clonotype.v.toString()),
+                                           "NO_J"      : missingEntry(clonotype.j.toString()),
+                                           "ZERO_COUNT": clonotype.count == 0,
+                                           "ZERO_FREQ" : !software.perReadOutput && clonotype.freqAsInInput == 0] :
+                    ["BAD_LINE": true]
 
             if (badFieldMap.any { it.value }) {
                 if (!printedWarning) {
