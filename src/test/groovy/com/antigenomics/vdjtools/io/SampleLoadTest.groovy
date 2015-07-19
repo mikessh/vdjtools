@@ -34,6 +34,10 @@ class SampleLoadTest {
 
         assert sample.count == count
         assert sample.diversity == diversity
+        if (software.perReadOutput) {
+            // check if frequency is recalculated
+            assert Math.abs(sample.freq - 1.0) < 1e-5
+        }
     }
 
     @Test

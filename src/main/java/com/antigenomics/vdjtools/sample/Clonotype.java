@@ -366,8 +366,9 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
         this.freq += other.freq;
     }
 
-    void recalculateFrequency() {
+    double recalculateFrequency() {
         this.freq = getFreq();
+        return freq;
     }
 
     @Override
