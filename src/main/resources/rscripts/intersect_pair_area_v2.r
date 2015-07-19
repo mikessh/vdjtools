@@ -49,10 +49,14 @@ df.1$cum <- (c(0, df.1$cum[0:(n-1)]) + df.1$cum) / 2
 
 # for label placement
 jitter_coord = function(y) {
-    y.fact <- 100 / max(y)
-    coords <- FFieldPtRep(coords = cbind(y * y.fact, y * y.fact), iter.max = 1000)
-    yy <- coords$y / y.fact
-    yy <- (yy - min(yy)) / (max(yy) - min(yy))    
+    if (length(y) >= 2) {
+       y.fact <- 100 / max(y)
+       coords <- FFieldPtRep(coords = cbind(y * y.fact, y * y.fact), iter.max = 1000)
+       y <- coords$y / y.fact
+       y <- (y - min(y)) / (max(y) - min(y))
+    } else {
+       y
+    }
 }
 
 # placing
