@@ -44,6 +44,10 @@ enum Software {
                                                9.times { _ }, "cdr3nt", 47.times { _ }, // comprehensive output
                                                "VEnd", 12.times { _ }, "DStart", "DEnd", 28.times { _ }, "JStart"
     ].flatten()),
+    // Tricky for ImSEQ
+    // Output is not tab-delimited table, no freq, incomplete V/J names, no D, etc
+    // 'per read output' is specified to re-calculate clonotype frequencies
+    ImSeq("[\t:]", null, 0, true, true, ["v", "cdr3nt", "j", "count"]),
     VDJtools("\t", "#", 0, false, false, ["count", "freq",
                                           "cdr3nt", "cdr3aa",
                                           "v", "d", "j",
