@@ -77,6 +77,11 @@ class SampleLoadTest {
     }
 
     @Test
+    public void imseqTest() {
+        loadTest(ImSeq, 647, 86)
+    }
+
+    @Test
     public void emptyTest() {
         def resStream = getResource("samples/empty.txt")
         def sample = load(resStream)
