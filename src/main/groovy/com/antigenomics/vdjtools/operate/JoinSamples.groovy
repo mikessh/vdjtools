@@ -52,7 +52,7 @@ cli.c(longOpt: "compress", "Compress output sample files.")
 
 // Plotting
 
-cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
+cli._(longOpt: "plot-type", argName: "pdf|png", args: 1, "Plot output format [default=pdf]")
 cli.p(longOpt: "plot", "[plotting] Turns on plotting.")
 
 def opt = cli.parse(args)

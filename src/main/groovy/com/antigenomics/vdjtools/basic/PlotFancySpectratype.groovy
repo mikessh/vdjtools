@@ -27,7 +27,7 @@ def cli = new CliBuilder(usage: "PlotFancySpectratype [options] input_name outpu
 cli.h("display help message")
 cli.t(longOpt: "top", args: 1, "Number of top clonotypes to present on the histogram. " +
         "Values > $TOP_MAX are not allowed, as they would make the plot legend unreadable. [default = $TOP_DEFAULT]")
-cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
+cli._(longOpt: "plot-type", argName: "pdf|png", args: 1, "Plot output format [default=pdf]")
 
 def opt = cli.parse(args)
 

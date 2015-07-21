@@ -30,7 +30,7 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
 cli.u(longOpt: "unweighted", "Will count each clonotype only once, apart from conventional frequency-weighted histogram.")
-cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
+cli._(longOpt: "plot-type", argName: "pdf|png", args: 1, "Plot output format [default=pdf]")
 cli.p(longOpt: "plot", "Plot V/J usage heatmaps and perform cluster analysis")
 cli.n(longOpt: "num-factor", "Numeric factor variable")
 cli.l(longOpt: "label", argName: "string", args: 1, "Metadata entry used to annotate the heatmap")

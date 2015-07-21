@@ -45,7 +45,7 @@ cli.s(longOpt: "steps", argName: "int", args: 1, "Number of steps (points) in th
         "(including 0 and the observed diversity). [default=$STEPS_DEFAULT]")
 
 // plotting:
-cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
+cli._(longOpt: "plot-type", argName: "pdf|png", args: 1, "Plot output format [default=pdf]")
 cli.p(longOpt: "plot", "[plotting] Unused.")
 cli.l(longOpt: "label", argName: "string", args: 1,
         "[plotting] Name of metadata column which should be used as label")

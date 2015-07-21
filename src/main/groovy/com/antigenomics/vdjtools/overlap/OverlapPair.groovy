@@ -36,7 +36,7 @@ cli.t(longOpt: "top", args: 1, "Number of top clonotypes which will be provided 
 cli.p(longOpt: "plot", "Generate a scatterplot to characterize overlapping clonotypes. " +
         "Also generate abundance difference plot if -c option is specified. " +
         "(R installation with ggplot2, grid and gridExtra packages required).")
-cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
+cli._(longOpt: "plot-type", argName: "pdf|png", args: 1, "Plot output format [default=pdf]")
 cli.c(longOpt: "compress", "Compress output sample files.")
 cli._(longOpt: "plot-area-v2", "Use alternative stacked area plot.")
 

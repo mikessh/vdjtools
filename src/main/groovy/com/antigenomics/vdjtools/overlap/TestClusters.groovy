@@ -37,7 +37,7 @@ cli.i(longOpt: "intersect-type", argName: "string", args: 1,
                 "Allowed values: $OverlapType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
 cli.n(longOpt: "num-factor", "Treat factor as numeric")
-cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
+cli._(longOpt: "plot-type", argName: "pdf|png", args: 1, "Plot output format [default=pdf]")
 
 def opt = cli.parse(args)
 
