@@ -26,6 +26,7 @@ import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
 
 
 def DEFAULT_AA_PROPERTIES = BasicAminoAcidProperties.INSTANCE.propertyNames.join(","),
+    DEFAULT_AA_PROPERTY = "count",
     DEFAULT_BINNING = "V-germ:1,VJ-junc:1,J-germ:1"
 
 def cli = new CliBuilder(usage: "CalcCdrAAProfile [options] " +
@@ -34,11 +35,12 @@ cli.h("display help message")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
-cli.u(longOpt: "unweighted", "Will count each clonotype only once, apart from conventional frequency-weighted histogram.")
+cli.u(longOpt: "unweighted", "Will count each clonotype only once. " +
+        "[default = clonotype frequency is used for weighting].")
 cli.o(longOpt: "property-list", argName: "group1,...", args: 1,
         "Comma-separated list of amino-acid properties to analyze. " +
                 "Allowed values: $DEFAULT_AA_PROPERTIES. " +
-                "[default = use all]")
+                "[default = $DEFAULT_AA_PROPERTY]")
 cli.r(longOpt: "region-list", argName: "segment1:nbins1,...", args: 1,
         "List of segments to analyze and corresponding bin counts. " +
                 "Allowed segments: ${KnownCdr3Regions.INSTANCE.regionNames.join(",")}. " +
@@ -81,7 +83,7 @@ def outputFilePrefix = opt.arguments()[-1],
         def split2 = it.split(":")
         [(KnownCdr3Regions.INSTANCE.getByName(split2[0])): split2[1].toInteger()]
     },
-    properties = (opt.o ?: DEFAULT_AA_PROPERTIES).split(","),
+    properties = (opt.o ?: DEFAULT_AA_PROPERTY).split(","),
     plot = (boolean) opt.p,
     plotType = (opt.'plot-type' ?: "pdf").toString(),
     includeCFW = (boolean) opt.'include-cfw'
