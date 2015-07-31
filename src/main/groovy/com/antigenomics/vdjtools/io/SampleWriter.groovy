@@ -243,9 +243,9 @@ public class SampleWriter {
                      nonOverlappingFreqArr.findAll { it > 0 }.sum(),
                      nonOverlappingFreqArr
                     ].flatten().join("\t"))
-
-            printWriter.close()
         }
+        
+        printWriter.close()
     }
 
     /**
