@@ -43,6 +43,9 @@ cli.i(longOpt: "intersect-type", argName: "string", args: 1,
                 "Will use '$I_TYPE_DEFAULT' by default.")
 cli.s(longOpt: "steps", argName: "int", args: 1, "Number of steps (points) in the rarefaction curve " +
         "(including 0 and the observed diversity). [default=$STEPS_DEFAULT]")
+cli.X(longOpt: "extrapolate-to", argName: "integer", args: 1,
+        "Number of reads to take for extrapolating rarefaction curve. " +
+                "Should be greater or equal (default) to size of largest sample.")
 
 // plotting:
 cli._(longOpt: "plot-type", argName: "pdf|png", args: 1, "Plot output format [default=pdf]")
@@ -107,6 +110,9 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples to analy
 
 def sampleStats = sampleCollection.sampleStatistics
 
+def maxCount = Math.max(sampleStats.maxCount,
+        (opt.X ?: "$sampleStats.maxCount").toInteger())
+
 //
 // Rarefaction analysis
 //
@@ -126,7 +132,7 @@ new File(outputTablePath).withPrintWriter { pw ->
         def rarefaction = new Rarefaction(sample, intersectionType)
 
         println "[${new Date()} $scriptName] Bulding rarefaction curve for $sampleId"
-        def rarefactionCurve = rarefaction.build(0, sampleStats.maxCount, steps)
+        def rarefactionCurve = rarefaction.build(0, maxCount, steps)
 
         rarefactionCurve.each {
             pw.println([sampleId, sample.sampleMetadata, it].join("\t"))
