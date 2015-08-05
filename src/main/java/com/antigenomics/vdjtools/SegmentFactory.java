@@ -24,6 +24,10 @@ public class SegmentFactory {
 
     protected final Map<String, Segment> segmentCache = new HashMap<>();
 
+    public SegmentFactory() {
+        segmentCache.put(Segment.MISSING.name, Segment.MISSING);
+    }
+
     public Segment create(String name) {
         Segment segment = segmentCache.get(name);
 

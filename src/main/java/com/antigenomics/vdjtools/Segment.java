@@ -17,6 +17,8 @@
 package com.antigenomics.vdjtools;
 
 public class Segment {
+    public static final Segment MISSING = new Segment(".");
+
     protected final String name;
 
     public Segment(String name) {

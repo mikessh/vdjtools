@@ -17,9 +17,11 @@
 
 package com.antigenomics.vdjtools.io.parser
 
+import com.antigenomics.vdjtools.Segment
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
+import com.milaboratory.core.sequence.Sequence
 
 /**
  * Base class for providing parsing of various RepSeq software output.
@@ -119,10 +121,10 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
 
             def clonotype = innerParse(clonotypeString)
 
-            def badFieldMap = clonotype ? ["NO_CDR3NT" : missingEntry(clonotype.cdr3nt),
-                                           "NO_CDR3AA" : missingEntry(clonotype.cdr3aa),
-                                           "NO_V"      : missingEntry(clonotype.v.toString()),
-                                           "NO_J"      : missingEntry(clonotype.j.toString()),
+            def badFieldMap = clonotype ? ["NO_CDR3NT" : missingEntry(clonotype.cdr3ntBinary),
+                                           "NO_CDR3AA" : missingEntry(clonotype.cdr3aaBinary),
+                                           "NO_V"      : missingEntry(clonotype.VBinary),
+                                           "NO_J"      : missingEntry(clonotype.JBinary),
                                            "ZERO_COUNT": clonotype.count == 0,
                                            "ZERO_FREQ" : !software.perReadOutput && clonotype.freqAsInInput == 0] :
                     ["BAD_LINE": true]
@@ -176,8 +178,12 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
      * @param entry
      * @return
      */
-    private static boolean missingEntry(String entry) {
-        !entry || entry.length() == 0 || entry == "."
+    private static boolean missingEntry(Sequence entry) {
+        !entry || entry.size() == 0
+    }
+
+    private static boolean missingEntry(Segment segment) {
+        segment == Segment.MISSING
     }
 
     /**
