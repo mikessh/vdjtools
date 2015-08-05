@@ -28,7 +28,7 @@ cli.h("display help message")
 cli.t(longOpt: "top", args: 1, "Number of top V segments to present on the histogram. " +
         "Values > $TOP_MAX are not allowed, as they would make the plot unreadable. [default = $TOP_DEFAULT]")
 cli.u(longOpt: "unweighted", "Will count each clonotype only once, apart from conventional frequency-weighted histogram.")
-cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
+cli._(longOpt: "plot-type", argName: "pdf|png", args: 1, "Plot output format [default=pdf]")
 
 def opt = cli.parse(args)
 

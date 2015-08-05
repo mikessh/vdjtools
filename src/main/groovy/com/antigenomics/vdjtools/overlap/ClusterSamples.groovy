@@ -41,7 +41,7 @@ cli.i(longOpt: "intersect-type", argName: "string", args: 1,
 
 // Plotting
 
-cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
+cli._(longOpt: "plot-type", argName: "pdf|png", args: 1, "Plot output format [default=pdf]")
 cli.f(longOpt: "factor", argName: "string", args: 1,
         "[plotting] Column name, as in metadata. Factor used to color the plot. [default = no factor]")
 cli.n(longOpt: "num-factor", "[plotting] Factor will be treated as numeric value and gradient plot coloring will be used. " +

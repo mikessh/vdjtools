@@ -18,8 +18,6 @@ df$total <- as.numeric(df$total)
 
 if (normalized) {
     df$value <- ifelse(df$total == 0, 0, df$value / df$total)
-} else {
-    df$value <- df$total
 }
 
 # collect required columns and select grouping column

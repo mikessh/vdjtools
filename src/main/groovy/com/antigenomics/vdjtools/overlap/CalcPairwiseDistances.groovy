@@ -36,7 +36,7 @@ cli._(longOpt: "low-mem", "Will process all sample pairs sequentially, avoiding"
 cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Intersection rule to apply. Allowed values: $OverlapType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
-cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
+cli._(longOpt: "plot-type", argName: "pdf|png", args: 1, "Plot output format [default=pdf]")
 cli.p(longOpt: "plot", "[plotting] Turns plotting on.")
 
 def opt = cli.parse(args)

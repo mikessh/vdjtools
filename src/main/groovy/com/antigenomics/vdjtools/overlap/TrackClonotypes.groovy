@@ -61,7 +61,7 @@ cli.s(longOpt: "sequence", argName: "[t1,t2,t3,...]", args: 1,
 cli.f(longOpt: "factor", argName: "string", args: 1,
         "[plotting] Column name, as in metadata. Factor to be treated as time variable. [default = \"time\"]")
 cli.p(longOpt: "plot", "[plotting] Turns on plotting.")
-cli._(longOpt: "plot-type", argName: "<pdf|png>", args: 1, "Plot output format [default=pdf]")
+cli._(longOpt: "plot-type", argName: "pdf|png", args: 1, "Plot output format [default=pdf]")
 
 def opt = cli.parse(args)
 
