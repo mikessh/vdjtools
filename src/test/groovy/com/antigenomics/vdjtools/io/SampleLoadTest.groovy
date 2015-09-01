@@ -52,7 +52,7 @@ class SampleLoadTest {
 
     @Test
     public void igblastTest() {
-        loadTest(IgBlast, 8408, 7274)
+        loadTest(HigBlast, 1938, 1750)
     }
 
     @Test

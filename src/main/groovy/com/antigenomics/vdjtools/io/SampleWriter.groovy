@@ -58,6 +58,7 @@ public class SampleWriter {
      * @param software table layout that will be used during output
      * @param compress specifies whether to compress resulting output file
      */
+    @Deprecated
     public SampleWriter(Software software, boolean compress) {
         this.software = software
         this.header = (software.headerLineCount > 1 ?

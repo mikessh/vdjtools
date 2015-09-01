@@ -30,7 +30,7 @@ enum Software {
                                         "cdr3nt", "cdr3aa",
                                         "v", "j", "d",
                                         "VEnd", "DStart", "DEnd", "JStart"]),
-    IgBlast("\t", "#", 0, false, false, [_, _, "count", "freq",
+    HigBlast("\t", null, 1, true, false, [_, _, "count", "freq",
                                          "cdr1nt", "cdr2nt", "cdr3nt", "cdr1aa", "cdr2aa", "cdr3aa",
                                          "inFrame", "noStop", "complete",
                                          4.times { _ }].flatten()),
@@ -58,6 +58,7 @@ enum Software {
     final String delimiter, comment
     final boolean collapseRequired, perReadOutput
     final int headerLineCount
+    @Deprecated
     final List<String> printFields
 
     Software(String delimiter, String comment, int headerLineCount, boolean collapseRequired, boolean perReadOutput, List<String> printFields) {

@@ -26,11 +26,11 @@ import static com.antigenomics.vdjtools.util.CommonUtil.*
  * A clonotype parser implementation that handles simple tab-delimited input, see
  * {@url https://github.com/mikessh/vdjtools/wiki/Input#simple}
  */
-public class SimpleParser extends ClonotypeStreamParser {
+public class BaseParser extends ClonotypeStreamParser {
     /**
      * {@inheritDoc}
      */
-    protected SimpleParser(Iterator<String> innerIter, Sample sample) {
+    protected BaseParser(Iterator<String> innerIter, Sample sample) {
         super(innerIter, Software.VDJtools, sample)
     }
 

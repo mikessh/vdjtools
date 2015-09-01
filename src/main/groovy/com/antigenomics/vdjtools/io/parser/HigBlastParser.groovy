@@ -17,7 +17,6 @@
 
 package com.antigenomics.vdjtools.io.parser
 
-import com.antigenomics.vdjtools.Mutation
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
@@ -29,12 +28,12 @@ import static com.antigenomics.vdjtools.util.CommonUtil.toUnifiedCdr3Aa
  * A clonotype parser implementation that handles output from IgBlastWrapper software.
  * {@url https://github.com/mikessh/igblastwrp}
  */
-public class IgBlastParser extends ClonotypeStreamParser {
+public class HigBlastParser extends ClonotypeStreamParser {
     /**
      * {@inheritDoc}
      */
-    protected IgBlastParser(Iterator<String> innerIter, Sample sample) {
-        super(innerIter, Software.IgBlast, sample)
+    protected HigBlastParser(Iterator<String> innerIter, Sample sample) {
+        super(innerIter, Software.HigBlast, sample)
     }
 
     /**
@@ -59,19 +58,22 @@ public class IgBlastParser extends ClonotypeStreamParser {
 
         def splitString = clonotypeString.split("\t")
 
-        def count = splitString[2].toInteger()
-        def freq = splitString[3].toDouble()
-        def cdr3nt = splitString[6], cdr3aa = toUnifiedCdr3Aa(splitString[9])
+        def count = splitString[1].toInteger()
+        def freq = splitString[0].toDouble()
+        def cdr3nt = splitString[5] == "." ? "" : splitString[5],
+            cdr3aa = splitString[6] == "." ? "" : toUnifiedCdr3Aa(splitString[6])
 
         String v, d, j
-        (v, d, j) = CommonUtil.extractVDJ(splitString[13..15])
+        (v, d, j) = CommonUtil.extractVDJ(splitString[2..4])
 
         boolean inFrame, noStop, isComplete
-        (inFrame, noStop, isComplete) = splitString[10..12].collect { it.toBoolean() }
+        (inFrame, noStop, isComplete) = splitString[25..27].collect { it.toBoolean() }
+
+        def segmPoints = splitString[16..19].collect { it.toInteger() } as int[]
 
         def clonotype = new Clonotype(sample,
                 count, freq,
-                [-1, -1, -1, -1] as int[], v, d, j,
+                segmPoints, v, d, j,
                 cdr3nt, cdr3aa,
                 inFrame, noStop, isComplete)
 
@@ -83,12 +85,7 @@ public class IgBlastParser extends ClonotypeStreamParser {
         return clonotype
     }
 
-    /**
-     * INTERNAL parses IgBlastWrapper-formatted mutation entry and creates a mutation object.
-     * @param mutationString a single mutation entry.
-     * @param parent clonotype this mutation will be assigned to.
-     * @return a mutation object.
-     */
+    /*
     private static Mutation parseIgBlastMutation(String mutationString, Clonotype parent) {
         def splitString = mutationString.split(",")
 
@@ -110,5 +107,5 @@ public class IgBlastParser extends ClonotypeStreamParser {
                 ntPos, aaPos,
                 fromAa, toAa, fromNt, toNt,
                 true, parent)
-    }
+    }*/
 }
