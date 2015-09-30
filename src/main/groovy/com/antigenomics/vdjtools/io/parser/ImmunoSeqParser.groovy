@@ -99,7 +99,9 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
 
         if (cdr3start >= 0) {
             if (cdr3aa.length() > 0) {
-                cdr3nt = cdr3nt.substring(cdr3start, cdr3start + cdr3aa.length() * 3) // in-frame
+                int to = cdr3start + cdr3aa.length() * 3
+                // see https://github.com/mikessh/vdjtools/issues/30 for the reason for workaround
+                cdr3nt = to > cdr3nt.length() ? cdr3nt.substring(cdr3start) : cdr3nt.substring(cdr3start, to) // in-frame
             } else {
                 // it seems to be hard to get conventional out-of-frame translation here
                 // but we'll try to reconstruct it
