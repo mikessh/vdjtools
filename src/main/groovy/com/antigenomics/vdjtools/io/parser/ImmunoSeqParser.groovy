@@ -97,11 +97,14 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
 
         def jStart = splitString[36].toInteger()
 
+        boolean isComplete
+
         if (cdr3start >= 0) {
             if (cdr3aa.length() > 0) {
                 int to = cdr3start + cdr3aa.length() * 3
                 // see https://github.com/mikessh/vdjtools/issues/30 for the reason for workaround
-                cdr3nt = to > cdr3nt.length() ? cdr3nt.substring(cdr3start) : cdr3nt.substring(cdr3start, to) // in-frame
+                isComplete = to <= cdr3nt.length()
+                cdr3nt = isComplete ? cdr3nt.substring(cdr3start, to) : cdr3nt.substring(cdr3start)// in-frame
             } else {
                 // it seems to be hard to get conventional out-of-frame translation here
                 // but we'll try to reconstruct it
@@ -112,15 +115,17 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
                         cdr3aa = translate(cdr3nt).replaceAll(/([atgc#\?])+/, "~") // to unified look
                     }
                 }
+                isComplete = cdr3aa.length() > 0
             }
-            //cdr3nt = cdr3aa.length() > 0 ? cdr3nt.substring(cdr3start, cdr3start + cdr3aa.length() * 3) : ""
+        } else {
+            isComplete = false
         }
 
         String v, d, j
         (v, d, j) = extractVDJ(splitString[[6, 13, 20]])
 
         boolean inFrame = cdr3aa.length() > 0 && inFrame(cdr3aa),
-                noStop = noStop(cdr3aa), isComplete = cdr3aa.length() > 0
+                noStop = noStop(cdr3aa)
 
         // Correctly record segment points
         cdr3start = cdr3start < 0 ? 0 : cdr3start
