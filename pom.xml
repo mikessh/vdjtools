@@ -118,6 +118,11 @@
             <version>2.3.1</version>
         </dependency>
         <dependency>
+            <groupId>com.milaboratory</groupId>
+            <artifactId>milib</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.codehaus.gpars</groupId>
             <artifactId>gpars</artifactId>
             <version>1.0.0</version>
