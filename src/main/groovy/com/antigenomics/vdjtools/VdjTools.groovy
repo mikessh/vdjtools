@@ -43,7 +43,6 @@ import com.antigenomics.vdjtools.profile.CalcCdrAAProfile
 import com.antigenomics.vdjtools.util.Convert
 import com.antigenomics.vdjtools.util.ExecUtil
 import com.antigenomics.vdjtools.util.RInstall
-import com.antigenomics.vdjtools.util.ScanDatabase
 
 import java.util.jar.JarFile
 
@@ -88,7 +87,7 @@ def printHelp = {
     println "Enrichment"
     println ""
     println "[Annotation]"
-    println "ScanDatabase"
+    println "(moved to vdjdb) ScanDatabase"
     println "CalcCdrAAProfile"
     println ""
     println "[Util]"
@@ -147,8 +146,8 @@ def getScript = { String scriptName ->
         case "ENRICHMENT":
             return new Enrichment()
 
-        case "SCANDATABASE":
-            return new ScanDatabase()
+    //case "SCANDATABASE":
+    //    return new ScanDatabase()
         case "CALCCDRAAPROFILE":
             return new CalcCdrAAProfile()
 
