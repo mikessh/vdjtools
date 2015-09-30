@@ -40,22 +40,39 @@ import com.antigenomics.vdjtools.util.MathUtil
 public class DownSampler {
     private final Clonotype[] flattenedClonotypes
     private final Sample sample
+    private final boolean unweighted
 
     /**
      * Create a down-sampler for the specified sample 
      * @param sample sample that would be down-sampled
      */
     public DownSampler(Sample sample) {
-        if (sample.count > Integer.MAX_VALUE)
+        this(sample, false)
+    }
+
+    /**
+     * Create a down-sampler for the specified sample 
+     * @param sample sample that would be down-sampled
+     * @param unweighted don't weight clonotypes by frequency during sampling 
+     */
+    public DownSampler(Sample sample, boolean unweighted) {
+        if (!unweighted && sample.count > Integer.MAX_VALUE) {
             throw new RuntimeException("Couldn't downsample samples with > ${Integer.MAX_VALUE} cells")
+        }
 
         this.sample = sample
-        this.flattenedClonotypes = new Clonotype[sample.count]
+        this.flattenedClonotypes = new Clonotype[unweighted ? sample.diversity : sample.count]
+        this.unweighted = unweighted
 
         int counter = 0
         sample.each {
-            for (int i = 0; i < it.count; i++)
+            if (unweighted) {
                 flattenedClonotypes[counter++] = it
+            } else {
+                for (int i = 0; i < it.count; i++) {
+                    flattenedClonotypes[counter++] = it
+                }
+            }
         }
     }
 
@@ -65,16 +82,23 @@ public class DownSampler {
      * @return a newly create down-sampled sample, or the underlying sample if the number of reads is greated or equal to the sample size
      */
     public Sample reSample(int count) {
-        if (count >= sample.count) {
+        if (unweighted ? count >= sample.diversity : count >= sample.count) {
             return new Sample(sample)
         } else {
             MathUtil.shuffle(flattenedClonotypes)
 
             def countMap = new HashMap<Clonotype, Integer>() // same as with strict overlap
 
-            for (int i = 0; i < count; i++) {
-                def clonotype = flattenedClonotypes[i]
-                countMap.put(clonotype, (countMap[clonotype] ?: 0) + 1)
+            if (unweighted) {
+                for (int i = 0; i < count; i++) {
+                    def clonotype = flattenedClonotypes[i]
+                    countMap.put(clonotype, clonotype.count)
+                }
+            } else {
+                for (int i = 0; i < count; i++) {
+                    def clonotype = flattenedClonotypes[i]
+                    countMap.put(clonotype, (countMap[clonotype] ?: 0) + 1)
+                }
             }
 
             return new Sample(sample, countMap)
