@@ -80,6 +80,7 @@ def printHelp = {
     println "DownSample"
     println "Decontaminate"
     println "FilterBySegment"
+    println "SelectTop"
     println ""
     println "[Operation]"
     println "PoolSamples"
@@ -138,6 +139,8 @@ def getScript = { String scriptName ->
             return new FilterNonFunctional()
         case "DOWNSAMPLE":
             return new DownSample()
+        case "SELECTTOP":
+            return new SelectTop()
 
         case "POOLSAMPLES":
             return new PoolSamples()
