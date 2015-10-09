@@ -61,10 +61,10 @@ class ImgtHighVQuestParser extends ClonotypeStreamParser {
                 -1 // this is called "junction start" here. Junction = CDR3 + conserved C, F/W
 
         def cdr3nt = splitString[15].toUpperCase()
-        
-        if (!(cdr3nt =~ /[ATGCatgc]/))
+
+        if (!(cdr3nt =~ /^[ATGCatgc]+$/))
             return null // no N's allowed
-        
+
         def cdr3aa = toUnifiedCdr3Aa(translate(cdr3nt))
 
         String v, d, j
