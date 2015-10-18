@@ -82,8 +82,8 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
             case Software.MiTcr:
                 parser = new MiTcrParser(innerIter, sample)
                 break
-            case Software.HigBlast:
-                parser = new HigBlastParser(innerIter, sample)
+            case Software.MigMap:
+                parser = new MigMapParser(innerIter, sample)
                 break
             case Software.VDJtools:
                 parser = new BaseParser(innerIter, sample)

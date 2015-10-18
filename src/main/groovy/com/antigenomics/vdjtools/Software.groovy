@@ -43,7 +43,7 @@ enum Software {
                                         "cdr3nt", "cdr3aa",
                                         "v", "j", "d",
                                         "VEnd", "DStart", "DEnd", "JStart"]),
-    HigBlast("\t", null, 1, true, false, [_, _, "count", "freq",
+    MigMap("\t", null, 1, true, false, [_, _, "count", "freq",
                                          "cdr1nt", "cdr2nt", "cdr3nt", "cdr1aa", "cdr2aa", "cdr3aa",
                                          "inFrame", "noStop", "complete",
                                          4.times { _ }].flatten()),

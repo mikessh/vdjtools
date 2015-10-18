@@ -41,12 +41,12 @@ import static com.antigenomics.vdjtools.util.CommonUtil.toUnifiedCdr3Aa
  * A clonotype parser implementation that handles output from IgBlastWrapper software.
  * {@url https://github.com/mikessh/igblastwrp}
  */
-public class HigBlastParser extends ClonotypeStreamParser {
+public class MigMapParser extends ClonotypeStreamParser {
     /**
      * {@inheritDoc}
      */
-    protected HigBlastParser(Iterator<String> innerIter, Sample sample) {
-        super(innerIter, Software.HigBlast, sample)
+    protected MigMapParser(Iterator<String> innerIter, Sample sample) {
+        super(innerIter, Software.MigMap, sample)
     }
 
     /**

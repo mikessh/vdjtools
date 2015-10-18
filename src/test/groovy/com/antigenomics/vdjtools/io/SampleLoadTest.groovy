@@ -64,8 +64,8 @@ class SampleLoadTest {
     }
 
     @Test
-    public void igblastTest() {
-        loadTest(HigBlast, 1938, 1750)
+    public void migmapTest() {
+        loadTest(MigMap, 1938, 1750)
     }
 
     @Test
