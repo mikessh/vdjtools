@@ -210,7 +210,7 @@ public class JointSample implements Iterable<JointClonotype> {
             jointClonotype.samplingPValue = 1.0d - distribution.cumulativeProbability(goodnessOfFit(counts));
         }
 
-        jointClonotypes.sort(new Comparator<JointClonotype>() {
+        Collections.sort(jointClonotypes, new Comparator<JointClonotype>() {
             @Override
             public int compare(JointClonotype o1, JointClonotype o2) {
                 return -Double.compare(o1.getSamplingPValue(), o2.getSamplingPValue());
