@@ -29,10 +29,11 @@
 
 package com.antigenomics.vdjtools.join;
 
-import com.antigenomics.vdjtools.sample.Clonotype;
-import com.antigenomics.vdjtools.overlap.OverlapType;
 import com.antigenomics.vdjtools.join.key.ClonotypeKey;
+import com.antigenomics.vdjtools.overlap.OverlapType;
+import com.antigenomics.vdjtools.sample.Clonotype;
 import com.antigenomics.vdjtools.sample.Sample;
+import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 
 import java.util.*;
 
@@ -47,7 +48,7 @@ public class JointSample implements Iterable<JointClonotype> {
     private final List<JointClonotype> jointClonotypes;
     private final double totalMeanFreq, minMeanFreq;
     private final int numberOfSamples;
-    private final int count;
+    private final long count;
     private final OverlapType overlapType;
     private final boolean reverse;
 
@@ -57,7 +58,7 @@ public class JointSample implements Iterable<JointClonotype> {
                         int[] intersectionDiv, int[][] intersectionDivMatrix,
                         List<JointClonotype> jointClonotypes,
                         double totalMeanFreq, double minMeanFreq,
-                        int numberOfSamples, int count,
+                        int numberOfSamples, long count,
                         OverlapType overlapType, boolean reverse) {
         this.samples = samples;
         this.intersectionFreq = intersectionFreq;
@@ -79,7 +80,8 @@ public class JointSample implements Iterable<JointClonotype> {
         this(overlapType, samples, new OccurenceJoinFilter());
     }
 
-    public JointSample(OverlapType overlapType, Sample[] samples, JoinFilter joinFilter) {
+    public JointSample(OverlapType overlapType, Sample[] samples,
+                       JoinFilter joinFilter) {
         this.numberOfSamples = samples.length;
         this.samples = samples;
         this.intersectionDiv = new int[numberOfSamples];
@@ -156,6 +158,73 @@ public class JointSample implements Iterable<JointClonotype> {
         Collections.sort(jointClonotypes);
     }
 
+    private static double goodnessOfFit(final double[][] counts) {
+
+        int nRows = counts.length;
+        int nCols = counts[0].length;
+
+        // compute row, column and total sums
+        double[] rowSum = new double[nRows];
+        double[] colSum = new double[nCols];
+        double total = 0.0d;
+        for (int row = 0; row < nRows; row++) {
+            for (int col = 0; col < nCols; col++) {
+                rowSum[row] += counts[row][col];
+                colSum[col] += counts[row][col];
+                total += counts[row][col];
+            }
+        }
+
+        // compute expected counts and chi-square
+        double G = 0.0d, observed, expected;
+        for (int row = 0; row < nRows; row++) {
+            for (int col = 0; col < nCols; col++) {
+                expected = (rowSum[row] * colSum[col]) / total;
+                observed = counts[row][col];
+
+                G += observed > 0 ? observed * Math.log(observed / expected) : 0;
+            }
+        }
+        return 2 * G;
+    }
+
+    public void computeAndCorrectSamplingPValues() {
+        List<JointClonotype> jointClonotypes = new ArrayList<>(this.jointClonotypes);
+
+        final ChiSquaredDistribution distribution = new ChiSquaredDistribution(numberOfSamples - 1);
+
+        double[] totalCounts = new double[numberOfSamples];
+
+        for (JointClonotype jointClonotype : jointClonotypes) {
+            for (int i = 0; i < numberOfSamples; i++) {
+                totalCounts[i] += jointClonotype.getTransformedCount(i);
+            }
+        }
+
+        for (JointClonotype jointClonotype : jointClonotypes) {
+            double[][] counts = new double[2][numberOfSamples];
+            for (int i = 0; i < numberOfSamples; i++) {
+                counts[0][i] = jointClonotype.getTransformedCount(i);
+                counts[1][i] = totalCounts[i] - jointClonotype.getTransformedCount(i);
+            }
+            jointClonotype.samplingPValue = 1.0d - distribution.cumulativeProbability(goodnessOfFit(counts));
+        }
+
+        jointClonotypes.sort(new Comparator<JointClonotype>() {
+            @Override
+            public int compare(JointClonotype o1, JointClonotype o2) {
+                return -Double.compare(o1.getSamplingPValue(), o2.getSamplingPValue());
+            }
+        });
+
+        // todo: http://www.biomedcentral.com/1471-2105/9/303 ?
+        for (int i = 0; i < jointClonotypes.size(); i++) {
+            JointClonotype jointClonotype = jointClonotypes.get(i);
+            jointClonotype.samplingPValue *= jointClonotypes.size() / (i + 1);
+            jointClonotype.samplingPValue = Math.min(1.0, jointClonotype.samplingPValue);
+        }
+    }
+
     public int getNumberOfSamples() {
         return numberOfSamples;
     }
@@ -172,8 +241,12 @@ public class JointSample implements Iterable<JointClonotype> {
         return jointClonotypes.size();
     }
 
-    public int getCount() {
+    public long getCount() {
         return count;
+    }
+
+    public long getCount(int sampleIndex) {
+        return getSample(sampleIndex).getCount();
     }
 
     public JointClonotype getAt(int index) {

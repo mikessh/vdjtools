@@ -185,7 +185,7 @@ public class SampleWriter {
 
         def sampleIndices = (0..<jointSample.numberOfSamples)
 
-        printWriter.println(header + "\tpeak\toccurences\t" +
+        printWriter.println(header + "\tpeak\toccurences\tsampling.p\t" +
                 sampleIndices.collect { jointSample.getSample(it).sampleMetadata.sampleId }.join("\t"))
 
         double collapsedMeanFreq = 0.0
@@ -213,6 +213,7 @@ public class SampleWriter {
                     },
                      jointClonotype.peak,
                      jointClonotype.occurences,
+                     jointClonotype.samplingPValue,
                      sampleIndices.collect { int j ->
                          jointClonotype.getFreq(j)
                      }].flatten().join("\t"))
@@ -236,6 +237,7 @@ public class SampleWriter {
                         },
                          collapsedFreqArr.findIndexOf { it == collapsedFreqArr.max() },
                          collapsedFreqArr.findAll { it > 0 }.sum(),
+                         0,
                          collapsedFreqArr
                         ].flatten().join("\t"))
             }
@@ -255,10 +257,11 @@ public class SampleWriter {
                     },
                      nonOverlappingFreqArr.findIndexOf { it == nonOverlappingFreqArr.max() },
                      nonOverlappingFreqArr.findAll { it > 0 }.sum(),
+                     0,
                      nonOverlappingFreqArr
                     ].flatten().join("\t"))
         }
-        
+
         printWriter.close()
     }
 
@@ -269,7 +272,7 @@ public class SampleWriter {
      */
     public void write(PooledSample pooledSample, String fileName) {
         def printWriter = getWriter(fileName)
-        
+
         printWriter.println(header + "\tincidence\tconvergence")
 
         pooledSample.each { pooledClonotype ->

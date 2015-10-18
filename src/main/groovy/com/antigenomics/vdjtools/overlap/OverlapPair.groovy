@@ -106,6 +106,7 @@ println "[${new Date()} $scriptName] Intersecting"
 
 def pairedIntersection = new Overlap(sampleCollection.listPairs()[0], intersectionType, true)
 def jointSample = pairedIntersection.jointSample
+jointSample.computeAndCorrectSamplingPValues()
 
 //
 // Generate and write output

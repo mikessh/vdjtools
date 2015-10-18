@@ -189,6 +189,8 @@ println "[${new Date()} $scriptName] Joining samples by ${intersectionType}"
 def jointSample = new JointSample(intersectionType, sampleCollection.collect() as Sample[],
         trackSample > -1 ? new SampleSpecificJoinFilter(trackSample) : new OccurenceJoinFilter(2))
 
+jointSample.computeAndCorrectSamplingPValues()
+
 //
 // Write output tables
 //
@@ -259,7 +261,7 @@ if (plot) {
             toPlotPath(summaryOutputPath, plotType))
 
     // Plot a stack plot of top X clonotype abundances
-    RUtil.execute("tracking_starckplot.r",
+    RUtil.execute("tracking_stackplot.r",
             timeFactor,
             timePoints.join(","),
             tableCollapsedOutputPath,

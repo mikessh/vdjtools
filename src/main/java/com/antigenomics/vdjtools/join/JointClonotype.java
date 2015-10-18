@@ -32,17 +32,20 @@ package com.antigenomics.vdjtools.join;
 import com.antigenomics.vdjtools.ClonotypeWrapper;
 import com.antigenomics.vdjtools.Misc;
 import com.antigenomics.vdjtools.sample.Clonotype;
+import org.apache.commons.math3.stat.inference.ChiSquareTest;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public class JointClonotype implements Comparable<JointClonotype>, ClonotypeWrapper {
+    private final static ChiSquareTest chiSquareTest = new ChiSquareTest();
     private final JointSample parent;
     private final List[] variantsBySample;
     private final int[] counts;
     private int peak = -1, occurences = -1;
     private Clonotype representative = null;
     private double meanFreq = -1;
+    protected double samplingPValue = 1;
 
     private JointClonotype(JointSample parent,
                            List[] variantsBySample, int[] counts,
@@ -97,6 +100,10 @@ public class JointClonotype implements Comparable<JointClonotype>, ClonotypeWrap
         return occurences;
     }
 
+    public double getSamplingPValue() {
+        return samplingPValue;
+    }
+
     @Override
     public Clonotype getClonotype() {
         if (representative == null) {
@@ -121,6 +128,13 @@ public class JointClonotype implements Comparable<JointClonotype>, ClonotypeWrap
         return counts[parent.getIndex(sampleIndex)];
     }
 
+    static double transformFactor = 3 / (double) 8;
+
+    public long getTransformedCount(int sampleIndex) {
+        // www.jstor.org/stable/2332343
+        return (long) Math.sqrt(getCount(sampleIndex) + transformFactor);
+    }
+
     /**
      * Gets clonotype frequency in a given sample
      *
@@ -128,7 +142,7 @@ public class JointClonotype implements Comparable<JointClonotype>, ClonotypeWrap
      * @return
      */
     public double getFreq(int sampleIndex) {
-        return getCount(sampleIndex) / (double) parent.getSample(sampleIndex).getCount();
+        return getCount(sampleIndex) / (double) parent.getCount(sampleIndex);
     }
 
     /**

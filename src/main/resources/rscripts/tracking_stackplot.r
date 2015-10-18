@@ -38,8 +38,9 @@ lbl.txt <- as.vector(df[!is.na(peak), "cdr3aa"])
 lbl.x <- as.vector(na.omit(x[peak]))
 lbl.y <- sapply(as.vector(na.omit(cs[cbind(1:nrow(cs), peak)])), as.numeric)
 lbl.max <- sapply(as.vector(na.omit(df[cbind(1:nrow(df), xcols[peak])])), as.numeric)
+lbl.p <- as.numeric(as.vector(df[!is.na(peak), "sampling.p"]))+1e-20
 
-lbl <- data.frame(txt = lbl.txt, x = lbl.x, y = lbl.y, max = lbl.max)
+lbl <- data.frame(txt = lbl.txt, x = lbl.x, y = lbl.y, max = lbl.max, p.adj = lbl.p)
 
 # reshape data
 df.m <- melt(df, id = fcols)
@@ -83,10 +84,10 @@ g<-ggplot() +
    xlab(label) +
    ylab("abundance") +
    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 0.5), panel.border = element_blank()) +
-   geom_text(data = subset(lbl, peak == 1), aes(x, y, label = txt, size = max, alpha = log10(max)), color = "gray10", hjust = 0, vjust = 0.5) +
-   geom_text(data = subset(lbl, peak > 1 & peak < n), aes(x, y, label = txt, size = max, alpha = log10(max)), color = "gray10", hjust = 0.5, vjust = 0.5) +
-   geom_text(data = subset(lbl, peak == n), aes(x, y, label = txt, size = max, alpha = log10(max)), color = "gray10", hjust = 1, vjust = 0.5) +
-   guides(size = FALSE, alpha = FALSE)
+   geom_text(data = subset(lbl, peak == 1), aes(x, y, label = txt, size = max, alpha = -log10(p.adj)), color = "gray10", hjust = 0, vjust = 0.5) +
+   geom_text(data = subset(lbl, peak > 1 & peak < n), aes(x, y, label = txt, size = max, alpha = -log10(p.adj)), color = "gray10", hjust = 0.5, vjust = 0.5) +
+   geom_text(data = subset(lbl, peak == n), aes(x, y, label = txt, size = max, alpha = -log10(p.adj)), color = "gray10", hjust = 1, vjust = 0.5) +
+   guides(size = F)
 
 # disable label cropping
 gg_table <- ggplot_gtable(ggplot_build(g))
