@@ -75,7 +75,7 @@ class SampleLoadTest {
 
     @Test
     public void immunoseqTest() {
-        loadTest(ImmunoSeq, 2226258, 12061)
+        loadTest(ImmunoSeq, 2345835, 13052)
     }
 
     @Test
