@@ -48,13 +48,13 @@ public class Sample implements ClonotypeContainer {
         this.sampleMetadata = sampleMetadata;
     }
 
-    public Sample(Sample toCopy, HashMap<Clonotype, Integer> samplerMap) {
+    public Sample(Sample toCopy, Map<Clonotype, Integer> samplerMap) {
         this.sampleMetadata = toCopy.sampleMetadata;
 
         for (Clonotype clonotype : toCopy.clonotypes) {
             Integer newCount = samplerMap.get(clonotype);
 
-            if (newCount != null)
+            if (newCount != null && newCount > 0)
                 this.addClonotype(new Clonotype(clonotype, this, newCount));
         }
 
@@ -162,6 +162,14 @@ public class Sample implements ClonotypeContainer {
 
     public SampleMetadata getSampleMetadata() {
         return sampleMetadata;
+    }
+
+    /**
+     * For 1.8 stream
+     * @return
+     */
+    public List<Clonotype> getClonotypes() {
+        return Collections.unmodifiableList(clonotypes);
     }
 
     @Override
