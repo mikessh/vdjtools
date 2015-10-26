@@ -44,11 +44,11 @@ public class Corrector {
     private final double logRatioThreshold;
 
     public Corrector() {
-        this(2, 0.05);
+        this(2, 0.05f);
     }
 
     public Corrector(int maxMismatches,
-                     double ratioThreshold) {
+                     float ratioThreshold) {
         this.treeSearchParameters = new TreeSearchParameters(maxMismatches, 0, 0);
         this.logRatioThreshold = -Math.log10(ratioThreshold);
     }

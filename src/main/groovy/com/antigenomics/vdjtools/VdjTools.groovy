@@ -141,6 +141,8 @@ def getScript = { String scriptName ->
             return new DownSample()
         case "SELECTTOP":
             return new SelectTop()
+        case "CORRECT":
+            return new Correct()
 
         case "POOLSAMPLES":
             return new PoolSamples()
