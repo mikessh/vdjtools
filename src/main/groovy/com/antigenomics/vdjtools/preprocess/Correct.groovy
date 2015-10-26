@@ -43,6 +43,8 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
                 "Header is mandatory and will be used to assign column names for metadata.")
 cli.d(longOpt: "depth", argName: "1+", args: 1,
         "Maximum number of mismatches to allow. [default=$DEFAULT_MAX_MMS]")
+cli._(longOpt: "match-segment",
+        "Check for erroneous clonotypes only among those that have identical V and J assignments.")
 cli.r(longOpt: "ratio", argName: "[0,1]", args: 1,
         "Child-to-parent clonotype abundance ratio threshold for rendering child as erroneous. " +
                 "[default=$DEFAULT_RATIO_THRESHOLD]")
@@ -75,6 +77,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 def depth = (int) (opt.d ?: DEFAULT_MAX_MMS).toInteger(),
     ratio = (float) (opt.r ?: DEFAULT_RATIO_THRESHOLD).toDouble(),
+    matchSegment = (boolean) opt.'match-segment',
     compress = (boolean) opt.c,
     outputPrefix = opt.arguments()[-1]
 
@@ -98,7 +101,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 
 def sampleWriter = new SampleWriter(compress)
 
-def corrector = new Corrector(depth, ratio)
+def corrector = new Corrector(depth, ratio, matchSegment)
 sampleCollection.eachWithIndex { sample, ind ->
     def newSample = corrector.correct(sample)
 
