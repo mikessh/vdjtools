@@ -42,11 +42,11 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
 cli.d(longOpt: "depth", argName: "1+", args: 1,
-        "Maximum number of mismatches to allow. [default=$DEFAULT_MAX_MMS]")
-cli._(longOpt: "match-segment",
+        "Maximum number of mismatches allowed between clonotypes being compared. [default=$DEFAULT_MAX_MMS]")
+cli.a(longOpt: "match-segment",
         "Check for erroneous clonotypes only among those that have identical V and J assignments.")
 cli.r(longOpt: "ratio", argName: "[0,1]", args: 1,
-        "Child-to-parent clonotype abundance ratio threshold for rendering child as erroneous. " +
+        "Child-to-parent clonotype size ratio threshold under which child clonotype is considered erroneous. " +
                 "[default=$DEFAULT_RATIO_THRESHOLD]")
 cli.c(longOpt: "compress", "Compress output sample files.")
 
@@ -111,6 +111,6 @@ sampleCollection.eachWithIndex { sample, ind ->
     sampleWriter.writeConventional(newSample, outputPrefix)
 }
 
-sampleCollection.metadataTable.storeWithOutput(outputPrefix, compress, "corr:$depth:$ratio")
+sampleCollection.metadataTable.storeWithOutput(outputPrefix, compress, "corr:$depth:$ratio:${matchSegment ? "vjmatch" : "all"}")
 
 println "[${new Date()} $scriptName] Finished"
