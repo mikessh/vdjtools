@@ -39,6 +39,7 @@ import java.util.*;
 
 public class JointSample implements Iterable<JointClonotype> {
     private final Sample[] samples;
+    private final double[] transformedCountSum;
     private final double[] intersectionFreq;
     private final double[][] intersectionFreqMatrix;
     private final long[] intersectionCount;
@@ -52,7 +53,7 @@ public class JointSample implements Iterable<JointClonotype> {
     private final OverlapType overlapType;
     private final boolean reverse;
 
-    private JointSample(Sample[] samples,
+    private JointSample(Sample[] samples, double[] transformedCountSum,
                         double[] intersectionFreq, double[][] intersectionFreqMatrix,
                         long[] intersectionCount, long[][] intersectionCountMatrix,
                         int[] intersectionDiv, int[][] intersectionDivMatrix,
@@ -61,6 +62,7 @@ public class JointSample implements Iterable<JointClonotype> {
                         int numberOfSamples, long count,
                         OverlapType overlapType, boolean reverse) {
         this.samples = samples;
+        this.transformedCountSum = transformedCountSum;
         this.intersectionFreq = intersectionFreq;
         this.intersectionFreqMatrix = intersectionFreqMatrix;
         this.intersectionCount = intersectionCount;
@@ -84,6 +86,7 @@ public class JointSample implements Iterable<JointClonotype> {
                        JoinFilter joinFilter) {
         this.numberOfSamples = samples.length;
         this.samples = samples;
+        this.transformedCountSum = new double[numberOfSamples];
         this.intersectionDiv = new int[numberOfSamples];
         this.intersectionFreq = new double[numberOfSamples];
         this.intersectionFreqMatrix = new double[numberOfSamples][numberOfSamples];
@@ -150,6 +153,9 @@ public class JointSample implements Iterable<JointClonotype> {
                     }
                 }
             }
+            for (int i = 0; i < numberOfSamples; i++) {
+                transformedCountSum[i] += transformCount(jointClonotype.getCount(i));
+            }
         }
         this.totalMeanFreq = totalMeanFreq;
         this.minMeanFreq = minMeanFreq;
@@ -158,32 +164,26 @@ public class JointSample implements Iterable<JointClonotype> {
         Collections.sort(jointClonotypes);
     }
 
-    private static double goodnessOfFit(final double[][] counts) {
+    private static double transformCount(int count) {
+        // www.jstor.org/stable/2332343
+        double transformFactor = 3 / (double) 8;
+        return Math.sqrt(count + transformFactor);
+    }
 
-        int nRows = counts.length;
-        int nCols = counts[0].length;
-
-        // compute row, column and total sums
-        double[] rowSum = new double[nRows];
-        double[] colSum = new double[nCols];
-        double total = 0.0d;
-        for (int row = 0; row < nRows; row++) {
-            for (int col = 0; col < nCols; col++) {
-                rowSum[row] += counts[row][col];
-                colSum[col] += counts[row][col];
-                total += counts[row][col];
-            }
-        }
+    private double goodnessOfFit(final JointClonotype jointClonotype) {
 
         // compute expected counts and chi-square
-        double G = 0.0d, observed, expected;
-        for (int row = 0; row < nRows; row++) {
-            for (int col = 0; col < nCols; col++) {
-                expected = (rowSum[row] * colSum[col]) / total;
-                observed = counts[row][col];
+        double G = 0, expected = 0, expectedD = 0;
 
-                G += observed > 0 ? observed * Math.log(observed / expected) : 0;
-            }
+        for (int i = 0; i < numberOfSamples; i++) {
+            expected += transformCount(jointClonotype.getCount(i));
+            expectedD += getTransformedCount(i);
+        }
+        expected /= expectedD;
+        for (int i = 0; i < numberOfSamples; i++) {
+            double observed = transformCount(jointClonotype.getCount(i));
+
+            G += observed > 0 ? observed * Math.log(observed / expected / getTransformedCount(i)) : 0;
         }
         return 2 * G;
     }
@@ -193,21 +193,9 @@ public class JointSample implements Iterable<JointClonotype> {
 
         final ChiSquaredDistribution distribution = new ChiSquaredDistribution(numberOfSamples - 1);
 
-        double[] totalCounts = new double[numberOfSamples];
-
         for (JointClonotype jointClonotype : jointClonotypes) {
-            for (int i = 0; i < numberOfSamples; i++) {
-                totalCounts[i] += jointClonotype.getTransformedCount(i);
-            }
-        }
-
-        for (JointClonotype jointClonotype : jointClonotypes) {
-            double[][] counts = new double[2][numberOfSamples];
-            for (int i = 0; i < numberOfSamples; i++) {
-                counts[0][i] = jointClonotype.getTransformedCount(i);
-                counts[1][i] = totalCounts[i] - jointClonotype.getTransformedCount(i);
-            }
-            jointClonotype.samplingPValue = 1.0d - distribution.cumulativeProbability(goodnessOfFit(counts));
+            double G = goodnessOfFit(jointClonotype);
+            jointClonotype.samplingPValue = 1.0d - distribution.cumulativeProbability(G);
         }
 
         Collections.sort(jointClonotypes, new Comparator<JointClonotype>() {
@@ -243,6 +231,10 @@ public class JointSample implements Iterable<JointClonotype> {
 
     public long getCount() {
         return count;
+    }
+
+    private double getTransformedCount(int sampleIndex) {
+        return transformedCountSum[getIndex(sampleIndex)];
     }
 
     public long getCount(int sampleIndex) {
@@ -344,7 +336,7 @@ public class JointSample implements Iterable<JointClonotype> {
         if (reverse)
             throw new Exception("Already reversed, for the sake of performance multiple reverse is disabled");
 
-        return new JointSample(samples,
+        return new JointSample(samples, transformedCountSum,
                 intersectionFreq, intersectionFreqMatrix,
                 intersectionCount, intersectionCountMatrix,
                 intersectionDiv, intersectionDivMatrix,

@@ -128,13 +128,6 @@ public class JointClonotype implements Comparable<JointClonotype>, ClonotypeWrap
         return counts[parent.getIndex(sampleIndex)];
     }
 
-    static double transformFactor = 3 / (double) 8;
-
-    public long getTransformedCount(int sampleIndex) {
-        // www.jstor.org/stable/2332343
-        return (long) Math.sqrt(getCount(sampleIndex) + transformFactor);
-    }
-
     /**
      * Gets clonotype frequency in a given sample
      *
