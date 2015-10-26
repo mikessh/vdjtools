@@ -73,8 +73,8 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 // Remaining arguments
 
-def depth = (int) (cli.d ?: DEFAULT_MAX_MMS).toInteger(),
-    ratio = (float) (cli.r ?: DEFAULT_RATIO_THRESHOLD).toDouble(),
+def depth = (int) (opt.d ?: DEFAULT_MAX_MMS).toInteger(),
+    ratio = (float) (opt.r ?: DEFAULT_RATIO_THRESHOLD).toDouble(),
     compress = (boolean) opt.c,
     outputPrefix = opt.arguments()[-1]
 

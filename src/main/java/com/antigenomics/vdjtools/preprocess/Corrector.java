@@ -56,7 +56,8 @@ public class Corrector {
     public Sample correct(Sample sample) {
         SequenceTreeMap<NucleotideSequence, Clonotype> sequenceTreeMap = new SequenceTreeMap<>(NucleotideSequence.ALPHABET);
 
-        for (Clonotype clonotype : sample) {
+        for (int i = sample.getDiversity() - 1; i >= 0; i--) {
+            Clonotype clonotype = sample.getAt(i);
             sequenceTreeMap.put(clonotype.getCdr3ntBinary(), clonotype);
         }
 
@@ -78,14 +79,14 @@ public class Corrector {
         int totalCount = it.getCount();
 
         for (Clonotype other : neighborhoodIterator.it()) {
-            if (it.getVBinary().equals(other.getVBinary()) &&
-                    it.getJBinary().equals(other.getJBinary())) {
+            if (!other.equals(it)) {
                 int mismatches = neighborhoodIterator.getMismatches();
                 double logRatio = Math.log10(it.getCount() / (double) other.getCount());
 
                 if (logRatio > mismatches * logRatioThreshold) {
                     totalCount += other.getCount();
                 } else if (logRatio < -mismatches * logRatioThreshold) {
+
                     return 0;
                 }
             }
