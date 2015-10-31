@@ -161,8 +161,8 @@ println "[${new Date()} $scriptName] Plotting data"
 
 def numeric = RUtil.logical(numericFactor), addLbl = RUtil.logical(optL)
 
-int lblCol = optL ? sampleCollection.metadataTable.getColumnIndex(optL) : 0,
-    facCol = optF ? sampleCollection.metadataTable.getColumnIndex(optF) : 0
+int lblCol = optL ? sampleCollection.metadataTable.getColumnIndex(optL) : -1,
+    facCol = optF ? sampleCollection.metadataTable.getColumnIndex(optF) : -1
 
 if (facCol < 0) {
     numeric = RUtil.logical(false)

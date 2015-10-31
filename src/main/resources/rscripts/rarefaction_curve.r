@@ -73,7 +73,7 @@ g <- ggplot(df, aes(x=x, y=mean, group=dataset)) +
 # add corresponding fancy axis
 if (num_fac) {
    g <- g + scale_colour_gradient2(low="#feb24c", mid="#31a354", high="#2b8cbe", midpoint=(max(df$fac) + min(df$fac))/2)
-} else {
+} else if (fac_col > 1) {
    g <- g + scale_colour_brewer(palette="Set2")
 }
 
