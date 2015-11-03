@@ -87,7 +87,6 @@ class MetadataTable implements Iterable<SampleMetadata> {
      * @param sampleOrder list of sample ids in new order
      */
     void sort(List<String> sampleOrder) {
-        // Perform some checks
         if (sampleOrder.size() != sampleCount)
             throw new IllegalArgumentException("Bad sample order, " +
                     "number of sample ids and sample collection size don't match")
