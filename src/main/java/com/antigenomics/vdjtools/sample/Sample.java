@@ -48,10 +48,18 @@ public class Sample implements ClonotypeContainer {
         this.sampleMetadata = sampleMetadata;
     }
 
-    public Sample(Sample toCopy, Map<Clonotype, Integer> samplerMap) {
-        this.sampleMetadata = toCopy.sampleMetadata;
+    public Sample(Sample toClone, SampleMetadata sampleMetadata) {
+        this.sampleMetadata = sampleMetadata;
 
-        for (Clonotype clonotype : toCopy.clonotypes) {
+        for (Clonotype clonotype : toClone.clonotypes) {
+            this.addClonotype(new Clonotype(clonotype, this));
+        }
+    }
+
+    public Sample(Sample toSubSample, Map<Clonotype, Integer> samplerMap) {
+        this.sampleMetadata = toSubSample.sampleMetadata;
+
+        for (Clonotype clonotype : toSubSample.clonotypes) {
             Integer newCount = samplerMap.get(clonotype);
 
             if (newCount != null && newCount > 0)
@@ -61,10 +69,10 @@ public class Sample implements ClonotypeContainer {
         Collections.sort(clonotypes);
     }
 
-    public Sample(Sample toCopy, ClonotypeFilter filter, int top) {
-        this.sampleMetadata = toCopy.sampleMetadata;
+    public Sample(Sample toFilter, ClonotypeFilter filter, int top) {
+        this.sampleMetadata = toFilter.sampleMetadata;
 
-        for (Clonotype clonotype : toCopy.clonotypes) {
+        for (Clonotype clonotype : toFilter.clonotypes) {
             if (top > -1 && this.getDiversity() == top)
                 break;
 
@@ -73,8 +81,8 @@ public class Sample implements ClonotypeContainer {
         }
     }
 
-    public Sample(Sample toClone, ClonotypeFilter filter) {
-        this(toClone, filter, -1);
+    public Sample(Sample toFilter, ClonotypeFilter filter) {
+        this(toFilter, filter, -1);
     }
 
     public Sample(Sample toClone) {
@@ -166,6 +174,7 @@ public class Sample implements ClonotypeContainer {
 
     /**
      * For 1.8 stream
+     *
      * @return
      */
     public List<Clonotype> getClonotypes() {

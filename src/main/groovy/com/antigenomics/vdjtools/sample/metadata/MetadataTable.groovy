@@ -83,6 +83,29 @@ class MetadataTable implements Iterable<SampleMetadata> {
     }
 
     /**
+     * Selects a subset of samples from this metadata table based on a specified rule.
+     * This method creates a deep copy of metadata table.
+     * @param entryFilter metadata entry filtering rule.
+     * @param sampleIds sample (row) IDs to keep.
+     * @return a copy of metadata table containing selected samples (rows) only.
+     */
+    public MetadataTable select(MetadataEntryFilter entryFilter = BlankMetadataEntryFilter.INSTANCE,
+                                Set<String> sampleIds = sampleIds) {
+        def metadataTable = new MetadataTable(columnIds.collect())
+        def sampleFilter = new SampleMetadataFilter(entryFilter)
+        this.findAll {
+            if (!this.sampleIds.contains(it.sampleId)) {
+                throw new RuntimeException("Sample $it.sampleId is missing in sample collection." +
+                        "Current sample list: ${this.sampleIds.join(",")}.")
+            }
+            sampleIds.contains(it.sampleId) && sampleFilter.passes(it)
+        }.each {
+            metadataTable.addSample(it.changeParent(metadataTable))
+        }
+        metadataTable
+    }
+
+    /**
      * Reorders sample list according to provided order
      * @param sampleOrder list of sample ids in new order
      */
@@ -424,6 +447,10 @@ class MetadataTable implements Iterable<SampleMetadata> {
      */
     int getSampleCount() {
         metadataBySample.size()
+    }
+
+    Set<String> getSampleIds() {
+        Collections.unmodifiableSet(metadataBySample.keySet())
     }
 
     public static final String SAMPLE_ID_COLUMN = "sample_id", FILE_NAME_COLUMN = "file_name"
