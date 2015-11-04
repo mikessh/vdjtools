@@ -87,7 +87,7 @@ public class SamplePair {
      * Gets the index of first sample 
      * @return the index of first sample
      */
-    public getI() {
+    public Sample getI() {
         i
     }
 
@@ -95,7 +95,7 @@ public class SamplePair {
      * Gets the index of second sample 
      * @return the index of second sample
      */
-    public getJ() {
+    public Sample getJ() {
         j
     }
 

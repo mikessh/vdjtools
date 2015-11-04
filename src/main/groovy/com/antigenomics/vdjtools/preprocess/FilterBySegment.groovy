@@ -37,16 +37,19 @@ import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
 
 def cli = new CliBuilder(usage: "FilterBySegment [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
-cli.h("display help message")
+cli.h("Display help message.")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
-cli.e(longOpt: "negative", "Will retain only clonotypes that lack specified V/D/J segments")
+cli.e(longOpt: "negative", "Will retain only clonotypes that lack specified V/D/J segments.")
 cli.c(longOpt: "compress", "Compress output sample files.")
 
-cli.v(longOpt: "v-segments", argName: "v1,v2,...", args: 1, "A comma-separated list of Variable segments")
-cli.d(longOpt: "d-segments", argName: "d1,d2,...", args: 1, "A comma-separated list of Diversity segments")
-cli.j(longOpt: "j-segments", argName: "j1,j2,...", args: 1, "A comma-separated list of Joining segments")
+cli.v(longOpt: "v-segments", argName: "v1,v2,...", args: 1, "A comma-separated list of Variable segments. " +
+        "Incomplete names will act as wildcards.")
+cli.d(longOpt: "d-segments", argName: "d1,d2,...", args: 1, "A comma-separated list of Diversity segments. " +
+        "Incomplete names will act as wildcards.")
+cli.j(longOpt: "j-segments", argName: "j1,j2,...", args: 1, "A comma-separated list of Joining segments. " +
+        "Incomplete names will act as wildcards.")
 
 def opt = cli.parse(args)
 
@@ -77,9 +80,9 @@ def outputFilePrefix = opt.arguments()[-1],
     compress = (boolean) opt.c,
     negative = (boolean) opt.e
 
-def vFilter = opt.v ? new VFilter(((String) opt.v).split(",") as String[]) : BlankClonotypeFilter.INSTANCE,
-    dFilter = opt.d ? new VFilter(((String) opt.d).split(",") as String[]) : BlankClonotypeFilter.INSTANCE,
-    jFilter = opt.j ? new VFilter(((String) opt.j).split(",") as String[]) : BlankClonotypeFilter.INSTANCE
+def vFilter = opt.v ? new VFilter(((String) opt.v).split(",")) : BlankClonotypeFilter.INSTANCE,
+    dFilter = opt.d ? new DFilter(((String) opt.d).split(",")) : BlankClonotypeFilter.INSTANCE,
+    jFilter = opt.j ? new JFilter(((String) opt.j).split(",")) : BlankClonotypeFilter.INSTANCE
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
