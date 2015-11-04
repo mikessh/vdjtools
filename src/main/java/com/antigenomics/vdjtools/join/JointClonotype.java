@@ -38,7 +38,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class JointClonotype implements Comparable<JointClonotype>, ClonotypeWrapper {
-    private final static ChiSquareTest chiSquareTest = new ChiSquareTest();
     private final JointSample parent;
     private final List[] variantsBySample;
     private final int[] counts;

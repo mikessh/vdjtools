@@ -29,27 +29,19 @@
 
 package com.antigenomics.vdjtools.join;
 
-public class OccurenceJoinFilter implements JoinFilter {
-    private final int occurenceThreshold;
+public class CompositeJoinFilter implements JoinFilter {
+    private final JoinFilter[] filters;
 
-    public OccurenceJoinFilter() {
-        this(2);
-    }
-
-    public OccurenceJoinFilter(int occurenceThreshold) {
-        this.occurenceThreshold = occurenceThreshold;
-    }
-
-    public int getOccurenceThreshold() {
-        return occurenceThreshold;
+    public CompositeJoinFilter(JoinFilter... filters) {
+        this.filters = filters;
     }
 
     @Override
     public boolean pass(JointClonotype jointClonotype) {
-        int detectionCounter = 0;
-        for (int i = 0; i < jointClonotype.getParent().getNumberOfSamples(); i++) {
-            if (jointClonotype.present(i) && ++detectionCounter == occurenceThreshold) return true;
-        }
-        return false;
+        for (JoinFilter filter : filters)
+            if (!filter.pass(jointClonotype))
+                return false;
+
+        return true;
     }
 }

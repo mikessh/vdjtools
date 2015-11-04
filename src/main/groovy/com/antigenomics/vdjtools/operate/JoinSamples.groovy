@@ -33,7 +33,7 @@ package com.antigenomics.vdjtools.operate
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.join.JointSample
-import com.antigenomics.vdjtools.join.OccurenceJoinFilter
+import com.antigenomics.vdjtools.join.OccurrenceJoinFilter
 import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
@@ -137,7 +137,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 println "[${new Date()} $scriptName] Joining samples by ${intersectionType}"
 
 def jointSample = new JointSample(intersectionType, sampleCollection.collect() as Sample[],
-        new OccurenceJoinFilter(timesDetected))
+        new OccurrenceJoinFilter(timesDetected))
 
 //
 // Write output tables

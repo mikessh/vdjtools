@@ -79,7 +79,7 @@ public class JointSample implements Iterable<JointClonotype> {
     }
 
     public JointSample(OverlapType overlapType, Sample[] samples) {
-        this(overlapType, samples, new OccurenceJoinFilter());
+        this(overlapType, samples, new OccurrenceJoinFilter());
     }
 
     public JointSample(OverlapType overlapType, Sample[] samples,
