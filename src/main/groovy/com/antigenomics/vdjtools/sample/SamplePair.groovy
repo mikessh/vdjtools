@@ -85,7 +85,7 @@ public class SamplePair {
 
     /**
      * Gets the index of first sample 
-     * @return the index of first sample
+     * @return index of first sample
      */
     public int getI() {
         i
@@ -93,16 +93,32 @@ public class SamplePair {
 
     /**
      * Gets the index of second sample 
-     * @return the index of second sample
+     * @return index of second sample
      */
     public int getJ() {
         j
     }
 
     /**
+     * Gets the first sample
+     * @return first sample
+     */
+    public Sample getFirst() {
+        sample1conn.sample
+    }
+
+    /**
+     * Gets the second sample
+     * @return second sample
+     */
+    public Sample getSecond() {
+        sample2conn.sample
+    }
+
+    /**
      * Gets the sample that corresponds to a given index
      * @param index index of sample, {@code 0} or {@code 1}
-     * @return gets the sample specified by given index
+     * @return sample specified by given index
      */
     public Sample getAt(int index) {
         switch (index) {
