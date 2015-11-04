@@ -27,45 +27,52 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools;
+package com.antigenomics.vdjtools.sample;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.antigenomics.vdjtools.Segment;
+import com.antigenomics.vdjtools.SegmentFactory;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-public class SegmentFactory {
-    public static final SegmentFactory INSTANCE = new SegmentFactory();
+public abstract class SegmentFilter extends ClonotypeFilter {
+    private int mySegmentSetSize = 0;
+    private final String[] segmentNames;
+    private final Set<String> segmentSet = new HashSet<>();
 
-    protected final Map<String, Segment> segmentCache = new HashMap<>();
-
-    public SegmentFactory() {
-        segmentCache.put(Segment.MISSING.name, Segment.MISSING);
+    public SegmentFilter(boolean negative, String... segmentNames) {
+        super(negative);
+        this.segmentNames = segmentNames;
     }
 
-    public Segment create(String name) {
-        Segment segment = segmentCache.get(name);
+    public SegmentFilter(String... segmentNames) {
+        this(false, segmentNames);
+    }
 
-        if (segment == null) {
-            segmentCache.put(name, segment = new Segment(name));
+    protected abstract String getSegmentName(Clonotype clonotype);
+
+    private void refreshLazy() {
+        if (mySegmentSetSize != SegmentFactory.INSTANCE.size()) {
+            for (String name : segmentNames) {
+                segmentSet.addAll(SegmentFactory.INSTANCE.getAtFuzzy(name)
+                        .stream()
+                        .map(Segment::getName)
+                        .collect(Collectors.toList()));
+            }
+            mySegmentSetSize = SegmentFactory.INSTANCE.size();
         }
-
-        return segment;
     }
 
-    public int size() {
-        return segmentCache.size();
+    @Override
+    protected boolean checkPass(Clonotype clonotype) {
+        refreshLazy();
+        return segmentSet.contains(getSegmentName(clonotype));
     }
 
-    public Segment getAt(String name) {
-        return segmentCache.get(name);
+    public Set<String> getSegmentSet() {
+        return Collections.unmodifiableSet(segmentSet);
     }
 
-    public List<Segment> getAtFuzzy(String namePart) {
-        return segmentCache.entrySet()
-                .stream()
-                .filter(segmentEntry -> segmentEntry.getKey().startsWith(namePart))
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
-    }
 }

@@ -29,28 +29,17 @@
 
 package com.antigenomics.vdjtools.sample;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
-public class DFilter extends ClonotypeFilter {
-    private final Set<String> dSegmentSet = new HashSet<>();
-
-    public DFilter(boolean negative, String... dSegment) {
-        super(negative);
-        Collections.addAll(this.dSegmentSet, dSegment);
+public class DFilter extends SegmentFilter {
+    public DFilter(boolean negative, String... segmentNames) {
+        super(negative, segmentNames);
     }
 
-    public DFilter(String... dSegment) {
-        this(false, dSegment);
+    public DFilter(String... segmentNames) {
+        super(segmentNames);
     }
 
     @Override
-    protected boolean checkPass(Clonotype clonotype) {
-        return dSegmentSet.contains(clonotype.getD());
-    }
-
-    public Set<String> getdSegmentSet() {
-        return Collections.unmodifiableSet(dSegmentSet);
+    protected String getSegmentName(Clonotype clonotype) {
+        return clonotype.getD();
     }
 }
