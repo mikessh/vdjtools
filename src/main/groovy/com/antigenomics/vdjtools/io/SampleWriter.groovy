@@ -86,7 +86,7 @@ public class SampleWriter {
      * @param fileName
      * @return
      */
-    private BufferedWriter getWriter(String fileName) {
+    public BufferedWriter getWriter(String fileName) {
         if (compress)
             fileName += ".gz"
 

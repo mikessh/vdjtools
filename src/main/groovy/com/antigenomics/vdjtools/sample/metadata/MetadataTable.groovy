@@ -429,7 +429,6 @@ class MetadataTable implements Iterable<SampleMetadata> {
 
     public static final String SAMPLE_ID_COLUMN = "sample_id", FILE_NAME_COLUMN = "file_name"
 
-    @PackageScope
     String getColumnHeader() {
         columnIds.size() > 0 ? columnIds.collect().join("\t") : "metadata_blank"
     }
