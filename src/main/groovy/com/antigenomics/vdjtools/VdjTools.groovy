@@ -40,9 +40,7 @@ import com.antigenomics.vdjtools.operate.PoolSamples
 import com.antigenomics.vdjtools.overlap.*
 import com.antigenomics.vdjtools.preprocess.*
 import com.antigenomics.vdjtools.profile.CalcCdrAAProfile
-import com.antigenomics.vdjtools.util.Convert
-import com.antigenomics.vdjtools.util.ExecUtil
-import com.antigenomics.vdjtools.util.RInstall
+import com.antigenomics.vdjtools.util.*
 
 import java.util.jar.JarFile
 
@@ -88,10 +86,12 @@ def printHelp = {
     println "Enrichment"
     println ""
     println "[Annotation]"
-    println "(moved to vdjdb) ScanDatabase"
+    println "(ScanDatabase) -> moved to VDJdb since 1.0.4"
     println "CalcCdrAAProfile"
     println ""
     println "[Util]"
+    println "FilterMetadata"
+    println "SplitMetadata"
     println "Convert"
     println "RInstall"
 }
@@ -151,11 +151,13 @@ def getScript = { String scriptName ->
         case "ENRICHMENT":
             return new Enrichment()
 
-    //case "SCANDATABASE":
-    //    return new ScanDatabase()
         case "CALCCDRAAPROFILE":
             return new CalcCdrAAProfile()
 
+        case "FILTERMETADATA":
+            return new FilterMetadata()
+        case "SPLITMETADATA":
+            return new SplitMetadata()
         case "CONVERT":
             return new Convert()
         case "RINSTALL":

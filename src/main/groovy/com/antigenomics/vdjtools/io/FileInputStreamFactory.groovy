@@ -61,4 +61,8 @@ public class FileInputStreamFactory implements InputStreamFactory {
     public String getId() {
         MetadataUtil.fileName2id(fileName)
     }
+
+    String getFileName() {
+        return fileName
+    }
 }

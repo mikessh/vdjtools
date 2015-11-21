@@ -27,36 +27,39 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.sample.metadata
+package com.antigenomics.vdjtools.util
 
-class MetadataEntryExpressionFilter implements MetadataEntryFilter {
-    static final String FILTER_MARK = "__"
-    final String expression
-    final List<String> columnIds = new ArrayList<>()
+import com.antigenomics.vdjtools.sample.SampleCollection
+import com.antigenomics.vdjtools.sample.metadata.BlankMetadataEntryFilter
 
-    MetadataEntryExpressionFilter(String expression) {
-        expression.split(FILTER_MARK).each { token ->
-            def pattern = "$FILTER_MARK$token$FILTER_MARK"
-            if (expression.contains(pattern)) {
-                expression = expression.replaceAll(pattern, "x[\"$token\"]")
-                columnIds.add(token)
-            }
-        }
+def cli = new CliBuilder(usage: "SplitMetadata [options] metadata.txt output_prefix")
+cli.h("display help message")
+cli.c(longOpt: "column", argName: "string", args: 1, required: true,
+        "Column name to split metadata by.")
 
-        if (expression.contains(FILTER_MARK)) {
-            throw new RuntimeException("Failed to parse filter, '$FILTER_MARK' symbols left.")
-        }
+def opt = cli.parse(args)
 
-        this.expression = expression
-    }
-
-    @Override
-    boolean passes(Map<String, Object> entryValueMap) {
-        if (!entryValueMap.keySet().containsAll(columnIds)) {
-            throw new RuntimeException("Cannot process metadata $entryValueMap. " +
-                    "Some of the $columnIds column IDs required for evaluating filter are missing.")
-        }
-        
-        Eval.x(entryValueMap, expression)
-    }
+if (opt == null || opt.h || opt.arguments().size() != 2) {
+    cli.usage()
+    System.exit(1)
 }
+
+def metadataFileName = opt.arguments()[0], columnId = (String) opt.c, outputPrefix = opt.arguments()[1]
+
+def scriptName = getClass().canonicalName.split("\\.")[-1]
+
+// Lazy load sample list, need to get absolute paths
+println "[${new Date()} $scriptName] Checking sample(s)"
+def sampleCollection = new SampleCollection((String) metadataFileName)
+
+println "[${new Date()} $scriptName] Splitting metadata by $columnId"
+
+def columnInfo = sampleCollection.metadataTable.getInfo(columnId)
+columnInfo.values.each {
+    def filteredMetadataTable = sampleCollection.metadataTable.select(BlankMetadataEntryFilter.INSTANCE,
+            new HashSet<String>(columnInfo.getSampleIds(it)))
+    filteredMetadataTable.storeWithOutput(outputPrefix, sampleCollection, it)
+
+}
+
+println "[${new Date()} $scriptName] Finished"

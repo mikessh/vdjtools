@@ -29,6 +29,9 @@
 
 package com.antigenomics.vdjtools.sample.metadata
 
+import com.antigenomics.vdjtools.io.FileInputStreamFactory
+import com.antigenomics.vdjtools.io.SampleFileConnection
+import com.antigenomics.vdjtools.sample.SampleCollection
 import groovy.transform.PackageScope
 
 import static com.antigenomics.vdjtools.util.ExecUtil.*
@@ -316,9 +319,9 @@ class MetadataTable implements Iterable<SampleMetadata> {
     }
 
     /**
-     * Will write a new metadata table assuming that an 1<->1 sample output, e.g.
-     * from Decontaminate, ApplySampleAsFilter or Downsample will be produced to the same directory.
-     * @param outputPrefix
+     * Write metadata table copy to file assuming that one-to-one sample output will also be
+     * placed to the same directory. Used by routines like Decontaminate, ApplySampleAsFilter or Downsample. 
+     * @param outputPrefix output prefix
      * @param compress indicates whether samples will be stored as compressed
      * @param filters list of filter names applied to data this time
      */
@@ -343,6 +346,31 @@ class MetadataTable implements Iterable<SampleMetadata> {
                 def sampleOutputPath = formOutputPath(outputPrefix, it.sampleId)
 
                 pw.println([relativeSamplePath(metadataPath, sampleOutputPath) + (compress ? ".gz" : ""),
+                            it.sampleId,
+                            it.toString()].join("\t"))
+            }
+        }
+    }
+
+    /**
+     * Write the metadata table to file, inheriting sample paths from provided sample collection.
+     * Sample connections should be provided by {@link FileInputStreamFactory} for this method to 
+     * work without throwing exception
+     * @param outputPrefix output prefix
+     * @param sampleCollection parent sample collection
+     */
+    public void storeWithOutput(String outputPrefix, SampleCollection sampleCollection, String splitterValue = null) {
+        def metadataPath = formMetadataPath(outputPrefix, splitterValue)
+
+        def metadataTableCopy = this.copy()
+
+        new File(metadataPath).withPrintWriter { pw ->
+            pw.println("#$FILE_NAME_COLUMN\t$SAMPLE_ID_COLUMN\t" + metadataTableCopy.columnHeader)
+            metadataTableCopy.eachWithIndex { it, ind ->
+                def connection = sampleCollection.sampleMap[it.sampleId] as SampleFileConnection
+                def fileInputStream = connection.inputStreamFactory as FileInputStreamFactory
+
+                pw.println([relativeSamplePath(metadataPath, fileInputStream.fileName),
                             it.sampleId,
                             it.toString()].join("\t"))
             }

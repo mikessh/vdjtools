@@ -45,7 +45,7 @@ import com.antigenomics.vdjtools.util.ExecUtil
  * Note that all samples in within the same sample collection should have the same {@code Software} type.
  */
 class SampleCollection implements Iterable<Sample> {
-    private final Map<String, SampleConnection> sampleMap = new HashMap<>()
+    final Map<String, SampleConnection> sampleMap = new HashMap<>()
     private final Software software
     private final boolean strict, lazy, store
 
@@ -94,7 +94,7 @@ class SampleCollection implements Iterable<Sample> {
 
             sampleCollection.sampleMap.put(it.key, sampleConnection)
         }
-        
+
         sampleCollection
     }
 
