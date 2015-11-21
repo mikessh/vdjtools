@@ -27,42 +27,39 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.io
+package com.antigenomics.vdjtools.util
 
-import com.antigenomics.vdjtools.sample.metadata.MetadataUtil
-import com.antigenomics.vdjtools.util.CommonUtil
+import com.antigenomics.vdjtools.sample.SampleCollection
+import com.antigenomics.vdjtools.sample.metadata.BlankMetadataEntryFilter
 
-/**
- * A file input stream factory. This factory creates a new file connection each time.
- */
-public class FileInputStreamFactory implements InputStreamFactory {
-    private final String fileName
+def cli = new CliBuilder(usage: "SplitMetadata [options] metadata.txt output_prefix")
+cli.h("display help message")
+cli.c(longOpt: "column", argName: "string", args: 1, required: true,
+        "Column name to split metadata by.")
 
-    /**
-     * Creates a new instance of file input stream factory associated with a given file name
-     * @param fileName path to underlying file
-     */
-    public FileInputStreamFactory(String fileName) {
-        this.fileName = fileName
-    }
+def opt = cli.parse(args)
 
-    /**
-     * @inheritDoc
-     */
-    @Override
-    public InputStream create() {
-        CommonUtil.getFileStream(fileName)
-    }
-
-    /**
-     * @inheritDoc
-     */
-    @Override
-    public String getId() {
-        MetadataUtil.fileName2id(fileName)
-    }
-
-    String getFileName() {
-        return fileName
-    }
+if (opt == null || opt.h || opt.arguments().size() != 2) {
+    cli.usage()
+    System.exit(1)
 }
+
+def metadataFileName = opt.arguments()[0], columnId = (String) opt.c, outputPrefix = opt.arguments()[1]
+
+def scriptName = getClass().canonicalName.split("\\.")[-1]
+
+// Lazy load sample list, need to get absolute paths
+println "[${new Date()} $scriptName] Checking sample(s)"
+def sampleCollection = new SampleCollection((String) metadataFileName)
+
+println "[${new Date()} $scriptName] Splitting metadata by $columnId"
+
+def columnInfo = sampleCollection.metadataTable.getInfo(columnId)
+columnInfo.values.each {
+    def filteredMetadataTable = sampleCollection.metadataTable.select(BlankMetadataEntryFilter.INSTANCE,
+            new HashSet<String>(columnInfo.getSampleIds(it)))
+    filteredMetadataTable.storeWithOutput(outputPrefix, sampleCollection, it)
+
+}
+
+println "[${new Date()} $scriptName] Finished"

@@ -27,42 +27,14 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.io
+package com.antigenomics.vdjtools.sample.metadata
 
-import com.antigenomics.vdjtools.sample.metadata.MetadataUtil
-import com.antigenomics.vdjtools.util.CommonUtil
-
-/**
- * A file input stream factory. This factory creates a new file connection each time.
- */
-public class FileInputStreamFactory implements InputStreamFactory {
-    private final String fileName
-
+interface MetadataEntryFilter {
     /**
-     * Creates a new instance of file input stream factory associated with a given file name
-     * @param fileName path to underlying file
+     * Checks whether the set of metadata entries represented as a column ID : value map passes the filter.
+     * Values can be either String (factor and semi-numeric metadata columns) or Double (numeric metadata columns).
+     * @param entryValueMap metadata entries. Keys correspond to column IDs, values can be either String or Double.
+     * @return true if entries pass filter, false if they are rejected.
      */
-    public FileInputStreamFactory(String fileName) {
-        this.fileName = fileName
-    }
-
-    /**
-     * @inheritDoc
-     */
-    @Override
-    public InputStream create() {
-        CommonUtil.getFileStream(fileName)
-    }
-
-    /**
-     * @inheritDoc
-     */
-    @Override
-    public String getId() {
-        MetadataUtil.fileName2id(fileName)
-    }
-
-    String getFileName() {
-        return fileName
-    }
+    boolean passes(Map<String, Object> metadataEntries)
 }

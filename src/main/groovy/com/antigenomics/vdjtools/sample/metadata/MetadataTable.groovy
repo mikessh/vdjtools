@@ -29,6 +29,9 @@
 
 package com.antigenomics.vdjtools.sample.metadata
 
+import com.antigenomics.vdjtools.io.FileInputStreamFactory
+import com.antigenomics.vdjtools.io.SampleFileConnection
+import com.antigenomics.vdjtools.sample.SampleCollection
 import groovy.transform.PackageScope
 
 import static com.antigenomics.vdjtools.util.ExecUtil.*
@@ -83,11 +86,33 @@ class MetadataTable implements Iterable<SampleMetadata> {
     }
 
     /**
+     * Selects a subset of samples from this metadata table based on a specified rule.
+     * This method creates a deep copy of metadata table.
+     * @param entryFilter metadata entry filtering rule.
+     * @param sampleIds sample (row) IDs to keep.
+     * @return a copy of metadata table containing selected samples (rows) only.
+     */
+    public MetadataTable select(MetadataEntryFilter entryFilter = BlankMetadataEntryFilter.INSTANCE,
+                                Set<String> sampleIds = sampleIds) {
+        def metadataTable = new MetadataTable(columnIds.collect())
+        def sampleFilter = new SampleMetadataFilter(entryFilter)
+        this.findAll {
+            if (!this.sampleIds.contains(it.sampleId)) {
+                throw new RuntimeException("Sample $it.sampleId is missing in sample collection." +
+                        "Current sample list: ${this.sampleIds.join(",")}.")
+            }
+            sampleIds.contains(it.sampleId) && sampleFilter.passes(it)
+        }.each {
+            metadataTable.addSample(it.changeParent(metadataTable))
+        }
+        metadataTable
+    }
+
+    /**
      * Reorders sample list according to provided order
      * @param sampleOrder list of sample ids in new order
      */
     void sort(List<String> sampleOrder) {
-        // Perform some checks
         if (sampleOrder.size() != sampleCount)
             throw new IllegalArgumentException("Bad sample order, " +
                     "number of sample ids and sample collection size don't match")
@@ -294,9 +319,9 @@ class MetadataTable implements Iterable<SampleMetadata> {
     }
 
     /**
-     * Will write a new metadata table assuming that an 1<->1 sample output, e.g.
-     * from Decontaminate, ApplySampleAsFilter or Downsample will be produced to the same directory.
-     * @param outputPrefix
+     * Write metadata table copy to file assuming that one-to-one sample output will also be
+     * placed to the same directory. Used by routines like Decontaminate, ApplySampleAsFilter or Downsample. 
+     * @param outputPrefix output prefix
      * @param compress indicates whether samples will be stored as compressed
      * @param filters list of filter names applied to data this time
      */
@@ -321,6 +346,31 @@ class MetadataTable implements Iterable<SampleMetadata> {
                 def sampleOutputPath = formOutputPath(outputPrefix, it.sampleId)
 
                 pw.println([relativeSamplePath(metadataPath, sampleOutputPath) + (compress ? ".gz" : ""),
+                            it.sampleId,
+                            it.toString()].join("\t"))
+            }
+        }
+    }
+
+    /**
+     * Write the metadata table to file, inheriting sample paths from provided sample collection.
+     * Sample connections should be provided by {@link FileInputStreamFactory} for this method to 
+     * work without throwing exception
+     * @param outputPrefix output prefix
+     * @param sampleCollection parent sample collection
+     */
+    public void storeWithOutput(String outputPrefix, SampleCollection sampleCollection, String splitterValue = null) {
+        def metadataPath = formMetadataPath(outputPrefix, splitterValue)
+
+        def metadataTableCopy = this.copy()
+
+        new File(metadataPath).withPrintWriter { pw ->
+            pw.println("#$FILE_NAME_COLUMN\t$SAMPLE_ID_COLUMN\t" + metadataTableCopy.columnHeader)
+            metadataTableCopy.eachWithIndex { it, ind ->
+                def connection = sampleCollection.sampleMap[it.sampleId] as SampleFileConnection
+                def fileInputStream = connection.inputStreamFactory as FileInputStreamFactory
+
+                pw.println([relativeSamplePath(metadataPath, fileInputStream.fileName),
                             it.sampleId,
                             it.toString()].join("\t"))
             }
@@ -425,6 +475,10 @@ class MetadataTable implements Iterable<SampleMetadata> {
      */
     int getSampleCount() {
         metadataBySample.size()
+    }
+
+    Set<String> getSampleIds() {
+        Collections.unmodifiableSet(metadataBySample.keySet())
     }
 
     public static final String SAMPLE_ID_COLUMN = "sample_id", FILE_NAME_COLUMN = "file_name"

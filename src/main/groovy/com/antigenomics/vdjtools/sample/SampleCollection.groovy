@@ -33,6 +33,8 @@ import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.io.DummySampleConnection
 import com.antigenomics.vdjtools.io.SampleConnection
 import com.antigenomics.vdjtools.io.SampleFileConnection
+import com.antigenomics.vdjtools.sample.metadata.BlankMetadataEntryFilter
+import com.antigenomics.vdjtools.sample.metadata.MetadataEntryFilter
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 import com.antigenomics.vdjtools.sample.metadata.MetadataUtil
 import com.antigenomics.vdjtools.util.ExecUtil
@@ -43,7 +45,7 @@ import com.antigenomics.vdjtools.util.ExecUtil
  * Note that all samples in within the same sample collection should have the same {@code Software} type.
  */
 class SampleCollection implements Iterable<Sample> {
-    private final Map<String, SampleConnection> sampleMap = new HashMap<>()
+    final Map<String, SampleConnection> sampleMap = new HashMap<>()
     private final Software software
     private final boolean strict, lazy, store
 
@@ -64,6 +66,36 @@ class SampleCollection implements Iterable<Sample> {
         this.lazy = lazy
         this.store = store
         this.metadataTable = metadataTable
+    }
+
+    /**
+     * Selects a subset of samples from this sample collection on a specified rule.
+     * This method creates a deep copy of sample collection.
+     * @param entryFilter sample metadata filtering rule.
+     * @param sampleIds sample IDs to keep.
+     * @return a copy of sample collection containing selected samples only.
+     */
+    public SampleCollection select(MetadataEntryFilter metadataEntryFilter = BlankMetadataEntryFilter.INSTANCE,
+                                   Set<String> sampleIds = metadataTable.sampleIds) {
+        def metadataTable = metadataTable.select(metadataEntryFilter, sampleIds)
+
+        def sampleCollection = new SampleCollection(software,
+                strict, lazy, store, metadataTable)
+
+        sampleMap.each {
+            def sampleConnection = it.value
+
+            if (sampleConnection instanceof DummySampleConnection) {
+                // sample is already loaded - need to reassing sample metadata
+                sampleConnection = new DummySampleConnection(
+                        new Sample(sampleConnection.getSample(), metadataTable.getRow(it.key))
+                )
+            }
+
+            sampleCollection.sampleMap.put(it.key, sampleConnection)
+        }
+
+        sampleCollection
     }
 
     /**

@@ -207,14 +207,16 @@ public class ExecUtil {
     /**
      * Gets the metadata file output path according to VDJtools convention
      * @param outputPrefix output prefix, either directory name or directory name + prefix
+     * @param splitterValue value used when splitting metadata by column 
      * @return
      */
-    public static String formMetadataPath(String outputPrefix) {
+    public static String formMetadataPath(String outputPrefix, String splitterValue = null) {
         if (!new File(outputPrefix).isDirectory()) { // leave only directory in output prefix
             outputPrefix = getPath(outputPrefix).parent.toString()
         }
 
-        formOutputPath(outputPrefix, "metadata")
+        splitterValue ? formOutputPath(outputPrefix, "metadata", splitterValue) :
+                formOutputPath(outputPrefix, "metadata")
     }
 
     public static void quiet() {

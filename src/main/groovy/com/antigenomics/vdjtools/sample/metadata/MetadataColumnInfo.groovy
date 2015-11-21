@@ -28,7 +28,6 @@
  */
 
 
-
 package com.antigenomics.vdjtools.sample.metadata
 
 /**
@@ -37,7 +36,8 @@ package com.antigenomics.vdjtools.sample.metadata
 public class MetadataColumnInfo {
     private final MetadataColumnType metadataColumnType
     private final int numericSamples, factorSamples
-    private final Set<MetadataEntry> _uniqueEntries = new HashSet<>()
+    private final Set<String> uniqueValues = new HashSet<>()
+    private final Map<String, List<String>> sampleIdByValue = new HashMap<>()
     private final String columnId
     private final MetadataTable parent
 
@@ -55,7 +55,12 @@ public class MetadataColumnInfo {
                 numericSamples++
             else
                 factorSamples++
-            this._uniqueEntries.add(it) // getter/member mess in groovy
+            this.uniqueValues.add(it.value) // getter/member mess in groovy
+            def sampleIds = sampleIdByValue[it.value]
+            if (sampleIds == null) {
+                sampleIdByValue.put(it.value, sampleIds = new ArrayList<String>())
+            }
+            sampleIds.add(it.parent.sampleId)
         }
 
         if (factorSamples > 0) {
@@ -72,7 +77,7 @@ public class MetadataColumnInfo {
 
     /**
      * Gets the type of metadata column.
-     * @return numeric, semi-numeric or factor, depending on column content.
+     * @return numeric , semi-numeric or factor, depending on column content.
      */
     public MetadataColumnType getMetadataColumnType() {
         metadataColumnType
@@ -95,11 +100,20 @@ public class MetadataColumnInfo {
     }
 
     /**
-     * Gets the set of unique entries.
-     * @return and unmodifiable set contaiting unique column values.
+     * Gets the set of entry values.
+     * @return and unmodifiable set containing unique column values.
      */
-    public Set<MetadataEntry> getUniqueEntries() {
-        Collections.unmodifiableSet(_uniqueEntries)
+    public Set<String> getValues() {
+        Collections.unmodifiableSet(uniqueValues)
+    }
+
+    /**
+     * Gets the list of sample IDs corresponding to a given entry value in this column.
+     * @param value entry value to match.
+     * @return list of sample identifiers.
+     */
+    public List<String> getSampleIds(String value) {
+        Collections.unmodifiableList(sampleIdByValue[value])
     }
 
     /**

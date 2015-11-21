@@ -151,4 +151,8 @@ public class SampleStreamConnection implements SampleConnection {
     public String toString() {
         "SampleFileConnection{$inputStreamFactory.id>${sampleMetadata.sampleId},storing=${store},loaded=${_sample != null}"
     }
+
+    InputStreamFactory getInputStreamFactory() {
+        return inputStreamFactory
+    }
 }

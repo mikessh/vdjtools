@@ -27,42 +27,36 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.io
+package com.antigenomics.vdjtools.sample.metadata
 
-import com.antigenomics.vdjtools.sample.metadata.MetadataUtil
-import com.antigenomics.vdjtools.util.CommonUtil
+class MetadataEntryExpressionFilter implements MetadataEntryFilter {
+    static final String FILTER_MARK = "__"
+    final String expression
+    final List<String> columnIds = new ArrayList<>()
 
-/**
- * A file input stream factory. This factory creates a new file connection each time.
- */
-public class FileInputStreamFactory implements InputStreamFactory {
-    private final String fileName
+    MetadataEntryExpressionFilter(String expression) {
+        expression.split(FILTER_MARK).each { token ->
+            def pattern = "$FILTER_MARK$token$FILTER_MARK"
+            if (expression.contains(pattern)) {
+                expression = expression.replaceAll(pattern, "x[\"$token\"]")
+                columnIds.add(token)
+            }
+        }
 
-    /**
-     * Creates a new instance of file input stream factory associated with a given file name
-     * @param fileName path to underlying file
-     */
-    public FileInputStreamFactory(String fileName) {
-        this.fileName = fileName
+        if (expression.contains(FILTER_MARK)) {
+            throw new RuntimeException("Failed to parse filter, '$FILTER_MARK' symbols left.")
+        }
+
+        this.expression = expression
     }
 
-    /**
-     * @inheritDoc
-     */
     @Override
-    public InputStream create() {
-        CommonUtil.getFileStream(fileName)
-    }
-
-    /**
-     * @inheritDoc
-     */
-    @Override
-    public String getId() {
-        MetadataUtil.fileName2id(fileName)
-    }
-
-    String getFileName() {
-        return fileName
+    boolean passes(Map<String, Object> entryValueMap) {
+        if (!entryValueMap.keySet().containsAll(columnIds)) {
+            throw new RuntimeException("Cannot process metadata $entryValueMap. " +
+                    "Some of the $columnIds column IDs required for evaluating filter are missing.")
+        }
+        
+        Eval.x(entryValueMap, expression)
     }
 }
