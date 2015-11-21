@@ -65,7 +65,7 @@ class SampleLoadTest {
 
     @Test
     public void migmapTest() {
-        loadTest(MigMap, 1938, 1750)
+        loadTest(MigMap, 720, 703)
     }
 
     @Test
