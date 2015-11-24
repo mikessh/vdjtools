@@ -109,7 +109,6 @@ class SampleCollection implements Iterable<Sample> {
      * Samples should belong to the same metadata table, sample order will be preserved.
      * @param samples list of samples.
      */
-    @CompileStatic
     public static SampleCollection fromSampleList(List<Sample> samples) {
         def originalMetadata = samples[0].sampleMetadata.parent,
         // create new metadata table
