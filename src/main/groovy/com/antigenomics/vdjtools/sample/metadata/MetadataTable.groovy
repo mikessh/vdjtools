@@ -80,7 +80,7 @@ class MetadataTable implements Iterable<SampleMetadata> {
     public MetadataTable copy() {
         def metadataTable = new MetadataTable(columnIds.collect())
         this.each {
-            metadataTable.addSample(it.changeParent(metadataTable))
+            metadataTable.addSample(it)
         }
         metadataTable
     }
@@ -103,7 +103,7 @@ class MetadataTable implements Iterable<SampleMetadata> {
             }
             sampleIds.contains(it.sampleId) && sampleFilter.passes(it)
         }.each {
-            metadataTable.addSample(it.changeParent(metadataTable))
+            metadataTable.addSample(it)
         }
         metadataTable
     }
@@ -291,12 +291,18 @@ class MetadataTable implements Iterable<SampleMetadata> {
         createRow(sampleId, new ArrayList<String>())
     }
 
-    private void addSample(SampleMetadata row) {
+    /**
+     * Adds a single sample metadata to given metadata table 
+     * @param row sample metadata
+     */
+    void addSample(SampleMetadata row) {
         // Extensive checks
         checkSample(row)
 
-        // Record this sample
+        // Copy & change ownership
+        row.changeParent(this)
 
+        // Record this sample
         sampleOrder.add(row.sampleId)
 
         metadataBySample.put(row.sampleId, row)

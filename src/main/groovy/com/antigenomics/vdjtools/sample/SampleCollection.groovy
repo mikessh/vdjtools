@@ -38,6 +38,7 @@ import com.antigenomics.vdjtools.sample.metadata.MetadataEntryFilter
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 import com.antigenomics.vdjtools.sample.metadata.MetadataUtil
 import com.antigenomics.vdjtools.util.ExecUtil
+import groovy.transform.CompileStatic
 
 /**
  * Base class used in VDJtools to store and handle collections of samples.
@@ -75,6 +76,7 @@ class SampleCollection implements Iterable<Sample> {
      * @param sampleIds sample IDs to keep.
      * @return a copy of sample collection containing selected samples only.
      */
+    @CompileStatic
     public SampleCollection select(MetadataEntryFilter metadataEntryFilter = BlankMetadataEntryFilter.INSTANCE,
                                    Set<String> sampleIds = metadataTable.sampleIds) {
         def metadataTable = metadataTable.select(metadataEntryFilter, sampleIds)
@@ -86,7 +88,7 @@ class SampleCollection implements Iterable<Sample> {
             def sampleConnection = it.value
 
             if (sampleConnection instanceof DummySampleConnection) {
-                // sample is already loaded - need to reassing sample metadata
+                // sample is already loaded - need to reassign sample metadata
                 sampleConnection = new DummySampleConnection(
                         new Sample(sampleConnection.getSample(), metadataTable.getRow(it.key))
                 )
@@ -103,6 +105,7 @@ class SampleCollection implements Iterable<Sample> {
      * Samples should belong to the same metadata table, sample order will be preserved.
      * @param samples list of samples.
      */
+    @CompileStatic
     public static SampleCollection fromSampleList(List<Sample> samples) {
         def originalMetadata = samples[0].sampleMetadata.parent,
         // create new metadata table
@@ -115,10 +118,12 @@ class SampleCollection implements Iterable<Sample> {
             def sampleMetadata = it.sampleMetadata
             if (sampleMetadata.parent != originalMetadata)
                 throw new Exception("Only samples coming from same metadata table are allowed")
-            // clone metadata to a new metadata table
-            sampleMetadata.changeParent(metadataTable)
+            // Store sample source
             def sampleId = sampleMetadata.sampleId
             sampleCollection.sampleMap.put(sampleId, new DummySampleConnection(it))
+
+            // Clone sample metadata to a new metadata table
+            metadataTable.addSample(sampleMetadata)
         }
         sampleCollection
     }
@@ -320,12 +325,13 @@ class SampleCollection implements Iterable<Sample> {
      * Pairs (i, j) are chosen such as j > i, no (i, i) pairs allowed.
      * @return a list of sample pairs
      */
+    @CompileStatic
     public List<SamplePair> listPairs() {
         def samplePairs = new ArrayList()
 
         for (int i = 0; i < size(); i++)
             for (int j = i + 1; j < size(); j++)
-                samplePairs.add(this[i, j])
+                samplePairs.add(getAt(i, j))
 
         samplePairs
     }
@@ -337,6 +343,7 @@ class SampleCollection implements Iterable<Sample> {
      * @param i sample index.
      * @return a list of sample pairs
      */
+    @CompileStatic
     public List<SamplePair> listPairs(int i) {
         def samplePairs = new ArrayList<SamplePair>()
 
@@ -366,6 +373,7 @@ class SampleCollection implements Iterable<Sample> {
      * @param i sample index
      * @return sample
      */
+    @CompileStatic
     public Sample getAt(int i) {
         if (i < 0 || i >= metadataTable.sampleCount)
             throw new IndexOutOfBoundsException()
@@ -379,6 +387,7 @@ class SampleCollection implements Iterable<Sample> {
      * @param j index of second sample in pair
      * @return sample pair
      */
+    @CompileStatic
     public SamplePair getAt(int i, int j) {
         new SamplePair(sampleMap[metadataTable.getRow(i).sampleId],
                 sampleMap[metadataTable.getRow(j).sampleId],
@@ -389,6 +398,7 @@ class SampleCollection implements Iterable<Sample> {
      * Gets an iterator that iterates over samples it current collection 
      * and loads them if needed
      */
+    @CompileStatic
     public Iterator iterator() {
         def iter = metadataTable.sampleIterator
         return [
