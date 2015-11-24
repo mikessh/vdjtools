@@ -85,16 +85,20 @@ class SampleCollection implements Iterable<Sample> {
                 strict, lazy, store, metadataTable)
 
         sampleMap.each {
-            def sampleConnection = it.value
+            def sampleMetadata = metadataTable.getRow(it.key)
 
-            if (sampleConnection instanceof DummySampleConnection) {
-                // sample is already loaded - need to reassign sample metadata
-                sampleConnection = new DummySampleConnection(
-                        new Sample(sampleConnection.getSample(), metadataTable.getRow(it.key))
-                )
+            if (sampleMetadata) {
+                def sampleConnection = it.value
+
+                if (sampleConnection instanceof DummySampleConnection) {
+                    // sample is already loaded - need to reassign sample metadata
+                    sampleConnection = new DummySampleConnection(
+                            new Sample(sampleConnection.getSample(), sampleMetadata)
+                    )
+                }
+
+                sampleCollection.sampleMap.put(it.key, sampleConnection)
             }
-
-            sampleCollection.sampleMap.put(it.key, sampleConnection)
         }
 
         sampleCollection
