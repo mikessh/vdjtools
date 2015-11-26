@@ -37,7 +37,7 @@ import com.antigenomics.vdjtools.util.MathUtil
  * A class that implements down-sampling procedure, i.e.
  * selecting {@code n < N} reads from a given sample with {@code N} reads 
  */
-public class DownSampler {
+public class DownSampler implements Sampler{
     private final Clonotype[] flattenedClonotypes
     private final Sample sample
     private final boolean unweighted
@@ -78,7 +78,7 @@ public class DownSampler {
 
     /**
      * Gets a specified number of reads from a given sample
-     * @param count number of reads to take
+     * @param count number of reads (weighted) or clonotypes (unweighted) to take
      * @return a newly create down-sampled sample, or the underlying sample if the number of reads is greated or equal to the sample size
      */
     public Sample reSample(int count) {
