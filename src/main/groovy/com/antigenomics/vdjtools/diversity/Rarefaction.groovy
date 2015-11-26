@@ -182,7 +182,7 @@ class Rarefaction {
 
         public RarefactionPoint(SpeciesRichness richness) {
             this.richnessType = richness.type
-            this.x = richnessType == RichnessEstimateType.TotalDiversityLowerBoundEstimate ? 1e20 : richness.numberOfReads
+            this.x = richnessType == RichnessEstimateType.TotalDiversityLowerBoundEstimate ? 1e20 : richness.size
             this.mean = richness.mean
             this.ciL = mean - 1.96 * richness.std
             this.ciU = mean + 1.96 * richness.std

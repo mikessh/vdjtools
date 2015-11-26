@@ -29,56 +29,31 @@
 
 package com.antigenomics.vdjtools.diversity
 
-/**
- * An estimate of repertoire diversity computed based on the abundances of sampled clonotypes.
- */
-class DiversityEstimate {
-    protected final mean, std
-    protected final long size
+import com.antigenomics.vdjtools.join.JointSample
 
-    public static DiversityEstimate DUMMY = new DiversityEstimate("NA", "NA", -1)
+class Chao2Estimator {
+    final JointSample jointSample
 
-    /**
-     * Creates a structure holding diversity estimate summary.
-     * @param mean expected value of a diversity estimate.
-     * @param std standard deviation of a diversity estimate.
-     * @param size size of the sample that was analyzed.
-     */
-    DiversityEstimate(mean, std, long size) {
-        this.mean = mean
-        this.std = std
-        this.size = size
+    Chao2Estimator(JointSample jointSample) {
+        this.jointSample = jointSample
     }
 
-    /**
-     * Gets the mean value of diversity estimate. 
-     * @return mean value.
-     */
-    def getMean() {
-        mean
-    }
+    DiversityEstimate compute() {
+        def sObs = jointSample.diversity,
+            q1 = 0, q2 = 0, m = jointSample.numberOfSamples
 
-    /**
-     * Gets the standard deviation of diversity estimate. 
-     * @return standard deviation.
-     */
-    def getStd() {
-        std
-    }
+        jointSample.each {
+            def occurences = it.occurences
+            if (occurences == 1)
+                q1++
+            else if (occurences == 2)
+                q2++
+        }
 
-    /**
-     * Gets the size of the sample that was analyzed.
-     * @return sample size.
-     */
-    long getSize() {
-        size
-    }
+        def q1q2 = q1 / q2
 
-    /**
-     * Plain text row for tabular output
-     */
-    @Override
-    public String toString() {
-        [mean, std].join("\t")
+        new DiversityEstimate(sObs + (m - 1) / m * q1 * (q1 - 1) / 2 / (q2 + 1),
+                Math.sqrt(q2 * (0.5 * Math.pow(q1q2, 2) + Math.pow(q1q2, 3) + 0.25 * Math.pow(q1q2, 4))),
+                m)
     }
 }
