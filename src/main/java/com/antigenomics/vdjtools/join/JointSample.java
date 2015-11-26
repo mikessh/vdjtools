@@ -45,6 +45,7 @@ public class JointSample implements Iterable<JointClonotype> {
     private final long[] intersectionCount;
     private final long[][] intersectionCountMatrix;
     private final int[] intersectionDiv;
+    private final int[] totalDiv;
     private final int[][] intersectionDivMatrix;
     private final List<JointClonotype> jointClonotypes;
     private final double totalMeanFreq, minMeanFreq;
@@ -56,7 +57,7 @@ public class JointSample implements Iterable<JointClonotype> {
     private JointSample(Sample[] samples, double[] transformedCountSum,
                         double[] intersectionFreq, double[][] intersectionFreqMatrix,
                         long[] intersectionCount, long[][] intersectionCountMatrix,
-                        int[] intersectionDiv, int[][] intersectionDivMatrix,
+                        int[] totalDiv, int[] intersectionDiv, int[][] intersectionDivMatrix,
                         List<JointClonotype> jointClonotypes,
                         double totalMeanFreq, double minMeanFreq,
                         int numberOfSamples, long count,
@@ -67,6 +68,7 @@ public class JointSample implements Iterable<JointClonotype> {
         this.intersectionFreqMatrix = intersectionFreqMatrix;
         this.intersectionCount = intersectionCount;
         this.intersectionCountMatrix = intersectionCountMatrix;
+        this.totalDiv = totalDiv;
         this.intersectionDiv = intersectionDiv;
         this.intersectionDivMatrix = intersectionDivMatrix;
         this.jointClonotypes = jointClonotypes;
@@ -87,6 +89,7 @@ public class JointSample implements Iterable<JointClonotype> {
         this.numberOfSamples = samples.length;
         this.samples = samples;
         this.transformedCountSum = new double[numberOfSamples];
+        this.totalDiv = new int[numberOfSamples];
         this.intersectionDiv = new int[numberOfSamples];
         this.intersectionFreq = new double[numberOfSamples];
         this.intersectionFreqMatrix = new double[numberOfSamples][numberOfSamples];
@@ -120,6 +123,12 @@ public class JointSample implements Iterable<JointClonotype> {
         double totalMeanFreq = 0, minMeanFreq = 1;
         int count = 0;
         for (JointClonotype jointClonotype : clonotypeMap.values()) {
+            for (int i = 0; i < numberOfSamples; i++) {
+                if (jointClonotype.present(i)) {
+                    totalDiv[i]++;
+                }
+            }
+
             if (joinFilter.pass(jointClonotype)) {
                 jointClonotypes.add(jointClonotype);
 
@@ -246,6 +255,10 @@ public class JointSample implements Iterable<JointClonotype> {
         return reverse ? jointClonotype.changeParent(this) : jointClonotype;
     }
 
+    public int getTotalDiv(int sampleIndex) {
+        return totalDiv[getIndex(sampleIndex)];
+    }
+
     public int getIntersectionDiv(int sampleIndex) {
         return intersectionDiv[getIndex(sampleIndex)];
     }
@@ -339,7 +352,7 @@ public class JointSample implements Iterable<JointClonotype> {
         return new JointSample(samples, transformedCountSum,
                 intersectionFreq, intersectionFreqMatrix,
                 intersectionCount, intersectionCountMatrix,
-                intersectionDiv, intersectionDivMatrix,
+                totalDiv, intersectionDiv, intersectionDivMatrix,
                 jointClonotypes,
                 totalMeanFreq, minMeanFreq,
                 numberOfSamples, count, overlapType, true);
