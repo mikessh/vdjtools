@@ -53,6 +53,8 @@ public class RatioFilter extends ClonotypeFilter {
 
     @Override
     protected boolean checkPass(Clonotype clonotype) {
-        return sampleAggregator.getAt(clonotype).getMaxFreq() < clonotype.getFreq() * thresholdRatio;
+        MaxClonotypeAggregator aggregator = sampleAggregator.getAt(clonotype);
+        return aggregator == null ||
+                aggregator.getMaxFreq() < clonotype.getFreq() * thresholdRatio;
     }
 }

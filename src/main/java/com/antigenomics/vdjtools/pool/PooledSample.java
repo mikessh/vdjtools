@@ -30,12 +30,19 @@
 package com.antigenomics.vdjtools.pool;
 
 import com.antigenomics.vdjtools.ClonotypeWrapperContainer;
+import com.antigenomics.vdjtools.overlap.OverlapType;
+import com.antigenomics.vdjtools.sample.SampleCollection;
 
 import java.util.*;
 
 public class PooledSample implements ClonotypeWrapperContainer<StoringClonotypeAggregator> {
     private final List<StoringClonotypeAggregator> clonotypes;
     private final long count;
+
+    public PooledSample(SampleCollection samples) {
+        this(new SampleAggregator(samples,
+                new StoringClonotypeAggregatorFactory(), OverlapType.Strict));
+    }
 
     public PooledSample(SampleAggregator<StoringClonotypeAggregator> sampleAggregator) {
         this.clonotypes = new ArrayList<>(sampleAggregator.getDiversity());

@@ -32,10 +32,10 @@ package com.antigenomics.vdjtools.preprocess
 import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 
-class CountSampler implements Sampler {
+class TopCountSampler implements Sampler {
     final Sample sample
 
-    CountSampler(Sample sample) {
+    TopCountSampler(Sample sample) {
         this.sample = sample
     }
 
@@ -49,10 +49,10 @@ class CountSampler implements Sampler {
             int countSum = 0
 
             sample.any {
-                countMap += it.count
-                if (countSum < count) {
-                    countMap.put(it, it.count)
-                }
+                countSum += it.count
+
+                countMap.put(it, it.count)
+
                 countSum >= count
             }
 
