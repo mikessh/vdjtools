@@ -34,17 +34,17 @@ import com.antigenomics.vdjtools.sample.metadata.BlankMetadataEntryFilter
 
 def cli = new CliBuilder(usage: "SplitMetadata [options] metadata.txt output_prefix")
 cli.h("display help message")
-cli.c(longOpt: "column", argName: "string", args: 1, required: true,
-        "Column name to split metadata by.")
+cli.c(longOpt: "columns", argName: "string1,string2,...", args: 1, required: true,
+        "Column name(s) to split metadata by.")
 
 def opt = cli.parse(args)
 
-if (opt == null || opt.h || opt.arguments().size() != 2) {
+if (opt.h || opt.arguments().size() != 2) {
     cli.usage()
     System.exit(1)
 }
 
-def metadataFileName = opt.arguments()[0], columnId = (String) opt.c, outputPrefix = opt.arguments()[1]
+def metadataFileName = opt.arguments()[0], columnIds = ((String) opt.c).split(","), outputPrefix = opt.arguments()[1]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -52,14 +52,23 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 println "[${new Date()} $scriptName] Checking sample(s)"
 def sampleCollection = new SampleCollection((String) metadataFileName)
 
-println "[${new Date()} $scriptName] Splitting metadata by $columnId"
+println "[${new Date()} $scriptName] Splitting metadata by $columnIds"
 
-def columnInfo = sampleCollection.metadataTable.getInfo(columnId)
-columnInfo.values.each {
+def sampleIdByMetadataValue = new HashMap<String, List<String>>()
+
+sampleCollection.each { sample ->
+    def key = columnIds.collect { sample.sampleMetadata[it].value }.join(".")
+    def sampleList = sampleIdByMetadataValue[key]
+    if (sampleList == null) {
+        sampleIdByMetadataValue.put(key, sampleList = new ArrayList<String>())
+    }
+    sampleList.add(sample.sampleMetadata.sampleId)
+}
+
+sampleIdByMetadataValue.each {
     def filteredMetadataTable = sampleCollection.metadataTable.select(BlankMetadataEntryFilter.INSTANCE,
-            new HashSet<String>(columnInfo.getSampleIds(it)))
-    filteredMetadataTable.storeWithOutput(outputPrefix, sampleCollection, it)
-
+            new HashSet<String>(it.value))
+    filteredMetadataTable.storeWithOutput(outputPrefix, sampleCollection, it.key)
 }
 
 println "[${new Date()} $scriptName] Finished"

@@ -40,7 +40,7 @@ cli.f(longOpt: "filter", argName: "string", args: 1, required: true,
 
 def opt = cli.parse(args)
 
-if (opt == null || opt.h || opt.arguments().size() != 2) {
+if (opt.h || opt.arguments().size() != 2) {
     cli.usage()
     System.exit(1)
 }
