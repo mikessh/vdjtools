@@ -1,6 +1,6 @@
 args<-commandArgs(TRUE)
 
-require(reshape); require(ggplot2); require(gridExtra); require(FField)
+require(reshape); require(ggplot2); require(gridExtra); require(FField); require(grid)
 
 file_in   <- args[1] #"rarefaction.strict.txt"
 lbl_col   <- as.integer(args[2]) #5

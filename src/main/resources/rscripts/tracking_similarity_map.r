@@ -1,6 +1,6 @@
 args <- commandArgs(TRUE)
 
-require(ggplot2); require(reshape); require(gridExtra)
+require(ggplot2); require(reshape); require(gridExtra); require(grid)
 
 file_in  <- args[1]
 file_out <- args[2]

@@ -9,7 +9,7 @@
 
 #options(error=traceback)
 
-require(ggplot2); require(grid); require(gridExtra); require(reshape)
+require(ggplot2); require(grid); require(gridExtra); require(reshape); require(grid)
 
 # data input
 

@@ -2,7 +2,7 @@
 
 args <- commandArgs(TRUE)
 
-require(ggplot2); require(reshape); require(gridExtra)
+require(ggplot2); require(reshape); require(gridExtra); require(grid)
 
 label    <- args[1] #"time since HSCT, months"
 points   <- args[2] #"-48,-0.5,4,10,25,37,72"
