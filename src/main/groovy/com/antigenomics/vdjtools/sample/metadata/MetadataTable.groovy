@@ -347,7 +347,7 @@ class MetadataTable implements Iterable<SampleMetadata> {
         }
 
         new File(metadataPath).withPrintWriter { pw ->
-            pw.println("#$FILE_NAME_COLUMN\t$SAMPLE_ID_COLUMN\t" + metadataTableCopy.columnHeader)
+            pw.println("$FILE_NAME_COLUMN\t$SAMPLE_ID_COLUMN\t" + metadataTableCopy.columnHeader)
             metadataTableCopy.each {
                 def sampleOutputPath = formOutputPath(outputPrefix, it.sampleId)
 
@@ -368,10 +368,12 @@ class MetadataTable implements Iterable<SampleMetadata> {
     public void storeWithOutput(String outputPrefix, SampleCollection sampleCollection, String splitterValue = null) {
         def metadataPath = formMetadataPath(outputPrefix, splitterValue)
 
+        new File(metadataPath).createNewFile()
+
         def metadataTableCopy = this.copy()
 
         new File(metadataPath).withPrintWriter { pw ->
-            pw.println("#$FILE_NAME_COLUMN\t$SAMPLE_ID_COLUMN\t" + metadataTableCopy.columnHeader)
+            pw.println("$FILE_NAME_COLUMN\t$SAMPLE_ID_COLUMN\t" + metadataTableCopy.columnHeader)
             metadataTableCopy.eachWithIndex { it, ind ->
                 def connection = sampleCollection.sampleMap[it.sampleId] as SampleFileConnection
                 def fileInputStream = connection.inputStreamFactory as FileInputStreamFactory

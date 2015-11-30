@@ -29,6 +29,7 @@
 
 package com.antigenomics.vdjtools.util
 
+import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.MetadataEntryExpressionFilter
 
@@ -40,9 +41,13 @@ cli.f(longOpt: "filter", argName: "string", args: 1, required: true,
 
 def opt = cli.parse(args)
 
+if (opt == null) {
+    System.exit(2)
+}
+
 if (opt.h || opt.arguments().size() != 2) {
     cli.usage()
-    System.exit(1)
+    System.exit(2)
 }
 
 def metadataFileName = opt.arguments()[0], filter = (String) opt.f, outputPrefix = opt.arguments()[1]
@@ -51,7 +56,7 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 // Lazy load sample list, need to get absolute paths
 println "[${new Date()} $scriptName] Checking sample(s)"
-def sampleCollection = new SampleCollection((String) metadataFileName)
+def sampleCollection = new SampleCollection((String) metadataFileName, Software.VDJtools, false)
 
 println "[${new Date()} $scriptName] Filtering metadata by $filter"
 def filteredMetadataTable = sampleCollection.metadataTable.select(new MetadataEntryExpressionFilter(filter))

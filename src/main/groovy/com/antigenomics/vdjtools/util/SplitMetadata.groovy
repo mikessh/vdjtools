@@ -29,6 +29,7 @@
 
 package com.antigenomics.vdjtools.util
 
+import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.BlankMetadataEntryFilter
 
@@ -39,9 +40,13 @@ cli.c(longOpt: "columns", argName: "string1,string2,...", args: 1, required: tru
 
 def opt = cli.parse(args)
 
+if (opt == null) {
+    System.exit(2)
+}
+
 if (opt.h || opt.arguments().size() != 2) {
     cli.usage()
-    System.exit(1)
+    System.exit(2)
 }
 
 def metadataFileName = opt.arguments()[0], columnIds = ((String) opt.c).split(","), outputPrefix = opt.arguments()[1]
@@ -50,13 +55,14 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 // Lazy load sample list, need to get absolute paths
 println "[${new Date()} $scriptName] Checking sample(s)"
-def sampleCollection = new SampleCollection((String) metadataFileName)
+def sampleCollection = new SampleCollection((String) metadataFileName, Software.VDJtools, false)
 
 println "[${new Date()} $scriptName] Splitting metadata by $columnIds"
 
 def sampleIdByMetadataValue = new HashMap<String, List<String>>()
 
-sampleCollection.each { sample ->
+sampleCollection.sampleMap.values().each { sampleConnection ->
+    def sample = sampleConnection.haveAGlance()
     def key = columnIds.collect { sample.sampleMetadata[it].value }.join(".")
     def sampleList = sampleIdByMetadataValue[key]
     if (sampleList == null) {
