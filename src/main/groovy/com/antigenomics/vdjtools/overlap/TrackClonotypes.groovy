@@ -201,8 +201,10 @@ def sampleWriter = new SampleWriter(compress)
 sampleWriter.write(jointSample, formOutputPath(outputPrefix, "tracking", intersectionType.shortName, "table"))
 
 def tableCollapsedOutputPath = formOutputPath(outputPrefix, "tracking", intersectionType.shortName, "table", "collapsed")
-if (top >= 0)
+if (top >= 0) {
+    sampleWriter = new SampleWriter(false)
     sampleWriter.write(jointSample, tableCollapsedOutputPath, top, true)
+}
 
 //
 // Write summary output
