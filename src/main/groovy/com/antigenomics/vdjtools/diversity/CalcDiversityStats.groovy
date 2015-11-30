@@ -110,7 +110,7 @@ def minReads = (opt.x ?: "$sampleStats.minCount").toInteger(),
 // Compute and output diversity measures
 //
 
-def headerBase = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
+def headerBase = "$MetadataTable.SAMPLE_ID_COLUMN\t" +
         sampleCollection.metadataTable.columnHeader + "\treads\tdiversity"
 
 def exactOutputPath = formOutputPath(outputPrefix, "diversity",

@@ -30,7 +30,6 @@
 package com.antigenomics.vdjtools
 
 enum Software {
-    // todo : output mutations
     MiTcr("\t", null, 2, false, false, ["count", "freq",
                                         "cdr3nt", _, _, "cdr3aa",
                                         _, "v", _, "j", _, "d",
@@ -61,7 +60,7 @@ enum Software {
     // Output is not tab-delimited table, no freq, incomplete V/J names, no D, etc
     // 'per read output' is specified to re-calculate clonotype frequencies
     ImSeq("[\t:]", null, 0, true, true, ["v", "cdr3nt", "j", "count"]),
-    VDJtools("\t", "#", 0, false, false, ["count", "freq",
+    VDJtools("\t", null, 1, false, false, ["count", "freq",
                                           "cdr3nt", "cdr3aa",
                                           "v", "d", "j",
                                           "VEnd", "DStart", "DEnd", "JStart"])

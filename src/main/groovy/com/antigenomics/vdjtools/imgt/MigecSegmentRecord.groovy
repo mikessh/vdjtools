@@ -29,7 +29,7 @@ class MigecSegmentRecord {
         this.referencePoint = referencePoint
     }
 
-    final static String HEADER = "#species\tgene\tsegment\tid\treference_point\tsequence"
+    final static String HEADER = "species\tgene\tsegment\tid\treference_point\tsequence"
 
     @Override
     String toString() {

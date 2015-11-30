@@ -122,7 +122,7 @@ class ImgtToMigecParser {
         null
     }
 
-    static final String HEADER = "#SPECIES\tGENE\tV\tD\tJ\tVJ"
+    static final String HEADER = "SPECIES\tGENE\tV\tD\tJ\tVJ"
 
     @Override
     String toString() {

@@ -148,7 +148,7 @@ public class PairwiseOverlap {
      * Header string, used for tabular output
      */
     public String getHeader() {
-        ["#1_$MetadataTable.SAMPLE_ID_COLUMN", "2_$MetadataTable.SAMPLE_ID_COLUMN",
+        ["1_$MetadataTable.SAMPLE_ID_COLUMN", "2_$MetadataTable.SAMPLE_ID_COLUMN",
          Overlap.OUTPUT_FIELDS.collect(), intersectMetrics.collect { it.shortName },
          sampleCollection.metadataTable.columnHeader1,
          sampleCollection.metadataTable.columnHeader2].flatten().join("\t")

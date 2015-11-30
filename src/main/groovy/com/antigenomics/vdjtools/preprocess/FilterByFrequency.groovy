@@ -108,7 +108,7 @@ def filter = new CompositeClonotypeFilter(
 )
 
 new File(formOutputPath(outputFilePrefix, "freqfilter", "summary")).withPrintWriter { pw ->
-    def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
+    def header = "$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\t" +
             ClonotypeFilter.ClonotypeFilterStats.HEADER
 

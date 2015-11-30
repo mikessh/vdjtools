@@ -97,7 +97,7 @@ new File(formOutputPath(outputFilePrefix, "spectratype", (aminoAcid ? "aa" : "nt
                 insertHist = new InsertHist(unweighted),
                 ndnHist = new NdnHist(unweighted)
 
-            def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" + sampleCollection.metadataTable.columnHeader + "\t"
+            def header = "$MetadataTable.SAMPLE_ID_COLUMN\t" + sampleCollection.metadataTable.columnHeader + "\t"
 
             pwSpectra.println(header + spectratype.HEADER)
             pwIns.println(header + insertHist.HEADER)

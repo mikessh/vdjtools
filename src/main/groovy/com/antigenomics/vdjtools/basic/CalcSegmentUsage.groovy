@@ -102,7 +102,7 @@ def outputPathV = formOutputPath(outputFilePrefix, "segments", unweighted ? "unw
     outputPathJ = formOutputPath(outputFilePrefix, "segments", unweighted ? "unwt" : "wt", "J")
 new File(outputPathV).withPrintWriter { pwV ->
     new File(outputPathJ).withPrintWriter { pwJ ->
-        def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" + sampleCollection.metadataTable.columnHeader
+        def header = "$MetadataTable.SAMPLE_ID_COLUMN\t" + sampleCollection.metadataTable.columnHeader
 
         pwV.println(header + "\t" + segmentUsage.vUsageHeader().join("\t"))
         pwJ.println(header + "\t" + segmentUsage.jUsageHeader().join("\t"))

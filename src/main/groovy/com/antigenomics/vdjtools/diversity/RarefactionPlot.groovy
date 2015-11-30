@@ -130,7 +130,7 @@ def maxCount = Math.max(sampleStats.maxCount,
 // Rarefaction analysis
 //
 
-def header = ["#$MetadataTable.SAMPLE_ID_COLUMN", sampleCollection.metadataTable.columnHeader,
+def header = ["$MetadataTable.SAMPLE_ID_COLUMN", sampleCollection.metadataTable.columnHeader,
               Rarefaction.RarefactionPoint.HEADER].flatten().join("\t")
 
 def outputTablePath = formOutputPath(outputPrefix, "rarefaction", intersectionType.shortName)

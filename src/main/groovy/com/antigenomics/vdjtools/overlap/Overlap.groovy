@@ -370,7 +370,7 @@ public class Overlap {
      * Header string, used for tabular output
      */
     public String getHeader() {
-        ["#1_$MetadataTable.SAMPLE_ID_COLUMN", "2_$MetadataTable.SAMPLE_ID_COLUMN",
+        ["1_$MetadataTable.SAMPLE_ID_COLUMN", "2_$MetadataTable.SAMPLE_ID_COLUMN",
          OUTPUT_FIELDS.collect(), intersectMetrics.collect { it.shortName },
          header1, header2].flatten().join("\t")
     }
@@ -379,7 +379,7 @@ public class Overlap {
      * Generic header string
      */
     public static String HEADER =
-            ["#1_$MetadataTable.GENERIC_METADATA_TABLE.SAMPLE_ID_COLUMN",
+            ["1_$MetadataTable.GENERIC_METADATA_TABLE.SAMPLE_ID_COLUMN",
              "2_$MetadataTable.GENERIC_METADATA_TABLE.SAMPLE_ID_COLUMN",
              OUTPUT_FIELDS.collect(), OverlapMetric.collect { it.shortName },
              MetadataTable.GENERIC_METADATA_TABLE.columnHeader1,

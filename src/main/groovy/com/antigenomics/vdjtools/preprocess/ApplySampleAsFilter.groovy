@@ -124,7 +124,7 @@ println "[${new Date()} $scriptName] Filtering (${negative ? "negative" : "posit
 def sw = new SampleWriter(compress)
 
 new File(formOutputPath(outputFilePrefix, "asaf", "summary")).withPrintWriter { pw ->
-    def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
+    def header = "$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\t" +
             ClonotypeFilter.ClonotypeFilterStats.HEADER
 

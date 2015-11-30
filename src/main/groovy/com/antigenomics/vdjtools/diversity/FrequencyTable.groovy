@@ -194,7 +194,7 @@ class FrequencyTable {
     /**
      * Header for plain-text output. 
      */
-    static final String HEADER = "#count_bin\tclonotypes_in_bin"
+    static final String HEADER = "count_bin\tclonotypes_in_bin"
 
     @Override
     String toString() {

@@ -106,7 +106,7 @@ def writer = new SampleWriter(compress)
 
 def filter = new CompositeClonotypeFilter(negative, vFilter, dFilter, jFilter)
 new File(formOutputPath(outputFilePrefix, "segfilter", "summary")).withPrintWriter { pw ->
-    def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
+    def header = "$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\t" +
             ClonotypeFilter.ClonotypeFilterStats.HEADER
 

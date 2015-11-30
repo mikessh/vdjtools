@@ -91,7 +91,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) prepar
 //
 
 new File(formOutputPath(outputFilePrefix, "basicstats")).withPrintWriter { pw ->
-    def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
+    def header = "$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\t" +
             BasicStats.HEADER
 

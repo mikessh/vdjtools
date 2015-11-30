@@ -132,7 +132,7 @@ def profileBuilder = new Cdr3AAProfileBuilder(binning, !unweighted, !includeCFW,
 def outputFileName = formOutputPath(outputFilePrefix, "cdr3aa", "profile", (unweighted ? "unwt" : "wt"))
 
 new File(outputFileName).withPrintWriter { pw ->
-    def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
+    def header = "$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\t" +
             "cdr3.segment\tbin\tproperty\tvalue\ttotal"
 

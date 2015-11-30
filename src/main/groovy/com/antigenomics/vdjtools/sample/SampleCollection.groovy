@@ -231,9 +231,9 @@ class SampleCollection implements Iterable<Sample> {
         new File(sampleMetadataFileName).withReader { reader ->
             def headerLine = reader.readLine()
 
-            if (!headerLine.startsWith("#")) {
-                throw new Exception("Metadata header should be marked with hash prefix (#)")
-            }
+            //if (!headerLine.startsWith("#")) {
+            //    throw new Exception("Metadata header should be marked with hash prefix (#)")
+            //}
 
             def metadataColumns = headerLine.split("\t")
             metadataTable = new MetadataTable(metadataColumns.size() > 2 ? metadataColumns[2..-1] : [])

@@ -214,7 +214,7 @@ println "[${new Date()} $scriptName] Writing output"
 
 def summaryOutputPath = formOutputPath(outputPrefix, "tracking", intersectionType.shortName, "summary")
 new File(summaryOutputPath).withPrintWriter { pw ->
-    pw.println("#1_$MetadataTable.SAMPLE_ID_COLUMN\t2_$MetadataTable.SAMPLE_ID_COLUMN\t" +
+    pw.println("1_$MetadataTable.SAMPLE_ID_COLUMN\t2_$MetadataTable.SAMPLE_ID_COLUMN\t" +
             "value\tmetric\t1_time\t2_time\t" +
             sampleCollection.metadataTable.columnHeader1 + "\t" +
             sampleCollection.metadataTable.columnHeader2)

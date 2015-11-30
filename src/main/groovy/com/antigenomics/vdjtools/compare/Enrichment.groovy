@@ -126,7 +126,7 @@ println "[${new Date()} $scriptName] Computing enrichment statistics for input c
 def sw = new SampleWriter(compress)
 
 new File(formOutputPath(outputFilePrefix, "enrich", "summary")).withPrintWriter { pw ->
-    def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
+    def header = "$MetadataTable.SAMPLE_ID_COLUMN\t" +
             filteredSamples.metadataTable.columnHeader + "\t" +
             ClonotypeFilter.ClonotypeFilterStats.HEADER
 

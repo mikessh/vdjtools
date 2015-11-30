@@ -99,7 +99,7 @@ def writer = new SampleWriter(compress)
 
 def filter = new FunctionalClonotypeFilter(negative)
 new File(formOutputPath(outputFilePrefix, "ncfilter", "summary")).withPrintWriter { pw ->
-    def header = "#$MetadataTable.SAMPLE_ID_COLUMN\t" +
+    def header = "$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\t" +
             ClonotypeFilter.ClonotypeFilterStats.HEADER
 
