@@ -43,11 +43,11 @@ cli._(longOpt: "plot-type", argName: "pdf|png", args: 1, "Plot output format [de
 def opt = cli.parse(args)
 
 if (opt == null)
-    System.exit(-1)
+    System.exit(2)
 
 if (opt.h || opt.arguments().size() != 2) {
     cli.usage()
-    System.exit(-1)
+    System.exit(2)
 }
 
 def unweighted = (boolean) opt.u,

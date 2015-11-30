@@ -30,7 +30,6 @@
 package com.antigenomics.vdjtools.diversity
 
 import com.antigenomics.vdjtools.Countable
-import com.antigenomics.vdjtools.Counter
 import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.join.ClonotypeKeyGen
 import com.antigenomics.vdjtools.join.key.ClonotypeKey
@@ -287,6 +286,14 @@ class FrequencyTable {
         @Override
         int hashCode() {
             (int) (this.count ^ (this.count >>> 32))
+        }
+    }
+
+    static class Counter implements Countable {
+        int count = 0
+
+        void add(Countable other) {
+            count += other.count
         }
     }
 }

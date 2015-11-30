@@ -46,11 +46,11 @@ cli._(longOpt: "plot-type", argName: "pdf|png", args: 1, "Plot output format [de
 def opt = cli.parse(args)
 
 if (opt == null)
-    System.exit(-1)
+    System.exit(2)
 
 if (opt.h || opt.arguments().size() != 2) {
     cli.usage()
-    System.exit(-1)
+    System.exit(2)
 }
 
 def outputFilePrefix = opt.arguments()[1],
@@ -60,7 +60,7 @@ def outputFilePrefix = opt.arguments()[1],
 
 if (top > TOP_MAX) {
     println "[ERROR] Specified number of top V segments should not exceed 20"
-    System.exit(-1)
+    System.exit(2)
 }
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]

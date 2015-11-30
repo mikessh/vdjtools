@@ -47,11 +47,11 @@ cli.c(longOpt: "compress", "Compress output sample files.")
 def opt = cli.parse(args)
 
 if (opt == null)
-    System.exit(-1)
+    System.exit(2)
 
 if (opt.h || opt.arguments().size() == 0) {
     cli.usage()
-    System.exit(-1)
+    System.exit(2)
 }
 
 // Check if metadata is provided
@@ -64,7 +64,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
     else
         println "At least 1 sample files should be provided if not using -m"
     cli.usage()
-    System.exit(-1)
+    System.exit(2)
 }
 
 // Remaining arguments

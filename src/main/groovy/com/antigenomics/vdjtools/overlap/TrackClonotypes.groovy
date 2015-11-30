@@ -79,12 +79,12 @@ cli._(longOpt: "plot-type", argName: "pdf|png", args: 1, "Plot output format [de
 def opt = cli.parse(args)
 
 if (opt == null) {
-    System.exit(-1)
+    System.exit(2)
 }
 
 if (opt.h) {
     cli.usage()
-    System.exit(0)
+    System.exit(2)
 }
 
 // Check if metadata is provided
@@ -97,7 +97,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 4)
     else
         println "At least 3 sample files should be provided if not using -m"
     cli.usage()
-    System.exit(-1)
+    System.exit(2)
 }
 
 // Other parameters
@@ -118,7 +118,7 @@ def intersectionType = OverlapType.getByShortName(iName)
 if (!intersectionType) {
     println "[ERROR] Bad overlap type specified ($iName). " +
             "Allowed values are: $OverlapType.allowedNames"
-    System.exit(-1)
+    System.exit(2)
 }
 
 // Define number of clonotypes to show explicitly
@@ -127,7 +127,7 @@ def top = (opt.t ?: TOP_DEFAULT).toInteger()
 
 if (top > TOP_MAX) {
     println "[ERROR] Specified number of top clonotypes should not exceed $TOP_MAX"
-    System.exit(-1)
+    System.exit(2)
 }
 
 //
@@ -144,7 +144,7 @@ def metadataTable = sampleCollection.metadataTable
 
 if (sampleCollection.size() < 3) {
     println "[ERROR] Metadata file should contain at least 3 samples"
-    System.exit(-1)
+    System.exit(2)
 }
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
@@ -162,7 +162,7 @@ int n = timePoints.size()
 if (n != sampleCollection.size()) {
     println "[ERROR] $n time points provided, " +
             "while sample collection contains ${sampleCollection.size()} samples"
-    System.exit(-1)
+    System.exit(2)
 }
 
 // sort

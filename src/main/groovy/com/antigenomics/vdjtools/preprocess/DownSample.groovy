@@ -39,18 +39,18 @@ cli.h("display help message")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
-cli.x(longOpt: "num-reads", argName: "integer", required: true, args: 1, "Number of reads to sample.")
+cli.x(longOpt: "size", argName: "integer", required: true, args: 1, "Number of reads/clonotypes to sample.")
 cli.u(longOpt: "unweighted", "Don't weight clonotypes by frequency during sampling.")
 cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
 
 if (opt == null)
-    System.exit(-1)
+    System.exit(2)
 
 if (opt.h || opt.arguments().size() == 0) {
     cli.usage()
-    System.exit(-1)
+    System.exit(2)
 }
 
 // Check if metadata is provided
@@ -63,7 +63,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
     else
         println "At least 1 sample files should be provided if not using -m"
     cli.usage()
-    System.exit(-1)
+    System.exit(2)
 }
 
 // Remaining arguments

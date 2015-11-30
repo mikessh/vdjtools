@@ -56,11 +56,11 @@ cli._(longOpt: "plot-area-v2", "Use alternative stacked area plot.")
 def opt = cli.parse(args)
 
 if (opt == null)
-    System.exit(-1)
+    System.exit(2)
 
 if (opt.h || opt.arguments().size() < 3) {
     cli.usage()
-    System.exit(-1)
+    System.exit(2)
 }
 
 def sample1FileName = opt.arguments()[0], sample2FileName = opt.arguments()[1],
@@ -78,7 +78,7 @@ def intersectionType = OverlapType.getByShortName(iName)
 if (!intersectionType) {
     println "[ERROR] Bad overlap type specified ($iName). " +
             "Allowed values are: $OverlapType.allowedNames"
-    System.exit(-1)
+    System.exit(2)
 }
 
 // Define number of clonotypes to show explicitly
@@ -87,7 +87,7 @@ def top = (opt.t ?: TOP_DEFAULT).toInteger()
 
 if (top > TOP_MAX) {
     println "[ERROR] Specified number of top clonotypes should not exceed $TOP_MAX"
-    System.exit(-1)
+    System.exit(2)
 }
 
 //

@@ -86,7 +86,7 @@ def printHelp = {
     println "Enrichment"
     println ""
     println "[Annotation]"
-    println "(ScanDatabase) -> moved to VDJdb since 1.0.4"
+    println "(ScanDatabase) -> moved to VDJdb since 1.0.5"
     println "CalcCdrAAProfile"
     println ""
     println "[Util]"
@@ -153,6 +153,10 @@ def getScript = { String scriptName ->
 
         case "CALCCDRAAPROFILE":
             return new CalcCdrAAProfile()
+        case "SCANDATABASE":
+            println "Moved to VDJdb since 1.0.5, see docs"
+            System.exit(0)
+            break
 
         case "FILTERMETADATA":
             return new FilterMetadata()
@@ -169,14 +173,14 @@ def getScript = { String scriptName ->
         case "":
             printHelp()
             println ""
-            System.exit(-1)
+            System.exit(0)
             break
 
         default:
             printHelp()
             println ""
             println "Unknown routine name $scriptName"
-            System.exit(-1)
+            System.exit(0)
     }
 }
 
@@ -202,6 +206,6 @@ else {
             e.printStackTrace(new PrintWriter(writer))
             writer.println("[END]")
         }
-        System.exit(-1)
+        System.exit(1)
     }
 }

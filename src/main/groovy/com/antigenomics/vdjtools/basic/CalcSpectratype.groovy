@@ -48,11 +48,11 @@ cli.u(longOpt: "unweighted", "Will count each clonotype only once, apart from co
 def opt = cli.parse(args)
 
 if (opt == null || opt.arguments().size() == 0)
-    System.exit(-1)
+    System.exit(2)
 
 if (opt.h) {
     cli.usage()
-    System.exit(-1)
+    System.exit(2)
 }
 
 // Check if metadata is provided
@@ -65,7 +65,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
     else
         println "At least 1 sample files should be provided if not using -m"
     cli.usage()
-    System.exit(-1)
+    System.exit(2)
 }
 
 def outputFilePrefix = opt.arguments()[-1],

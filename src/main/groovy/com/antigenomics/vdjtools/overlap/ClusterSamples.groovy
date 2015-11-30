@@ -67,11 +67,11 @@ cli.p(longOpt: "plot", "[plotting] Turns plotting on.")
 def opt = cli.parse(args)
 
 if (opt == null)
-    System.exit(0)
+    System.exit(2)
 
 if (opt.h || opt.arguments().size() < 1) {
     cli.usage()
-    System.exit(0)
+    System.exit(2)
 }
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
@@ -82,7 +82,7 @@ def intersectionType = OverlapType.getByShortName(iName)
 if (!intersectionType) {
     println "[ERROR] Bad overlap type specified ($iName). " +
             "Allowed values are: $OverlapType.allowedNames"
-    System.exit(-1)
+    System.exit(2)
 }
 
 def inputPrefix = opt.arguments()[0],
@@ -90,7 +90,7 @@ def inputPrefix = opt.arguments()[0],
 
 if (!new File(inputFileName).exists()) {
     println "[ERROR] Input file $inputFileName not found"
-    System.exit(-1)
+    System.exit(2)
 }
 
 intersectionType = intersectionType.shortName
@@ -132,7 +132,7 @@ def idCol1Ind = (header.findIndexOf { it.contains("1_$sampleId") } + 1).toString
 
 if (measureColInd.toInteger() < 1) {
     println "[ERROR] Measure column ($measureName) is absent. Terminating"
-    System.exit(-1)
+    System.exit(2)
 }
 
 // Check if we can map factor to gradient scale

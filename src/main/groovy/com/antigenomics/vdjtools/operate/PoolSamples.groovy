@@ -57,12 +57,12 @@ def opt = cli.parse(args)
 
 if (opt == null) {
     //cli.usage()
-    System.exit(-1)
+    System.exit(2)
 }
 
 if (opt.h) {
     cli.usage()
-    System.exit(0)
+    System.exit(2)
 }
 
 // Check if metadata is provided
@@ -75,7 +75,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 3)
     else
         println "At least 2 sample files should be provided if not using -m"
     cli.usage()
-    System.exit(-1)
+    System.exit(2)
 }
 
 def outputPrefix = opt.arguments()[-1],
@@ -93,7 +93,7 @@ def intersectionType = OverlapType.getByShortName(iName)
 if (!intersectionType) {
     println "[ERROR] Bad overlap type specified ($iName). " +
             "Allowed values are: $OverlapType.allowedNames"
-    System.exit(-1)
+    System.exit(2)
 }
 
 //

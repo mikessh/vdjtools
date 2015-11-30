@@ -56,7 +56,7 @@ def opt = cli.parse(args)
 
 if (opt == null) {
     //cli.usage()
-    System.exit(-1)
+    System.exit(2)
 }
 
 if (opt.h) {
@@ -74,7 +74,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 4)
     else
         println "[ERROR] At least 3 sample file names should be provided if not using -m"
     cli.usage()
-    System.exit(-1)
+    System.exit(2)
 }
 
 def outputPrefix = opt.arguments()[-1],
@@ -92,7 +92,7 @@ def intersectionType = OverlapType.getByShortName(iName)
 if (!intersectionType) {
     println "[ERROR] Bad overlap type specified ($iName). " +
             "Allowed values are: $OverlapType.allowedNames"
-    System.exit(-1)
+    System.exit(2)
 }
 
 //
@@ -110,7 +110,7 @@ def sampleCollection = metadataFileName ?
 
 if (sampleCollection.size() < 3) {
     println "[ERROR] Metadata file should contain at least 3 samples"
-    System.exit(-1)
+    System.exit(2)
 }
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"

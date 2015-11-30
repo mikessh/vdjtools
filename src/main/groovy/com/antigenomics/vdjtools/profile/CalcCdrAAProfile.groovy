@@ -68,11 +68,11 @@ cli._(longOpt: "include-cfw", "Consider first and last AAs of CDR3, which are no
 def opt = cli.parse(args)
 
 if (opt == null)
-    System.exit(-1)
+    System.exit(2)
 
 if (opt.h || opt.arguments().size() == 0) {
     cli.usage()
-    System.exit(-1)
+    System.exit(2)
 }
 
 // Check if metadata is provided
@@ -85,7 +85,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
     else
         println "At least 1 sample files should be provided if not using -m"
     cli.usage()
-    System.exit(-1)
+    System.exit(2)
 }
 
 // Remaining arguments
@@ -106,7 +106,7 @@ def badProperties = properties.findAll { !BasicAminoAcidProperties.INSTANCE.prop
 if (badProperties.size() > 0) {
     println "[ERROR] Unknown amino acid properties: ${badProperties.join(",")}. " +
             "Allowed values are $DEFAULT_AA_PROPERTIES"
-    System.exit(-1)
+    System.exit(2)
 }
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]

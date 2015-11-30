@@ -57,12 +57,12 @@ def opt = cli.parse(args)
 
 if (opt == null) {
     //cli.usage()
-    System.exit(-1)
+    System.exit(2)
 }
 
 if (opt.h) {
     cli.usage()
-    System.exit(0)
+    System.exit(2)
 }
 
 // Check if enough arguments are provided
@@ -75,7 +75,7 @@ if (metadataFileName ? opt.arguments().size() != 2 : opt.arguments().size() < 3)
     else
         println "At least 1 sample, control sample and output path should be provided if not using -m"
     cli.usage()
-    System.exit(-1)
+    System.exit(2)
 }
 
 // IO stuff
