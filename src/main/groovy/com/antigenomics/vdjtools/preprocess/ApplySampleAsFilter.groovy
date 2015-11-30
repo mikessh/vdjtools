@@ -53,7 +53,7 @@ cli.i(longOpt: "intersect-type", argName: "string", args: 1,
         "Intersection type to apply. " +
                 "Allowed values: $OverlapType.allowedNames. " +
                 "Will use '$I_TYPE_DEFAULT' by default.")
-cli.n(longOpt: "negative", "Will report clonotypes that are not present in filter_sample. " +
+cli.e(longOpt: "negative", "Will report clonotypes that are not present in filter_sample. " +
         "The default action is to retain only them.")
 cli.c(longOpt: "compress", "Compress output sample files.")
 
