@@ -134,7 +134,7 @@ def outputFileName = formOutputPath(outputFilePrefix, "cdr3aa", "profile", (unwe
 new File(outputFileName).withPrintWriter { pw ->
     def header = "$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\t" +
-            "cdr3.segment\tbin\tproperty\tvalue\ttotal"
+            "cdr3_segment\tbin\tproperty\tvalue\ttotal"
 
     pw.println(header)
 

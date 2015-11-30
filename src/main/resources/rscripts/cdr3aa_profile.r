@@ -26,7 +26,7 @@ groupName <- colnames(df)[group_id]
 df <- data.frame(bin = factor(df$bin + 1), 
                  value = df$value,
                  property = df$property,
-                 cdr3.segment = df$cdr3.segment,
+                 cdr3.segment = df$cdr3_segment,
                  group = factor(df[,group_id]))
 
 
