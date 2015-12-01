@@ -29,6 +29,9 @@
 
 package com.antigenomics.vdjtools.sample;
 
+/**
+ * A dummy clonotype filter. This class is a singleton.
+ */
 public class BlankClonotypeFilter extends ClonotypeFilter {
     public static final BlankClonotypeFilter INSTANCE = new BlankClonotypeFilter();
 
@@ -36,6 +39,9 @@ public class BlankClonotypeFilter extends ClonotypeFilter {
         super(false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected boolean checkPass(Clonotype clonotype) {
         return true;

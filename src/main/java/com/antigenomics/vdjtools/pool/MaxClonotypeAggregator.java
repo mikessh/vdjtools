@@ -31,9 +31,15 @@ package com.antigenomics.vdjtools.pool;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
 
+/**
+ * A clonotype aggregator that uses the most abundant clonotype as representative clonotype.
+ */
 public class MaxClonotypeAggregator extends ClonotypeAggregator {
     private double maxFreq;
 
+    /**
+     * {@inheritDoc}
+     */
     public MaxClonotypeAggregator(Clonotype clonotype, int sampleId) {
         super(clonotype, sampleId);
         this.maxFreq = clonotype.getFreq();

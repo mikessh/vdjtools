@@ -33,7 +33,7 @@ import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.sample.*
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
-import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.misc.ExecUtil.formOutputPath
 
 def DEFAULT_FREQ_THRESHOLD = "0.01", DEFAULT_QUANTILE_THRESHOLD = "0.25"
 def cli = new CliBuilder(usage: "FilterByFrequency [options] " +

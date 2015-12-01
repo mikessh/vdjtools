@@ -29,6 +29,9 @@
 
 package com.antigenomics.vdjtools.sample;
 
+/**
+ * Filter based on Variable segment matching.
+ */
 public class VFilter extends SegmentFilter {
     public VFilter(boolean negative, String... segmentNames) {
         super(negative, segmentNames);

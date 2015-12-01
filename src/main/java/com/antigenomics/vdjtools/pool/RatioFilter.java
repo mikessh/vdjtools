@@ -33,6 +33,11 @@ import com.antigenomics.vdjtools.sample.Clonotype;
 import com.antigenomics.vdjtools.sample.ClonotypeFilter;
 import com.antigenomics.vdjtools.sample.Sample;
 
+/**
+ * A clonotype filter that filters out all clonotypes that do not pass a certain ratio threshold
+ * when compared to the matching most abundant clonotype in another sample.
+ * Used in {@link com.antigenomics.vdjtools.preprocess.Decontaminate}.
+ */
 public class RatioFilter extends ClonotypeFilter {
     private final SampleAggregator<MaxClonotypeAggregator> sampleAggregator;
     private final double thresholdRatio;
@@ -51,6 +56,9 @@ public class RatioFilter extends ClonotypeFilter {
         this(samples, 20.0);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected boolean checkPass(Clonotype clonotype) {
         MaxClonotypeAggregator aggregator = sampleAggregator.getAt(clonotype);

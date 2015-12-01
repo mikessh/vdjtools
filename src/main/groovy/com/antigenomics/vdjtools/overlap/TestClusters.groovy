@@ -31,9 +31,9 @@ package com.antigenomics.vdjtools.overlap
 
 import com.antigenomics.vdjtools.overlap.permutations.DiscreteFactorClusterStats
 
-import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
-import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
-import static com.antigenomics.vdjtools.util.RUtil.execute
+import static com.antigenomics.vdjtools.misc.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.misc.ExecUtil.toPlotPath
+import static com.antigenomics.vdjtools.misc.RUtil.execute
 
 def MEASURE_DEFAULT = "F", I_TYPE_DEFAULT = "aa"
 

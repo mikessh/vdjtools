@@ -30,20 +30,41 @@
 package com.antigenomics.vdjtools;
 
 /**
- * Something that has a read count
+ * Something that has abundance data associated with it.
  */
 public interface Countable {
     /**
-     * Gets the number of reads associated with a given object
+     * Gets the number of variants associated with a given object.
+     * It can be either number of convergent sub-variants associated
+     * with a given clonotype or number of clonotypes in sample, or
+     * the number of composite clonotypes that group several
+     * clonotype sub-variants for joint/pooled samples.
      *
-     * @return number of reads
+     * @return number of variants.
      */
-    public int getCount();
+    public int getDiversity();
 
     /**
-     * Gets the share of reads associated with a given object
+     * Gets the number of reads associated with a given object.
      *
-     * @return share of reads
+     * @return number of reads.
+     */
+    public long getCount();
+
+    /**
+     * Gets the share of reads associated with a given object.
+     * Should return 1 for clonotype containers.
+     *
+     * @return share of reads.
      */
     public double getFreq();
+
+    /**
+     * Gets the non-normalized frequency (share of reads) for a given object.
+     * For the {@link com.antigenomics.vdjtools.sample.Sample} the sum of
+     * frequencies as specified in plain-text input file before normalization is returned.
+     *
+     * @return non-normalized share of reads.
+     */
+    public double getFreqAsInInput();
 }

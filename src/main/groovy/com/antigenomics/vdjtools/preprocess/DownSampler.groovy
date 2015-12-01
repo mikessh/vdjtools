@@ -31,7 +31,7 @@ package com.antigenomics.vdjtools.preprocess
 
 import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
-import com.antigenomics.vdjtools.util.MathUtil
+import com.antigenomics.vdjtools.misc.MathUtil
 
 /**
  * A class that implements down-sampling procedure, i.e.

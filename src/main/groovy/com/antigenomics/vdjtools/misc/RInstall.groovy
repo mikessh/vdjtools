@@ -27,40 +27,41 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools;
+package com.antigenomics.vdjtools.misc
 
-public class Segment {
-    public static final Segment MISSING = new Segment(".");
+import java.util.zip.ZipInputStream
 
-    protected final String name;
+println "[RInstall] Opening resources stream"
+def src = RInstall.class.protectionDomain.codeSource,
+    jar = src.location,
+    zip = new ZipInputStream(jar.openStream())
+def entry
+def dependencies = new HashSet<String>()
 
-    public Segment(String name) {
-        this.name = name;
-    }
+println "[RInstall] Scanning for dependencies"
 
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String toString() {
-        return name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Segment segment = (Segment) o;
-
-        if (!name.equals(segment.name)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return name.hashCode();
+while ((entry = zip.nextEntry)) {
+    if (entry.name.toUpperCase().endsWith(".R")) {
+        println "[RInstall] Scanning $entry.name"
+        CommonUtil.resourceStreamReader(entry.name).readLines().each { String line ->
+            if (line =~ /require\(.+\)/)
+                line.split("require\\(").each { String token ->
+                    if (token.contains(")")) {
+                        def dependency = token.split("\\)")[0]
+                        println "$dependency"
+                        dependencies.add(dependency)
+                    }
+                }
+        }
     }
 }
+
+println "[RInstall] Full list of dependencies to be installed:\n${dependencies.join(" ")}"
+
+RUtil.install(dependencies as String[])
+
+println "[RInstall] Testing"
+
+RUtil.test(dependencies as String[])
+
+println "[RInstall] Finished"

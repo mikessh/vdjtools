@@ -33,6 +33,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.regex.Pattern;
 
+/**
+ * A filter based on CDR3 pattern matching.
+ */
 public class SequenceMatchFilter extends ClonotypeFilter {
     private final static Pattern aaAccepted = Pattern.compile("[FLSYCWPHQRIMTNKVADEGX\\*_\\[\\]]+"),
             ntAccepted = Pattern.compile("[ATGCN\\[\\]]+");

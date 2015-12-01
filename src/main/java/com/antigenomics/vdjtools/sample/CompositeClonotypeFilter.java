@@ -29,6 +29,9 @@
 
 package com.antigenomics.vdjtools.sample;
 
+/**
+ * A class representing several clonotype filters applied together.
+ */
 public class CompositeClonotypeFilter extends ClonotypeFilter {
     private final ClonotypeFilter[] filters;
 
@@ -42,6 +45,9 @@ public class CompositeClonotypeFilter extends ClonotypeFilter {
         this(false, filters);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected boolean checkPass(Clonotype clonotype) {
         for (ClonotypeFilter filter : filters)

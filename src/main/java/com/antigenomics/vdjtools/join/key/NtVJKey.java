@@ -31,6 +31,9 @@ package com.antigenomics.vdjtools.join.key;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
 
+/**
+ * {@inheritDoc}
+ */
 public class NtVJKey extends ClonotypeKey {
     public NtVJKey(Clonotype clonotype) {
         super(clonotype);

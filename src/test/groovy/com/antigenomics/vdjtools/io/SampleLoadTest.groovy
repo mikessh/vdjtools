@@ -29,10 +29,10 @@
 
 package com.antigenomics.vdjtools.io
 
-import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.misc.Software
 import org.junit.Test
 
-import static com.antigenomics.vdjtools.Software.*
+import static Software.*
 import static com.antigenomics.vdjtools.TestUtil.getResource
 import static com.antigenomics.vdjtools.io.SampleStreamConnection.load
 
@@ -49,7 +49,7 @@ class SampleLoadTest {
         assert sample.diversity == diversity
         if (software.perReadOutput) {
             // check if frequency is recalculated
-            assert Math.abs(sample.freq - 1.0) < 1e-5
+            assert Math.abs(sample.freqAsInInput - 1.0) < 1e-5
         }
     }
 

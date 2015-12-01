@@ -29,6 +29,9 @@
 
 package com.antigenomics.vdjtools.sample;
 
+/**
+ * Filter based on Diversity segment matching.
+ */
 public class DFilter extends SegmentFilter {
     public DFilter(boolean negative, String... segmentNames) {
         super(negative, segmentNames);

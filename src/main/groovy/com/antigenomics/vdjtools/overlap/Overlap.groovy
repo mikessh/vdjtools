@@ -34,7 +34,7 @@ import com.antigenomics.vdjtools.join.JointSample
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SamplePair
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
-import com.antigenomics.vdjtools.util.ExecUtil
+import com.antigenomics.vdjtools.misc.ExecUtil
 
 /**
  * A class that performs an overlap between a pair of samples,
@@ -182,8 +182,8 @@ public class Overlap {
         this.count2 = samplePair[1].count
         this.count12 = jointSample.getIntersectionCount(0, 1)
         this.count21 = jointSample.getIntersectionCount(1, 0)
-        this.freq1 = samplePair[0].freq
-        this.freq2 = samplePair[1].freq
+        this.freq1 = samplePair[0].freqAsInInput
+        this.freq2 = samplePair[1].freqAsInInput
         this.freq12 = jointSample.getIntersectionFreq(0, 1)
         this.freq21 = jointSample.getIntersectionFreq(1, 0)
 

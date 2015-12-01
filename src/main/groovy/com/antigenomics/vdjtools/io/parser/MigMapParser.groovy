@@ -30,12 +30,12 @@
 
 package com.antigenomics.vdjtools.io.parser
 
-import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.misc.Software
 import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
-import com.antigenomics.vdjtools.util.CommonUtil
+import com.antigenomics.vdjtools.misc.CommonUtil
 
-import static com.antigenomics.vdjtools.util.CommonUtil.toUnifiedCdr3Aa
+import static com.antigenomics.vdjtools.misc.CommonUtil.toUnifiedCdr3Aa
 
 /**
  * A clonotype parser implementation that handles output from IgBlastWrapper software.

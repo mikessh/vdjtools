@@ -37,6 +37,10 @@ import com.antigenomics.vdjtools.sample.Clonotype;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * A clonotype aggregator that stores the representative clonotype and acts as a clonotype wrapper,
+ * a.k.a. pooled clonotype.
+ */
 public class StoringClonotypeAggregator extends MaxClonotypeAggregator implements ClonotypeWrapper {
     private Clonotype clonotype;
     private int convergence;
@@ -44,7 +48,7 @@ public class StoringClonotypeAggregator extends MaxClonotypeAggregator implement
     private final Set<ClonotypeKey> variants = new HashSet<>();
     private final ClonotypeKeyGen clonotypeKeyGen = new ClonotypeKeyGen();
 
-    public StoringClonotypeAggregator(Clonotype clonotype, int sampleId) {
+    protected StoringClonotypeAggregator(Clonotype clonotype, int sampleId) {
         super(clonotype, sampleId);
         this.clonotype = clonotype;
         this.convergence = 1;
@@ -67,11 +71,17 @@ public class StoringClonotypeAggregator extends MaxClonotypeAggregator implement
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Clonotype getClonotype() {
         return clonotype;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public PooledSample getParent() {
         return parent;
@@ -81,12 +91,29 @@ public class StoringClonotypeAggregator extends MaxClonotypeAggregator implement
         this.parent = parent;
     }
 
-    public int getConvergence() {
+    /**
+     * Gets the total number of convergent variants for this pooled clonotype.
+     *
+     * @return number of convergent variants.
+     */
+    @Override
+    public int getDiversity() {
         return convergence;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getFreq() {
         return parent != null ? (getCount() / (double) parent.getCount()) : Double.NaN;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getFreqAsInInput() {
+        return 1.0;
     }
 }

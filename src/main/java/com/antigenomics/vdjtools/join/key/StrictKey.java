@@ -31,6 +31,9 @@ package com.antigenomics.vdjtools.join.key;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
 
+/**
+ * {@inheritDoc}
+ */
 public final class StrictKey extends ClonotypeKey {
     public StrictKey(Clonotype clonotype) {
         super(clonotype);

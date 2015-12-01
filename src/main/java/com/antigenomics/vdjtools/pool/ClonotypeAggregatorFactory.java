@@ -31,6 +31,10 @@ package com.antigenomics.vdjtools.pool;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
 
-public interface ClonotypeAggregatorFactory <T extends ClonotypeAggregator> {
+/**
+ * A factory of clonotype aggregators.
+ * @param <T> clonotype aggregator type.
+ */
+public interface ClonotypeAggregatorFactory<T extends ClonotypeAggregator> {
     T create(Clonotype clonotype, int sampelId);
 }

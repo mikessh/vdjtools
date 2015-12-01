@@ -29,12 +29,12 @@
 
 package com.antigenomics.vdjtools.io
 
-import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.misc.Software
 import com.antigenomics.vdjtools.join.JointSample
 import com.antigenomics.vdjtools.pool.PooledSample
 import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
-import com.antigenomics.vdjtools.util.ExecUtil
+import com.antigenomics.vdjtools.misc.ExecUtil
 
 import java.util.zip.GZIPOutputStream
 
@@ -161,7 +161,7 @@ public class SampleWriter {
                 if (it == "count")
                     sample.count - count
                 else if (it == "freq")
-                    sample.freq - freq
+                    sample.freqAsInInput - freq
                 else
                     "NotShown"
             }.join("\t"))
@@ -211,7 +211,7 @@ public class SampleWriter {
                             clonotype."$it"
                     },
                      jointClonotype.peak,
-                     jointClonotype.occurences,
+                     jointClonotype.occurrences,
                      jointClonotype.samplingPValue,
                      sampleIndices.collect { int j ->
                          jointClonotype.getFreq(j)
@@ -243,7 +243,7 @@ public class SampleWriter {
 
             // Not in the overlap
             def nonOverlappingFreqArr = sampleIndices.collect { int j ->
-                jointSample.getSample(j).freq - jointSample.getIntersectionFreq(j)
+                jointSample.getSample(j).freqAsInInput - jointSample.getIntersectionFreq(j)
             }
             printWriter.println(
                     [software.printFields.collect {
@@ -285,7 +285,7 @@ public class SampleWriter {
                             pooledClonotype.clonotype."$it"
                     },
                      pooledClonotype.incidenceCount,
-                     pooledClonotype.convergence
+                     pooledClonotype.diversity
                     ].flatten().join("\t"))
         }
 

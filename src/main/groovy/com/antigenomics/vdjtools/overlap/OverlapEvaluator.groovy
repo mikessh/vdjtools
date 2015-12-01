@@ -33,8 +33,8 @@ import com.antigenomics.vdjtools.basic.SegmentUsage
 import com.antigenomics.vdjtools.basic.Spectratype
 import com.antigenomics.vdjtools.join.JointSample
 import com.antigenomics.vdjtools.sample.Sample
-import com.antigenomics.vdjtools.util.ExecUtil
-import com.antigenomics.vdjtools.util.MathUtil
+import com.antigenomics.vdjtools.misc.ExecUtil
+import com.antigenomics.vdjtools.misc.MathUtil
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 

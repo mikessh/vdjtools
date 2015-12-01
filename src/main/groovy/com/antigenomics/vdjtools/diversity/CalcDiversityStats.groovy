@@ -34,7 +34,7 @@ import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
-import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.misc.ExecUtil.formOutputPath
 
 def I_TYPE_DEFAULT = OverlapType.Strict, RESAMPLES_DEFAULT = "3"
 def cli = new CliBuilder(usage: "CalcDiversityStats [options] " +

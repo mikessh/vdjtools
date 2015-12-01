@@ -31,6 +31,7 @@
 package com.antigenomics.vdjtools
 
 import com.antigenomics.vdjtools.io.InputStreamFactory
+import com.antigenomics.vdjtools.misc.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
 
 import java.util.zip.GZIPInputStream

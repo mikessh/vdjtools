@@ -30,13 +30,16 @@
 package com.antigenomics.vdjtools.sample;
 
 import com.antigenomics.vdjtools.ClonotypeWrapperContainer;
-import com.antigenomics.vdjtools.Software;
 import com.antigenomics.vdjtools.io.parser.ClonotypeStreamParser;
+import com.antigenomics.vdjtools.misc.Software;
 import com.antigenomics.vdjtools.sample.metadata.SampleMetadata;
 
 import java.io.InputStream;
 import java.util.*;
 
+/**
+ * An implementation of Rep-Seq sample.
+ */
 public class Sample implements ClonotypeWrapperContainer<Clonotype> {
     private final List<Clonotype> clonotypes = new ArrayList<>();
     private final SampleMetadata sampleMetadata;
@@ -48,18 +51,31 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
         this.sampleMetadata = sampleMetadata;
     }
 
-    public Sample(Sample toClone, SampleMetadata sampleMetadata) {
+    /**
+     * Creates a deep copy of a given sample, re-assigning sample metadata.
+     *
+     * @param other          sample to copy.
+     * @param sampleMetadata new sample metadata.
+     */
+    public Sample(Sample other, SampleMetadata sampleMetadata) {
         this.sampleMetadata = sampleMetadata;
 
-        for (Clonotype clonotype : toClone.clonotypes) {
+        for (Clonotype clonotype : other.clonotypes) {
             this.addClonotype(new Clonotype(clonotype, this));
         }
     }
 
-    public Sample(Sample toSubSample, Map<Clonotype, Integer> samplerMap) {
-        this.sampleMetadata = toSubSample.sampleMetadata;
+    /**
+     * Creates a new sample by selecting a subset of reads from a given sample. Number of reads
+     * to be taken for each clonotypes is specified explicitly.
+     *
+     * @param other      sample to subset from.
+     * @param samplerMap number of reads to take for each clonotype.
+     */
+    public Sample(Sample other, Map<Clonotype, Integer> samplerMap) {
+        this.sampleMetadata = other.sampleMetadata;
 
-        for (Clonotype clonotype : toSubSample.clonotypes) {
+        for (Clonotype clonotype : other.clonotypes) {
             Integer newCount = samplerMap.get(clonotype);
 
             if (newCount != null && newCount > 0)
@@ -69,10 +85,17 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
         Collections.sort(clonotypes);
     }
 
-    public Sample(Sample toFilter, ClonotypeFilter filter, int top) {
-        this.sampleMetadata = toFilter.sampleMetadata;
+    /**
+     * Creates a new sample by filtering and selecting top N clonotypes from the specified sample.
+     *
+     * @param other  sample to filter and select from.
+     * @param filter a clonotype filter.
+     * @param top    if set to value other than -1 will select only top N most abundant matching clonotypes.
+     */
+    public Sample(Sample other, ClonotypeFilter filter, int top) {
+        this.sampleMetadata = other.sampleMetadata;
 
-        for (Clonotype clonotype : toFilter.clonotypes) {
+        for (Clonotype clonotype : other.clonotypes) {
             if (top > -1 && this.getDiversity() == top)
                 break;
 
@@ -81,14 +104,46 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
         }
     }
 
-    public Sample(Sample toFilter, ClonotypeFilter filter) {
-        this(toFilter, filter, -1);
+    /**
+     * Creates a new sample by selecting top N clonotypes from the specified sample.
+     *
+     * @param other sample to select from.
+     * @param top   if set to value other than -1 will select only top N most abundant matching clonotypes.
+     */
+    public Sample(Sample other, int top) {
+        this(other, BlankClonotypeFilter.INSTANCE, top);
     }
 
-    public Sample(Sample toClone) {
-        this(toClone, BlankClonotypeFilter.INSTANCE, -1);
+    /**
+     * Creates a new sample by filtering clonotypes from the specified sample.
+     *
+     * @param other  sample to filter.
+     * @param filter a clonotype filter.
+     */
+    public Sample(Sample other, ClonotypeFilter filter) {
+        this(other, filter, -1);
     }
 
+    /**
+     * Clones a given sample.
+     *
+     * @param other sample to clone.
+     */
+    public Sample(Sample other) {
+        this(other, BlankClonotypeFilter.INSTANCE, -1);
+    }
+
+    /**
+     * Reads sample from input stream.
+     *
+     * @param inputStream    input stream containing plain-text clonotype table.
+     * @param sampleMetadata sample metadata.
+     * @param software       software, used for parsing.
+     * @param top            select top N clonotypes only. Set to -1 to select all clonotypes.
+     * @param store          if set to true, will store sample to memory. Otherwise will create an instance of the sample that will be read on demand.
+     * @param collapse       if set to true, will collapse the sample combining duplicate clonotypes.
+     * @return sample instance.
+     */
     public static Sample fromInputStream(InputStream inputStream,
                                          SampleMetadata sampleMetadata,
                                          Software software,
@@ -107,7 +162,7 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
                 break;
 
             if (clonotype != null) {
-                int count = clonotype.getCount();
+                int count = (int) clonotype.getCount();
 
                 if (sorted && count > prevCount) {
                     sorted = false;
@@ -147,10 +202,18 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
         return sample;
     }
 
+    /**
+     * Reads sample from input stream. Stores the sample into memory.
+     *
+     * @param inputStream    input stream containing plain-text clonotype table.
+     * @param sampleMetadata sample metadata.
+     * @param software       software, used for parsing.
+     * @return sample instance.
+     */
     public static Sample fromInputStream(InputStream inputStream,
                                          SampleMetadata sampleMetadata,
                                          Software software) {
-        return fromInputStream(inputStream, sampleMetadata, software, -1, true, false);
+        return fromInputStream(inputStream, sampleMetadata, software, -1, true, software.isCollapseRequired());
     }
 
     private void addClonotype(Clonotype clonotype) {
@@ -168,34 +231,60 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
         }
     }
 
+    /**
+     * Gets the metadata associted with the sample.
+     *
+     * @return sample metadata.
+     */
     public SampleMetadata getSampleMetadata() {
         return sampleMetadata;
     }
 
     /**
-     * For 1.8 stream
+     * Gets the list of clonotypes in a given sample.
+     * Added for compatibility with 1.8 stream operations.
      *
-     * @return
+     * @return clonotype list.
      */
     public List<Clonotype> getClonotypes() {
         return Collections.unmodifiableList(clonotypes);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getFreq() {
+        return 1.0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getFreqAsInInput() {
         return frequency;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long getCount() {
         return count;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getDiversity() {
         return diversity;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Clonotype getAt(int index) {
         if (index < 0 || index >= clonotypes.size())
@@ -203,6 +292,9 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
         return clonotypes.get(index);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isSorted() {
         return true;

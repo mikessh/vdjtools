@@ -31,6 +31,11 @@ package com.antigenomics.vdjtools.join.key;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
 
+/**
+ * A clonotype key, which implements {@link #equals} and {@link #hashCode}
+ * according to specified {@link com.antigenomics.vdjtools.overlap.OverlapType}.
+ * {@see com.antigenomics.vdjtools.join.key.ClonotypeKey}
+ */
 public abstract class ClonotypeKey {
     protected final Clonotype clonotype;
 

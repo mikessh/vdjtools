@@ -29,6 +29,9 @@
 
 package com.antigenomics.vdjtools.join;
 
+/**
+ * Filter that retains all clonotypes detected in the specified sample.
+ */
 public class SampleSpecificJoinFilter implements JoinFilter {
     private final int sampleIndex;
 
@@ -36,6 +39,11 @@ public class SampleSpecificJoinFilter implements JoinFilter {
         this(0);
     }
 
+    /**
+     * Creates a filter that retains all joint clonotypes detected in a specified sample.
+     *
+     * @param sampleIndex sample index.
+     */
     public SampleSpecificJoinFilter(int sampleIndex) {
         this.sampleIndex = sampleIndex;
     }
@@ -44,6 +52,9 @@ public class SampleSpecificJoinFilter implements JoinFilter {
         return sampleIndex;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean pass(JointClonotype jointClonotype) {
         return jointClonotype.present(sampleIndex);

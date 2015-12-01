@@ -29,13 +29,27 @@
 
 package com.antigenomics.vdjtools.join;
 
+/**
+ * A set of filters all of which should be passed by a given joint clonotype.
+ */
 public class CompositeJoinFilter implements JoinFilter {
     private final JoinFilter[] filters;
 
+    /**
+     * Creates a set of joint that all should be passed.
+     *
+     * @param filters joint clonotype filters.
+     */
     public CompositeJoinFilter(JoinFilter... filters) {
         this.filters = filters;
     }
 
+    /**
+     * Checks whether a given joint clonotype passes all specified filters.
+     *
+     * @param jointClonotype a joint clonotype to check.
+     * @return true if all filters are passed and joint clonotype should be retained, false otherwise.
+     */
     @Override
     public boolean pass(JointClonotype jointClonotype) {
         for (JoinFilter filter : filters)

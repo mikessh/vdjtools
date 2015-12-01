@@ -30,10 +30,10 @@
 package com.antigenomics.vdjtools.basic
 
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.util.RUtil
+import com.antigenomics.vdjtools.misc.RUtil
 
-import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
-import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
+import static com.antigenomics.vdjtools.misc.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.misc.ExecUtil.toPlotPath
 
 def TOP_DEFAULT = "12", TOP_MAX = 12
 def cli = new CliBuilder(usage: "PlotSpectratypeV [options] input_name output_prefix")

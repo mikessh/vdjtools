@@ -34,7 +34,7 @@ import com.antigenomics.vdjtools.io.SampleFileConnection
 import com.antigenomics.vdjtools.sample.SampleCollection
 import groovy.transform.PackageScope
 
-import static com.antigenomics.vdjtools.util.ExecUtil.*
+import static com.antigenomics.vdjtools.misc.ExecUtil.*
 
 /**
  * Base class that handles metadata for a sample collection

@@ -28,7 +28,7 @@
  */
 
 
-package com.antigenomics.vdjtools.util
+package com.antigenomics.vdjtools.misc
 
 import com.antigenomics.vdjtools.basic.SegmentUsage
 import com.antigenomics.vdjtools.overlap.Overlap

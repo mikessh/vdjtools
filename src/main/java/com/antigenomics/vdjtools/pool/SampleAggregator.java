@@ -29,10 +29,10 @@
 
 package com.antigenomics.vdjtools.pool;
 
-import com.antigenomics.vdjtools.sample.Clonotype;
-import com.antigenomics.vdjtools.overlap.OverlapType;
 import com.antigenomics.vdjtools.join.ClonotypeKeyGen;
 import com.antigenomics.vdjtools.join.key.ClonotypeKey;
+import com.antigenomics.vdjtools.overlap.OverlapType;
+import com.antigenomics.vdjtools.sample.Clonotype;
 import com.antigenomics.vdjtools.sample.Sample;
 
 import java.util.Date;
@@ -40,16 +40,37 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * A sample aggregator used in constructing {@link com.antigenomics.vdjtools.pool.PooledSample}.
+ *
+ * @param <T> clonotype aggregator type.
+ */
 public class SampleAggregator<T extends ClonotypeAggregator> implements Iterable<T> {
     private final Map<ClonotypeKey, T> innerMap = new HashMap<>();
     private final ClonotypeKeyGen clonotypeKeyGen;
     private final long count;
 
+    /**
+     * Aggregates clonotypes from the specified set of samples. In case clonotypes are matching
+     * exactly (see {@link com.antigenomics.vdjtools.overlap.OverlapType#Strict}) in several samples
+     * they are pooled in a single "pooled clonotype".
+     *
+     * @param samples                    a set of samples.
+     * @param clonotypeAggregatorFactory clonotype aggregation rule.
+     */
     public SampleAggregator(Iterable<Sample> samples,
                             ClonotypeAggregatorFactory<T> clonotypeAggregatorFactory) {
         this(samples, clonotypeAggregatorFactory, OverlapType.Strict);
     }
 
+    /**
+     * Aggregates clonotypes from the specified set of samples. Both clonotypes matching between samples
+     * and convergent variants of each clonotype are pooled according to specified clonotype matching rule.
+     *
+     * @param samples                    a set of samples.
+     * @param clonotypeAggregatorFactory clonotype aggregation rule.
+     * @param overlapType                clonotype matching rule.
+     */
     public SampleAggregator(Iterable<Sample> samples,
                             ClonotypeAggregatorFactory<T> clonotypeAggregatorFactory,
                             OverlapType overlapType) {
@@ -72,10 +93,10 @@ public class SampleAggregator<T extends ClonotypeAggregator> implements Iterable
                 }
             }
 
-            count += sample.getCount( );
+            count += sample.getCount();
             sampleId++;
         }
-        
+
         // todo: sort
 
         this.count = count;

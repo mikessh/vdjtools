@@ -27,7 +27,7 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.util;
+package com.antigenomics.vdjtools.misc;
 
 import org.apache.commons.math3.special.Gamma;
 import org.apache.commons.math3.util.FastMath;
@@ -38,6 +38,11 @@ import java.util.Random;
  * Fast Java implementation for mathematical routines used in VDJtools
  */
 public class MathUtil {
+    /**
+     * Upper limit on current precision of RepSeq
+     */
+    public static final double JITTER = 1e-9, JITTER_LOG10 = Math.log10(JITTER);
+
     private static final double HALF_LOG_2_PI = 0.5 * FastMath.log(2.0 * FastMath.PI);
     private static final long[] FACTORIALS = new long[]{
             1l, 1l, 2l,
@@ -63,7 +68,8 @@ public class MathUtil {
     }
 
     /**
-     * Internal. Implemented based on apache math 3 
+     * Internal. Implemented based on apache math 3
+     *
      * @param x
      * @return
      */

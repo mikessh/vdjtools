@@ -33,7 +33,7 @@ import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.sample.*
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
-import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.misc.ExecUtil.formOutputPath
 
 def cli = new CliBuilder(usage: "FilterBySegment [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")

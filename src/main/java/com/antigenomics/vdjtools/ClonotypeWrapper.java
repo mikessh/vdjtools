@@ -31,8 +31,23 @@ package com.antigenomics.vdjtools;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
 
+/**
+ * An interface for clonotype wrapper, containing clonotype description and abundance data,
+ * as well as link to parent container (sample).
+ */
 public interface ClonotypeWrapper extends Countable {
+    /**
+     * Gets the clonotype description and abundance data.
+     * For certain implementations returns the representative clonotype.
+     *
+     * @return a clonotype.
+     */
     public Clonotype getClonotype();
 
+    /**
+     * Gets parent clonotype container (sample).
+     *
+     * @return parent clonotype container.
+     */
     public ClonotypeWrapperContainer getParent();
 }

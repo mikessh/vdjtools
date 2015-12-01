@@ -30,17 +30,24 @@
 package com.antigenomics.vdjtools.join;
 
 import com.antigenomics.vdjtools.ClonotypeWrapper;
-import com.antigenomics.vdjtools.Misc;
+import com.antigenomics.vdjtools.join.key.ClonotypeKey;
+import com.antigenomics.vdjtools.misc.MathUtil;
 import com.antigenomics.vdjtools.sample.Clonotype;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+/**
+ * A joint clonotype, including all convergent variants (up to clonotype matching rule, {@link com.antigenomics.vdjtools.overlap.OverlapType})
+ * and all occurrences of the specified clonotype in joined samples. Convergent variants are hereafter termed "variants" for simplicity.
+ */
 public class JointClonotype implements Comparable<JointClonotype>, ClonotypeWrapper {
     private final JointSample parent;
     private final List[] variantsBySample;
     private final int[] counts;
-    private int peak = -1, occurences = -1;
+    private int peak = -1, occurrences = -1;
     private Clonotype representative = null;
     private double meanFreq = -1;
     protected double samplingPValue = 1;
@@ -56,12 +63,23 @@ public class JointClonotype implements Comparable<JointClonotype>, ClonotypeWrap
         this.meanFreq = meanFreq;
     }
 
+    /**
+     * Creates an empty joint clonotype.
+     *
+     * @param parent parent joint sample.
+     */
     public JointClonotype(JointSample parent) {
         this.parent = parent;
         this.variantsBySample = new List[parent.getNumberOfSamples()];
         this.counts = new int[parent.getNumberOfSamples()];
     }
 
+    /**
+     * Adds a given clonotype variant to the joint sample.
+     *
+     * @param variant     clonotype variant.
+     * @param sampleIndex index of the sample where the specified clonotype variant was detected.
+     */
     @SuppressWarnings("unchecked")
     void addVariant(Clonotype variant, int sampleIndex) {
         List<Clonotype> variants = variantsBySample[sampleIndex];
@@ -71,6 +89,11 @@ public class JointClonotype implements Comparable<JointClonotype>, ClonotypeWrap
         counts[sampleIndex] += variant.getCount();
     }
 
+    /**
+     * Gets parent joint sample.
+     *
+     * @return joint sample this joint clonotype belongs to.
+     */
     @Override
     public JointSample getParent() {
         return parent;
@@ -89,21 +112,35 @@ public class JointClonotype implements Comparable<JointClonotype>, ClonotypeWrap
         return parent.getIndex(peak);
     }
 
-    public int getOccurences() {
-        if (occurences < 0) {
-            occurences = 0;
+    /**
+     * Gets the number of occurrences of this clonotype. The count is not weighted by the number convergent variants.
+     *
+     * @return number of samples this clonotype was detected in.
+     */
+    public int getOccurrences() {
+        if (occurrences < 0) {
+            occurrences = 0;
             for (int i = 0; i < counts.length; i++) {
                 if (present(i))
-                    occurences++;
+                    occurrences++;
             }
         }
-        return occurences;
+        return occurrences;
     }
 
+    /**
+     * EXPERIMENTAL Gets the probability that the variance of joint clonotype abundance can
+     * be explained by sampling stochastics.
+     *
+     * @return p-value for clonotype abundance variance.
+     */
     public double getSamplingPValue() {
         return samplingPValue;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Clonotype getClonotype() {
         if (representative == null) {
@@ -112,7 +149,7 @@ public class JointClonotype implements Comparable<JointClonotype>, ClonotypeWrap
             for (Object o : variantsBySample[peak]) {
                 Clonotype clonotype = (Clonotype) o;
                 if (clonotype.getCount() > max) {
-                    max = clonotype.getCount();
+                    max = (int) clonotype.getCount();
                     representative = clonotype;
                 }
             }
@@ -120,44 +157,57 @@ public class JointClonotype implements Comparable<JointClonotype>, ClonotypeWrap
         return representative;
     }
 
+    /**
+     * Gets the number of variants associated with a given clonotype in specified sample.
+     *
+     * @param sampleIndex sample index.
+     * @return number of variants associated with the clonotype.
+     */
     public int getNumberOfVariants(int sampleIndex) {
         return variantsBySample[parent.getIndex(sampleIndex)].size();
     }
 
+    /**
+     * Gets the number reads associated with the clonotype and all its variants in the specified sample.
+     *
+     * @param sampleIndex sample index.
+     * @return number of reads associated with the clonotypes and all its variants in a given sample.
+     */
     public int getCount(int sampleIndex) {
         return counts[parent.getIndex(sampleIndex)];
     }
 
     /**
-     * Gets clonotype frequency in a given sample
+     * Gets the clonotype frequency in a given sample, all variants are accounted.
      *
-     * @param sampleIndex
-     * @return
+     * @param sampleIndex sample index.
+     * @return frequency of clonotype and all its variants in a given sample.
      */
     public double getFreq(int sampleIndex) {
         return getCount(sampleIndex) / (double) parent.getCount(sampleIndex);
     }
 
     /**
-     * Gets clonotype frequency at a given sample relative to overlap size of this sample
+     * Gets clonotype frequency at a given sample relative to the total frequency of overlapping
+     * (i.e. all that passed {@link com.antigenomics.vdjtools.join.JoinFilter}) clonotypes in the specified sample.
      *
-     * @param sampleIndex
-     * @return
+     * @param sampleIndex sample index.
+     * @return frequency of clonotype and all its variants among all overlapping clonotypes in a given sample.
      */
     public double getFreqWithinIntersection(int sampleIndex) {
         return getFreq(sampleIndex) / parent.getIntersectionFreq(sampleIndex);
     }
 
     /**
-     * Gets a representative (geometric mean) frequency of a given joint clonotype
+     * Gets a representative (geometric mean) frequency of a given joint clonotype.
      *
-     * @return
+     * @return non-normalized joint clonotype frequency.
      */
     public double getBaseFreq() {
         if (meanFreq < 0) {
             meanFreq = 1;
             for (int i = 0; i < parent.getNumberOfSamples(); i++) {
-                meanFreq *= (getFreq(i) + Misc.JITTER);
+                meanFreq *= (getFreq(i) + MathUtil.JITTER);
             }
             meanFreq = Math.pow(meanFreq, 1.0 / (double) parent.getNumberOfSamples());
         }
@@ -167,9 +217,9 @@ public class JointClonotype implements Comparable<JointClonotype>, ClonotypeWrap
     /**
      * Gets a representative (geometric mean) frequency of a given joint clonotype.
      * The frequency is normalized so that the total mean frequency will sum to 1.0 in JointSample,
-     * thus allowing to use it during sample output
+     * thus allowing to use it during sample output.
      *
-     * @return
+     * @return normalized joint clonotype frequency.
      */
     @Override
     public double getFreq() {
@@ -177,17 +227,50 @@ public class JointClonotype implements Comparable<JointClonotype>, ClonotypeWrap
     }
 
     /**
-     * Gets a representative count of a given joint clonotype, which is proportional to representative
-     * (geometric mean) frequency. The count is scaled so it is equal to 1 for the smallest JointClonotype,
-     * thus allowing to use it during sample output
-     *
-     * @return
+     * {@inheritDoc}
      */
     @Override
-    public int getCount() {
+    public double getFreqAsInInput() {
+        return getFreq();
+    }
+
+    /**
+     * Gets the total number of clonotype variants associated with a given clonotype in all joined samples,
+     * accounting for specified clonotype matching rule.
+     *
+     * @return total number of clonotype variants.
+     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public int getDiversity() {
+        Set<ClonotypeKey> variantKeys = new HashSet<>();
+        ClonotypeKeyGen clonotypeKeyGen = new ClonotypeKeyGen(parent.getOverlapType());
+        for (List variantList : variantsBySample) {
+            for (Object variant : variantList) {
+                variantKeys.add(clonotypeKeyGen.generateKey((Clonotype) variant));
+            }
+        }
+        return variantKeys.size();
+    }
+
+    /**
+     * Gets a representative count of a given joint clonotype, which is proportional to representative
+     * (geometric mean) frequency. The count is scaled so it is equal to 1 for the smallest JointClonotype,
+     * thus allowing to use it during sample output.
+     *
+     * @return normalized joint clonotype count.
+     */
+    @Override
+    public long getCount() {
         return parent.calcCount(getBaseFreq());
     }
 
+    /**
+     * Checks whether the clonotype was detected in a given sample (even with at least one read).
+     *
+     * @param sampleIndex sample index.
+     * @return true if the clonotype was detected in a given sample, false otherwise.
+     */
     public boolean present(int sampleIndex) {
         return counts[parent.getIndex(sampleIndex)] > 0;
     }

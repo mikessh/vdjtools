@@ -43,7 +43,7 @@ class Chao2Estimator {
             q1 = 0, q2 = 0, m = jointSample.numberOfSamples
 
         jointSample.each {
-            def occurences = it.occurences
+            def occurences = it.occurrences
             if (occurences == 1)
                 q1++
             else if (occurences == 2)

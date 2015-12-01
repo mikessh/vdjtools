@@ -29,15 +29,22 @@
 
 package com.antigenomics.vdjtools;
 
-public interface ClonotypeWrapperContainer<WrapperType extends ClonotypeWrapper> extends Iterable<WrapperType> {
-
-    public double getFreq();
-
-    public long getCount();
-
-    public int getDiversity();
-
+/**
+ * @param <WrapperType> type of clonotype wrapper.
+ */
+public interface ClonotypeWrapperContainer<WrapperType extends ClonotypeWrapper> extends Iterable<WrapperType>, Countable {
+    /**
+     * Gets the clonotype wrapper by index. Index should be in [0, {@code getDiversity()}).
+     *
+     * @param index clonotype index.
+     * @return a clonotype.
+     */
     public WrapperType getAt(int index);
 
+    /**
+     * Tells if clonotype wrappers are sorted by their abundance.
+     *
+     * @return true if clonotype container is sorted, false otherwise.
+     */
     public boolean isSorted();
 }

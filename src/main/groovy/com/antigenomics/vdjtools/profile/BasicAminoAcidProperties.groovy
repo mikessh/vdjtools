@@ -29,7 +29,7 @@
 
 package com.antigenomics.vdjtools.profile
 
-import com.antigenomics.vdjtools.util.CommonUtil
+import com.antigenomics.vdjtools.misc.CommonUtil
 
 class BasicAminoAcidProperties {
     static final BasicAminoAcidProperties INSTANCE = new BasicAminoAcidProperties()

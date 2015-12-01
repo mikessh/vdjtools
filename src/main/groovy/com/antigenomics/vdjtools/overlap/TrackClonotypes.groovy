@@ -28,7 +28,7 @@
  */
 package com.antigenomics.vdjtools.overlap
 
-import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.misc.Software
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.join.JointSample
 import com.antigenomics.vdjtools.join.OccurrenceJoinFilter
@@ -36,10 +36,10 @@ import com.antigenomics.vdjtools.join.SampleSpecificJoinFilter
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
-import com.antigenomics.vdjtools.util.RUtil
+import com.antigenomics.vdjtools.misc.RUtil
 
-import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
-import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
+import static com.antigenomics.vdjtools.misc.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.misc.ExecUtil.toPlotPath
 
 def I_TYPE_DEFAULT = "strict", TOP_DEFAULT = "100", TOP_MAX = 200
 def cli = new CliBuilder(usage: "TrackClonotypes [options] " +

@@ -30,7 +30,7 @@
 
 package com.antigenomics.vdjtools.operate
 
-import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.misc.Software
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.join.JointSample
 import com.antigenomics.vdjtools.join.OccurrenceJoinFilter
@@ -38,9 +38,9 @@ import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 
-import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
-import static com.antigenomics.vdjtools.util.RUtil.asNumeric
-import static com.antigenomics.vdjtools.util.RUtil.execute
+import static com.antigenomics.vdjtools.misc.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.misc.RUtil.asNumeric
+import static com.antigenomics.vdjtools.misc.RUtil.execute
 
 def I_TYPE_DEFAULT = "aa", DEFAULT_TIMES_DETECTED = "2"
 def cli = new CliBuilder(usage: "JoinSamples [options] " +

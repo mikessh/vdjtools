@@ -29,34 +29,68 @@
 
 package com.antigenomics.vdjtools.join;
 
+import com.antigenomics.vdjtools.ClonotypeWrapper;
+import com.antigenomics.vdjtools.ClonotypeWrapperContainer;
 import com.antigenomics.vdjtools.join.key.*;
 import com.antigenomics.vdjtools.overlap.OverlapType;
 import com.antigenomics.vdjtools.sample.Clonotype;
-import com.antigenomics.vdjtools.sample.Sample;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Clonotype key generator implementing a certain clonotype matching rule.
+ */
 public class ClonotypeKeyGen {
     private final OverlapType overlapType;
 
+    /**
+     * Creates a clonotype key generator with {@link OverlapType#Strict} clonotype matching rule.
+     */
     public ClonotypeKeyGen() {
         this(OverlapType.Strict);
     }
 
+    /**
+     * Creates a clonotype key generator for a specified clonotype matching rule.
+     *
+     * @param overlapType clonotype matching rule.
+     */
     public ClonotypeKeyGen(OverlapType overlapType) {
         this.overlapType = overlapType;
     }
 
-    public Set<ClonotypeKey> generateKeySet(Sample sample) {
+    /**
+     * Generates keys for all clonotypes in a given sample.
+     *
+     * @param clonotypeWrapperContainer a sample.
+     * @return a set of clonotype keys.
+     */
+    public Set<ClonotypeKey> generateKeySet(ClonotypeWrapperContainer<? extends ClonotypeWrapper> clonotypeWrapperContainer) {
         Set<ClonotypeKey> keySet = new HashSet<>();
-        for (Clonotype clonotype : sample) {
-            keySet.add(generateKey(clonotype));
+        for (ClonotypeWrapper clonotypeWrapper : clonotypeWrapperContainer) {
+            keySet.add(generateKey(clonotypeWrapper));
         }
         return keySet;
     }
 
+    /**
+     * Generates a key for a given clonotype wrapper under specified matching rule.
+     *
+     * @param clonotypeWrapper a clonotype wrapper.
+     * @return clonotype key.
+     */
+    public ClonotypeKey generateKey(ClonotypeWrapper clonotypeWrapper) {
+        return generateKey(clonotypeWrapper.getClonotype());
+    }
+
+    /**
+     * Generates a key for a given clonotype under specified matching rule.
+     *
+     * @param clonotype a clonotype.
+     * @return clonotype key.
+     */
     public ClonotypeKey generateKey(Clonotype clonotype) {
         switch (overlapType) {
             case Nucleotide:
@@ -86,5 +120,14 @@ public class ClonotypeKeyGen {
             default:
                 throw new NotImplementedException();
         }
+    }
+
+    /**
+     * Gets the clonotype matching rule for this key generator.
+     *
+     * @return clonotype matching rule.
+     */
+    public OverlapType getOverlapType() {
+        return overlapType;
     }
 }

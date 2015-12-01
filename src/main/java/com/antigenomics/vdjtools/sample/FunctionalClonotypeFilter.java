@@ -29,6 +29,9 @@
 
 package com.antigenomics.vdjtools.sample;
 
+/**
+ * Filter based on clonotype coding/non-coding status.
+ */
 public class FunctionalClonotypeFilter extends ClonotypeFilter {
     public FunctionalClonotypeFilter(boolean negative) {
         super(negative);

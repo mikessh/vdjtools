@@ -40,7 +40,7 @@ import com.antigenomics.vdjtools.operate.PoolSamples
 import com.antigenomics.vdjtools.overlap.*
 import com.antigenomics.vdjtools.preprocess.*
 import com.antigenomics.vdjtools.profile.CalcCdrAAProfile
-import com.antigenomics.vdjtools.util.*
+import com.antigenomics.vdjtools.misc.*
 
 import java.util.jar.JarFile
 

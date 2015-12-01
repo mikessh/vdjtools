@@ -29,16 +29,16 @@
 
 package com.antigenomics.vdjtools.operate
 
-import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.misc.Software
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.pool.PooledSample
 import com.antigenomics.vdjtools.pool.SampleAggregator
 import com.antigenomics.vdjtools.pool.StoringClonotypeAggregatorFactory
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.util.ExecUtil
+import com.antigenomics.vdjtools.misc.ExecUtil
 
-import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.misc.ExecUtil.formOutputPath
 
 def I_TYPE_DEFAULT = "aa"
 def cli = new CliBuilder(usage: "PoolSamples [options] " +

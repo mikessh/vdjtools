@@ -38,6 +38,12 @@ import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 
 import java.util.*;
 
+/**
+ * A join between several clonotype tables, performed using a specific clonotype matching rule {@link #getOverlapType}.
+ * Note that clonotypes are grouped to joint clonotypes with a representative clonotype and a list of
+ * convergent variants for each sample under the same matching rule. Joint clonotypes can be pre-filtered using
+ * a specified {@see JoinFilter}.
+ */
 public class JointSample implements ClonotypeWrapperContainer<JointClonotype> {
     private final Sample[] samples;
     private final double[] transformedCountSum;
@@ -81,10 +87,24 @@ public class JointSample implements ClonotypeWrapperContainer<JointClonotype> {
         this.reverse = reverse;
     }
 
+    /**
+     * Joins clonotype tables from several samples together.
+     * Only joint clonotypes detected in two or more samples are retained
+     *
+     * @param overlapType clonotype matching rule.
+     * @param samples     a list of samples to join.
+     */
     public JointSample(OverlapType overlapType, Sample[] samples) {
         this(overlapType, samples, new OccurrenceJoinFilter());
     }
 
+    /**
+     * Joins clonotype tables from several samples together.
+     *
+     * @param overlapType clonotype matching rule.
+     * @param samples     a list of samples to join.
+     * @param joinFilter  specified a filter for joint clonotypes, e.g. by number of occurrences.
+     */
     public JointSample(OverlapType overlapType, Sample[] samples,
                        JoinFilter joinFilter) {
         this.numberOfSamples = samples.length;
@@ -198,6 +218,10 @@ public class JointSample implements ClonotypeWrapperContainer<JointClonotype> {
         return 2 * G;
     }
 
+    /**
+     * EXPERIMENTAL Computes the probability that the variance of joint clonotype's abundance can be
+     * explained by sampling stochastics for each clonotype.
+     */
     public void computeAndCorrectSamplingPValues() {
         List<JointClonotype> jointClonotypes = new ArrayList<>(this.jointClonotypes);
 
@@ -223,22 +247,57 @@ public class JointSample implements ClonotypeWrapperContainer<JointClonotype> {
         }
     }
 
+    /**
+     * Gets the number of samples that were joined.
+     *
+     * @return number of samples.
+     */
     public int getNumberOfSamples() {
         return numberOfSamples;
     }
 
+    /**
+     * Gets the original sample that was joined by index.
+     *
+     * @param sampleIndex sample index.
+     * @return original sample.
+     */
     public Sample getSample(int sampleIndex) {
         return samples[getIndex(sampleIndex)];
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public double getFreq() {
         return 1.0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getFreqAsInInput() {
+        return 1.0;
+    }
+
+    /**
+     * Total number of joint clonotypes in this joint sample, not counting convergent variants.
+     *
+     * @return total number of joint conotypes.
+     */
+    @Override
     public int getDiversity() {
         return jointClonotypes.size();
     }
 
+    /**
+     * Gets the total read count in this joint sample.
+     *
+     * @return read count sum for all joint clonotypes.
+     */
+    @Override
     public long getCount() {
         return count;
     }
@@ -247,61 +306,132 @@ public class JointSample implements ClonotypeWrapperContainer<JointClonotype> {
         return transformedCountSum[getIndex(sampleIndex)];
     }
 
-    public long getCount(int sampleIndex) {
+    protected long getCount(int sampleIndex) {
         return getSample(sampleIndex).getCount();
     }
 
+    /**
+     * Gets joint clonotype by index.
+     *
+     * @param index joint clonotype index.
+     * @return joint clonotype.
+     */
+    @Override
     public JointClonotype getAt(int index) {
         JointClonotype jointClonotype = jointClonotypes.get(index);
         return reverse ? jointClonotype.changeParent(this) : jointClonotype;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isSorted() {
         return true;
     }
 
+    /**
+     * Gets the original number of clonotypes in a given sample, not accounting for sub-variants.
+     *
+     * @param sampleIndex sample index.
+     * @return diversity of a given sample, not accounting for sub-variants.
+     */
     public int getTotalDiv(int sampleIndex) {
         return totalDiv[getIndex(sampleIndex)];
     }
 
+    /**
+     * Gets the number of overlapping clonotypes in a given sample, not accounting for sub-variants.
+     *
+     * @param sampleIndex sample index.
+     * @return number of clonotypes in intersection coming from a given sample, not accounting for sub-variants.
+     */
     public int getIntersectionDiv(int sampleIndex) {
         return intersectionDiv[getIndex(sampleIndex)];
     }
 
+    /**
+     * Gets the number of intersecting clonotypes for a given pair of samples, not accounting for sub-variants.
+     *
+     * @param sampleIndex1 index of first sample.
+     * @param sampleIndex2 index of second sample.
+     * @return number of clonotypes in intersection, not accounting for sub-variants.
+     */
     public int getIntersectionDiv(int sampleIndex1, int sampleIndex2) {
         return sampleIndex1 < sampleIndex2 ? intersectionDivMatrix[sampleIndex1][sampleIndex2] :
                 intersectionDivMatrix[sampleIndex2][sampleIndex1];
     }
 
+    /**
+     * Gets the frequency sum of overlapping clonotypes in a given sample.
+     *
+     * @param sampleIndex sample index.
+     * @return sum of overlapping clonotype frequencies in a given sample.
+     */
     public double getIntersectionFreq(int sampleIndex) {
         return intersectionFreq[getIndex(sampleIndex)];
     }
 
+    /**
+     * Gets the frequency sum of clonotypes overlapping specifies between samples.
+     * The sum is computed based on clonotype frequencies in the first sample.
+     *
+     * @param sampleIndex1 index of first sample.
+     * @param sampleIndex2 index of second sample.
+     * @return sum of overlapping clonotype frequncies, according to first sample.
+     */
     public double getIntersectionFreq(int sampleIndex1, int sampleIndex2) {
         return intersectionFreqMatrix[getIndex(sampleIndex1)][getIndex(sampleIndex2)];
     }
 
+    /**
+     * Gets the read count sum of overlapping clonotypes in a given sample.
+     *
+     * @param sampleIndex sample index.
+     * @return sum of overlapping clonotype read counts in a given sample.
+     */
     public long getIntersectionCount(int sampleIndex) {
         return intersectionCount[getIndex(sampleIndex)];
     }
 
+    /**
+     * Gets the read count sum of clonotypes overlapping specifies between samples.
+     * The sum is computed based on clonotype frequencies in the first sample.
+     *
+     * @param sampleIndex1 index of first sample.
+     * @param sampleIndex2 index of second sample.
+     * @return sum of overlapping clonotype read counts, according to first sample.
+     */
     public long getIntersectionCount(int sampleIndex1, int sampleIndex2) {
         return intersectionCountMatrix[getIndex(sampleIndex1)][getIndex(sampleIndex2)];
     }
 
+    /**
+     * Gets the clonotype matching rule used to construct a given joint sample.
+     *
+     * @return clonotype matching rule.
+     */
     public OverlapType getOverlapType() {
         return overlapType;
     }
 
+    /**
+     * INTERNAL used for plain-text table output of joint sample output.
+     */
     public double getTotalMeanFreq() {
         return totalMeanFreq;
     }
 
+    /**
+     * INTERNAL used for plain-text table output of joint sample output.
+     */
     public double calcFreq(double meanFreq) {
         return meanFreq / totalMeanFreq;
     }
 
+    /**
+     * INTERNAL used for plain-text table output of joint sample output.
+     */
     public int calcCount(double freq) {
         return (int) (freq / minMeanFreq);
     }
@@ -351,9 +481,14 @@ public class JointSample implements ClonotypeWrapperContainer<JointClonotype> {
         return iterator;
     }
 
+    /**
+     * INTERNAL Reverses the sample order given joint sample.
+     *
+     * @return
+     */
     public JointSample getReverse() throws Exception {
         if (reverse)
-            throw new Exception("Already reversed, for the sake of performance multiple reverse is disabled");
+            throw new RuntimeException("Already reversed, for the sake of performance multiple reverse is disabled");
 
         return new JointSample(samples, transformedCountSum,
                 intersectionFreq, intersectionFreqMatrix,

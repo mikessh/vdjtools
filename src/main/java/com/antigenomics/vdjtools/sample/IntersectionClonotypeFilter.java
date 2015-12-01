@@ -29,12 +29,16 @@
 
 package com.antigenomics.vdjtools.sample;
 
-import com.antigenomics.vdjtools.overlap.OverlapType;
 import com.antigenomics.vdjtools.join.ClonotypeKeyGen;
 import com.antigenomics.vdjtools.join.key.ClonotypeKey;
+import com.antigenomics.vdjtools.overlap.OverlapType;
 
 import java.util.Set;
 
+/**
+ * Filter based on clonotype intersection with the list of clonotypes from the specified sample according to
+ * the specified clonotype matching rule.
+ */
 public class IntersectionClonotypeFilter extends ClonotypeFilter {
     private final ClonotypeKeyGen clonotypeKeyGen;
     private final Set<ClonotypeKey> keySet;

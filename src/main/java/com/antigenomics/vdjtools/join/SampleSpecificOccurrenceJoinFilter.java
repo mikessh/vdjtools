@@ -32,11 +32,24 @@ package com.antigenomics.vdjtools.join;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * A filter that retains or filters out all clonotypes that were detected in a specified sample(s).
+ * Decision is made according to the number of times the clonotype was detected in the sample set,
+ * not accounting for convergent variant count.
+ */
 public class SampleSpecificOccurrenceJoinFilter implements JoinFilter {
     private final int occurrenceThreshold;
     private final Set<String> sampleIds;
     private final boolean enrichment;
 
+    /**
+     * Creates a sample-specific filter. Clonotype occurrences are counted in a specified sample set.
+     * Decision to retain or filter joint clonotype is made according to occurrence count.
+     *
+     * @param sampleIds           identifiers (sample.id from metadata) of samples.
+     * @param occurrenceThreshold inclusive lower bound on number of times the clonotype should be detected in specified sample set to be marked as "detected".
+     * @param enrichment          if set to true will retain clonotypes that were detected, will filter them out otherwise.
+     */
     public SampleSpecificOccurrenceJoinFilter(Set<String> sampleIds,
                                               int occurrenceThreshold, boolean enrichment) {
         this.occurrenceThreshold = occurrenceThreshold;
@@ -56,6 +69,9 @@ public class SampleSpecificOccurrenceJoinFilter implements JoinFilter {
         return enrichment;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean pass(JointClonotype jointClonotype) {
         int detectionCounter = 0;

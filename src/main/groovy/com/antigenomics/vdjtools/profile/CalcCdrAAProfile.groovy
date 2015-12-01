@@ -32,10 +32,10 @@ package com.antigenomics.vdjtools.profile
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
-import com.antigenomics.vdjtools.util.RUtil
+import com.antigenomics.vdjtools.misc.RUtil
 
-import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
-import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
+import static com.antigenomics.vdjtools.misc.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.misc.ExecUtil.toPlotPath
 
 
 def DEFAULT_AA_PROPERTIES = BasicAminoAcidProperties.INSTANCE.propertyNames.join(","),

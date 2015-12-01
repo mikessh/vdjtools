@@ -27,7 +27,7 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.util
+package com.antigenomics.vdjtools.misc
 
 import java.util.regex.Pattern
 import java.util.zip.GZIPInputStream

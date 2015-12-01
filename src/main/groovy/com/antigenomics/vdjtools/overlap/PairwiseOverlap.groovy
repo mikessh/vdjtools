@@ -32,7 +32,7 @@ package com.antigenomics.vdjtools.overlap
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.SamplePair
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
-import com.antigenomics.vdjtools.util.ExecUtil
+import com.antigenomics.vdjtools.misc.ExecUtil
 import groovyx.gpars.GParsPool
 
 import java.util.concurrent.atomic.AtomicInteger

@@ -31,7 +31,7 @@
  * Added concatenate method
  */
 
-package com.antigenomics.vdjtools;
+package com.antigenomics.vdjtools.misc;
 
 import java.util.*;
 

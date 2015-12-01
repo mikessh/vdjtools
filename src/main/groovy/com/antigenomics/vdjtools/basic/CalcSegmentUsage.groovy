@@ -31,10 +31,10 @@ package com.antigenomics.vdjtools.basic
 
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
-import com.antigenomics.vdjtools.util.RUtil
+import com.antigenomics.vdjtools.misc.RUtil
 
-import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
-import static com.antigenomics.vdjtools.util.ExecUtil.toPlotPath
+import static com.antigenomics.vdjtools.misc.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.misc.ExecUtil.toPlotPath
 
 def cli = new CliBuilder(usage: "CalcSegmentUsage [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")

@@ -29,8 +29,8 @@
 
 package com.antigenomics.vdjtools.sample;
 
-import com.antigenomics.vdjtools.Segment;
-import com.antigenomics.vdjtools.SegmentFactory;
+import com.antigenomics.vdjtools.misc.Segment;
+import com.antigenomics.vdjtools.misc.SegmentFactory;
 
 import java.util.Collections;
 import java.util.HashSet;

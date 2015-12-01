@@ -29,7 +29,7 @@
 
 package com.antigenomics.vdjtools.sample
 
-import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.misc.Software
 import com.antigenomics.vdjtools.io.DummySampleConnection
 import com.antigenomics.vdjtools.io.SampleConnection
 import com.antigenomics.vdjtools.io.SampleFileConnection
@@ -37,7 +37,7 @@ import com.antigenomics.vdjtools.sample.metadata.BlankMetadataEntryFilter
 import com.antigenomics.vdjtools.sample.metadata.MetadataEntryFilter
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 import com.antigenomics.vdjtools.sample.metadata.MetadataUtil
-import com.antigenomics.vdjtools.util.ExecUtil
+import com.antigenomics.vdjtools.misc.ExecUtil
 import groovy.transform.CompileStatic
 
 /**

@@ -32,7 +32,7 @@ package com.antigenomics.vdjtools.basic
 import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
-import com.antigenomics.vdjtools.util.ExecUtil
+import com.antigenomics.vdjtools.misc.ExecUtil
 
 /**
  * Class that represents Variable and Joining segment frequency (usage) vector and V-J pairing matrix

@@ -30,7 +30,7 @@
 package com.antigenomics.vdjtools.io
 
 import com.antigenomics.vdjtools.sample.metadata.MetadataUtil
-import com.antigenomics.vdjtools.util.CommonUtil
+import com.antigenomics.vdjtools.misc.CommonUtil
 
 /**
  * A file input stream factory. This factory creates a new file connection each time.

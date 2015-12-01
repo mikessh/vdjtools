@@ -29,6 +29,9 @@
 
 package com.antigenomics.vdjtools.sample;
 
+/**
+ * Filter based on Joining segment matching.
+ */
 public class JFilter extends SegmentFilter {
     public JFilter(boolean negative, String... segmentNames) {
         super(negative, segmentNames);

@@ -41,11 +41,11 @@ import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
-import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.misc.ExecUtil.formOutputPath
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
-def cli = new CliBuilder(usage: "ApplySampleAsFilter [options] " +
+def cli = new CliBuilder(usage: "Enrichment [options] " +
         "[sample1 sample2 ... if not -m] control_sample output_prefix")
 cli.h("display help message")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,

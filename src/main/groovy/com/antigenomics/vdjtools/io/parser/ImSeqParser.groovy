@@ -29,11 +29,11 @@
 
 package com.antigenomics.vdjtools.io.parser
 
-import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.misc.Software
 import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 
-import static com.antigenomics.vdjtools.util.CommonUtil.*
+import static com.antigenomics.vdjtools.misc.CommonUtil.*
 
 class ImSeqParser extends ClonotypeStreamParser {
     /**

@@ -29,6 +29,15 @@
 
 package com.antigenomics.vdjtools.join;
 
+/**
+ * A filter for joint clonotypes. Such filters can be used to ensure certain number of occurrences, etc.
+ */
 public interface JoinFilter {
+    /**
+     * Checks whether a given joint clonotype passes the filter.
+     *
+     * @param jointClonotype a joint clonotype to check.
+     * @return true if clonotype should be retained, false otherwise.
+     */
     public boolean pass(JointClonotype jointClonotype);
 }

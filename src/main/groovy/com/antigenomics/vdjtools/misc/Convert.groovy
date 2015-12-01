@@ -27,10 +27,8 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.util
+package com.antigenomics.vdjtools.misc
 
-
-import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.sample.SampleCollection
 

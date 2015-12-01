@@ -27,41 +27,47 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.util
+package com.antigenomics.vdjtools.misc;
 
-import java.util.zip.ZipInputStream
+/**
+ * An immune receptor segment.
+ */
+public class Segment {
+    public static final Segment MISSING = new Segment(".");
 
-println "[RInstall] Opening resources stream"
-def src = RInstall.class.protectionDomain.codeSource,
-    jar = src.location,
-    zip = new ZipInputStream(jar.openStream())
-def entry
-def dependencies = new HashSet<String>()
+    protected final String name;
 
-println "[RInstall] Scanning for dependencies"
+    protected Segment(String name) {
+        this.name = name;
+    }
 
-while ((entry = zip.nextEntry)) {
-    if (entry.name.toUpperCase().endsWith(".R")) {
-        println "[RInstall] Scanning $entry.name"
-        CommonUtil.resourceStreamReader(entry.name).readLines().each { String line ->
-            if (line =~ /require\(.+\)/)
-                line.split("require\\(").each { String token ->
-                    if (token.contains(")")) {
-                        def dependency = token.split("\\)")[0]
-                        println "$dependency"
-                        dependencies.add(dependency)
-                    }
-                }
-        }
+    /**
+     * Gets segment identifier.
+     * @return segment identifier.
+     */
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Segment segment = (Segment) o;
+
+        if (!name.equals(segment.name)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
 }
-
-println "[RInstall] Full list of dependencies to be installed:\n${dependencies.join(" ")}"
-
-RUtil.install(dependencies as String[])
-
-println "[RInstall] Testing"
-
-RUtil.test(dependencies as String[])
-
-println "[RInstall] Finished"

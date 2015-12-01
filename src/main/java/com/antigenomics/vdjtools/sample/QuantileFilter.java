@@ -31,6 +31,9 @@ package com.antigenomics.vdjtools.sample;
 
 import com.antigenomics.vdjtools.ClonotypeWrapperContainer;
 
+/**
+ * Clonotype filter based on the frequency quantile of its parent sample it is placed in.
+ */
 public class QuantileFilter extends ClonotypeFilter {
     private final double topQuantileFrequencyThreshold;
     private double cumulativeFreq = 0;
@@ -50,8 +53,8 @@ public class QuantileFilter extends ClonotypeFilter {
         if (!parent.isSorted())
             throw new RuntimeException("Only sorted samples are supported in QuantileFilter.");
 
-        cumulativeFreq += clonotype.getFreq();
+        cumulativeFreq += clonotype.getFreqAsInInput();
 
-        return cumulativeFreq / parent.getFreq() <= topQuantileFrequencyThreshold;
+        return cumulativeFreq / parent.getFreqAsInInput() <= topQuantileFrequencyThreshold;
     }
 }

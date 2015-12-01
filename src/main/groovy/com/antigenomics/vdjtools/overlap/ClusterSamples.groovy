@@ -31,8 +31,8 @@ package com.antigenomics.vdjtools.overlap
 
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
-import static com.antigenomics.vdjtools.util.ExecUtil.formOutputPath
-import static com.antigenomics.vdjtools.util.RUtil.*
+import static com.antigenomics.vdjtools.misc.ExecUtil.formOutputPath
+import static com.antigenomics.vdjtools.misc.RUtil.*
 
 def MEASURE_DEFAULT = "F", I_TYPE_DEFAULT = "aa"
 

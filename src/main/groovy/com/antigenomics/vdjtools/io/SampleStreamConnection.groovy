@@ -29,10 +29,10 @@
 
 package com.antigenomics.vdjtools.io
 
-import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.misc.Software
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.metadata.SampleMetadata
-import com.antigenomics.vdjtools.util.ExecUtil
+import com.antigenomics.vdjtools.misc.ExecUtil
 
 import static com.antigenomics.vdjtools.sample.metadata.MetadataUtil.createSampleMetadata
 

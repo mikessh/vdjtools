@@ -30,8 +30,8 @@
 
 package com.antigenomics.vdjtools.io.parser
 
-import com.antigenomics.vdjtools.Segment
-import com.antigenomics.vdjtools.Software
+import com.antigenomics.vdjtools.misc.Segment
+import com.antigenomics.vdjtools.misc.Software
 import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 import com.milaboratory.core.sequence.Sequence

@@ -45,6 +45,11 @@ public class PooledSample implements ClonotypeWrapperContainer<StoringClonotypeA
                 new StoringClonotypeAggregatorFactory(), OverlapType.Strict));
     }
 
+    /**
+     * Creates a
+     *
+     * @param sampleAggregator
+     */
     public PooledSample(SampleAggregator<StoringClonotypeAggregator> sampleAggregator) {
         this.clonotypes = new ArrayList<>(sampleAggregator.getDiversity());
 
@@ -52,7 +57,7 @@ public class PooledSample implements ClonotypeWrapperContainer<StoringClonotypeA
 
         for (StoringClonotypeAggregator clonotypeAggregator : sampleAggregator) {
             clonotypeAggregator.setParent(this);
-            int x = clonotypeAggregator.getCount();
+            int x = (int) clonotypeAggregator.getCount();
             count += x;
             clonotypes.add(clonotypeAggregator);
         }
@@ -63,32 +68,55 @@ public class PooledSample implements ClonotypeWrapperContainer<StoringClonotypeA
                 new Comparator<StoringClonotypeAggregator>() {
                     @Override
                     public int compare(StoringClonotypeAggregator o1, StoringClonotypeAggregator o2) {
-                        return Integer.compare(o2.getCount(), o1.getCount()); // inverse - sort descending
+                        return Long.compare(o2.getCount(), o1.getCount()); // inverse - sort descending
                     }
                 });
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getFreq() {
         return 1.0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double getFreqAsInInput() {
+        return 1.0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long getCount() {
         return count;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getDiversity() {
         return clonotypes.size();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public StoringClonotypeAggregator getAt(int index) {
         return clonotypes.get(index);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isSorted() {
         return true;

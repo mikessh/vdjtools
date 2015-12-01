@@ -29,6 +29,9 @@
 
 package com.antigenomics.vdjtools.sample;
 
+/**
+ * Filter based on clonotype frequency.
+ */
 public class FrequencyFilter extends ClonotypeFilter {
     private final double frequencyThreshold;
 

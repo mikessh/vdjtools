@@ -29,7 +29,7 @@
 
 package com.antigenomics.vdjtools.preprocess;
 
-import com.antigenomics.vdjtools.Segment;
+import com.antigenomics.vdjtools.misc.Segment;
 import com.antigenomics.vdjtools.sample.Clonotype;
 import com.antigenomics.vdjtools.sample.Sample;
 import com.milaboratory.core.sequence.NucleotideSequence;
@@ -41,21 +41,42 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * A class implementing simple frequency-based error correction.
+ */
 public class Corrector {
     private final TreeSearchParameters treeSearchParameters;
     private final double logRatioThreshold;
     private final boolean requireSegmentMatch;
 
+    /**
+     * Creates a sample corrector. Clonotypes that are no more than 2 mismatches difference from each other,
+     * have a more than 20 times ratio threshold will be subject to correction.
+     */
     public Corrector() {
         this(2, 0.05f, false);
     }
 
+    /**
+     * Creates a sample corrector. Clonotypes that are in a certain edit distance from each other,
+     * have a certain ratio threshold and matching segments (if specified) will be subject to correction.
+     *
+     * @param maxMismatches       maximum number of mismatches allowed.
+     * @param ratioThreshold      clonotype abundance ratio.
+     * @param requireSegmentMatch requires matching of V/J segment.
+     */
     public Corrector(int maxMismatches, float ratioThreshold, boolean requireSegmentMatch) {
         this.treeSearchParameters = new TreeSearchParameters(maxMismatches, 0, 0);
         this.logRatioThreshold = -Math.log10(ratioThreshold);
         this.requireSegmentMatch = requireSegmentMatch;
     }
 
+    /**
+     * Corrects specified sample for clonotypes that result from PCR/sequencing errors.
+     *
+     * @param sample a sample.
+     * @return corrected sample, a deep copy.
+     */
     public Sample correct(Sample sample) {
         final SequenceTreeMapProvider sequenceTreeMapProvider =
                 requireSegmentMatch ? new SegmentSequenceTreeMapProvider(sample) :
@@ -76,7 +97,7 @@ public class Corrector {
         NeighborhoodIterator<NucleotideSequence, Clonotype> neighborhoodIterator =
                 sequenceTreeMap.getNeighborhoodIterator(it.getCdr3ntBinary(), treeSearchParameters);
 
-        int totalCount = it.getCount();
+        int totalCount = (int)it.getCount();
 
         for (Clonotype other : neighborhoodIterator.it()) {
             if (!other.equals(it)) {

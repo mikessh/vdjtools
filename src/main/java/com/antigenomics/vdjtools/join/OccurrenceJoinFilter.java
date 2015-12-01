@@ -29,13 +29,24 @@
 
 package com.antigenomics.vdjtools.join;
 
+/**
+ * Filters joint clonotypes according to the number of samples they were detected.
+ */
 public class OccurrenceJoinFilter implements JoinFilter {
     private final int occurrenceThreshold;
 
+    /**
+     * Creates a filter that retains all joint clonotypes detected two or more times.
+     */
     public OccurrenceJoinFilter() {
         this(2);
     }
 
+    /**
+     * Creates a filter that retains all joint clonotypes detected the specified number of times or more.
+     *
+     * @param occurrenceThreshold threshold for the number of samples this clonotype was detected (inclusive).
+     */
     public OccurrenceJoinFilter(int occurrenceThreshold) {
         this.occurrenceThreshold = occurrenceThreshold;
     }
@@ -44,6 +55,9 @@ public class OccurrenceJoinFilter implements JoinFilter {
         return occurrenceThreshold;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean pass(JointClonotype jointClonotype) {
         int detectionCounter = 0;

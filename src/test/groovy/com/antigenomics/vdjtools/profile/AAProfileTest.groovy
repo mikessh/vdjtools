@@ -30,7 +30,7 @@
 package com.antigenomics.vdjtools.profile
 
 import com.antigenomics.vdjtools.sample.Clonotype
-import com.antigenomics.vdjtools.util.CommonUtil
+import com.antigenomics.vdjtools.misc.CommonUtil
 import com.milaboratory.core.sequence.AminoAcidSequence
 import org.junit.Test
 

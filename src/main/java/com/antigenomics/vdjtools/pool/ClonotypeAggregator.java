@@ -29,18 +29,28 @@
 
 package com.antigenomics.vdjtools.pool;
 
-import com.antigenomics.vdjtools.Misc;
+import com.antigenomics.vdjtools.misc.MathUtil;
 import com.antigenomics.vdjtools.sample.Clonotype;
 
+/**
+ * A base class for all clonotype aggregators used for summarizing clonotype counts and occurrences.
+ * Representative clonotype for the clonotype aggregatior is implementation-dependent.
+ */
 public abstract class ClonotypeAggregator {
     private int sampleId;
     private int incidenceCount, count;
     private double freq, freqRem = 0;
 
+    /**
+     * Creates a new conotype aggregator.
+     *
+     * @param clonotype base clonotype instance.
+     * @param sampleId  index of clonotype's parent sample.
+     */
     public ClonotypeAggregator(Clonotype clonotype, int sampleId) {
         this.incidenceCount = 1;
         this.freqRem = clonotype.getFreq();
-        this.count = clonotype.getCount();
+        this.count = (int) clonotype.getCount();
         this.sampleId = sampleId;
     }
 
@@ -61,23 +71,42 @@ public abstract class ClonotypeAggregator {
 
     protected abstract boolean tryReplace(Clonotype other, int sampleId);
 
+    /**
+     * Gets the number of samples this clonotype was detected in.
+     *
+     * @return number of samples.
+     */
     public int getIncidenceCount() {
         return incidenceCount;
     }
 
-    public int getCount() {
+    /**
+     * Gets the total count of this clonotype in all samples so far.
+     *
+     * @return clonotype count.
+     */
+    public long getCount() {
         return count;
     }
 
+    /**
+     * INTERNAL used for computing pooled clonotype frequencies.
+     */
     public double getFreqLogSum() {
         return freq + (freqRem > 0 ? Math.log10(freqRem) : 0);
     }
 
+    /**
+     * INTERNAL used for computing pooled clonotype frequencies.
+     */
     public double getFreqGeomMean() {
         return Math.pow(10.0, getFreqLogSum() / incidenceCount);
     }
 
+    /**
+     * INTERNAL used for computing pooled clonotype frequencies.
+     */
     public double getFreqGeomMean(int numberOfSamples) {
-        return Math.pow(10.0, (getFreqLogSum() + (numberOfSamples - incidenceCount) * Misc.JITTER_LOG10) / numberOfSamples);
+        return Math.pow(10.0, (getFreqLogSum() + (numberOfSamples - incidenceCount) * MathUtil.JITTER_LOG10) / numberOfSamples);
     }
 }

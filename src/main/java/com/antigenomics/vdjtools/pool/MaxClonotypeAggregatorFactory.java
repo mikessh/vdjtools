@@ -31,6 +31,9 @@ package com.antigenomics.vdjtools.pool;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
 
+/**
+ * A factory for {@link com.antigenomics.vdjtools.pool.MaxClonotypeAggregator}.
+ */
 public class MaxClonotypeAggregatorFactory implements ClonotypeAggregatorFactory<MaxClonotypeAggregator> {
     @Override
     public MaxClonotypeAggregator create(Clonotype clonotype, int sampleId) {

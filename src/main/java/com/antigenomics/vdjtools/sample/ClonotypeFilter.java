@@ -34,6 +34,9 @@ import com.google.common.util.concurrent.AtomicDouble;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * A base class for clonotype filtering rule. This class also provides summary statistics.
+ */
 public abstract class ClonotypeFilter {
     private final AtomicInteger passedClonotypes = new AtomicInteger(),
             totalClonotypes = new AtomicInteger();
@@ -51,6 +54,12 @@ public abstract class ClonotypeFilter {
         this(false);
     }
 
+    /**
+     * Checks whether a given clonotype passes the filter.
+     *
+     * @param clonotype a clonotype.
+     * @return clonotype passes the filter and should be retained.
+     */
     public boolean pass(Clonotype clonotype) {
         boolean pass = negative ^ checkPass(clonotype);
 
@@ -69,12 +78,22 @@ public abstract class ClonotypeFilter {
 
     protected abstract boolean checkPass(Clonotype clonotype);
 
+    /**
+     * Gets filtering statistics.
+     *
+     * @return clonotype filtering statistics.
+     */
     public ClonotypeFilterStats getStats() {
         return new ClonotypeFilterStats(passedClonotypes.get(), totalClonotypes.get(),
                 passedCount.get(), totalCount.get(),
                 passedFreq.get(), totalFreq.get());
     }
 
+    /**
+     * Gets filtering statistics and resets counters.
+     *
+     * @return clonotype filtering statistics.
+     */
     public ClonotypeFilterStats getStatsAndFlush() {
         ClonotypeFilterStats stats = getStats();
         passedClonotypes.set(0);
@@ -86,6 +105,9 @@ public abstract class ClonotypeFilter {
         return stats;
     }
 
+    /**
+     * Clonotype filtering statistics.
+     */
     public static class ClonotypeFilterStats {
         private final int passedClonotypes, totalClonotypes;
         private final long passedCount, totalCount;
@@ -125,7 +147,6 @@ public abstract class ClonotypeFilter {
         public double getTotalFreq() {
             return totalFreq;
         }
-
 
         public static final String HEADER = "passed_clones\ttotal_clones\t" +
                 "passed_count\ttotal_count\t" +

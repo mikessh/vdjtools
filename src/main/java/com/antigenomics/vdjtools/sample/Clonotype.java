@@ -31,8 +31,8 @@ package com.antigenomics.vdjtools.sample;
 
 import com.antigenomics.vdjtools.ClonotypeWrapper;
 import com.antigenomics.vdjtools.Countable;
-import com.antigenomics.vdjtools.Segment;
-import com.antigenomics.vdjtools.SegmentFactory;
+import com.antigenomics.vdjtools.misc.Segment;
+import com.antigenomics.vdjtools.misc.SegmentFactory;
 import com.milaboratory.core.sequence.AminoAcidSequence;
 import com.milaboratory.core.sequence.NucleotideSequence;
 
@@ -146,11 +146,19 @@ public class Clonotype implements Comparable<Clonotype>, Countable, ClonotypeWra
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getDiversity() {
+        return 1;
+    }
+
+    /**
      * Gets the clonotype count
      *
      * @return number of reads that are associated with this clonotype
      */
-    public int getCount() {
+    public long getCount() {
         return count;
     }
 

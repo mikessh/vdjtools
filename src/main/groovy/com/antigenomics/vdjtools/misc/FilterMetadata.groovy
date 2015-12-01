@@ -27,45 +27,38 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools;
+package com.antigenomics.vdjtools.misc
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.antigenomics.vdjtools.sample.SampleCollection
+import com.antigenomics.vdjtools.sample.metadata.MetadataEntryExpressionFilter
 
-public class SegmentFactory {
-    public static final SegmentFactory INSTANCE = new SegmentFactory();
+def cli = new CliBuilder(usage: "FilterMetadata [options] metadata.txt output_dir output_suffix")
+cli.h("display help message")
+cli.f(longOpt: "filter", argName: "string", args: 1, required: true,
+        "Filter expression, metadata column names should be marked with ${MetadataEntryExpressionFilter.FILTER_MARK}, " +
+                "e.g. \"__chain__=~/TR[AB]/\" or \"__chain__=='TRA'||__chain__=='TRB'\"")
 
-    protected final Map<String, Segment> segmentCache = new HashMap<>();
+def opt = cli.parse(args)
 
-    public SegmentFactory() {
-        segmentCache.put(Segment.MISSING.name, Segment.MISSING);
-    }
-
-    public Segment create(String name) {
-        Segment segment = segmentCache.get(name);
-
-        if (segment == null) {
-            segmentCache.put(name, segment = new Segment(name));
-        }
-
-        return segment;
-    }
-
-    public int size() {
-        return segmentCache.size();
-    }
-
-    public Segment getAt(String name) {
-        return segmentCache.get(name);
-    }
-
-    public List<Segment> getAtFuzzy(String namePart) {
-        return segmentCache.entrySet()
-                .stream()
-                .filter(segmentEntry -> segmentEntry.getKey().startsWith(namePart))
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
-    }
+if (opt == null) {
+    System.exit(2)
 }
+
+if (opt.h || opt.arguments().size() != 3) {
+    cli.usage()
+    System.exit(2)
+}
+
+def metadataFileName = opt.arguments()[0], filter = (String) opt.f,
+    outputDir = ExecUtil.toDirPath(opt.arguments()[1]), outputSuffix = opt.arguments()[2]
+
+def scriptName = getClass().canonicalName.split("\\.")[-1]
+
+// Lazy load sample list, need to get absolute paths
+println "[${new Date()} $scriptName] Checking sample(s)"
+def sampleCollection = new SampleCollection((String) metadataFileName, Software.VDJtools, false)
+
+println "[${new Date()} $scriptName] Filtering metadata by $filter"
+def filteredMetadataTable = sampleCollection.metadataTable.select(new MetadataEntryExpressionFilter(filter))
+filteredMetadataTable.storeWithOutput(outputDir, sampleCollection, outputSuffix)
+println "[${new Date()} $scriptName] Finished"
