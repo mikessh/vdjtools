@@ -172,6 +172,8 @@ public class ExecUtil {
      */
     public static String formOutputPath(String outputPrefix,
                                         String... outputSuffix) {
+        outputSuffix = outputSuffix.findAll { it && it.length() > 0 && it != "null" }
+        
         if (outputSuffix.any { it.contains(separator) })
             throw new IOException("Output suffices should not contain path separator")
 
@@ -188,8 +190,6 @@ public class ExecUtil {
         }
 
         ensureDir(outputPrefix)
-
-        outputSuffix = outputSuffix.findAll { it && it.length() > 0 && it != "null" }
 
         def s = outputSuffix.join(".")
 
