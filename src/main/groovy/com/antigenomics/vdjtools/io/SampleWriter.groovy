@@ -29,7 +29,6 @@
 
 package com.antigenomics.vdjtools.io
 
-import com.antigenomics.vdjtools.ClonotypeContainer
 import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.join.JointSample
 import com.antigenomics.vdjtools.pool.PooledSample
@@ -124,7 +123,7 @@ public class SampleWriter {
      * @param sample sample to write
      * @param fileName output path
      */
-    public void write(ClonotypeContainer sample, String fileName) {
+    public void write(Sample sample, String fileName) {
         write(sample, fileName, -1, false)
     }
 
@@ -136,7 +135,7 @@ public class SampleWriter {
      * @param collapse specifies whether to store the information on clonotypes that not got it to {@code top}
      *        ones as a separate single entry put at the end of the file
      */
-    public void write(ClonotypeContainer sample, String fileName, int top, boolean collapse) {
+    public void write(Sample sample, String fileName, int top, boolean collapse) {
         def printWriter = getWriter(fileName)
 
         top = top > sample.diversity || top < 0 ? sample.diversity : top

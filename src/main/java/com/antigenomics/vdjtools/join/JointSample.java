@@ -29,6 +29,7 @@
 
 package com.antigenomics.vdjtools.join;
 
+import com.antigenomics.vdjtools.ClonotypeWrapperContainer;
 import com.antigenomics.vdjtools.join.key.ClonotypeKey;
 import com.antigenomics.vdjtools.overlap.OverlapType;
 import com.antigenomics.vdjtools.sample.Clonotype;
@@ -37,7 +38,7 @@ import org.apache.commons.math3.distribution.ChiSquaredDistribution;
 
 import java.util.*;
 
-public class JointSample implements Iterable<JointClonotype> {
+public class JointSample implements ClonotypeWrapperContainer<JointClonotype> {
     private final Sample[] samples;
     private final double[] transformedCountSum;
     private final double[] intersectionFreq;
@@ -253,6 +254,11 @@ public class JointSample implements Iterable<JointClonotype> {
     public JointClonotype getAt(int index) {
         JointClonotype jointClonotype = jointClonotypes.get(index);
         return reverse ? jointClonotype.changeParent(this) : jointClonotype;
+    }
+
+    @Override
+    public boolean isSorted() {
+        return true;
     }
 
     public int getTotalDiv(int sampleIndex) {

@@ -39,7 +39,8 @@ import java.util.Set;
 
 public class StoringClonotypeAggregator extends MaxClonotypeAggregator implements ClonotypeWrapper {
     private Clonotype clonotype;
-    private int convergence; 
+    private int convergence;
+    private PooledSample parent;
     private final Set<ClonotypeKey> variants = new HashSet<>();
     private final ClonotypeKeyGen clonotypeKeyGen = new ClonotypeKeyGen();
 
@@ -53,12 +54,12 @@ public class StoringClonotypeAggregator extends MaxClonotypeAggregator implement
     @Override
     protected boolean tryReplace(Clonotype clonotype, int sampleId) {
         ClonotypeKey clonotypeKey = clonotypeKeyGen.generateKey(clonotype);
-        
+
         if (!variants.contains(clonotypeKey)) {
             convergence++;
             variants.add(clonotypeKey);
         }
-        
+
         if (super.tryReplace(clonotype, sampleId)) {
             this.clonotype = clonotype;
             return true;
@@ -66,11 +67,26 @@ public class StoringClonotypeAggregator extends MaxClonotypeAggregator implement
         return false;
     }
 
+    @Override
     public Clonotype getClonotype() {
         return clonotype;
     }
 
+    @Override
+    public PooledSample getParent() {
+        return parent;
+    }
+
+    public void setParent(PooledSample parent) {
+        this.parent = parent;
+    }
+
     public int getConvergence() {
         return convergence;
+    }
+
+    @Override
+    public double getFreq() {
+        return parent != null ? (getCount() / (double) parent.getCount()) : Double.NaN;
     }
 }

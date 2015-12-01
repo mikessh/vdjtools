@@ -29,7 +29,7 @@
 
 package com.antigenomics.vdjtools.sample;
 
-import com.antigenomics.vdjtools.ClonotypeContainer;
+import com.antigenomics.vdjtools.ClonotypeWrapperContainer;
 import com.antigenomics.vdjtools.Software;
 import com.antigenomics.vdjtools.io.parser.ClonotypeStreamParser;
 import com.antigenomics.vdjtools.sample.metadata.SampleMetadata;
@@ -37,7 +37,7 @@ import com.antigenomics.vdjtools.sample.metadata.SampleMetadata;
 import java.io.InputStream;
 import java.util.*;
 
-public class Sample implements ClonotypeContainer {
+public class Sample implements ClonotypeWrapperContainer<Clonotype> {
     private final List<Clonotype> clonotypes = new ArrayList<>();
     private final SampleMetadata sampleMetadata;
     private double frequency = 0;

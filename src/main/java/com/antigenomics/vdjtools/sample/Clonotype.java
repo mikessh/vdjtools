@@ -29,7 +29,7 @@
 
 package com.antigenomics.vdjtools.sample;
 
-import com.antigenomics.vdjtools.ClonotypeContainer;
+import com.antigenomics.vdjtools.ClonotypeWrapper;
 import com.antigenomics.vdjtools.Countable;
 import com.antigenomics.vdjtools.Segment;
 import com.antigenomics.vdjtools.SegmentFactory;
@@ -40,8 +40,8 @@ import com.milaboratory.core.sequence.NucleotideSequence;
  * A class holding comprehensive info on a T- or B-cell clonotype.
  * CDR stands for Complementarity Determining Region
  */
-public class Clonotype implements Comparable<Clonotype>, Countable {
-    private ClonotypeContainer parent;
+public class Clonotype implements Comparable<Clonotype>, Countable, ClonotypeWrapper {
+    private Sample parent;
     private int count;
     private double freq;
 
@@ -68,7 +68,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
      * @param noStop     tells if the sequence of this clonotype doesn't contain any stop codon
      * @param isComplete tells if this clonotype is complete, i.e. CDR3 sequence for this clonotype is completely determined
      */
-    public Clonotype(ClonotypeContainer parent, int count, double freq,
+    public Clonotype(Sample parent, int count, double freq,
                      int[] segmPoints, Segment v, Segment d, Segment j,
                      NucleotideSequence cdr3nt, AminoAcidSequence cdr3aa,
                      boolean inFrame, boolean noStop, boolean isComplete) {
@@ -102,7 +102,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
      * @param noStop     tells if the sequence of this clonotype doesn't contain any stop codon
      * @param isComplete tells if this clonotype is complete, i.e. CDR3 sequence for this clonotype is completely determined
      */
-    public Clonotype(ClonotypeContainer parent, int count, double freq,
+    public Clonotype(Sample parent, int count, double freq,
                      int[] segmPoints, String v, String d, String j,
                      String cdr3nt, String cdr3aa,
                      boolean inFrame, boolean noStop, boolean isComplete) {
@@ -127,7 +127,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
      * @param toCopy    clonotype to copy all fields from
      * @param newParent sample this clonotype will be assigned to
      */
-    public Clonotype(Clonotype toCopy, ClonotypeContainer newParent) {
+    public Clonotype(Clonotype toCopy, Sample newParent) {
         this(toCopy, newParent, toCopy.count);
     }
 
@@ -138,7 +138,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
      * @param newParent sample this clonotype will be assigned to
      * @param newCount  number of reads that will be associated with this clonotype in new sample
      */
-    public Clonotype(Clonotype toCopy, ClonotypeContainer newParent, int newCount) {
+    public Clonotype(Clonotype toCopy, Sample newParent, int newCount) {
         this(newParent, newCount, toCopy.freq,
                 toCopy.segmPoints, toCopy.v, toCopy.d, toCopy.j,
                 toCopy.cdr3nt, toCopy.cdr3aa,
@@ -370,7 +370,8 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
      *
      * @return parent clonotype container
      */
-    public ClonotypeContainer getParent() {
+    @Override
+    public Sample getParent() {
         return parent;
     }
 
@@ -412,5 +413,10 @@ public class Clonotype implements Comparable<Clonotype>, Countable {
         result = 31 * result + j.hashCode();
         result = 31 * result + cdr3nt.hashCode();
         return result;
+    }
+
+    @Override
+    public Clonotype getClonotype() {
+        return this;
     }
 }

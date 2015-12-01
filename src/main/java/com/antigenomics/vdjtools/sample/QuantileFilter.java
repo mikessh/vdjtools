@@ -29,7 +29,7 @@
 
 package com.antigenomics.vdjtools.sample;
 
-import com.antigenomics.vdjtools.ClonotypeContainer;
+import com.antigenomics.vdjtools.ClonotypeWrapperContainer;
 
 public class QuantileFilter extends ClonotypeFilter {
     private final double topQuantileFrequencyThreshold;
@@ -45,7 +45,7 @@ public class QuantileFilter extends ClonotypeFilter {
 
     @Override
     protected boolean checkPass(Clonotype clonotype) {
-        ClonotypeContainer parent = clonotype.getParent();
+        ClonotypeWrapperContainer parent = clonotype.getParent();
 
         if (!parent.isSorted())
             throw new RuntimeException("Only sorted samples are supported in QuantileFilter.");

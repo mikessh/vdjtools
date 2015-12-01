@@ -31,6 +31,8 @@ package com.antigenomics.vdjtools;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
 
-public interface ClonotypeWrapper {
+public interface ClonotypeWrapper extends Countable {
     public Clonotype getClonotype();
+
+    public ClonotypeWrapperContainer getParent();
 }

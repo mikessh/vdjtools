@@ -29,10 +29,9 @@
 
 package com.antigenomics.vdjtools.diversity
 
-import com.antigenomics.vdjtools.ClonotypeContainer
+import com.antigenomics.vdjtools.ClonotypeWrapperContainer
 import com.google.common.util.concurrent.AtomicDouble
 import com.google.common.util.concurrent.AtomicDoubleArray
-
 
 /**
  * A class that computes summary statistics of repertoire clonality divided into several levels:
@@ -53,11 +52,11 @@ class QuantileStats {
                                singletonFreq = new AtomicDouble()
 
     /**
-     * Summarizes quantile statisitcs for a given sample.
+     * Summarizes quantile statistics for a given sample.
      * @param clonotypeContainer a set of clonotypes.
      * @param numberOfQuantiles number of quantiles for 2nd level of detalizaiton.
      */
-    QuantileStats(ClonotypeContainer clonotypeContainer, int numberOfQuantiles) {
+    QuantileStats(ClonotypeWrapperContainer clonotypeContainer, int numberOfQuantiles) {
         this.numberOfQuantiles = numberOfQuantiles
         this.quantileFreqs = new AtomicDoubleArray(numberOfQuantiles)
 
@@ -71,14 +70,14 @@ class QuantileStats {
      * Summarizes quantile statisitcs for a given sample.
      * @param clonotypeContainer a set of clonotypes.
      */
-    QuantileStats(ClonotypeContainer clonotypeContainer) {
+    QuantileStats(ClonotypeWrapperContainer clonotypeContainer) {
         this(clonotypeContainer, 5)
     }
 
     /**
      * Internal - adds more clonotyps to stats.
      */
-    private void update(ClonotypeContainer clonotypeContainer) {
+    private void update(ClonotypeWrapperContainer clonotypeContainer) {
         int n = clonotypeContainer.diversity, m = -1
 
         for (int i = n - 1; i >= 0; i--) {

@@ -30,9 +30,9 @@
 package com.antigenomics.vdjtools.diversity
 
 import com.antigenomics.vdjtools.Countable
-import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.join.ClonotypeKeyGen
 import com.antigenomics.vdjtools.join.key.ClonotypeKey
+import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.pool.ClonotypeAggregator
 import com.antigenomics.vdjtools.pool.SampleAggregator
 import com.antigenomics.vdjtools.sample.Sample
@@ -86,7 +86,6 @@ class FrequencyTable {
      * @param intersectionType overlap type used to collapse clonotypes.
      */
     FrequencyTable(Sample sample, OverlapType intersectionType) {
-        Iterable<Countable> counters
 
         // collapse clonotypes by a specific key
         def clonotypeKeyGen = new ClonotypeKeyGen(intersectionType)
@@ -103,7 +102,7 @@ class FrequencyTable {
         }
 
         this.diversity = hashedCounts.size()
-        counters = hashedCounts.values()
+        def counters = hashedCounts.values()
 
         // compute frequency table
         counters.each {
@@ -289,7 +288,7 @@ class FrequencyTable {
         }
     }
 
-    static class Counter implements Countable {
+    private static class Counter {
         int count = 0
 
         void add(Countable other) {

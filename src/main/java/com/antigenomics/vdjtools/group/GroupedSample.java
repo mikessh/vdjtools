@@ -29,7 +29,8 @@
 
 package com.antigenomics.vdjtools.group;
 
-import com.antigenomics.vdjtools.ClonotypeContainer;
+import com.antigenomics.vdjtools.ClonotypeWrapper;
+import com.antigenomics.vdjtools.ClonotypeWrapperContainer;
 import com.antigenomics.vdjtools.sample.Clonotype;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.apache.commons.math3.stat.inference.TestUtils;
@@ -47,9 +48,9 @@ public class GroupedSample {
         this.groupingScheme = groupingScheme;
     }
 
-    public void addAll(ClonotypeContainer clonotypes) {
-        for (Clonotype clonotype : clonotypes) {
-            add(clonotype);
+    public void addAll(ClonotypeWrapperContainer<? extends ClonotypeWrapper> clonotypes) {
+        for (ClonotypeWrapper clonotype : clonotypes) {
+            add(clonotype.getClonotype());
         }
         summarize();
     }

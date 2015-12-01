@@ -39,6 +39,7 @@ public class PooledSample implements ClonotypeWrapperContainer<StoringClonotypeA
     private final List<StoringClonotypeAggregator> clonotypes;
     private final long count;
 
+    @SuppressWarnings("unchecked")
     public PooledSample(SampleCollection samples) {
         this(new SampleAggregator(samples,
                 new StoringClonotypeAggregatorFactory(), OverlapType.Strict));
@@ -50,6 +51,7 @@ public class PooledSample implements ClonotypeWrapperContainer<StoringClonotypeA
         long count = 0;
 
         for (StoringClonotypeAggregator clonotypeAggregator : sampleAggregator) {
+            clonotypeAggregator.setParent(this);
             int x = clonotypeAggregator.getCount();
             count += x;
             clonotypes.add(clonotypeAggregator);

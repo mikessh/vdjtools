@@ -39,4 +39,11 @@ public interface Countable {
      * @return number of reads
      */
     public int getCount();
+
+    /**
+     * Gets the share of reads associated with a given object
+     *
+     * @return share of reads
+     */
+    public double getFreq();
 }
