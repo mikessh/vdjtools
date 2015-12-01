@@ -33,7 +33,7 @@ import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.MetadataEntryExpressionFilter
 
-def cli = new CliBuilder(usage: "FilterMetadata [options] metadata.txt output_prefix")
+def cli = new CliBuilder(usage: "FilterMetadata [options] metadata.txt output_dir output_suffix")
 cli.h("display help message")
 cli.f(longOpt: "filter", argName: "string", args: 1, required: true,
         "Filter expression, metadata column names should be marked with ${MetadataEntryExpressionFilter.FILTER_MARK}, " +
@@ -45,12 +45,13 @@ if (opt == null) {
     System.exit(2)
 }
 
-if (opt.h || opt.arguments().size() != 2) {
+if (opt.h || opt.arguments().size() != 3) {
     cli.usage()
     System.exit(2)
 }
 
-def metadataFileName = opt.arguments()[0], filter = (String) opt.f, outputPrefix = opt.arguments()[1]
+def metadataFileName = opt.arguments()[0], filter = (String) opt.f,
+    outputDir = ExecUtil.toDirPath(opt.arguments()[1]), outputSuffix = opt.arguments()[2]
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -60,5 +61,5 @@ def sampleCollection = new SampleCollection((String) metadataFileName, Software.
 
 println "[${new Date()} $scriptName] Filtering metadata by $filter"
 def filteredMetadataTable = sampleCollection.metadataTable.select(new MetadataEntryExpressionFilter(filter))
-filteredMetadataTable.storeWithOutput(outputPrefix, sampleCollection)
+filteredMetadataTable.storeWithOutput(outputDir, sampleCollection, outputSuffix)
 println "[${new Date()} $scriptName] Finished"

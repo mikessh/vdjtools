@@ -144,7 +144,7 @@ public class SampleStreamConnection implements SampleConnection {
      */
     @Override
     public Sample haveAGlance() {
-        _sample ?: Sample.fromInputStream(inputStreamFactory.create(), null, software, -1, false, false)
+        _sample ?: Sample.fromInputStream(inputStreamFactory.create(), sampleMetadata, software, -1, false, false)
     }
 
     @Override

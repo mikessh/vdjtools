@@ -33,7 +33,7 @@ import com.antigenomics.vdjtools.Software
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.BlankMetadataEntryFilter
 
-def cli = new CliBuilder(usage: "SplitMetadata [options] metadata.txt output_prefix")
+def cli = new CliBuilder(usage: "SplitMetadata [options] metadata.txt output_dir")
 cli.h("display help message")
 cli.c(longOpt: "columns", argName: "string1,string2,...", args: 1, required: true,
         "Column name(s) to split metadata by.")
@@ -49,7 +49,8 @@ if (opt.h || opt.arguments().size() != 2) {
     System.exit(2)
 }
 
-def metadataFileName = opt.arguments()[0], columnIds = ((String) opt.c).split(","), outputPrefix = opt.arguments()[1]
+def metadataFileName = opt.arguments()[0], columnIds = ((String) opt.c).split(","),
+    outputDir = ExecUtil.toDirPath(opt.arguments()[1])
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -61,20 +62,19 @@ println "[${new Date()} $scriptName] Splitting metadata by $columnIds"
 
 def sampleIdByMetadataValue = new HashMap<String, List<String>>()
 
-sampleCollection.sampleMap.values().each { sampleConnection ->
-    def sample = sampleConnection.haveAGlance()
-    def key = columnIds.collect { sample.sampleMetadata[it].value }.join(".")
+sampleCollection.metadataTable.each { sampleMetadata ->
+    def key = columnIds.collect { sampleMetadata[it].value }.join(".")
     def sampleList = sampleIdByMetadataValue[key]
     if (sampleList == null) {
         sampleIdByMetadataValue.put(key, sampleList = new ArrayList<String>())
     }
-    sampleList.add(sample.sampleMetadata.sampleId)
+    sampleList.add(sampleMetadata.sampleId)
 }
 
 sampleIdByMetadataValue.each {
     def filteredMetadataTable = sampleCollection.metadataTable.select(BlankMetadataEntryFilter.INSTANCE,
             new HashSet<String>(it.value))
-    filteredMetadataTable.storeWithOutput(outputPrefix, sampleCollection, it.key)
+    filteredMetadataTable.storeWithOutput(outputDir, sampleCollection, it.key)
 }
 
 println "[${new Date()} $scriptName] Finished"
