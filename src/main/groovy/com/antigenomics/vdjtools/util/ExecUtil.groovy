@@ -34,6 +34,7 @@ import com.antigenomics.vdjtools.basic.SegmentUsage
 import com.antigenomics.vdjtools.overlap.Overlap
 import com.antigenomics.vdjtools.overlap.OverlapEvaluator
 import com.antigenomics.vdjtools.sample.Sample
+import org.apache.commons.io.FilenameUtils
 
 import java.nio.file.FileSystems
 import java.nio.file.Path
@@ -146,7 +147,8 @@ public class ExecUtil {
      * @return
      */
     public static String relativeSamplePath(String metadataPath, String samplePath) {
-        getAbsolutePath(metadataPath).parent.relativize(getAbsolutePath(samplePath)).toString()
+        getAbsolutePath(metadataPath).parent.normalize().toAbsolutePath()
+                .relativize(getAbsolutePath(samplePath)).toString()
     }
 
     /**
@@ -173,6 +175,9 @@ public class ExecUtil {
         if (outputSuffix.any { it.contains(separator) })
             throw new IOException("Output suffices should not contain path separator")
 
+        if (outputPrefix.length() == 0)
+            outputPrefix = "."
+
         if (outputPrefix == ".")
             outputPrefix += separator
 
@@ -183,6 +188,8 @@ public class ExecUtil {
         }
 
         ensureDir(outputPrefix)
+
+        outputSuffix = outputSuffix.findAll { it && it.length() > 0 && it != "null" }
 
         def s = outputSuffix.join(".")
 
@@ -211,12 +218,13 @@ public class ExecUtil {
      * @return
      */
     public static String formMetadataPath(String outputPrefix, String splitterValue = null) {
-        if (!new File(outputPrefix).isDirectory()) { // leave only directory in output prefix
-            outputPrefix = getPath(outputPrefix).parent.toString()
-        }
+        outputPrefix = FilenameUtils.getPath(outputPrefix) // leave only directory in output prefix
 
-        splitterValue ? formOutputPath(outputPrefix, "metadata", splitterValue) :
-                formOutputPath(outputPrefix, "metadata")
+        formOutputPath(outputPrefix, "metadata", splitterValue)
+    }
+
+    public static String toDirPath(String path) {
+        path + separator
     }
 
     public static void quiet() {
