@@ -91,7 +91,7 @@ def filterFileName = opt.arguments()[-2],
 // Parameters
 
 def intersectionType = OverlapType.getByShortName((opt.i ?: I_TYPE_DEFAULT)),
-    negative = (boolean) opt.n
+    negative = (boolean) opt.e
 
 if (!intersectionType) {
     println "[ERROR] Bad overlap type specified ($opt.i). " +

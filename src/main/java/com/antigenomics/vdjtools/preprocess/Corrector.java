@@ -97,7 +97,7 @@ public class Corrector {
         NeighborhoodIterator<NucleotideSequence, Clonotype> neighborhoodIterator =
                 sequenceTreeMap.getNeighborhoodIterator(it.getCdr3ntBinary(), treeSearchParameters);
 
-        int totalCount = (int)it.getCount();
+        int totalCount = (int) it.getCount();
 
         for (Clonotype other : neighborhoodIterator.it()) {
             if (!other.equals(it)) {
