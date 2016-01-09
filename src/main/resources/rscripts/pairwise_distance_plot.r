@@ -7,8 +7,8 @@ file_out <- args[2]
 
 df <- read.table(file_in, header=T, comment="", quote="")
 df[,] <- apply(df[,], 2, as.character)
-df <- data.frame(sample1 = c(df$X.1_sample_id, df$X2_sample_id),
-                 sample2 = c(df$X2_sample_id, df$X.1_sample_id),
+df <- data.frame(sample1 = c(df$X1_sample_id, df$X2_sample_id),
+                 sample2 = c(df$X2_sample_id, df$X1_sample_id),
                  count = as.numeric(c(df$count12, df$count21)),
                  frequency = as.numeric(c(df$freq12, df$freq21)),
                  diversity = as.numeric(c(df$div12, df$div21)))
