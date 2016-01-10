@@ -1,7 +1,5 @@
 args<-commandArgs(TRUE)
 
-#file_in  <- "4.fancyvj.txt"
-#file_out <- "4.fancyvj.pdf"
 file_in  <- args[1]
 file_out <- args[2]
 
@@ -14,14 +12,19 @@ temp <- read.table(file_in, sep="\t", comment="")
 n <- nrow(temp)
 m <- ncol(temp)
 rn = as.character(temp[2:n,1])
-cn = apply(temp[1,2:m], 2 , as.character) #as.character(colnames(temp)[2:m])
+cn = apply(temp[1,2:m], 2 , as.character)
 mat <- matrix(apply(temp[2:n, 2:m], 1:2, as.numeric), n - 1, m-1) * 100
 
 n <- nrow(temp)
 m <- ncol(temp)
 
-rownames(mat) <- rn
-colnames(mat) <- cn
+# Here columns and rows correspond to V and J segments respectively
+# Also replace possible duplicates (undef, '.', ...)
+
+duplicates <- intersect(rn, cn)
+
+rownames(mat) <- replace(rn, rn==duplicates, paste("V", duplicates, sep=""))
+colnames(mat) <- replace(cn, cn==duplicates, paste("J", duplicates, sep=""))
 
 # sort
 
