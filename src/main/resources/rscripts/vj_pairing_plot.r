@@ -20,6 +20,9 @@ mat <- matrix(apply(temp[2:n, 2:m], 1:2, as.numeric), n - 1, m-1) * 100
 n <- nrow(temp)
 m <- ncol(temp)
 
+rn[rn == "unresolved"] <- "unresolved.J"
+cn[cn == "unresolved"] <- "unresolved.V"
+
 rownames(mat) <- rn
 colnames(mat) <- cn
 
