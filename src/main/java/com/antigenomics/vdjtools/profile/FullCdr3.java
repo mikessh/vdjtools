@@ -34,10 +34,15 @@ import com.milaboratory.core.Range;
 import com.milaboratory.core.sequence.AminoAcidSequence;
 import com.milaboratory.core.sequence.NucleotideSequence;
 
-public class FullCdr3 implements SequenceRegion {
+public class FullCdr3 extends Cdr3Region {
     @Override
     public String getName() {
         return "CDR3-full";
+    }
+
+    @Override
+    protected Range innerGetRange(Clonotype clonotype) {
+        return new Range(0, clonotype.getCdr3nt().length());
     }
 
     @Override

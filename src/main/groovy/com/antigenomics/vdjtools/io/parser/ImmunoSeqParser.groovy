@@ -122,7 +122,9 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
         }
 
         String v, d, j
-        (v, d, j) = extractVDJ(splitString[[7, 14, 21]])
+        (v, d, j) = extractVDJ(splitString[[7, 14, 21]]).collect {
+            it.toLowerCase() == "unresolved" ? "." : it
+        }
 
         boolean inFrame = cdr3aa.length() > 0 && inFrame(cdr3aa),
                 noStop = noStop(cdr3aa)
