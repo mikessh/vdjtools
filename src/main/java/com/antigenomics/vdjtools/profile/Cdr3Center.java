@@ -35,9 +35,9 @@ import com.milaboratory.core.Range;
 public class Cdr3Center extends Cdr3Region{
     @Override
     protected Range innerGetRange(Clonotype clonotype) {
-        int cdr3Center = clonotype.getCdr3aaBinary().size() / 2;
-        return new Range(Math.max(0, cdr3Center - 1),
-                Math.min(clonotype.getCdr3aaBinary().size(), cdr3Center + 2));
+        int cdr3CenterAA = clonotype.getCdr3Length() / 6;
+        return new Range(Math.max(0, 3 * (cdr3CenterAA - 1)),
+                Math.min(clonotype.getCdr3Length(), 3 * (cdr3CenterAA + 2)));
     }
 
     @Override
