@@ -40,8 +40,8 @@ import static com.antigenomics.vdjtools.misc.CommonUtil.*
  * {@url http://mixcr.milaboratory.com/}
  */
 public class MiXcrParser extends ClonotypeStreamParser {
-    boolean initialized = false;
-    int countColumn, freqColumn, cdr3ntColumn, cdr3aaColumn,
+    private boolean initialized = false
+    private int countColumn, freqColumn, cdr3ntColumn, cdr3aaColumn,
         vHitsColumn, dHitsColumn, jHitsColumn,
         vAlignmentsColumn, dAlignmentsColumn, jAlignmentsColumn,
         numberOfColumns
@@ -60,7 +60,7 @@ public class MiXcrParser extends ClonotypeStreamParser {
      */
     private synchronized void ensureInitialized() {
         if (initialized)
-            return;
+            return
 
         // Parsing header line to determine positions of certain columns with clones properties
 
@@ -79,12 +79,12 @@ public class MiXcrParser extends ClonotypeStreamParser {
         jHitsColumn = splitHeaderLine.findIndexOf { it =~ /(?i)J hits/ }
         if (countColumn == -1 || freqColumn == -1 || cdr3ntColumn == -1 || cdr3aaColumn == -1 ||
                 vAlignmentsColumn == -1 || dAlignmentsColumn == -1 || jAlignmentsColumn == -1)
-            throw new RuntimeException("Some mandatory columns are absent in the input file.");
+            throw new RuntimeException("Some mandatory columns are absent in the input file.")
 
         numberOfColumns = splitHeaderLine.size()
 
         // Initialized
-        initialized = true;
+        initialized = true
     }
 
     /**
@@ -143,12 +143,12 @@ public class MiXcrParser extends ClonotypeStreamParser {
                         splitByFields[3].toInteger(), splitByFields[4].toInteger()));
             }
         }
-        return ret;
+        ret
     }
 
     /**
      * Now all positions are in coordinates of clonal sequence (not CDR3 coordinates). In case of non-CDR3 clonal
-     * sequence there is currently no way to converto positions to CDR3 positions, so non-CDR3 positions will be
+     * sequence there is currently no way to convert positions to CDR3 positions, so non-CDR3 positions will be
      * forbidden before appropriate information will be made available in MiXCR output.
      *
      * Seq1 - reference sequence

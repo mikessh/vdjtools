@@ -30,18 +30,24 @@
 
 package com.antigenomics.vdjtools.io.parser
 
+import com.antigenomics.vdjtools.misc.CommonUtil
 import com.antigenomics.vdjtools.misc.Software
 import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
-import com.antigenomics.vdjtools.misc.CommonUtil
 
 import static com.antigenomics.vdjtools.misc.CommonUtil.toUnifiedCdr3Aa
 
 /**
- * A clonotype parser implementation that handles output from IgBlastWrapper software.
+ * A clonotype parser implementation that handles output from IgBlastWrapper-derived software.
  * {@url https://github.com/mikessh/igblastwrp}
  */
 public class MigMapParser extends ClonotypeStreamParser {
+    private boolean initialized = false
+    private int countColumn, freqColumn, cdr3ntColumn, cdr3aaColumn,
+                vColumn, dColumn, jColumn,
+                vEndColumn, dStartColumn, dEndColumn, jStartColumn,
+                inFrameColumn, noStopColumn, isCompleteColumn
+
     /**
      * {@inheritDoc}
      */
@@ -50,11 +56,53 @@ public class MigMapParser extends ClonotypeStreamParser {
     }
 
     /**
+     * Performs parser initialization based on the header string.
+     *
+     * @throws RuntimeException if header line doesn't contain required columns
+     */
+    private synchronized void ensureInitialized() {
+        if (initialized)
+            return
+
+        // Parsing header line to determine positions of certain columns with clones properties
+
+        String headerLine = this.header[0];
+        String[] splitHeaderLine = headerLine.split(software.delimiter)
+
+        countColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("count") }
+        freqColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("freq") }
+        cdr3ntColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("cdr3nt") }
+        cdr3aaColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("cdr3aa") }
+        vColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("v") }
+        dColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("d") }
+        jColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("j") }
+        vEndColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("v.end.in.cdr3") }
+        dStartColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("d.start.in.cdr3") }
+        dEndColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("d.end.in.cdr3") }
+        jStartColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("j.start.in.cdr3") }
+        inFrameColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("in.frame") }
+        noStopColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("no.stop") }
+        isCompleteColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("complete") }
+
+        if ([countColumn, freqColumn, cdr3ntColumn, cdr3aaColumn,
+             vColumn, dColumn, jColumn,
+             vEndColumn, dStartColumn, dEndColumn, jStartColumn,
+             inFrameColumn, noStopColumn, isCompleteColumn].any { it < 0 })
+            throw new RuntimeException("Some mandatory columns are absent in the input file.")
+
+        // Initialized
+        initialized = true
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
     protected Clonotype innerParse(String clonotypeString) {
+        ensureInitialized()
+
         /*
+            Old layout:
              0     1      2  3  4  5       6           7    8     9    10    11   12    13
             "freq\tcount\tv\td\tj\tcdr3nt\tcdr3aa\t" + FR1, CDR1, FR2, CDR2, FR3, CDR3, FR4 +
                14               15                  16    17      18    19 
@@ -69,18 +117,22 @@ public class MigMapParser extends ClonotypeStreamParser {
 
         def splitString = clonotypeString.split("\t")
 
-        def freq = splitString[0].toDouble()
-        def count = splitString[1].toInteger()
-        def cdr3nt = splitString[5] == "." ? "" : splitString[5],
-            cdr3aa = splitString[6] == "." ? "" : toUnifiedCdr3Aa(splitString[6])
+        def freq = splitString[freqColumn].toDouble()
+        def count = splitString[countColumn].toInteger()
+        def cdr3nt = splitString[cdr3ntColumn] == "." ? "" : splitString[cdr3ntColumn],
+            cdr3aa = splitString[cdr3aaColumn] == "." ? "" : toUnifiedCdr3Aa(splitString[cdr3aaColumn])
 
         String v, d, j
-        (v, d, j) = CommonUtil.extractVDJ(splitString[2..4])
+        (v, d, j) = CommonUtil.extractVDJ(splitString[[vColumn, dColumn, jColumn]])
 
         boolean inFrame, noStop, isComplete
-        (inFrame, noStop, isComplete) = splitString[29..31].collect { it.toBoolean() }
+        (inFrame, noStop, isComplete) = splitString[[inFrameColumn, noStopColumn, isCompleteColumn]].collect {
+            it.toBoolean()
+        }
 
-        def segmPoints = splitString[16..19].collect { it.toInteger() } as int[]
+        def segmPoints = splitString[[vEndColumn, dStartColumn, dEndColumn, jStartColumn]].collect {
+            it.toInteger()
+        } as int[]
 
         def clonotype = new Clonotype(sample,
                 count, freq,
