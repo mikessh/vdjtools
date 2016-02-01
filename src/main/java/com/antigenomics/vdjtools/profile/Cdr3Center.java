@@ -27,35 +27,21 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.profile
+package com.antigenomics.vdjtools.profile;
 
-class KnownCdr3Regions implements Iterable<Cdr3Region> {
-    private final Map<String, Cdr3Region> regions
+import com.antigenomics.vdjtools.sample.Clonotype;
+import com.milaboratory.core.Range;
 
-    public static final KnownCdr3Regions INSTANCE = new KnownCdr3Regions()
-
-    private KnownCdr3Regions() {
-        this.regions = [new VGermline(), new DGermline(), new JGermline(),
-                        new VDJunction(), new DJJunction(),
-                        new VJJunction(), new FullCdr3(),
-                        new Cdr3Center()].collectEntries {
-            [(it.name): it]
-        }
-    }
-
-    public Cdr3Region getByName(String name) {
-        if (!regions.containsKey(name)) {
-            throw new IllegalArgumentException("[ERROR] Unknown region $name, allowed values are: ${regions.keySet()}")
-        }
-        regions[name]
-    }
-
-    public List<String> getRegionNames() {
-        regions.keySet() as List
+public class Cdr3Center extends Cdr3Region{
+    @Override
+    protected Range innerGetRange(Clonotype clonotype) {
+        int cdr3Center = clonotype.getCdr3aaBinary().size() / 2;
+        return new Range(Math.max(0, cdr3Center - 1),
+                Math.min(clonotype.getCdr3aaBinary().size(), cdr3Center + 2));
     }
 
     @Override
-    Iterator<Cdr3Region> iterator() {
-        regions.values().iterator()
+    public String getName() {
+        return "CDR3-center";
     }
 }
