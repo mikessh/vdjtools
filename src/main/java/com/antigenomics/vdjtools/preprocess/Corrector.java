@@ -86,7 +86,8 @@ public class Corrector {
                 sample.getClonotypes().parallelStream().collect(
                         Collectors.toMap(
                                 it -> it,
-                                it -> computeCorrectedCount(it, sequenceTreeMapProvider.get(it))
+                                it -> computeCorrectedCount(it, sequenceTreeMapProvider.get(it)),
+                                (count1, count2) -> count1 + count2
                         )
                 );
 
