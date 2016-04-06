@@ -94,6 +94,11 @@ class SampleLoadTest {
     }
 
     @Test
+    public void mixcr17LengthTest() {
+        loadTest(MiXcr, ".171", 900, 873)
+    }
+
+    @Test
     public void imseqTest() {
         loadTest(ImSeq, 647, 86)
     }
