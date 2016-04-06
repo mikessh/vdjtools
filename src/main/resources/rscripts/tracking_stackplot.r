@@ -71,7 +71,7 @@ if (grepl("\\.pdf$",file_out)){
 g<-ggplot() +
    geom_area(data = df.m,
              aes(variable, value, group = sign, fill = factor(peak)),
-             colour = "gray25", position = 'stack', size = 0.1) +
+             colour = "gray25", position = 'stack', size = 0) +
    scale_fill_manual(
       name   = "Peak position",
       breaks = c(-2, -1, 0:(n-1)),

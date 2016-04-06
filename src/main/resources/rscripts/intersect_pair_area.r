@@ -77,7 +77,7 @@ if (grepl("\\.pdf$",file_out)){
 
 ggplot() +
     geom_area(data = df, aes(x = sample, y = expr, fill = cdr3nt,
-    group = sign), colour = "grey25", size = 0.01, guide = "none", position="stack") +
+    group = sign), colour = "grey25", size = 0, position="stack") +
     ylab("cumulative abundance") +
     xlab("") +
     scale_x_discrete(expand = c(0, 0), labels=c(sample1_id, sample2_id)) +
