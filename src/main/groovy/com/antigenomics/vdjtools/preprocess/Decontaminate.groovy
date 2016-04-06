@@ -31,6 +31,7 @@ package com.antigenomics.vdjtools.preprocess
 
 import com.antigenomics.vdjtools.misc.Software
 import com.antigenomics.vdjtools.io.SampleWriter
+import com.antigenomics.vdjtools.pool.CountFilter
 import com.antigenomics.vdjtools.pool.RatioFilter
 import com.antigenomics.vdjtools.sample.ClonotypeFilter
 import com.antigenomics.vdjtools.sample.Sample
@@ -47,6 +48,9 @@ cli.h("display help message")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
+cli._(longOpt: "read-based", "Remove contamination based on read ratios, not fractions. " +
+        "Useful when dealing with contaminations on the same sequencing lane, not that " +
+        "good for FACS-related contaminations.")
 cli.r(longOpt: "ratio", argName: "double", args: 1,
         "Parent-to-child clonotype frequency ratio for contamination filtering [default = $DEFAULT_CONT_RATIO]")
 cli._(longOpt: "low-mem", "Will process all sample pairs sequentially, avoiding" +
@@ -82,6 +86,7 @@ def outputFilePrefix = opt.arguments()[-1],
 // this will lead eventually to the problem of removing Clonotype ref from dynamic clonotype
     lowMem = (boolean) opt.'low-mem',
     ratio = (opt.r ?: DEFAULT_CONT_RATIO).toDouble(),
+    readBased = (boolean) opt.'read-based',
     compress = (boolean) opt.c
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
@@ -104,7 +109,8 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples prepared
 
 println "[${new Date()} $scriptName] Creating sample pool for filtering"
 
-def ratioFilter = new RatioFilter(sampleCollection, ratio)
+def ratioFilter = readBased ? new CountFilter(sampleCollection, ratio) :
+        new RatioFilter(sampleCollection, ratio)
 
 //
 // Go through all sample once more and perform freq-based filtering
