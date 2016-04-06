@@ -58,7 +58,8 @@ class Cdr3AAProfileBuilder {
                 profiles.each {
                     def aaSeq = it.key.extractAminoAcid(clonotype, excludeCysPhe)
                     if (aaSeq.size() > 0) {
-                        it.value.update(aaSeq, weighted ? clonotype.freq : 1.0d)
+                        it.value.update(aaSeq, weighted ?
+                                clonotype.freq : (1.0d / (double) clonotype.parent.diversity))
                     }
                 }
             }
