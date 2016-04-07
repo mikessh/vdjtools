@@ -103,6 +103,12 @@ class SampleLoadTest {
         loadTest(ImSeq, 647, 86)
     }
 
+
+    @Test
+    public void vidjilTest() {
+        loadTest(Vidjil, 1380499, 73)
+    }
+
     @Test
     public void emptyTest() {
         def resStream = getResource("samples/empty.txt")

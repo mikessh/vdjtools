@@ -64,7 +64,7 @@ enum Software {
             // Output is not tab-delimited table, no freq, incomplete V/J names, no D, etc
             // 'per read output' is specified to re-calculate clonotype frequencies
             ImSeq("[\t:]", null, 0, true, true, ["v", "cdr3nt", "j", "count"]),
-    Vidjil("\t", null, 0, true, false, []),
+    Vidjil("\t", null, 0, true, true, []),
     VDJtools("\t", null, 1, false, false, ["count", "freq",
                                            "cdr3nt", "cdr3aa",
                                            "v", "d", "j",

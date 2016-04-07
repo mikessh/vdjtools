@@ -32,6 +32,7 @@ package com.antigenomics.vdjtools.io.parser
 import com.antigenomics.vdjtools.misc.Software
 import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
+import groovy.json.JsonSlurper
 
 import static com.antigenomics.vdjtools.misc.CommonUtil.extractVDJ
 import static com.antigenomics.vdjtools.misc.CommonUtil.inFrame
@@ -39,38 +40,86 @@ import static com.antigenomics.vdjtools.misc.CommonUtil.noStop
 import static com.antigenomics.vdjtools.misc.CommonUtil.toUnifiedCdr3Aa
 import static com.antigenomics.vdjtools.misc.CommonUtil.translate
 
-class VidjilParser extends ClonotypeStreamParser {
+class VidjilParser extends BaseParser {
     /**
      * {@inheritDoc}
      */
     protected VidjilParser(Iterator<String> innerIter, Sample sample) {
-        super(innerIter, Software.Vidjil, sample)
+        super(jsonToTabular(innerIter), Software.Vidjil, sample)
     }
 
-    /**
-     * {@inheritDoc}
+    /* Only used fields shown here
+    {
+    "clones": [
+    {
+      "germline": "IGH",
+      "id": "CACGGCCTTGTATTACTGTGCACCCGGAGGTATGGACGTCTGGGGCCAAG",
+      "name": "IGHV3-9*01 7/CCCGGA/17 IGHJ6*02",
+      "reads": [ 189991 ],
+      "seg": {
+        "3": "IGHJ6*02",
+        "3del": 17,
+        "3start": 282,
+        "4": "IGHD6-13*01",
+        "4end": 231,
+        "4start": 220,
+        "5": "IGHV3-9*01",
+        "5del": 7,
+        "5end": 275,
+        "N": 6,
+        "cdr3": {
+          "aa": "APGGMDV",
+          "start": 274,
+          "stop": 294
+        },
+        "junction": {
+          "aa": "CAPGGMDVW",
+          "productive": true,
+          "start": 271,
+          "stop": 297
+        }
+      },
+      "seg_stat": {
+        "2": 55411,
+        "3": 134580
+      },
+      "sequence": "GGAGTCGGGGGAGGCTTGGTACAGCCTGGCAGGTCCCTGAGACTCTCCTGTGCAGCCTCTGGATTCACCTTTGATGATTATGCCATGCACTGGGTCCGGCAAGCTCCAGGGAAGGGCCTGGAGTGGGTCTCAGGTATTAGTTGGAATAGTGGTAGCATAGGCTATGCGGACTCTGTGAAGGGCCGATTCACCATCTCCAGAGACAACGCCAAGAACTCCCTGTATCTGCAAATGAACAGTCTGAGAGCTGAGGACACGGCCTTGTATTACTGTGCACCCGGAGGTATGGACGTCTGGGGCCAAGGGACCCTGGTCACC",
+    },
+    ...
      */
-    @Override
-    protected Clonotype innerParse(String clonotypeString) {
-        def splitString = clonotypeString.split("[: \t]")
-        def count = splitString[3].toInteger()
-        def freq = 0
 
-        def cdr3nt = splitString[1].toUpperCase()
-        def cdr3aa = toUnifiedCdr3Aa(translate(cdr3nt))
+    private static Iterator<String> jsonToTabular(Iterator<String> innerIter) {
+        def jsonSb = new StringBuilder()
 
-        String v, d, j
-        (v, j, d) = extractVDJ([splitString[0], splitString[2], "."])
+        while (innerIter.hasNext()) {
+            jsonSb.append(innerIter.next()).append("\n")
+        }
 
+        def jsonClones = new JsonSlurper().parseText(jsonSb.toString()).clones
 
-        def segmPoints = [-1, -1, -1, -1] as int[]
+        def tabulatedOutput = new ArrayList<String>(jsonClones.size())
 
-        boolean inFrame = inFrame(cdr3aa),
-                noStop = noStop(cdr3aa), isComplete = true
+        jsonClones.each { cloneObj ->
+            def segmentationInfo = cloneObj.seg,
+                junctionInfo = segmentationInfo.junction
 
-        new Clonotype(sample, count, freq,
-                segmPoints, v, d, j,
-                cdr3nt, cdr3aa,
-                inFrame, noStop, isComplete)
+            if (segmentationInfo && junctionInfo) {
+                tabulatedOutput << [
+                        cloneObj.reads[0],                                                           // freq
+                        0,                                                                           // count
+                        cloneObj.sequence[(junctionInfo.start - 1)..<junctionInfo.stop],             // CDR3nt
+                        junctionInfo.aa,                                                             // CDR3aa
+                        segmentationInfo."5",                                                        // V
+                        segmentationInfo."4" ?: ".",                                                 // D
+                        segmentationInfo."3",                                                        // J
+                        segmentationInfo."5end" - junctionInfo.start,                                // Vend
+                        segmentationInfo."4start" ?: (junctionInfo.start - 1) - junctionInfo.start,  // Dstart
+                        segmentationInfo."4end" ?: (junctionInfo.start - 1) - junctionInfo.start,    // Dend
+                        segmentationInfo."3start" - junctionInfo.start                               // Jstart
+                ].join("\t")
+            }
+        }
+
+        tabulatedOutput.iterator()
     }
 }

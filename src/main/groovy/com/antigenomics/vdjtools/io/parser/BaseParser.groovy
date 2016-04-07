@@ -50,6 +50,13 @@ public class BaseParser extends ClonotypeStreamParser {
     /**
      * {@inheritDoc}
      */
+    protected BaseParser(Iterator<String> innerIter, Software software, Sample sample) {
+        super(innerIter, software, sample)
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Clonotype innerParse(String clonotypeString) {
         def splitString = clonotypeString.split(software.delimiter)
