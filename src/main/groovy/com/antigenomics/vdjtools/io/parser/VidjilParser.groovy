@@ -105,17 +105,17 @@ class VidjilParser extends BaseParser {
 
             if (segmentationInfo && junctionInfo) {
                 tabulatedOutput << [
-                        cloneObj.reads[0],                                                           // freq
-                        0,                                                                           // count
-                        cloneObj.sequence[(junctionInfo.start - 1)..<junctionInfo.stop],             // CDR3nt
-                        junctionInfo.aa,                                                             // CDR3aa
-                        segmentationInfo."5",                                                        // V
-                        segmentationInfo."4" ?: ".",                                                 // D
-                        segmentationInfo."3",                                                        // J
-                        segmentationInfo."5end" - junctionInfo.start,                                // Vend
-                        segmentationInfo."4start" ?: (junctionInfo.start - 1) - junctionInfo.start,  // Dstart
-                        segmentationInfo."4end" ?: (junctionInfo.start - 1) - junctionInfo.start,    // Dend
-                        segmentationInfo."3start" - junctionInfo.start                               // Jstart
+                        cloneObj.reads[0],                                                            // freq
+                        0,                                                                            // count
+                        cloneObj.sequence[(junctionInfo.start - 1)..<junctionInfo.stop],              // CDR3nt
+                        junctionInfo.aa,                                                              // CDR3aa
+                        segmentationInfo."5",                                                         // V
+                        segmentationInfo."4" ?: ".",                                                  // D
+                        segmentationInfo."3",                                                         // J
+                        segmentationInfo."5end" - junctionInfo.start,                                 // Vend
+                        (segmentationInfo."4start" ?: (junctionInfo.start - 1)) - junctionInfo.start, // Dstart
+                        (segmentationInfo."4end" ?: (junctionInfo.start - 1)) - junctionInfo.start,   // Dend
+                        segmentationInfo."3start" - junctionInfo.start                                // Jstart
                 ].join("\t")
             }
         }
