@@ -106,7 +106,7 @@ class SampleLoadTest {
 
     @Test
     public void vidjilTest() {
-        loadTest(Vidjil, 1380499, 73)
+        loadTest(Vidjil, 1667310, 165)
     }
 
     @Test
