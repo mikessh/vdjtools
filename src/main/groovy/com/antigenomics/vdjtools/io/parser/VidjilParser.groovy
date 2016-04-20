@@ -31,17 +31,17 @@ package com.antigenomics.vdjtools.io.parser
 
 import com.antigenomics.vdjtools.misc.Software
 import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.sample.metadata.MetadataEntry
 import groovy.json.JsonSlurper
 
 class VidjilParser extends BaseParser {
-    final int sampleId
+    public static final String VIDJIL_SAMPLE_ID_COL = "vidjil_id"
 
     /**
      * {@inheritDoc}
      */
-    protected VidjilParser(Iterator<String> innerIter, Sample sample, int sampleId = 0) {
-        super(jsonToTabular(innerIter), Software.Vidjil, sample)
-        this.sampleId = sampleId
+    protected VidjilParser(Iterator<String> innerIter, Sample sample) {
+        super(jsonToTabular(innerIter, sample), Software.Vidjil, sample)
     }
 
     /* Only used fields shown here
@@ -84,7 +84,7 @@ class VidjilParser extends BaseParser {
     ...
      */
 
-    private static Iterator<String> jsonToTabular(Iterator<String> innerIter) {
+    private static Iterator<String> jsonToTabular(Iterator<String> innerIter, Sample sample) {
         def jsonSb = new StringBuilder()
 
         while (innerIter.hasNext()) {
@@ -94,6 +94,9 @@ class VidjilParser extends BaseParser {
         def jsonClones = new JsonSlurper().parseText(jsonSb.toString()).clones
 
         def tabulatedOutput = new ArrayList<String>(jsonClones.size())
+
+        def sampleId = (sample.sampleMetadata[VIDJIL_SAMPLE_ID_COL] ?:
+                new MetadataEntry(null, null, null, "0")).value.toInteger()
 
         jsonClones.each { cloneObj ->
             def segmentationInfo = cloneObj.seg,
