@@ -191,7 +191,7 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
             Collections.sort(sample.clonotypes);
 
         // Re-calculate frequencies for per read storing software
-        if (clonotypeStreamParser.getSoftware().isPerReadOutput()) {
+        if (software.isPerReadOutput()) {
             sample.frequency = 0;
             for (Clonotype clonotype : sample) {
                 sample.frequency += clonotype.recalculateFrequency();
@@ -235,7 +235,7 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
      *
      * @return sample metadata.
      */
-    private SampleMetadata getSampleMetadata() {
+    public SampleMetadata getSampleMetadata() {
         return sampleMetadata;
     }
 
