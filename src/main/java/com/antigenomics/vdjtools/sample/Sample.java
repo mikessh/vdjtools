@@ -47,7 +47,7 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
     private long count = 0;
     private int diversity = 0;
 
-    private Sample(SampleMetadata sampleMetadata) {
+    public Sample(SampleMetadata sampleMetadata) {
         this.sampleMetadata = sampleMetadata;
     }
 
