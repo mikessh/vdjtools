@@ -149,9 +149,24 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
                                          Software software,
                                          int top, boolean store, boolean collapse) {
         Sample sample = new Sample(sampleMetadata);
+        return fromInputStream(sample,
+                ClonotypeStreamParser.create(inputStream, software, sample),
+                top, store, collapse);
+    }
 
-        ClonotypeStreamParser clonotypeStreamParser = ClonotypeStreamParser.create(inputStream, software, sample);
-
+    /**
+     * Reads sample from input stream.
+     *
+     * @param sample                sample template.
+     * @param clonotypeStreamParser parser.
+     * @param top                   select top N clonotypes only. Set to -1 to select all clonotypes.
+     * @param store                 if set to true, will store sample to memory. Otherwise will create an instance of the sample that will be read on demand.
+     * @param collapse              if set to true, will collapse the sample combining duplicate clonotypes.
+     * @return sample instance.
+     */
+    public static Sample fromInputStream(Sample sample,
+                                         ClonotypeStreamParser clonotypeStreamParser,
+                                         int top, boolean store, boolean collapse) {
         boolean sorted = !collapse;
         int prevCount = Integer.MAX_VALUE;
 
@@ -192,7 +207,7 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
             Collections.sort(sample.clonotypes);
 
         // Re-calculate frequencies for per read storing software
-        if (software.isPerReadOutput()) {
+        if (clonotypeStreamParser.getSoftware().isPerReadOutput()) {
             sample.frequency = 0;
             for (Clonotype clonotype : sample) {
                 sample.frequency += clonotype.recalculateFrequency();

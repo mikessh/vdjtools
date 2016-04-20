@@ -30,22 +30,18 @@
 package com.antigenomics.vdjtools.io.parser
 
 import com.antigenomics.vdjtools.misc.Software
-import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
 import groovy.json.JsonSlurper
 
-import static com.antigenomics.vdjtools.misc.CommonUtil.extractVDJ
-import static com.antigenomics.vdjtools.misc.CommonUtil.inFrame
-import static com.antigenomics.vdjtools.misc.CommonUtil.noStop
-import static com.antigenomics.vdjtools.misc.CommonUtil.toUnifiedCdr3Aa
-import static com.antigenomics.vdjtools.misc.CommonUtil.translate
-
 class VidjilParser extends BaseParser {
+    final int sampleId
+
     /**
      * {@inheritDoc}
      */
-    protected VidjilParser(Iterator<String> innerIter, Sample sample) {
+    protected VidjilParser(Iterator<String> innerIter, Sample sample, int sampleId = 0) {
         super(jsonToTabular(innerIter), Software.Vidjil, sample)
+        this.sampleId = sampleId
     }
 
     /* Only used fields shown here
@@ -105,8 +101,8 @@ class VidjilParser extends BaseParser {
 
             if (segmentationInfo && junctionInfo) {
                 tabulatedOutput << [
-                        cloneObj.reads[0],                                                            // freq
-                        0,                                                                            // count
+                        cloneObj.reads[sampleId],                                                     // count
+                        0,                                                                            // freq
                         cloneObj.sequence[(junctionInfo.start - 1)..<junctionInfo.stop],              // CDR3nt
                         junctionInfo.aa,                                                              // CDR3aa
                         segmentationInfo."5",                                                         // V

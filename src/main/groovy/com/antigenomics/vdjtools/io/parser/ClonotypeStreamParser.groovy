@@ -43,7 +43,7 @@ import com.milaboratory.core.sequence.Sequence
 public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
     private static final int WARNINGS_TO_DISPLAY = 5
     protected final List<String> header = new ArrayList<>()
-    protected final Software software
+    final Software software
     protected final Iterator<String> innerIter
     protected final Sample sample
     private int skippedLineCount = 0, commentLineCount
