@@ -36,6 +36,11 @@ public class RUtil {
     public static final String PACKAGES_PATH = "$ExecUtil.MY_PATH/Rpackages/" // Local R library path
     public static final String NA = "NA", NULL = "NULL" // NaN and null in R
 
+    private static String separatorsToSystem(String path) {
+        File.separatorChar as String == '\\' ? path.replaceAll("/", "\\\\")
+                .replaceAll("\\\\+", "\\\\\\\\") : path // Don't even try to ask why
+    }
+
     /**
      * Converts a given object to numeric variable
      * @param smth object to convert
@@ -77,7 +82,7 @@ public class RUtil {
             // Don't do anything if packages are not installed
             // as this would misguide R not to use /usr/ library
             if (new File(PACKAGES_PATH).exists())
-                pw.println(".libPaths(\"$PACKAGES_PATH\")")
+                pw.println(separatorsToSystem(".libPaths(\"$PACKAGES_PATH\")"))
 
             // Write the rest of script to temp file
             scriptRes.readLines().each {
@@ -85,7 +90,7 @@ public class RUtil {
             }
         }
 
-        scriptFile.deleteOnExit()
+        //scriptFile.deleteOnExit()
 
         // Run script
         def cmd = ["Rscript", scriptName, params]
