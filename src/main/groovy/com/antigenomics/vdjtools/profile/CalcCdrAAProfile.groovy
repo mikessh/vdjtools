@@ -134,7 +134,7 @@ def outputFileName = formOutputPath(outputFilePrefix, "cdr3aa", "profile", (unwe
 new File(outputFileName).withPrintWriter { pw ->
     def header = "$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\t" +
-            "cdr3_segment\tbin\tproperty\tvalue\ttotal"
+            "cdr3_segment\tbin\tproperty\tvalue\ttotal\tstd"
 
     pw.println(header)
 
@@ -151,7 +151,7 @@ new File(outputFileName).withPrintWriter { pw ->
                 bin.summary.each {
                     pw.println([sample.sampleMetadata.sampleId, sample.sampleMetadata,
                                 segmentName, bin.index, it.key,
-                                it.value, bin.total].join("\t"))
+                                it.value[0], bin.total, it.value[1]].join("\t"))
                 }
             }
         }
