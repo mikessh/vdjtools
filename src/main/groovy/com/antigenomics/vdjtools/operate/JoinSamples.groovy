@@ -83,11 +83,11 @@ if (opt.h) {
 
 def metadataFileName = opt.m
 
-if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 4) {
+if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 3) {
     if (metadataFileName)
         println "Only output prefix should be provided in case of -m"
     else
-        println "At least 3 sample files should be provided if not using -m"
+        println "At least 2 sample files should be provided if not using -m"
     cli.usage()
     System.exit(2)
 }
@@ -123,10 +123,10 @@ def sampleCollection = metadataFileName ?
         new SampleCollection((String) metadataFileName, Software.VDJtools, true, false) :
         new SampleCollection(opt.arguments()[0..-2], Software.VDJtools, true, false)
 
-if (sampleCollection.size() < 3) {
-    println "[ERROR] Metadata file should contain at least 3 samples"
-    System.exit(2)
-}
+//if (sampleCollection.size() < 3) {
+//    println "[ERROR] Metadata file should contain at least 3 samples"
+//    System.exit(2)
+//}
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 

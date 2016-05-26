@@ -90,7 +90,7 @@ class SampleLoadTest {
 
     @Test
     public void mixcrFullLengthTest() {
-        loadTest(MiXcr, ".fl", 14156, 33)
+        loadTest(MiXcr, ".fl", 14156, 20)
     }
 
     @Test

@@ -37,7 +37,7 @@ enum Software {
                                         "cdr3nt", _, _, "cdr3aa",
                                         _, "v", _, "j", _, "d",
                                         "VEnd", "DStart", "DEnd", "JStart"]),
-    MiXcr("\t", null, 1, false, false, ["count", "freq",
+    MiXcr("\t", null, 1, true, false, ["count", "freq",
                                         "cdr3nt", "cdr3aa",
                                         "v", "d", "j",
                                         "VEnd", "DStart", "DEnd", "JStart"]),
