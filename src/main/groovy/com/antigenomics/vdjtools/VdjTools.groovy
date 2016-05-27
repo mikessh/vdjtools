@@ -94,6 +94,8 @@ def printHelp = {
     println "SplitMetadata"
     println "Convert"
     println "RInstall"
+    println ""
+    println "* Run with 'discard_scripts' option prior to ROUTINE_NAME to clean up R scripts upon execution"
 }
 
 def getScript = { String scriptName ->
@@ -184,12 +186,20 @@ def getScript = { String scriptName ->
     }
 }
 
-if (args.length == 0)
+if (args.length == 0) {
     printHelp()
-else {
+} else {
+    if (args[0].toLowerCase() == "discard_scripts") {
+        if (args.length == 1) {
+            printHelp()
+            System.exit(0)
+        }
+        RUtil.REMOVE_R_SCRIPTS = true
+        args = args[1..-1]
+    }
     def script = getScript(args[0])
     try {
-        ExecUtil.run(script, args.length > 1 ? args[1..-1] : [""])
+        ExecUtil.run(script, args.size() > 1 ? args[1..-1] : [""])
     } catch (Exception e) {
         println "[ERROR] ${e.toString()}, see _vdjtools_error.log for details"
         new File("_vdjtools_error.log").withWriterAppend { writer ->

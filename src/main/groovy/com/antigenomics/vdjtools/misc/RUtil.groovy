@@ -35,6 +35,7 @@ package com.antigenomics.vdjtools.misc
 public class RUtil {
     public static final String PACKAGES_PATH = "$ExecUtil.MY_PATH/Rpackages/" // Local R library path
     public static final String NA = "NA", NULL = "NULL" // NaN and null in R
+    public static boolean REMOVE_R_SCRIPTS = false
 
     private static String separatorsToSystem(String path) {
         File.separatorChar as String == '\\' ? path.replaceAll("/", "\\\\")
@@ -73,7 +74,7 @@ public class RUtil {
     public static void execute(String scriptName, String... params) {
         // Create a temp file to store the script
         def scriptRes = CommonUtil.resourceStreamReader("rscripts/$scriptName")
-        scriptName = UUID.randomUUID().toString() + "_" + scriptName
+        //scriptName = UUID.randomUUID().toString() + "_" + scriptName
 
         def scriptFile = new File(scriptName)
 
@@ -81,6 +82,8 @@ public class RUtil {
             // Set up library path correctly
             // Don't do anything if packages are not installed
             // as this would misguide R not to use /usr/ library
+            pw.println("#args <- c(${params.collect { '"' + it + '"' }.join(", ")})")
+
             if (new File(PACKAGES_PATH).exists())
                 pw.println(separatorsToSystem(".libPaths(\"$PACKAGES_PATH\")"))
 
@@ -90,7 +93,9 @@ public class RUtil {
             }
         }
 
-        //scriptFile.deleteOnExit()
+        if (REMOVE_R_SCRIPTS) {
+            scriptFile.deleteOnExit()
+        }
 
         // Run script
         def cmd = ["Rscript", scriptName, params]
