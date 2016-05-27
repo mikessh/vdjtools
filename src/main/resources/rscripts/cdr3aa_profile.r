@@ -34,7 +34,7 @@ df <- data.frame(bin = factor(df$bin + 1),
 df$cdr3.segment <- factor(df$cdr3.segment, levels = c("CDR3-full",
   "V-germ",
   "VD-junc", "D-germ", "DJ-junc", "VJ-junc",
-  "J-germ"))
+  "J-germ", "CDR3-center"))
 
 get_facet_formula = function() {
   if (length(unique(df$property)) > 1) { 

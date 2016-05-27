@@ -30,22 +30,18 @@
 package com.antigenomics.vdjtools.io.parser
 
 import com.antigenomics.vdjtools.misc.Software
-import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
+import com.antigenomics.vdjtools.sample.metadata.MetadataEntry
 import groovy.json.JsonSlurper
 
-import static com.antigenomics.vdjtools.misc.CommonUtil.extractVDJ
-import static com.antigenomics.vdjtools.misc.CommonUtil.inFrame
-import static com.antigenomics.vdjtools.misc.CommonUtil.noStop
-import static com.antigenomics.vdjtools.misc.CommonUtil.toUnifiedCdr3Aa
-import static com.antigenomics.vdjtools.misc.CommonUtil.translate
-
 class VidjilParser extends BaseParser {
+    public static final String VIDJIL_SAMPLE_ID_COL = "vidjil_id"
+
     /**
      * {@inheritDoc}
      */
     protected VidjilParser(Iterator<String> innerIter, Sample sample) {
-        super(jsonToTabular(innerIter), Software.Vidjil, sample)
+        super(jsonToTabular(innerIter, sample), Software.Vidjil, sample)
     }
 
     /* Only used fields shown here
@@ -88,7 +84,7 @@ class VidjilParser extends BaseParser {
     ...
      */
 
-    private static Iterator<String> jsonToTabular(Iterator<String> innerIter) {
+    private static Iterator<String> jsonToTabular(Iterator<String> innerIter, Sample sample) {
         def jsonSb = new StringBuilder()
 
         while (innerIter.hasNext()) {
@@ -99,14 +95,17 @@ class VidjilParser extends BaseParser {
 
         def tabulatedOutput = new ArrayList<String>(jsonClones.size())
 
+        def sampleId = (sample.sampleMetadata[VIDJIL_SAMPLE_ID_COL] ?:
+                new MetadataEntry(null, null, null, "0")).value.toInteger()
+
         jsonClones.each { cloneObj ->
             def segmentationInfo = cloneObj.seg,
                 junctionInfo = segmentationInfo.junction
 
             if (segmentationInfo && junctionInfo) {
                 tabulatedOutput << [
-                        cloneObj.reads[0],                                                            // freq
-                        0,                                                                            // count
+                        cloneObj.reads[sampleId],                                                     // count
+                        0,                                                                            // freq
                         cloneObj.sequence[(junctionInfo.start - 1)..<junctionInfo.stop],              // CDR3nt
                         junctionInfo.aa,                                                              // CDR3aa
                         segmentationInfo."5",                                                         // V

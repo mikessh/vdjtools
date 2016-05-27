@@ -464,6 +464,9 @@ class MetadataTable implements Iterable<SampleMetadata> {
      * @return metadata entry
      */
     MetadataEntry getAt(String sampleId, String columnId) {
+        if (!columnId2Index.containsKey(columnId))
+            return null
+
         metadataBySample[sampleId].entries[columnId2Index[columnId]]
     }
 

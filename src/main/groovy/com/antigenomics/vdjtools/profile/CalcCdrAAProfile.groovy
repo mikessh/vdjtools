@@ -39,8 +39,8 @@ import static com.antigenomics.vdjtools.misc.ExecUtil.toPlotPath
 
 
 def DEFAULT_AA_PROPERTIES = BasicAminoAcidProperties.INSTANCE.propertyNames.join(","),
-    DEFAULT_AA_PROPERTY = "count",
-    DEFAULT_BINNING = "V-germ:1,VJ-junc:1,J-germ:1"
+    DEFAULT_AA_PROPERTY = "hydropathy,strength,core",
+    DEFAULT_BINNING = "CDR3-full:1,VJ-junc:1,CDR3-center:1"
 
 def cli = new CliBuilder(usage: "CalcCdrAAProfile [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
@@ -134,7 +134,7 @@ def outputFileName = formOutputPath(outputFilePrefix, "cdr3aa", "profile", (unwe
 new File(outputFileName).withPrintWriter { pw ->
     def header = "$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\t" +
-            "cdr3_segment\tbin\tproperty\tvalue\ttotal"
+            "cdr3_segment\tbin\tproperty\tvalue\ttotal\tstd"
 
     pw.println(header)
 
@@ -151,7 +151,7 @@ new File(outputFileName).withPrintWriter { pw ->
                 bin.summary.each {
                     pw.println([sample.sampleMetadata.sampleId, sample.sampleMetadata,
                                 segmentName, bin.index, it.key,
-                                it.value, bin.total].join("\t"))
+                                it.value[0], bin.total, it.value[1]].join("\t"))
                 }
             }
         }

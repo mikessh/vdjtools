@@ -47,7 +47,7 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
     private long count = 0;
     private int diversity = 0;
 
-    private Sample(SampleMetadata sampleMetadata) {
+    public Sample(SampleMetadata sampleMetadata) {
         this.sampleMetadata = sampleMetadata;
     }
 
@@ -149,7 +149,6 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
                                          Software software,
                                          int top, boolean store, boolean collapse) {
         Sample sample = new Sample(sampleMetadata);
-
         ClonotypeStreamParser clonotypeStreamParser = ClonotypeStreamParser.create(inputStream, software, sample);
 
         boolean sorted = !collapse;

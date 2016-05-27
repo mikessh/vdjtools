@@ -56,18 +56,24 @@ public class AminoAcidProfileBin {
 
     protected final class PropertyCounter {
         private final AminoAcidProperty group;
-        private final AtomicDouble counter = new AtomicDouble();
+        private final AtomicDouble counter = new AtomicDouble(), stdCounter = new AtomicDouble();
 
         public PropertyCounter(AminoAcidProperty group) {
             this.group = group;
         }
 
         public void update(byte code, double weight) {
-            counter.addAndGet(group.getAt(code) * weight);
+            double x = group.getAt(code);
+            counter.addAndGet(x * weight);
+            stdCounter.addAndGet(x * x * weight);
         }
 
         public double getValue() {
             return counter.get();
+        }
+
+        public double getStd() {
+            return stdCounter.get() - counter.get() * counter.get();
         }
 
         public AminoAcidProperty getGroup() {
@@ -88,12 +94,12 @@ public class AminoAcidProfileBin {
         return propertyCounter.getValue();
     }
 
-    public Map<String, Double> getSummary() {
-        Map<String, Double> summary = new HashMap<>();
+    public Map<String, double[]> getSummary() {
+        Map<String, double[]> summary = new HashMap<>();
 
         for (PropertyCounter propertyCounter : propertyCounters.values()) {
             summary.put(propertyCounter.group.getName(),
-                    propertyCounter.getValue());
+                    new double[]{propertyCounter.getValue(), propertyCounter.getStd()});
         }
 
         return summary;
