@@ -86,7 +86,7 @@ do
             shift
             ;;
         *)
-            vdjtoolsArgs+=(${key})
+            vdjtoolsArgs+=("${key}")
             ;;
     esac
 done
