@@ -56,7 +56,8 @@ public class AminoAcidProfileBin {
 
     protected final class PropertyCounter {
         private final AminoAcidProperty group;
-        private final AtomicDouble counter = new AtomicDouble(), stdCounter = new AtomicDouble();
+        private final AtomicDouble counter = new AtomicDouble(),
+                stdCounter = new AtomicDouble(), norm = new AtomicDouble();
 
         public PropertyCounter(AminoAcidProperty group) {
             this.group = group;
@@ -66,6 +67,7 @@ public class AminoAcidProfileBin {
             double x = group.getAt(code);
             counter.addAndGet(x * weight);
             stdCounter.addAndGet(x * x * weight);
+            norm.addAndGet(weight);
         }
 
         public double getValue() {
@@ -73,7 +75,8 @@ public class AminoAcidProfileBin {
         }
 
         public double getStd() {
-            return stdCounter.get() - counter.get() * counter.get();
+            double C = norm.get();
+            return Math.sqrt(Math.max(0, stdCounter.get() / C - counter.get() * counter.get() / C / C));
         }
 
         public AminoAcidProperty getGroup() {

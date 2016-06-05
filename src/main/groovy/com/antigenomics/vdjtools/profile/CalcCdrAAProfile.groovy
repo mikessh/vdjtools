@@ -39,7 +39,7 @@ import static com.antigenomics.vdjtools.misc.ExecUtil.toPlotPath
 
 
 def DEFAULT_AA_PROPERTIES = BasicAminoAcidProperties.INSTANCE.propertyNames.join(","),
-    DEFAULT_AA_PROPERTY = "hydropathy,strength,core",
+    DEFAULT_AA_PROPERTY = DEFAULT_AA_PROPERTIES,
     DEFAULT_BINNING = "CDR3-full:1,VJ-junc:1,CDR3-center:1"
 
 def cli = new CliBuilder(usage: "CalcCdrAAProfile [options] " +
@@ -53,7 +53,7 @@ cli.u(longOpt: "unweighted", "Will count each clonotype only once. " +
 cli.o(longOpt: "property-list", argName: "group1,...", args: 1,
         "Comma-separated list of amino-acid properties to analyze. " +
                 "Allowed values: $DEFAULT_AA_PROPERTIES. " +
-                "[default = $DEFAULT_AA_PROPERTY]")
+                "[default = all]")
 cli.r(longOpt: "region-list", argName: "segment1:nbins1,...", args: 1,
         "List of segments to analyze and corresponding bin counts. " +
                 "Allowed segments: ${KnownCdr3Regions.INSTANCE.regionNames.join(",")}. " +
