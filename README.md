@@ -10,6 +10,7 @@ Easy installation on **MacOS/Linux** via [Homebrew](http://brew.sh/) or [Linuxbr
 ```bash
 brew tap mikessh/repseq
 brew install vdjtools
+vdjtools CalcBasicStats ...
 ```
 
 For **Windows** just use the latest VDJtools bundle marked with ``.win.zip`` suffix.
