@@ -99,17 +99,16 @@ public class RUtil {
 
         // Run script
         try {
-            runScript("Rscript", scriptName, params)
+            runScript(scriptName, params)
         } catch (IOException e) {
             if (e.toString().contains("error=2")) {
-                println "[WARNING] Rscript not found, trying with R CMD BATCH"
-                runScript("R CMD BATCH", scriptName, params)
+                println "[ERROR] Rscript not found, looks like R is not installed"
             }
         }
     }
 
-    static void runScript(String executor, String scriptName, String... params) {
-        def cmd = [executor, scriptName, params]
+    static void runScript(String scriptName, String... params) {
+        def cmd = ["Rscript", scriptName, params]
 
         println "[RUtil] Executing ${cmd.flatten().join(" ")}"
 
