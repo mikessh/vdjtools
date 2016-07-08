@@ -3,11 +3,9 @@ language:
   - groovy
   - r
 
-jdk:
-  - oraclejdk8
+sudo: required
 
-before_install:
-  - alias Rscript='R CMD BATCH'
+jdk: oraclejdk8
 
 install:
   - mvn clean install -Dmaven.javadoc.skip=true -q
