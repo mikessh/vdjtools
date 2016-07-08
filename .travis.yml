@@ -4,17 +4,15 @@ sudo: required
 
 jdk: oraclejdk8
 
-before_install:
+install:
   - curl -OL https://raw.githubusercontent.com/metacran/r-builder/master/pkg-build.sh
   - chmod 755 pkg-build.sh
   - ./pkg-build.sh bootstrap
   - export PATH="$PATH:`./pkg-build.sh r_path`"
 
-install:
+script:
   - mvn clean install -Dmaven.javadoc.skip=true -q
   - java -jar target/vdjtools-*.jar RInstall
-
-after_install:
   - wget https://github.com/mikessh/vdjtools-examples/releases/download/1.1/aging_lite.zip
   - unzip aging_lite.zip
   - chmod +x travis.post.sh
