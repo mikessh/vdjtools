@@ -1,11 +1,13 @@
-language:
-  - java
-  - groovy
-  - r
+language: java
 
 sudo: required
 
 jdk: oraclejdk8
+
+before_install:
+  - curl -OL https://raw.githubusercontent.com/metacran/r-builder/master/pkg-build.sh
+  - chmod 755 pkg-build.sh
+  - ./pkg-build.sh bootstrap
 
 install:
   - Rscript -e "print('test')"
