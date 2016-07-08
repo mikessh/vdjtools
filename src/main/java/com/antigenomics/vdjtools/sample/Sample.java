@@ -46,6 +46,7 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
     private double frequency = 0;
     private long count = 0;
     private int diversity = 0;
+    private String annotationHeader = null;
 
     public Sample(SampleMetadata sampleMetadata) {
         this.sampleMetadata = sampleMetadata;
@@ -59,6 +60,7 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
      */
     public Sample(Sample other, SampleMetadata sampleMetadata) {
         this.sampleMetadata = sampleMetadata;
+        this.annotationHeader = other.annotationHeader;
 
         for (Clonotype clonotype : other.clonotypes) {
             this.addClonotype(new Clonotype(clonotype, this));
@@ -74,6 +76,7 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
      */
     public Sample(Sample other, Map<Clonotype, Integer> samplerMap) {
         this.sampleMetadata = other.sampleMetadata;
+        this.annotationHeader = other.annotationHeader;
 
         for (Clonotype clonotype : other.clonotypes) {
             Integer newCount = samplerMap.get(clonotype);
@@ -94,6 +97,7 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
      */
     public Sample(Sample other, ClonotypeFilter filter, int top) {
         this.sampleMetadata = other.sampleMetadata;
+        this.annotationHeader = other.annotationHeader;
 
         for (Clonotype clonotype : other.clonotypes) {
             if (top > -1 && this.getDiversity() == top)
@@ -150,6 +154,8 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
                                          int top, boolean store, boolean collapse) {
         Sample sample = new Sample(sampleMetadata);
         ClonotypeStreamParser clonotypeStreamParser = ClonotypeStreamParser.create(inputStream, software, sample);
+
+        sample.annotationHeader = clonotypeStreamParser.getAnnotationHeader();
 
         boolean sorted = !collapse;
         int prevCount = Integer.MAX_VALUE;
@@ -228,6 +234,14 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
             if (store)
                 clonotypes.add(clonotype);
         }
+    }
+
+    /**
+     * Gets the clonotype annotation header string
+     * @return clonotype annotation header or null if not available
+     */
+    public String getAnnotationHeader() {
+        return annotationHeader;
     }
 
     /**

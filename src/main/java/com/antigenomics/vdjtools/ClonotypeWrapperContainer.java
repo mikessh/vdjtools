@@ -39,12 +39,12 @@ public interface ClonotypeWrapperContainer<WrapperType extends ClonotypeWrapper>
      * @param index clonotype index.
      * @return a clonotype.
      */
-    public WrapperType getAt(int index);
+    WrapperType getAt(int index);
 
     /**
      * Tells if clonotype wrappers are sorted by their abundance.
      *
      * @return true if clonotype container is sorted, false otherwise.
      */
-    public boolean isSorted();
+    boolean isSorted();
 }

@@ -42,12 +42,12 @@ public interface ClonotypeWrapper extends Countable {
      *
      * @return a clonotype.
      */
-    public Clonotype getClonotype();
+    Clonotype getClonotype();
 
     /**
      * Gets parent clonotype container (sample).
      *
      * @return parent clonotype container.
      */
-    public ClonotypeWrapperContainer getParent();
+    ClonotypeWrapperContainer getParent();
 }

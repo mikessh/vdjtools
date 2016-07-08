@@ -69,6 +69,8 @@ public class SampleWriter {
      * Will compress the resulting output file if {@code compress = true} and append ".gz" to the file name.
      * @param software table layout that will be used during output
      * @param compress specifies whether to compress resulting output file
+     *
+     * @deprecated writing back in various output formats is not supported by CLI
      */
     @Deprecated
     public SampleWriter(Software software, boolean compress) {
@@ -127,6 +129,14 @@ public class SampleWriter {
         write(sample, fileName, -1, false)
     }
 
+    private static String appendAnnotation(String annotation) {
+        annotation ? ("\t" + annotation) : ""
+    }
+
+    private static String appendAnnotationDummy(String annotation) {
+        annotation ? ("\t" + annotation.split("\t").collect { "" }.join("\t")) : ""
+    }
+
     /**
      * Writes a sample as a plain-text table to the specified path.
      * @param sample sample to write
@@ -139,7 +149,7 @@ public class SampleWriter {
         def printWriter = getWriter(fileName)
 
         top = top > sample.diversity || top < 0 ? sample.diversity : top
-        printWriter.println(header)
+        printWriter.println(header + appendAnnotation(sample.annotationHeader))
 
         long count = 0
         double freq = 0.0
@@ -152,7 +162,7 @@ public class SampleWriter {
                 freq += clonotype.freq
             }
 
-            printWriter.println(getClonotypeString(clonotype))
+            printWriter.println(getClonotypeString(clonotype) + appendAnnotation(clonotype.annotation))
         }
 
         if (collapse && top < sample.diversity) {
@@ -164,7 +174,7 @@ public class SampleWriter {
                     sample.freqAsInInput - freq
                 else
                     "NotShown"
-            }.join("\t"))
+            }.join("\t") + appendAnnotationDummy(sample.annotationHeader))
         }
 
         printWriter.close()

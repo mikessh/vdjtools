@@ -169,6 +169,14 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
     }
 
     /**
+     * Gets the header string for clonotype annotation lines (if available)
+     * @return annotation line header or null if not available
+     */
+    public String getAnnotationHeader() {
+        null
+    }
+
+    /**
      * Gets the number of skipped input lines
      * @return number of input lines that resulted in bad/incomplete clonotypes
      */

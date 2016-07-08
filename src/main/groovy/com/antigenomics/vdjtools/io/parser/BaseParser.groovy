@@ -82,6 +82,16 @@ public class BaseParser extends ClonotypeStreamParser {
         new Clonotype(sample, count, freq,
                 segmPoints, v, d, j,
                 cdr3nt, cdr3aa,
-                inFrame, noStop, isComplete)
+                inFrame, noStop, isComplete,
+                extractAnnotation(splitString))
+    }
+
+    private static String extractAnnotation(String[] splitLine) {
+        splitLine.size() > 11 ? splitLine[11..-1].join("\t") : null
+    }
+
+    @Override
+    String getAnnotationHeader() {
+        extractAnnotation(header as String[])
     }
 }
