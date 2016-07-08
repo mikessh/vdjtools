@@ -1,5 +1,11 @@
 language:
   - java
   - groovy
+  - R
+
 jdk:
   - oraclejdk8
+
+install:
+  - mvn clean install
+  - java -jar target/vdjtools-*.jar RInstall
