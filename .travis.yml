@@ -8,6 +8,7 @@ before_install:
   - curl -OL https://raw.githubusercontent.com/metacran/r-builder/master/pkg-build.sh
   - chmod 755 pkg-build.sh
   - ./pkg-build.sh bootstrap
+  - export PATH="$PATH:`./pkg-build.sh r_path`"
 
 install:
   - Rscript -e "print('test')"
