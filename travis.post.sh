@@ -24,7 +24,7 @@ $VDJTOOLS Decontaminate -m metadata.txt -c out/dec/
 $VDJTOOLS Downsample -m metadata.txt -c -x 10000 out/ds/
 $VDJTOOLS FilterNonFunctional -m metadata.txt -c out/nf/
 $VDJTOOLS JoinSamples -p -m metadata.small.txt out/12
-$VDJTOOLS PoolSamples -w -m metadata.small.txt out/13
+$VDJTOOLS PoolSamples -p -m metadata.small.txt out/13
 
 # check all output files are generated
 
