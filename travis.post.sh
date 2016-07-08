@@ -26,5 +26,52 @@ $VDJTOOLS FilterNonFunctional -m metadata.txt -c out/nf/
 $VDJTOOLS JoinSamples -p -m metadata.small.txt out/12
 $VDJTOOLS PoolSamples -w -m metadata.small.txt out/13
 
+# check all output files are generated
+
 cd out/
 ls -lh
+
+flist=(
+        '0.basicstats.txt'
+        '10.age.hc.aa.F.pdf'
+        '10.age.mds.aa.F.pdf'
+        '10.age.mds.aa.F.txt'
+        '10.intersect.batch.aa.txt'
+        '12.join.aa.summary.txt'
+        '12.join.aa.table.txt'
+        '12.join.aa.venn.pdf'
+        '1.spectratype.insert.wt.txt'
+        '1.spectratype.ndn.wt.txt'
+        '1.spectratype.nt.wt.txt'
+        '2.segments.wt.J.pdf'
+        '2.segments.wt.J.txt'
+        '2.segments.wt.V.pdf'
+        '2.segments.wt.V.txt'
+        '3.fancyspectra.pdf'
+        '3.fancyspectra.txt'
+        '4.spectraV.wt.pdf'
+        '4.spectraV.wt.txt'
+        '5.fancyvj.wt.pdf'
+        '5.fancyvj.wt.txt'
+        '6.qstat.pdf'
+        '6.qstat.txt'
+        '7.diversity.strict.exact.txt'
+        '7.diversity.strict.resampled.txt'
+        '8.rarefaction.strict.pdf'
+        '8.rarefaction.strict.txt'
+        '9.paired.strict.summary.txt'
+        '9.paired.strict.table.collapsed.pdf'
+        '9.paired.strict.table.collapsed.txt'
+        '9.paired.strict.table.txt'
+        '9.strict.paired.scatter.pdf'
+        'dec/metadata.txt'
+        'ds/metadata.txt'
+        'nf/metadata.txt'
+    )
+
+for f in "${flist[@]}"
+do
+    if [[ ! -s $f ]]
+        then exit 1
+    fi
+done
