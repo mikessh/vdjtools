@@ -37,11 +37,7 @@ import static com.antigenomics.vdjtools.TestUtil.getResource
 import static com.antigenomics.vdjtools.io.SampleStreamConnection.load
 
 class SampleLoadTest {
-    private static void loadTest(Software software, int count, int diversity) {
-        loadTest(software, '', count, diversity);
-    }
-
-    private static void loadTest(Software software, String suffix, int count, int diversity) {
+    private static void loadTest(Software software, int count, int diversity, String suffix = '') {
         def resStream = getResource("samples/${software.toString().toLowerCase()}${suffix}.txt.gz")
         def sample = load(resStream, software)
 
@@ -90,12 +86,12 @@ class SampleLoadTest {
 
     @Test
     public void mixcrFullLengthTest() {
-        loadTest(MiXcr, ".fl", 14156, 20)
+        loadTest(MiXcr, 14156, 20, ".fl")
     }
 
     @Test
     public void mixcr17LengthTest() {
-        loadTest(MiXcr, ".171", 900, 873)
+        loadTest(MiXcr, 900, 873, ".171")
     }
 
     @Test
@@ -107,6 +103,11 @@ class SampleLoadTest {
     @Test
     public void vidjilTest() {
         loadTest(Vidjil, 1667310, 165)
+    }
+
+    @Test
+    public void rtcrTest() {
+        loadTest(RTCR, 875, 693)
     }
 
     @Test

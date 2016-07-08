@@ -106,6 +106,9 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
             case Software.Vidjil:
                 parser = new VidjilParser(innerIter, sample)
                 break
+            case Software.RTCR:
+                parser = new RtcrParser(innerIter, sample)
+                break
             default:
                 throw new UnsupportedOperationException("Don't know how to parse $software data")
         }

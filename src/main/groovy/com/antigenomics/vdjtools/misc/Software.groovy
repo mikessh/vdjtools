@@ -38,9 +38,9 @@ enum Software {
                                         _, "v", _, "j", _, "d",
                                         "VEnd", "DStart", "DEnd", "JStart"]),
     MiXcr("\t", null, 1, true, false, ["count", "freq",
-                                        "cdr3nt", "cdr3aa",
-                                        "v", "d", "j",
-                                        "VEnd", "DStart", "DEnd", "JStart"]),
+                                       "cdr3nt", "cdr3aa",
+                                       "v", "d", "j",
+                                       "VEnd", "DStart", "DEnd", "JStart"]),
     MiGec("\t", null, 1, false, false, ["count", "freq",
                                         "cdr3nt", "cdr3aa",
                                         "v", "j", "d",
@@ -60,11 +60,14 @@ enum Software {
                                                "VEnd", 12.times { _ }, "DStart", "DEnd", 28.times {
         _
     }, "JStart"].flatten()),
-    // Tricky for ImSEQ
-            // Output is not tab-delimited table, no freq, incomplete V/J names, no D, etc
-            // 'per read output' is specified to re-calculate clonotype frequencies
-            ImSeq("[\t:]", null, 0, true, true, ["v", "cdr3nt", "j", "count"]),
+    // Tricky for ImSEQ:
+    // Output is not tab-delimited table, no freq, incomplete V/J names, no D, etc 'per read output'
+    // is specified to re-calculate clonotype frequencies
+    ImSeq("[\t:]", null, 0, true, true, ["v", "cdr3nt", "j", "count"]),
     Vidjil("\t", null, 0, true, true, []),
+    // Same for RTCR - need to recompute frequencies
+    RTCR("\t", null, 1, true, true, ["count", "cdr3aa", "v", "j",
+                                       "cdr3nt", "VEnd", "JStart"]),
     VDJtools("\t", null, 1, false, false, ["count", "freq",
                                            "cdr3nt", "cdr3aa",
                                            "v", "d", "j",
