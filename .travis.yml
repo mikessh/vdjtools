@@ -8,5 +8,6 @@ sudo: required
 jdk: oraclejdk8
 
 install:
+  - Rscript -e "print('test')"
   - mvn clean install -Dmaven.javadoc.skip=true -q
   - java -jar target/vdjtools-*.jar RInstall
