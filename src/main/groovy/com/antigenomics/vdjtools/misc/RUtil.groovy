@@ -98,23 +98,17 @@ public class RUtil {
         }
 
         // Run script
-        def proc = runScript("Rscript", scriptName, params)
-
-        if (proc.exitValue()) {
-            def errMsg = proc.getErrorStream().toString()
-
-            if (errMsg.contains("error=2")) {
+        try {
+            runScript("Rscript", scriptName, params)
+        } catch (IOException e) {
+            if (e.toString().contains("error=2")) {
                 println "[WARNING] Rscript not found, trying with R CMD BATCH"
-                proc = runScript("R CMD BATCH", scriptName, params)
+                runScript("R CMD BATCH", scriptName, params)
             }
-        }
-        
-        if (proc.exitValue()) {
-            println "[ERROR] ${proc.getErrorStream()}"
         }
     }
 
-    static Process runScript(String executor, String scriptName, String... params) {
+    static void runScript(String executor, String scriptName, String... params) {
         def cmd = [executor, scriptName, params]
 
         println "[RUtil] Executing ${cmd.flatten().join(" ")}"
@@ -128,7 +122,9 @@ public class RUtil {
         proc.out.close()
         proc.waitFor()
 
-        proc
+        if (proc.exitValue()) {
+            println "[ERROR] ${proc.getErrorStream()}"
+        }
     }
 
     /**
