@@ -7,9 +7,7 @@ jdk:
   - oraclejdk8
 
 before_install:
-  - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
-  - chmod 755 ./travis-tool.sh
-  - ./travis-tool.sh bootstrap
+  - alias Rscript='R CMD BATCH'
 
 install:
   - mvn clean install -Dmaven.javadoc.skip=true -q
