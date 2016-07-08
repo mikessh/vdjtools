@@ -2,7 +2,7 @@
 
 ## VDJtools
 
-A comprehensive framework for post-analysis of immune repertoire sequencing data.
+A comprehensive analysis framework for T-cell and B-cell repertoire sequencing data.
 Compiled binaries are available from [here](https://github.com/mikessh/vdjtools/releases/latest).
 The software is cross-platform and requires Java v1.8 to run and R to perform plotting.
 
@@ -25,4 +25,6 @@ Shugay M et al. VDJtools: Unifying Post-analysis of T Cell Receptor Repertoires.
 
 ### VDJtools was used in the following publications:
 
-Feng Y et al. A mechanism for expansion of regulatory T-cell repertoire and its role in self-tolerance. [Nature 2015; epub before print doi:10.1038/nature16141](http://www.nature.com/nature/journal/vaop/ncurrent/full/nature16141.html)
+- Feng Y et al. A mechanism for expansion of regulatory T-cell repertoire and its role in self-tolerance. [Nature 2015; doi:10.1038/nature16141](http://www.nature.com/nature/journal/vaop/ncurrent/full/nature16141.html)
+- Britanova OV et al. Dynamics of Individual T Cell Repertoires: From Cord Blood to Centenarians. [J Immunol 2016; doi:10.4049/​jimmunol.1600005](http://www.jimmunol.org/content/196/12/5005.short)
+- Joachims ML et al. Single-cell analysis of glandular T cell receptors in Sjögren’s syndrome. [JCI Insight 2016; doi:10.1172/jci.insight.85609](https://insight.jci.org/articles/view/85609)
