@@ -11,6 +11,11 @@ before_install:
   - export PATH="$PATH:`./pkg-build.sh r_path`"
 
 install:
-  - Rscript -e "print('test')"
   - mvn clean install -Dmaven.javadoc.skip=true -q
   - java -jar target/vdjtools-*.jar RInstall
+
+after_install:
+  - wget https://github.com/mikessh/vdjtools-examples/releases/download/1.1/aging_lite.zip
+  - unzip aging_lite.zip
+  - chmod +x travis.post.sh
+  - bash travis.post.sh
