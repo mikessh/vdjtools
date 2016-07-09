@@ -27,38 +27,30 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.profile
+package com.antigenomics.vdjtools.annotate
 
-import com.antigenomics.vdjtools.misc.CommonUtil
+import com.antigenomics.vdjtools.sample.Clonotype
 
-class BasicAminoAcidProperties {
-    static final BasicAminoAcidProperties INSTANCE = new BasicAminoAcidProperties()
+class BaseClonotypeAnnotator implements ClonotypeAnnotator {
+    static final List<String> ALLOWED_NAMES = ["cdr3Length",
+                                               "NDNSize", "insertSize",
+                                               "VDIns", "DJIns", "VJIns"]
 
-    private final AminoAcidProperty[] aminoAcidProperties
+    final String name
 
-    private BasicAminoAcidProperties() {
-        aminoAcidProperties = AminoAcidProperty.fromInput(CommonUtil.resourceStream("profile/aa_property_table.txt"))
+    BaseClonotypeAnnotator(String name) {
+        this.name = name
+
+        assert ALLOWED_NAMES.any { it == name }
     }
 
-    List<String> getPropertyNames() {
-        aminoAcidProperties.collect { it.name }
+    @Override
+    String getCategory() {
+        "base"
     }
 
-    AminoAcidProperty[] getProperties(List<String> propertyNames) {
-        if (propertyNames.isEmpty())
-            return getProperties()
-
-        propertyNames = propertyNames.collect { it.toLowerCase() }
-
-        aminoAcidProperties.findAll { propertyNames.contains(it.name.toLowerCase()) } as AminoAcidProperty[]
-    }
-
-    AminoAcidProperty getProperty(String name) {
-        name = name.toLowerCase()
-        aminoAcidProperties.find { name.contains(it.name.toLowerCase()) }
-    }
-
-    AminoAcidProperty[] getProperties() {
-        Arrays.copyOf(aminoAcidProperties, aminoAcidProperties.length)
+    @Override
+    String annotate(Clonotype clonotype) {
+        clonotype."$name"
     }
 }

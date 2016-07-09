@@ -43,14 +43,14 @@ class SampleAnnotator {
 
     void annotate(Sample sample) {
         if (sample.annotationHeader) {
-            sample.annotationHeader += "\t" + annotators.collect { it.name }.join("\t")
+            sample.annotationHeader += "\t" + annotators.collect { it.category + "." + it.name }.join("\t")
             GParsPool.withPool ExecUtil.THREADS, {
                 sample.eachParallel { Clonotype clonotype ->
                     clonotype.annotation += "\t" + annotators.collect { it.annotate(clonotype) }.join("\t")
                 }
             }
         } else {
-            sample.annotationHeader = annotators.collect { it.name }.join("\t")
+            sample.annotationHeader = annotators.collect { it.category + "." + it.name }.join("\t")
             GParsPool.withPool ExecUtil.THREADS, {
                 sample.eachParallel { Clonotype clonotype ->
                     clonotype.annotation = annotators.collect { it.annotate(clonotype) }.join("\t")

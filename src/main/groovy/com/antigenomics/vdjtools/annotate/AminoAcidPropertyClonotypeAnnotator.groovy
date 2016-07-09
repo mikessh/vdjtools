@@ -27,12 +27,39 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.annotate;
+package com.antigenomics.vdjtools.annotate
 
-import com.antigenomics.vdjtools.sample.Clonotype;
+import com.antigenomics.vdjtools.profile.AminoAcidProperty
+import com.antigenomics.vdjtools.profile.BasicAminoAcidProperties
+import com.antigenomics.vdjtools.sample.Clonotype
 
-public interface ClonotypeAnnotator {
-    String getName();
+class AminoAcidPropertyClonotypeAnnotator implements ClonotypeAnnotator {
+    static final List<String> ALLOWED_NAMES = BasicAminoAcidProperties.INSTANCE.propertyNames
 
-    String annotate(Clonotype clonotype);
+    final String name
+    final AminoAcidProperty property
+
+    AminoAcidPropertyClonotypeAnnotator(String name) {
+        this.name = name
+
+        this.property = BasicAminoAcidProperties.INSTANCE.getProperty(name)
+
+        assert property
+    }
+
+    @Override
+    String getCategory() {
+        "aaprop"
+    }
+
+    @Override
+    String annotate(Clonotype clonotype) {
+        double value = 0
+        if (clonotype.coding) {
+            for (int i = 0; i < clonotype.cdr3aaBinary.size(); i++) {
+                value += property[clonotype.cdr3aaBinary.codeAt(i)]
+            }
+        }
+        value
+    }
 }

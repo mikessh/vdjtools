@@ -27,38 +27,14 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.profile
+package com.antigenomics.vdjtools.annotate
 
-import com.antigenomics.vdjtools.misc.CommonUtil
+import com.antigenomics.vdjtools.sample.Clonotype
 
-class BasicAminoAcidProperties {
-    static final BasicAminoAcidProperties INSTANCE = new BasicAminoAcidProperties()
+interface ClonotypeAnnotator {
+    String getName()
 
-    private final AminoAcidProperty[] aminoAcidProperties
+    String getCategory()
 
-    private BasicAminoAcidProperties() {
-        aminoAcidProperties = AminoAcidProperty.fromInput(CommonUtil.resourceStream("profile/aa_property_table.txt"))
-    }
-
-    List<String> getPropertyNames() {
-        aminoAcidProperties.collect { it.name }
-    }
-
-    AminoAcidProperty[] getProperties(List<String> propertyNames) {
-        if (propertyNames.isEmpty())
-            return getProperties()
-
-        propertyNames = propertyNames.collect { it.toLowerCase() }
-
-        aminoAcidProperties.findAll { propertyNames.contains(it.name.toLowerCase()) } as AminoAcidProperty[]
-    }
-
-    AminoAcidProperty getProperty(String name) {
-        name = name.toLowerCase()
-        aminoAcidProperties.find { name.contains(it.name.toLowerCase()) }
-    }
-
-    AminoAcidProperty[] getProperties() {
-        Arrays.copyOf(aminoAcidProperties, aminoAcidProperties.length)
-    }
+    String annotate(Clonotype clonotype)
 }
