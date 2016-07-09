@@ -49,12 +49,11 @@ class BasicAminoAcidProperties {
             return aminoAcidProperties
 
         propertyNames = propertyNames.collect { it.toLowerCase() }
-
-        aminoAcidProperties.findAll { propertyNames.contains(it.name.toLowerCase()) } as AminoAcidProperty[]
+        aminoAcidProperties.findAll { propertyNames.contains(it.name) } as AminoAcidProperty[]
     }
 
     AminoAcidProperty getProperty(String name) {
         name = name.toLowerCase()
-        aminoAcidProperties.find { name.contains(it.name.toLowerCase()) }
+        aminoAcidProperties.find { name.contains(it.name) }
     }
 }

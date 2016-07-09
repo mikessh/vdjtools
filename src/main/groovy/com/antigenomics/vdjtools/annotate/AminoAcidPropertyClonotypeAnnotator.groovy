@@ -34,7 +34,7 @@ import com.antigenomics.vdjtools.profile.BasicAminoAcidProperties
 import com.antigenomics.vdjtools.sample.Clonotype
 
 class AminoAcidPropertyClonotypeAnnotator implements ClonotypeAnnotator {
-    static final List<String> ALLOWED_NAMES = BasicAminoAcidProperties.INSTANCE.propertyNames
+    static final List<String> ALLOWED_NAMES = BasicAminoAcidProperties.INSTANCE.getPropertyNames()
 
     final String name
     final AminoAcidProperty property
@@ -54,13 +54,6 @@ class AminoAcidPropertyClonotypeAnnotator implements ClonotypeAnnotator {
 
     @Override
     String annotate(Clonotype clonotype) {
-        if (clonotype.coding) {
-            double value = 0
-            for (int i = 0; i < clonotype.cdr3aaBinary.size(); i++) {
-                value += property[clonotype.cdr3aaBinary.codeAt(i)]
-            }
-            return value
-        }
-        ""
+        clonotype.coding ? ((float) property.computeSum(clonotype.cdr3aaBinary)) : ""
     }
 }

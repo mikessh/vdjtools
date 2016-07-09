@@ -32,7 +32,7 @@ package com.antigenomics.vdjtools.annotate
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.sample.SampleCollection
 
-def DEFAULT_BASE_ANNOTS = ["cdr3Length", "NDNsize", "insertSize"].join(","),
+def DEFAULT_BASE_ANNOTS = ["cdr3length", "ndnsize", "insertsize"].join(","),
     DEFAULT_AAPROP_ANNOTS = ["hydropathy", "charge", "polarity", "strength", "contact"].join(",")
 
 def cli = new CliBuilder(usage: "Annotate [options] " +
@@ -79,11 +79,19 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 }
 
 def outputFilePrefix = opt.arguments()[-1],
-    baseAnnot = (opt.b ?: DEFAULT_BASE_ANNOTS).split("\t"),
-    aapropAnnot = (opt.a ?: DEFAULT_BASE_ANNOTS).split("\t"),
+    baseAnnot = (opt.b ?: DEFAULT_BASE_ANNOTS).split(",").collect { it.toLowerCase() },
+    aapropAnnot = (opt.a ?: DEFAULT_AAPROP_ANNOTS).split(",").collect { it.toLowerCase() },
     compress = (boolean) opt.c
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
+
+def badBaseField = baseAnnot.findAll { !BaseClonotypeAnnotator.ALLOWED_NAMES.contains(it) }
+badBaseField.addAll(aapropAnnot.findAll { !AminoAcidPropertyClonotypeAnnotator.ALLOWED_NAMES.contains(it) })
+
+if (!badBaseField.empty) {
+    println "The following annotation properties are specified incorrectly: $badBaseField"
+    System.exit(2)
+}
 
 //
 // Batch load samples

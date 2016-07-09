@@ -29,6 +29,8 @@
 
 package com.antigenomics.vdjtools.profile;
 
+import com.milaboratory.core.sequence.AminoAcidSequence;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +54,7 @@ public class AminoAcidProperty {
         AminoAcidProperty[] groups = new AminoAcidProperty[splitLine.length - 1];
 
         for (int i = 0; i < groups.length; i++) {
-            groups[i] = new AminoAcidProperty(splitLine[i + 1]);
+            groups[i] = new AminoAcidProperty(splitLine[i + 1].toLowerCase());
         }
 
         while ((line = reader.readLine()) != null) {
@@ -69,7 +71,7 @@ public class AminoAcidProperty {
     private final String name;
     private final double[] propertyByAA = new double[ALPHABET.size()];
 
-    public AminoAcidProperty(String name) {
+    private AminoAcidProperty(String name) {
         this.name = name;
     }
 
@@ -87,6 +89,14 @@ public class AminoAcidProperty {
         }
 
         return propertyByAA[code];
+    }
+
+    public double computeSum(AminoAcidSequence seq) {
+        double value = 0;
+        for (int i = 0; i < seq.size(); i++) {
+            value += getAt(seq.codeAt(i));
+        }
+        return value;
     }
 
     public String getName() {
