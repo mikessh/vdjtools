@@ -26,6 +26,9 @@ $VDJTOOLS FilterNonFunctional -m metadata.txt -c out/nf/
 $VDJTOOLS JoinSamples -p -m metadata.small.txt out/12
 $VDJTOOLS PoolSamples -m metadata.small.txt out/13
 
+# annotation
+$VDJTOOLS Annotate -m metadata.txt out/annot/
+
 # check all output files are generated
 
 cd out/
@@ -68,6 +71,7 @@ flist=(
         'dec/metadata.txt'
         'ds/metadata.txt'
         'nf/metadata.txt'
+        'annot/metadata.txt'
     )
 
 for f in "${flist[@]}"
