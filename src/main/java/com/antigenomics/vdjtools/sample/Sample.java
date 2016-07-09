@@ -238,10 +238,19 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
 
     /**
      * Gets the clonotype annotation header string
+     *
      * @return clonotype annotation header or null if not available
      */
     public String getAnnotationHeader() {
         return annotationHeader;
+    }
+
+
+    /**
+     * Gets the clonotype annotation header string
+     */
+    public void setAnnotationHeader(String annotationHeader) {
+        this.annotationHeader = annotationHeader;
     }
 
     /**

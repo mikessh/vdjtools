@@ -47,7 +47,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable, ClonotypeWra
     private int count;
     private double freq;
 
-    private final String annotation;
+    private String annotation;
 
     private final int[] segmPoints;
     private final Segment v, d, j;
@@ -203,9 +203,18 @@ public class Clonotype implements Comparable<Clonotype>, Countable, ClonotypeWra
 
     /**
      * Gets the annotation string associated with this clonotype.
+     *
+     * @return clonotype annotation or null if not available
      */
     public String getAnnotation() {
         return annotation;
+    }
+
+    /**
+     * Sets the annotation string associated with this clonotype.
+     */
+    public void setAnnotation(String annotation) {
+        this.annotation = annotation;
     }
 
     /**
