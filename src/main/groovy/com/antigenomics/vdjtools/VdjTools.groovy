@@ -30,8 +30,8 @@
 
 package com.antigenomics.vdjtools
 
+import com.antigenomics.vdjtools.annotate.Annotate
 import com.antigenomics.vdjtools.basic.*
-import com.antigenomics.vdjtools.compare.Enrichment
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.PlotQuantileStats
 import com.antigenomics.vdjtools.diversity.RarefactionPlot
@@ -83,11 +83,12 @@ def printHelp = {
     println "[Operation]"
     println "PoolSamples"
     println "JoinSamples"
-    println "Enrichment"
+    println "(Enrichment) -> Deprecated"
     println ""
     println "[Annotation]"
     println "(ScanDatabase) -> moved to VDJdb since 1.0.5"
     println "CalcCdrAAProfile"
+    println "Annotate"
     println ""
     println "[Util]"
     println "FilterMetadata"
@@ -151,10 +152,14 @@ def getScript = { String scriptName ->
         case "JOINSAMPLES":
             return new JoinSamples()
         case "ENRICHMENT":
-            return new Enrichment()
+            println "Deprecated"
+            System.exit(0)
+            break
 
         case "CALCCDRAAPROFILE":
             return new CalcCdrAAProfile()
+        case "ANNOTATE":
+            return new Annotate()
         case "SCANDATABASE":
             println "Moved to VDJdb since 1.0.5, see docs"
             System.exit(0)
