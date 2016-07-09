@@ -63,7 +63,7 @@ public class SampleWriter {
      * @param renormalize tells whether to perform re-normalization (compute frequency by dividing read count by total
      *                    number of reads in sample) or preserve original frequencies as in input
      */
-    public SampleWriter(boolean compress = false, boolean renormalize = true) {
+    public SampleWriter(boolean compress = false, boolean renormalize = false) {
         this(Software.VDJtools, compress, renormalize)
     }
 
@@ -85,7 +85,8 @@ public class SampleWriter {
                 (software.comment ?: "") +
                 software.printFields.join("\t")
         this.compress = compress
-        this.printFields = renormalize ? printFields : printFields.collect { it.replace("freq", "freqAsInInput") }
+        this.printFields = renormalize ? software.printFields :
+                software.printFields.collect { it.replace("freq", "freqAsInInput") }
     }
 
     /**
