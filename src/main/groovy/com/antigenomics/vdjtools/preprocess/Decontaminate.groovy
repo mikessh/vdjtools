@@ -54,7 +54,7 @@ cli._(longOpt: "read-based", "Remove contamination based on read ratios, not fra
 cli.r(longOpt: "ratio", argName: "double", args: 1,
         "Parent-to-child clonotype frequency ratio for contamination filtering [default = $DEFAULT_CONT_RATIO]")
 cli._(longOpt: "low-mem", "Will process all sample pairs sequentially, avoiding" +
-        " loading all of them into memory. Slower but memory-efficient mode.")
+        " loading all of them into memory. Slower but memory-efficient mode. [UNUSED]")
 cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
@@ -115,7 +115,7 @@ def ratioFilter = readBased ? new CountFilter(sampleCollection, ratio) :
 //
 // Go through all sample once more and perform freq-based filtering
 //
-def sw = new SampleWriter(compress)
+def sw = new SampleWriter(compress, true)
 
 new File(formOutputPath(outputFilePrefix, "dec", "summary")).withPrintWriter { pw ->
     def header = "$MetadataTable.SAMPLE_ID_COLUMN\t" +

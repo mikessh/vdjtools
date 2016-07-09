@@ -46,6 +46,8 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
 cli.e(longOpt: "negative", "Will retain only non-functional clonotypes")
+cli._(longOpt: "save-freqs", "Preserve clonotype frequencies as in original sample. " +
+        "By default, output sample(s) will be re-normalized to have a sum of clonotype frequencies equal to 1.")
 cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
@@ -74,6 +76,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 // Remaining arguments
 
 def outputFilePrefix = opt.arguments()[-1],
+    saveFreqs = (boolean) opt.'save-freqs',
     compress = (boolean) opt.c,
     negative = (boolean) opt.e
 
@@ -95,7 +98,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 // Iterate over samples & filter
 //
 
-def writer = new SampleWriter(compress)
+def writer = new SampleWriter(compress, !saveFreqs)
 
 def filter = new FunctionalClonotypeFilter(negative)
 new File(formOutputPath(outputFilePrefix, "ncfilter", "summary")).withPrintWriter { pw ->

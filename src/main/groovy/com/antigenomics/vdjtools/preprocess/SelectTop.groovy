@@ -42,6 +42,8 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
 cli.x(longOpt: "num-clonotypes", argName: "integer", required: true, args: 1, "Number of top clonotypes to take.")
+cli._(longOpt: "save-freqs", "Preserve clonotype frequencies as in original sample. " +
+        "By default, output sample(s) will be re-normalized to have a sum of clonotype frequencies equal to 1.")
 cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
@@ -70,6 +72,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 // Remaining arguments
 
 def x = (int) opt.x.toInteger(),
+    saveFreqs = (boolean) opt.'save-freqs',
     compress = (boolean) opt.c,
     outputPrefix = opt.arguments()[-1]
 
@@ -91,7 +94,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 // Iterate over samples & down-sample
 //
 
-def sampleWriter = new SampleWriter(compress)
+def sampleWriter = new SampleWriter(compress, !saveFreqs)
 
 sampleCollection.eachWithIndex { sample, ind ->
     def newSample = new Sample(sample, BlankClonotypeFilter.INSTANCE, x)

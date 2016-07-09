@@ -145,7 +145,7 @@ def jointSample = new JointSample(intersectionType, sampleCollection.collect() a
 
 println "[${new Date()} $scriptName] Writing tabular output"
 
-def sampleWriter = new SampleWriter(compress)
+def sampleWriter = new SampleWriter(compress, true)
 sampleWriter.write(jointSample, formOutputPath(outputPrefix, "join", intersectionType.shortName, "table"))
 
 //

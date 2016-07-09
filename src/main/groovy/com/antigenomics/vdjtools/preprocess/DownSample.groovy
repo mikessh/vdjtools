@@ -90,7 +90,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 // Iterate over samples & down-sample
 //
 
-def sampleWriter = new SampleWriter(compress)
+def sampleWriter = new SampleWriter(compress, true)
 
 sampleCollection.eachWithIndex { sample, ind ->
     def downSampler = new DownSampler(sample, unweighted)

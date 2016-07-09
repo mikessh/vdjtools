@@ -50,6 +50,8 @@ cli.q(longOpt: "quantile-threshold", argName: "double", args: 1,
                 "with a total frequency specified by this threhsold. " +
                 "Set it to 1 to disable." +
                 "[default = $DEFAULT_QUANTILE_THRESHOLD]")
+cli._(longOpt: "save-freqs", "Preserve clonotype frequencies as in original sample. " +
+        "By default, output sample(s) will be re-normalized to have a sum of clonotype frequencies equal to 1.")
 cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
@@ -80,6 +82,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 def outputFilePrefix = opt.arguments()[-1],
     freqThreshold = (opt.f ?: DEFAULT_FREQ_THRESHOLD).toDouble(),
     quantileThreshold = (opt.q ?: DEFAULT_QUANTILE_THRESHOLD).toDouble(),
+    saveFreqs = (boolean) opt.'save-freqs',
     compress = (boolean) opt.c
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
@@ -100,7 +103,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 // Iterate over samples & filter
 //
 
-def writer = new SampleWriter(compress)
+def writer = new SampleWriter(compress, !saveFreqs)
 
 def filter = new CompositeClonotypeFilter(
         new FrequencyFilter(freqThreshold),

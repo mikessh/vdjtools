@@ -126,7 +126,7 @@ println "[${new Date()} $scriptName] Normalizing and sorting pooled clonotypes"
 def pooledSample = new PooledSample(sampleAggr)
 
 println "[${new Date()} $scriptName] Writing output"
-def writer = new SampleWriter(compress)
+def writer = new SampleWriter(compress, true)
 writer.write(pooledSample, formOutputPath(outputPrefix, "pool", intersectionType.shortName, "table"))
 
 println "[${new Date()} $scriptName] Finished."

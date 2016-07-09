@@ -99,7 +99,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 // Iterate over samples & correct
 //
 
-def sampleWriter = new SampleWriter(compress)
+def sampleWriter = new SampleWriter(compress, true)
 
 def corrector = new Corrector(depth, ratio, matchSegment)
 sampleCollection.eachWithIndex { sample, ind ->

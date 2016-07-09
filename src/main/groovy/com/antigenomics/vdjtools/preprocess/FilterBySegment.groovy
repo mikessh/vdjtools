@@ -42,14 +42,15 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
 cli.e(longOpt: "negative", "Will retain only clonotypes that lack specified V/D/J segments.")
-cli.c(longOpt: "compress", "Compress output sample files.")
-
 cli.v(longOpt: "v-segments", argName: "v1,v2,...", args: 1, "A comma-separated list of Variable segments. " +
         "Incomplete names will act as wildcards.")
 cli.d(longOpt: "d-segments", argName: "d1,d2,...", args: 1, "A comma-separated list of Diversity segments. " +
         "Incomplete names will act as wildcards.")
 cli.j(longOpt: "j-segments", argName: "j1,j2,...", args: 1, "A comma-separated list of Joining segments. " +
         "Incomplete names will act as wildcards.")
+cli._(longOpt: "save-freqs", "Preserve clonotype frequencies as in original sample. " +
+        "By default, output sample(s) will be re-normalized to have a sum of clonotype frequencies equal to 1.")
+cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
 
@@ -77,6 +78,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 // Remaining arguments
 
 def outputFilePrefix = opt.arguments()[-1],
+    saveFreqs = (boolean) opt.'save-freqs',
     compress = (boolean) opt.c,
     negative = (boolean) opt.e
 
@@ -102,7 +104,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 // Iterate over samples & filter
 //
 
-def writer = new SampleWriter(compress)
+def writer = new SampleWriter(compress, !saveFreqs)
 
 def filter = new CompositeClonotypeFilter(negative, vFilter, dFilter, jFilter)
 new File(formOutputPath(outputFilePrefix, "segfilter", "summary")).withPrintWriter { pw ->
