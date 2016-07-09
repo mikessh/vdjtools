@@ -121,4 +121,9 @@ class VidjilParser extends BaseParser {
 
         tabulatedOutput.iterator()
     }
+
+    @Override
+    String getAnnotationHeader() {
+        null
+    }
 }

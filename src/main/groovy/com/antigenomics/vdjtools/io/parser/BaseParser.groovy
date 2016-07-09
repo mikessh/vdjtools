@@ -92,6 +92,6 @@ public class BaseParser extends ClonotypeStreamParser {
 
     @Override
     String getAnnotationHeader() {
-        extractAnnotation(header as String[])
+        extractAnnotation(header[0].split("\t"))
     }
 }
