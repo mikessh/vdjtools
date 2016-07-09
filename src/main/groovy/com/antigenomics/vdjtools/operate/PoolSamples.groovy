@@ -69,11 +69,11 @@ if (opt.h) {
 
 def metadataFileName = opt.m
 
-if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 3) {
+if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2) {
     if (metadataFileName)
         println "Only output prefix should be provided in case of -m"
     else
-        println "At least 2 sample files should be provided if not using -m"
+        println "At least 1 sample files should be provided if not using -m"
     cli.usage()
     System.exit(2)
 }
