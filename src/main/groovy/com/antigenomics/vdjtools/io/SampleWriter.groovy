@@ -45,13 +45,14 @@ public class SampleWriter {
     private final Software software
     private final String header
     private final boolean compress
+    private final List<String> printFields
 
     public String getHeader() {
         header
     }
 
     public String getClonotypeString(Clonotype clonotype) {
-        software.printFields.collect {
+        printFields.collect {
             clonotype."$it"
         }.join("\t")
     }
@@ -59,9 +60,11 @@ public class SampleWriter {
     /**
      * Creates a sample writer capable to output samples in plain-text files according to specified software format.
      * @param compress specifies whether to compress resulting output file
+     * @param renormalize tells whether to perform re-normalization (compute frequency by dividing read count by total
+     *                    number of reads in sample) or preserve original frequencies as in input
      */
-    public SampleWriter(boolean compress) {
-        this(Software.VDJtools, compress)
+    public SampleWriter(boolean compress = false, boolean renormalize = true) {
+        this(Software.VDJtools, compress, renormalize)
     }
 
     /**
@@ -69,17 +72,20 @@ public class SampleWriter {
      * Will compress the resulting output file if {@code compress = true} and append ".gz" to the file name.
      * @param software table layout that will be used during output
      * @param compress specifies whether to compress resulting output file
+     * @param renormalize tells whether to perform re-normalization (compute frequency by dividing read count by total
+     *                    number of reads in sample) or preserve original frequencies as in input
      *
      * @deprecated writing back in various output formats is not supported by CLI
      */
     @Deprecated
-    public SampleWriter(Software software, boolean compress) {
+    public SampleWriter(Software software, boolean compress, boolean renormalize) {
         this.software = software
         this.header = (software.headerLineCount > 1 ?
                 "${software.name()}-header-blank\n" * (software.headerLineCount - 1) : "") +
                 (software.comment ?: "") +
                 software.printFields.join("\t")
         this.compress = compress
+        this.printFields = renormalize ? printFields : printFields.collect { it.replace("freq", "freqAsInInput") }
     }
 
     /**
