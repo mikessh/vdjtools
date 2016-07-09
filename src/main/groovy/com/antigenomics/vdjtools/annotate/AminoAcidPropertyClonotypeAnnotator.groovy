@@ -54,12 +54,13 @@ class AminoAcidPropertyClonotypeAnnotator implements ClonotypeAnnotator {
 
     @Override
     String annotate(Clonotype clonotype) {
-        double value = 0
         if (clonotype.coding) {
+            double value = 0
             for (int i = 0; i < clonotype.cdr3aaBinary.size(); i++) {
                 value += property[clonotype.cdr3aaBinary.codeAt(i)]
             }
+            return value
         }
-        value
+        ""
     }
 }

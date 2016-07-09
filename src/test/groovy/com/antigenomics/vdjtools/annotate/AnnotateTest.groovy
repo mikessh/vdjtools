@@ -27,34 +27,33 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.profile
+package com.antigenomics.vdjtools.annotate
 
-import com.antigenomics.vdjtools.misc.CommonUtil
+import com.antigenomics.vdjtools.TestUtil
+import com.antigenomics.vdjtools.sample.Sample
+import org.junit.Test
 
-class BasicAminoAcidProperties {
-    static final BasicAminoAcidProperties INSTANCE = new BasicAminoAcidProperties()
+class AnnotateTest {
+    static final List<ClonotypeAnnotator> BASE = BaseClonotypeAnnotator.ALLOWED_NAMES.collect {
+        new BaseClonotypeAnnotator(it)
+    },
+                                          AAPROP = AminoAcidPropertyClonotypeAnnotator.ALLOWED_NAMES.collect {
+                                              new AminoAcidPropertyClonotypeAnnotator(it)
+                                          }
 
-    private final AminoAcidProperty[] aminoAcidProperties
+    @Test
+    void annotatorTest() {
+        def annotator = new SampleAnnotator([BASE, AAPROP].flatten())
+        [TestUtil.DEFAULT_SAMPLE_COLLECTION, TestUtil.SINGLE_EMPTY_SAMPLE].each { samples ->
+            samples.each { sample1 ->
+                def sample = new Sample(sample1) // clone
+                annotator.annotate(sample)
 
-    private BasicAminoAcidProperties() {
-        aminoAcidProperties = AminoAcidProperty.fromInput(CommonUtil.resourceStream("profile/aa_property_table.txt"))
-    }
-
-    List<String> getPropertyNames() {
-        aminoAcidProperties.collect { it.name }
-    }
-
-    AminoAcidProperty[] getProperties(List<String> propertyNames = []) {
-        if (propertyNames.isEmpty())
-            return aminoAcidProperties
-
-        propertyNames = propertyNames.collect { it.toLowerCase() }
-
-        aminoAcidProperties.findAll { propertyNames.contains(it.name.toLowerCase()) } as AminoAcidProperty[]
-    }
-
-    AminoAcidProperty getProperty(String name) {
-        name = name.toLowerCase()
-        aminoAcidProperties.find { name.contains(it.name.toLowerCase()) }
+                assert sample.annotationHeader
+                sample.each {
+                    assert it.annotation
+                }
+            }
+        }
     }
 }

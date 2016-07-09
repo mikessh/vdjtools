@@ -35,23 +35,24 @@ import com.milaboratory.core.sequence.AminoAcidSequence
 import org.junit.Test
 
 class AAProfileTest {
-    def properties = BasicAminoAcidProperties.INSTANCE.properties
-
     @Test
     void test1() {
         def seq1 = CommonUtil.AAS.collect().join("")
-        def profileBuilder = new AminoAcidProfile(seq1.length(), properties)
+
+        def aminoAcidProperties = BasicAminoAcidProperties.INSTANCE.getProperties()
+
+        def profileBuilder = new AminoAcidProfile(seq1.length(), aminoAcidProperties)
 
         profileBuilder.getBins().each { bin ->
             // check all properties added
-            properties.each {
+            aminoAcidProperties.each {
                 assert bin.getValue(it.name) == 0
             }
         }
 
         profileBuilder.update(new AminoAcidSequence(seq1))
 
-        def someProp = properties[0]
+        def someProp = aminoAcidProperties[0]
 
         profileBuilder.getBins().each { bin ->
             assert bin.total == 1
