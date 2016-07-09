@@ -32,16 +32,21 @@ package com.antigenomics.vdjtools.annotate
 import com.antigenomics.vdjtools.sample.Clonotype
 
 class BaseClonotypeAnnotator implements ClonotypeAnnotator {
-    static final List<String> ALLOWED_NAMES = ["cdr3Length",
-                                               "NDNSize", "insertSize",
-                                               "VDIns", "DJIns", "VJIns"]
+    static final Map<String, String> NAME_MAP = ["cdr3Length",
+                                                 "NDNSize", "insertSize",
+                                                 "VDIns", "DJIns"].collectEntries { [(it.toLowerCase()): it] }
+
+    static final List<String> ALLOWED_NAMES = NAME_MAP.keySet().collect()
+
 
     final String name
+    private final String paramName
 
     BaseClonotypeAnnotator(String name) {
-        this.name = name
+        this.name = name.toLowerCase()
+        this.paramName = NAME_MAP[this.name]
 
-        assert ALLOWED_NAMES.any { it == name }
+        assert ALLOWED_NAMES.any { it == this.name }
     }
 
     @Override
@@ -51,6 +56,6 @@ class BaseClonotypeAnnotator implements ClonotypeAnnotator {
 
     @Override
     String annotate(Clonotype clonotype) {
-        clonotype."$name"
+        clonotype."$paramName"
     }
 }
