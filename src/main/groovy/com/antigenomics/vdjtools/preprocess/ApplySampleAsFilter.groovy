@@ -55,6 +55,8 @@ cli.i(longOpt: "intersect-type", argName: "string", args: 1,
                 "Will use '$I_TYPE_DEFAULT' by default.")
 cli.e(longOpt: "negative", "Will report clonotypes that are not present in filter_sample. " +
         "The default action is to retain only them.")
+cli._(longOpt: "save-freqs", "Preserve clonotype frequencies as in original sample. " +
+        "By default, output sample(s) will be re-normalized to have a sum of clonotype frequencies equal to 1.")
 cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
@@ -85,6 +87,7 @@ if (metadataFileName ? opt.arguments().size() != 2 : opt.arguments().size() < 3)
 // IO stuff
 
 def filterFileName = opt.arguments()[-2],
+    saveFreqs = (boolean) opt.'save-freqs',
     compress = (boolean) opt.c,
     outputFilePrefix = opt.arguments()[-1]
 
@@ -121,7 +124,7 @@ def clonotypeFilter = new IntersectionClonotypeFilter(intersectionType, filterSa
 
 println "[${new Date()} $scriptName] Filtering (${negative ? "negative" : "positive"}) and writing output"
 
-def sw = new SampleWriter(compress)
+def sw = new SampleWriter(compress, !saveFreqs)
 
 new File(formOutputPath(outputFilePrefix, "asaf", "summary")).withPrintWriter { pw ->
     def header = "$MetadataTable.SAMPLE_ID_COLUMN\t" +
