@@ -144,6 +144,14 @@ public class SampleWriter {
         annotation ? ("\t" + annotation.split("\t").collect { "" }.join("\t")) : ""
     }
 
+    String getFullHeader(Sample sample) {
+        header + appendAnnotation(sample.annotationHeader)
+    }
+
+    String getFullClonotypeString(Clonotype clonotype) {
+        getClonotypeString(clonotype) + appendAnnotation(clonotype.annotation)
+    }
+
     /**
      * Writes a sample as a plain-text table to the specified path.
      * @param sample sample to write
@@ -156,7 +164,7 @@ public class SampleWriter {
         def printWriter = getWriter(fileName)
 
         top = top > sample.diversity || top < 0 ? sample.diversity : top
-        printWriter.println(header + appendAnnotation(sample.annotationHeader))
+        printWriter.println(getFullHeader(sample))
 
         long count = 0
         double freq = 0.0
@@ -169,7 +177,7 @@ public class SampleWriter {
                 freq += clonotype.freq
             }
 
-            printWriter.println(getClonotypeString(clonotype) + appendAnnotation(clonotype.annotation))
+            printWriter.println(getFullClonotypeString(clonotype))
         }
 
         if (collapse && top < sample.diversity) {
