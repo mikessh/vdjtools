@@ -8,6 +8,7 @@ The software is cross-platform and requires Java v1.8 to run and R to perform pl
 
 Easy installation on **MacOS/Linux** via [Homebrew](http://brew.sh/) or [Linuxbrew](http://linuxbrew.sh/):
 ```bash
+brew tap homebrew/science
 brew tap mikessh/repseq
 brew install vdjtools
 vdjtools CalcBasicStats ...
