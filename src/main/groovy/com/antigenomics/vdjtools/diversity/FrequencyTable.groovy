@@ -34,7 +34,9 @@ import com.antigenomics.vdjtools.join.ClonotypeKeyGen
 import com.antigenomics.vdjtools.join.key.ClonotypeKey
 import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.pool.ClonotypeAggregator
+import com.antigenomics.vdjtools.pool.PooledSample
 import com.antigenomics.vdjtools.pool.SampleAggregator
+import com.antigenomics.vdjtools.pool.StoringClonotypeAggregator
 import com.antigenomics.vdjtools.sample.Sample
 
 /**
@@ -120,11 +122,11 @@ class FrequencyTable {
      * Creates frequency table that bins clonotypes according to their occurrence in a set of samples.
      * @param pool pooled samples.
      */
-    FrequencyTable(SampleAggregator pool) {
+    FrequencyTable(PooledSample pool) {
         long diversity = 0, count = 0
 
         // compute frequency table
-        pool.each { ClonotypeAggregator it ->
+        pool.each { StoringClonotypeAggregator it ->
             long x = it.incidenceCount
             def bin = frequencyMap[x]
             if (!bin)

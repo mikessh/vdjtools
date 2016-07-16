@@ -30,6 +30,7 @@
 package com.antigenomics.vdjtools.diversity
 
 import com.antigenomics.vdjtools.overlap.OverlapType
+import com.antigenomics.vdjtools.pool.PooledSample
 import com.antigenomics.vdjtools.pool.SampleAggregator
 import com.antigenomics.vdjtools.sample.Sample
 import groovy.transform.PackageScope
@@ -94,7 +95,7 @@ class ExactEstimator extends DiversityEstimator {
      * {@link com.antigenomics.vdjtools.diversity.ChaoEstimator#chaoE} estimate.
      *                      For most cases, it should be set to the number of samples in the largest sample pool if several are to be compared.
      */
-    ExactEstimator(SampleAggregator pool, long extrapolateTo) {
+    ExactEstimator(PooledSample pool, long extrapolateTo) {
         this(new FrequencyTable(pool), extrapolateTo)
     }
 

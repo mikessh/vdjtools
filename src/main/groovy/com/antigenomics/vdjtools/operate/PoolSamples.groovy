@@ -29,6 +29,7 @@
 
 package com.antigenomics.vdjtools.operate
 
+import com.antigenomics.vdjtools.diversity.FrequencyTable
 import com.antigenomics.vdjtools.misc.Software
 import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.overlap.OverlapType
@@ -56,7 +57,6 @@ cli.c(longOpt: "compress", "Compress output sample files.")
 def opt = cli.parse(args)
 
 if (opt == null) {
-    //cli.usage()
     System.exit(2)
 }
 
@@ -128,6 +128,13 @@ def pooledSample = new PooledSample(sampleAggr)
 println "[${new Date()} $scriptName] Writing output"
 def writer = new SampleWriter(compress, true)
 writer.write(pooledSample, formOutputPath(outputPrefix, "pool", intersectionType.shortName, "table"))
+
+def incidenceTable = new FrequencyTable(pooledSample)
+
+new File(formOutputPath(outputPrefix, "pool", intersectionType.shortName, "summary")).withPrintWriter { pw ->
+    pw.println("clonotype.incidence\tnumber.of.clonotypes")
+    pw.println(incidenceTable.toString())
+}
 
 println "[${new Date()} $scriptName] Finished."
 
