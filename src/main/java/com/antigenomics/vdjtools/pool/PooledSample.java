@@ -45,11 +45,6 @@ public class PooledSample implements ClonotypeWrapperContainer<StoringClonotypeA
                 new StoringClonotypeAggregatorFactory(), OverlapType.Strict));
     }
 
-    /**
-     * Creates a
-     *
-     * @param sampleAggregator
-     */
     public PooledSample(SampleAggregator<StoringClonotypeAggregator> sampleAggregator) {
         this.clonotypes = new ArrayList<>(sampleAggregator.getDiversity());
 
@@ -65,11 +60,8 @@ public class PooledSample implements ClonotypeWrapperContainer<StoringClonotypeA
         this.count = count;
 
         Collections.sort(clonotypes,
-                new Comparator<StoringClonotypeAggregator>() {
-                    @Override
-                    public int compare(StoringClonotypeAggregator o1, StoringClonotypeAggregator o2) {
-                        return Long.compare(o2.getCount(), o1.getCount()); // inverse - sort descending
-                    }
+                (o1, o2) -> {
+                    return Long.compare(o2.getCount(), o1.getCount()); // inverse - sort descending
                 });
     }
 

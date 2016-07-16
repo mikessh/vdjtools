@@ -123,11 +123,6 @@ def sampleCollection = metadataFileName ?
         new SampleCollection((String) metadataFileName, Software.VDJtools, true, false) :
         new SampleCollection(opt.arguments()[0..-2], Software.VDJtools, true, false)
 
-//if (sampleCollection.size() < 3) {
-//    println "[ERROR] Metadata file should contain at least 3 samples"
-//    System.exit(2)
-//}
-
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples loaded"
 
 //

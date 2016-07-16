@@ -29,6 +29,7 @@
 
 package com.antigenomics.vdjtools.sample;
 
+import com.antigenomics.vdjtools.misc.CommonUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.regex.Pattern;
@@ -58,7 +59,7 @@ public class SequenceMatchFilter extends ClonotypeFilter {
             throw new IllegalArgumentException("Bad sequence pattern: " + patternString);
         }
 
-        patternString = patternString.replaceAll("[XN]", ".");
+        patternString = patternString.replaceAll("[XN]", CommonUtil.PLACEHOLDER);
 
         this.pattern = Pattern.compile(patternString);
         this.patternString = patternString;

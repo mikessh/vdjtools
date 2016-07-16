@@ -43,11 +43,11 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
 cli.f(longOpt: "freq-threshold", argName: "double", args: 1,
-        "Default clonotype frequency threshold. Set it to 0 to disable. " +
+        "Clonotype frequency threshold. Set it to 0 to disable. " +
                 "[default = $DEFAULT_FREQ_THRESHOLD]")
 cli.q(longOpt: "quantile-threshold", argName: "double", args: 1,
-        "Default quantile threshold. Will retain a set of top clonotypes " +
-                "with a total frequency specified by this threhsold. " +
+        "Quantile threshold. Will retain a set of top N clonotypes " +
+                "so that their total frequency is equal or less to the specified threshold. " +
                 "Set it to 1 to disable." +
                 "[default = $DEFAULT_QUANTILE_THRESHOLD]")
 cli._(longOpt: "save-freqs", "Preserve clonotype frequencies as in original sample. " +

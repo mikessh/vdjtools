@@ -64,11 +64,11 @@ class AAProfileTest {
     void test2() {
         def clonotypes = [
                 new Clonotype(null, 1, 1.0d,
-                        [2, -1, -1, -10] as int[], "TRAV5", ".", "TRAJ48",
+                        [2, -1, -1, -10] as int[], "TRAV5", CommonUtil.PLACEHOLDER, "TRAJ48",
                         "TGTCATGAGAAATTAACCTTT",
                         "CHEKLTF", true, true, true),
                 new Clonotype(null, 1, 1.0d,
-                        [14, -1, -1, 19] as int[], "TRAV5", ".", "TRAJ48",
+                        [14, -1, -1, 19] as int[], "TRAV5", CommonUtil.PLACEHOLDER, "TRAJ48",
                         "TGCCTCGTGGGTGACTCGTACACGGGCAGGAGAGCACTTACTTTT",
                         "CLVGDSYTGRRALTF", true, true, true)]
 

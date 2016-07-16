@@ -33,16 +33,17 @@ package com.antigenomics.vdjtools.misc;
  * An immune receptor segment.
  */
 public class Segment {
-    public static final Segment MISSING = new Segment(".");
+    public static final Segment MISSING = new Segment(CommonUtil.PLACEHOLDER);
 
     protected final String name;
 
-    protected Segment(String name) {
+    Segment(String name) {
         this.name = name;
     }
 
     /**
      * Gets segment identifier.
+     *
      * @return segment identifier.
      */
     public String getName() {

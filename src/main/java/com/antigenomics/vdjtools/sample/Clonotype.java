@@ -31,6 +31,7 @@ package com.antigenomics.vdjtools.sample;
 
 import com.antigenomics.vdjtools.ClonotypeWrapper;
 import com.antigenomics.vdjtools.Countable;
+import com.antigenomics.vdjtools.misc.CommonUtil;
 import com.antigenomics.vdjtools.misc.Segment;
 import com.antigenomics.vdjtools.misc.SegmentFactory;
 import com.milaboratory.core.sequence.AminoAcidSequence;
@@ -442,7 +443,7 @@ public class Clonotype implements Comparable<Clonotype>, Countable, ClonotypeWra
      * @return
      */
     public String getBlank() {
-        return ".";
+        return CommonUtil.PLACEHOLDER;
     }
 
     /**

@@ -36,6 +36,8 @@ import java.util.zip.GZIPInputStream
  * Class containing commonly used static functions for sequence manipulation and I/O
  */
 public class CommonUtil {
+    public static final String PLACEHOLDER = "."
+
     public static final String AA_LIST = /[FLSYCWPHQRIMTNKVADEGX\\*\\?]/ // Amino-acid sequence regex pattern
 
     public static final char[] NTS = ['A', 'T', 'G', 'C'], // list of allowed nucleotide characters (excluding N)
@@ -360,7 +362,7 @@ public class CommonUtil {
             major = major.split("\\*")[0] // trim allele if present
             major = major.replaceAll("\"", "").trim()
             // zap characters introduced by file editing in external software (Excel,etc)
-            major.length() > 0 ? major : "."
+            major.length() > 0 ? major : PLACEHOLDER
         }
     }
 
