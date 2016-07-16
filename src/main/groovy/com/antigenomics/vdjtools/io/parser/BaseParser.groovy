@@ -65,7 +65,9 @@ public class BaseParser extends ClonotypeStreamParser {
         def freq = splitString[1].toDouble()
 
         def cdr3nt = splitString[2]
-        def cdr3aa = toUnifiedCdr3Aa(splitString[3])
+        def cdr3aa = splitString[3].length() == 0 || splitString[3] == PLACEHOLDER ?
+                translate(splitString[3]) : splitString[3]
+        cdr3aa = toUnifiedCdr3Aa(cdr3aa)
 
         String v, d, j
         (v, d, j) = extractVDJ(splitString[4..6])
