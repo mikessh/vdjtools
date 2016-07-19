@@ -27,6 +27,7 @@ $VDJTOOLS JoinSamples -p -m metadata.small.txt out/12
 $VDJTOOLS PoolSamples -m metadata.small.txt out/13
 
 # annotation
+$VDJTOOLS CalcCdrAaProfile -m metadata.txt out/14
 $VDJTOOLS Annotate -m metadata.txt out/annot/
 
 # check all output files are generated
