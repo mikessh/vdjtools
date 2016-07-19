@@ -33,7 +33,7 @@ import com.antigenomics.vdjtools.io.SampleWriter
 import com.antigenomics.vdjtools.sample.SampleCollection
 
 def DEFAULT_BASE_ANNOTS = ["cdr3length", "ndnsize", "insertsize"].join(","),
-    DEFAULT_AAPROP_ANNOTS = ["hydropathy", "charge", "polarity", "strength", "contact"].join(",")
+    DEFAULT_AAPROP_ANNOTS = ["hydropathy", "charge", "polarity", "strength", "high_contact"].join(",")
 
 def cli = new CliBuilder(usage: "Annotate [options] " +
         "[sample1 sample2 ... if not -m] output_prefix")
