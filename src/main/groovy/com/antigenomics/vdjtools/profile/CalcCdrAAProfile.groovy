@@ -38,7 +38,7 @@ import static com.antigenomics.vdjtools.misc.ExecUtil.formOutputPath
 import static com.antigenomics.vdjtools.misc.ExecUtil.toPlotPath
 
 
-def DEFAULT_AA_PROPERTIES = BasicAminoAcidProperties.INSTANCE.propertyNames.join(","),
+def DEFAULT_AA_PROPERTIES = BasicAminoAcidProperties.INSTANCE.getPropertyNames().join(","),
     DEFAULT_AA_PROPERTY = DEFAULT_AA_PROPERTIES,
     DEFAULT_BINNING = "CDR3-full:1,VJ-junc:1,CDR3-center:1"
 
@@ -101,7 +101,7 @@ def outputFilePrefix = opt.arguments()[-1],
     plotType = (opt.'plot-type' ?: "pdf").toString(),
     includeCFW = (boolean) opt.'include-cfw'
 
-def badProperties = properties.findAll { !BasicAminoAcidProperties.INSTANCE.propertyNames.contains(it) }
+def badProperties = properties.findAll { !BasicAminoAcidProperties.INSTANCE.getPropertyNames().contains(it) }
 
 if (badProperties.size() > 0) {
     println "[ERROR] Unknown amino acid properties: ${badProperties.join(",")}. " +

@@ -69,6 +69,7 @@ flist=(
         '12.join.aa.table.txt'
         '12.join.aa.venn.pdf'
         '13.pool.aa.table.txt'
+        '14.cdr3aa.profile.wt.txt'
         'dec/metadata.txt'
         'ds/metadata.txt'
         'nf/metadata.txt'
