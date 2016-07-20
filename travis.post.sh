@@ -27,7 +27,7 @@ $VDJTOOLS JoinSamples -p -m metadata.small.txt out/12
 $VDJTOOLS PoolSamples -m metadata.small.txt out/13
 
 # annotation
-$VDJTOOLS CalcCdrAaProfile -m metadata.txt out/14
+$VDJTOOLS CalcCdrAaProfile -m metadata.txt -p -f sex out/14
 $VDJTOOLS Annotate -m metadata.txt out/annot/
 
 # check all output files are generated
@@ -70,6 +70,7 @@ flist=(
         '12.join.aa.venn.pdf'
         '13.pool.aa.table.txt'
         '14.cdr3aa.profile.wt.txt'
+        '14.cdr3aa.profile.wt.pdf'
         'dec/metadata.txt'
         'ds/metadata.txt'
         'nf/metadata.txt'
