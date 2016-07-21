@@ -28,7 +28,7 @@ $VDJTOOLS PoolSamples -m metadata.small.txt out/13
 
 # annotation
 $VDJTOOLS CalcCdrAaProfile -m metadata.txt -p -f sex out/14
-$VDJTOOLS Annotate -m metadata.txt out/annot/
+$VDJTOOLS Annotate -m metadata.txt --positional-weighting 0 out/annot/
 
 # check all output files are generated
 

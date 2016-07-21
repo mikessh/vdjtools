@@ -27,33 +27,21 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.annotate
+package com.antigenomics.vdjtools.profile
 
-import com.antigenomics.vdjtools.profile.AminoAcidProperty
-import com.antigenomics.vdjtools.profile.BasicAminoAcidProperties
-import com.antigenomics.vdjtools.sample.Clonotype
+import com.antigenomics.vdjtools.misc.CommonUtil
 
-class AminoAcidPropertyClonotypeAnnotator implements ClonotypeAnnotator {
-    static final List<String> ALLOWED_NAMES = BasicAminoAcidProperties.INSTANCE.getPropertyNames()
+class PositionalWeightingProvider {
+    static PositionalWeighting fromResource(boolean weightByContactFrequency) {
+        def data = CommonUtil.resourceStream("profile/pos_weights.txt").readLines()
 
-    final String name
-    final AminoAcidProperty property
+        def factor = data[0].substring(1).trim().toInteger(),
+            offset = data[1].substring(1).trim().toInteger()
 
-    AminoAcidPropertyClonotypeAnnotator(String name) {
-        this.name = name
+        def weights = data[2..-1].collect {
+            it.split("\t")[weightByContactFrequency ? 2 : 1].toDouble()
+        }
 
-        this.property = BasicAminoAcidProperties.INSTANCE.getProperty(name)
-
-        assert property
-    }
-
-    @Override
-    String getCategory() {
-        "aaprop"
-    }
-
-    @Override
-    String annotate(Clonotype clonotype) {
-        clonotype.coding ? ((float) property.computeSum(clonotype.cdr3aaBinary)) : ""
+        new PositionalWeighting(factor, offset, weights as double[])
     }
 }

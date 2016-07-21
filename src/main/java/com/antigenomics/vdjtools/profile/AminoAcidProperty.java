@@ -99,6 +99,17 @@ public class AminoAcidProperty {
         return value;
     }
 
+
+    public double computeSum(AminoAcidSequence seq,
+                             PositionalWeighting positionalWeighting) {
+        double value = 0;
+        for (int i = 0; i < seq.size(); i++) {
+            value += getAt(seq.codeAt(i)) *
+                    positionalWeighting.getPositionWeight(i, seq.size());
+        }
+        return value;
+    }
+
     public String getName() {
         return name;
     }

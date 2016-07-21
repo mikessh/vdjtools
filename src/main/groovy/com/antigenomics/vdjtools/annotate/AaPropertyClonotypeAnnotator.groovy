@@ -29,31 +29,32 @@
 
 package com.antigenomics.vdjtools.annotate
 
-import com.antigenomics.vdjtools.TestUtil
-import com.antigenomics.vdjtools.sample.Sample
-import org.junit.Test
+import com.antigenomics.vdjtools.profile.AminoAcidProperty
+import com.antigenomics.vdjtools.profile.BasicAminoAcidProperties
+import com.antigenomics.vdjtools.sample.Clonotype
 
-class AnnotateTest {
-    static final List<ClonotypeAnnotator> BASE = BaseClonotypeAnnotator.ALLOWED_NAMES.collect {
-        new BaseClonotypeAnnotator(it)
-    },
-                                          AAPROP = AaPropertyClonotypeAnnotator.ALLOWED_NAMES.collect {
-                                              new AaPropertyClonotypeAnnotator(it)
-                                          }
+class AaPropertyClonotypeAnnotator implements ClonotypeAnnotator {
+    static final List<String> ALLOWED_NAMES = BasicAminoAcidProperties.INSTANCE.getPropertyNames()
 
-    @Test
-    void annotatorTest() {
-        def annotator = new SampleAnnotator([BASE, AAPROP].flatten())
-        [TestUtil.DEFAULT_SAMPLE_COLLECTION, TestUtil.SINGLE_EMPTY_SAMPLE].each { samples ->
-            samples.each { sample1 ->
-                def sample = new Sample(sample1) // clone
-                annotator.annotate(sample)
+    final String name
+    final AminoAcidProperty property
 
-                assert sample.annotationHeader
-                sample.each {
-                    assert it.annotation
-                }
-            }
-        }
+    AaPropertyClonotypeAnnotator(String name) {
+        this.name = name
+
+        this.property = BasicAminoAcidProperties.INSTANCE.getProperty(name)
+
+        assert property
+    }
+
+    @Override
+    String getCategory() {
+        "aaprop"
+    }
+
+    @Override
+    String annotate(Clonotype clonotype) {
+        clonotype.coding ?
+                ((float) property.computeSum(clonotype.cdr3aaBinary)) : ""
     }
 }

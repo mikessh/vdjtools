@@ -50,8 +50,15 @@ cli.a(longOpt: "aaprop", argName: "param1,param2,...", args: 1,
         "Comma-separated list of amino acid properties. Amino acid property value sum will be " +
                 "calculated for CDR3 sequence of each coding clonotype and appended to " +
                 "resulting clonotype tables (for non-coding clonotypes corresponding fields will be left blank). " +
-                "Allowed values: ${AminoAcidPropertyClonotypeAnnotator.ALLOWED_NAMES}. " +
+                "Allowed values: ${AaPropertyClonotypeAnnotator.ALLOWED_NAMES}. " +
                 "[default=$DEFAULT_AAPROP_ANNOTS]")
+cli._(longOpt: "positional-weighting", argName: "0/1", args: 1,
+        "Will apply positional weighting when computing scores. In general, " +
+                "central amino acids of CDR3 will get highest weight as they are more " +
+                "likely to contact the antigen according to structural data. " +
+                "If set to '0' will use weighting computed as the fraction of amino acids at " +
+                "the given position relative to CDR3 center that have " +
+                "at least one antigen contact. Will weight by the number of contacts if set to '1'.")
 cli.c(longOpt: "compress", "Compress output sample files.")
 
 def opt = cli.parse(args)
@@ -81,12 +88,13 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 def outputFilePrefix = opt.arguments()[-1],
     baseAnnot = (opt.b ?: DEFAULT_BASE_ANNOTS).split(",").collect { it.toLowerCase() },
     aapropAnnot = (opt.a ?: DEFAULT_AAPROP_ANNOTS).split(",").collect { it.toLowerCase() },
+    positionalWeighting = opt.'positional-weighting',
     compress = (boolean) opt.c
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
 def badBaseField = baseAnnot.findAll { !BaseClonotypeAnnotator.ALLOWED_NAMES.contains(it) }
-badBaseField.addAll(aapropAnnot.findAll { !AminoAcidPropertyClonotypeAnnotator.ALLOWED_NAMES.contains(it) })
+badBaseField.addAll(aapropAnnot.findAll { !AaPropertyClonotypeAnnotator.ALLOWED_NAMES.contains(it) })
 
 if (!badBaseField.empty) {
     println "The following annotation properties are specified incorrectly: $badBaseField"
@@ -109,8 +117,18 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples prepared
 // Create annotators
 //
 
+def getAaPropertyAnnotator = { String name ->
+    if (positionalWeighting == null){
+        return new AaPropertyClonotypeAnnotator(name)
+    } else if (positionalWeighting == "0") {
+        return new WeightedAaPropertyClonotypeAnnotator(name, false)
+    } else {
+        return new WeightedAaPropertyClonotypeAnnotator(name, true)
+    }
+}
+
 def baseAnnotators = baseAnnot.collect { new BaseClonotypeAnnotator(it) },
-    aapropAnnotators = aapropAnnot.collect { new AminoAcidPropertyClonotypeAnnotator(it) }
+    aapropAnnotators = aapropAnnot.collect { getAaPropertyAnnotator(it) }
 
 def sampleAnnotator = new SampleAnnotator([baseAnnotators, aapropAnnotators].flatten())
 

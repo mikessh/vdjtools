@@ -27,33 +27,25 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.annotate
+package com.antigenomics.vdjtools.profile;
 
-import com.antigenomics.vdjtools.TestUtil
-import com.antigenomics.vdjtools.sample.Sample
-import org.junit.Test
+public class PositionalWeighting {
+    private final int factor;
+    private final int offset;
+    private final double[] positionWeights;
 
-class AnnotateTest {
-    static final List<ClonotypeAnnotator> BASE = BaseClonotypeAnnotator.ALLOWED_NAMES.collect {
-        new BaseClonotypeAnnotator(it)
-    },
-                                          AAPROP = AaPropertyClonotypeAnnotator.ALLOWED_NAMES.collect {
-                                              new AaPropertyClonotypeAnnotator(it)
-                                          }
+    public PositionalWeighting(int factor, int offset, double[] positionWeights) {
+        this.factor = factor;
+        this.offset = offset;
+        this.positionWeights = positionWeights;
+    }
 
-    @Test
-    void annotatorTest() {
-        def annotator = new SampleAnnotator([BASE, AAPROP].flatten())
-        [TestUtil.DEFAULT_SAMPLE_COLLECTION, TestUtil.SINGLE_EMPTY_SAMPLE].each { samples ->
-            samples.each { sample1 ->
-                def sample = new Sample(sample1) // clone
-                annotator.annotate(sample)
+    public double getPositionWeight(int pos, int cdr3Length) {
+        double center = cdr3Length / 2.0;
+        double newPos = pos - center;
 
-                assert sample.annotationHeader
-                sample.each {
-                    assert it.annotation
-                }
-            }
-        }
+        int bin = (int) ((newPos + offset) * factor);
+
+        return bin < 0 || bin >= positionWeights.length ? 0 : positionWeights[bin];
     }
 }

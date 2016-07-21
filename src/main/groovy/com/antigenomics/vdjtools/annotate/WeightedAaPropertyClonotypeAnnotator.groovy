@@ -29,31 +29,22 @@
 
 package com.antigenomics.vdjtools.annotate
 
-import com.antigenomics.vdjtools.TestUtil
-import com.antigenomics.vdjtools.sample.Sample
-import org.junit.Test
+import com.antigenomics.vdjtools.profile.PositionalWeighting
+import com.antigenomics.vdjtools.profile.PositionalWeightingProvider
+import com.antigenomics.vdjtools.sample.Clonotype
 
-class AnnotateTest {
-    static final List<ClonotypeAnnotator> BASE = BaseClonotypeAnnotator.ALLOWED_NAMES.collect {
-        new BaseClonotypeAnnotator(it)
-    },
-                                          AAPROP = AaPropertyClonotypeAnnotator.ALLOWED_NAMES.collect {
-                                              new AaPropertyClonotypeAnnotator(it)
-                                          }
+class WeightedAaPropertyClonotypeAnnotator extends AaPropertyClonotypeAnnotator {
+    final PositionalWeighting positionalWeighting
 
-    @Test
-    void annotatorTest() {
-        def annotator = new SampleAnnotator([BASE, AAPROP].flatten())
-        [TestUtil.DEFAULT_SAMPLE_COLLECTION, TestUtil.SINGLE_EMPTY_SAMPLE].each { samples ->
-            samples.each { sample1 ->
-                def sample = new Sample(sample1) // clone
-                annotator.annotate(sample)
+    WeightedAaPropertyClonotypeAnnotator(String name, boolean weightByContactFrequency) {
+        super(name)
 
-                assert sample.annotationHeader
-                sample.each {
-                    assert it.annotation
-                }
-            }
-        }
+        this.positionalWeighting = PositionalWeightingProvider.fromResource(weightByContactFrequency)
+    }
+
+    @Override
+    String annotate(Clonotype clonotype) {
+        clonotype.coding ?
+                ((float) property.computeSum(clonotype.cdr3aaBinary, positionalWeighting)) : ""
     }
 }
