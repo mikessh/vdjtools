@@ -33,13 +33,13 @@ import com.antigenomics.vdjtools.profile.AminoAcidProperty
 import com.antigenomics.vdjtools.profile.BasicAminoAcidProperties
 import com.antigenomics.vdjtools.sample.Clonotype
 
-class AaPropertyClonotypeAnnotator implements ClonotypeAnnotator {
+class AaPropertyAnnotator implements ClonotypeAnnotator {
     static final List<String> ALLOWED_NAMES = BasicAminoAcidProperties.INSTANCE.getPropertyNames()
 
     final String name
     final AminoAcidProperty property
 
-    AaPropertyClonotypeAnnotator(String name) {
+    AaPropertyAnnotator(String name) {
         this.name = name
 
         this.property = BasicAminoAcidProperties.INSTANCE.getProperty(name)

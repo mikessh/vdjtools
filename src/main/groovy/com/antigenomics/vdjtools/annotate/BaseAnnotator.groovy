@@ -31,7 +31,7 @@ package com.antigenomics.vdjtools.annotate
 
 import com.antigenomics.vdjtools.sample.Clonotype
 
-class BaseClonotypeAnnotator implements ClonotypeAnnotator {
+class BaseAnnotator implements ClonotypeAnnotator {
     static final Map<String, String> NAME_MAP = ["cdr3Length",
                                                  "NDNSize", "insertSize",
                                                  "VDIns", "DJIns"].collectEntries { [(it.toLowerCase()): it] }
@@ -42,7 +42,7 @@ class BaseClonotypeAnnotator implements ClonotypeAnnotator {
     final String name
     private final String paramName
 
-    BaseClonotypeAnnotator(String name) {
+    BaseAnnotator(String name) {
         this.name = name.toLowerCase()
         this.paramName = NAME_MAP[this.name]
 

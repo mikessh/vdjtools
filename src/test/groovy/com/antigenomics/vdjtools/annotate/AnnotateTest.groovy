@@ -34,11 +34,11 @@ import com.antigenomics.vdjtools.sample.Sample
 import org.junit.Test
 
 class AnnotateTest {
-    static final List<ClonotypeAnnotator> BASE = BaseClonotypeAnnotator.ALLOWED_NAMES.collect {
-        new BaseClonotypeAnnotator(it)
+    static final List<ClonotypeAnnotator> BASE = BaseAnnotator.ALLOWED_NAMES.collect {
+        new BaseAnnotator(it)
     },
-                                          AAPROP = AaPropertyClonotypeAnnotator.ALLOWED_NAMES.collect {
-                                              new AaPropertyClonotypeAnnotator(it)
+                                          AAPROP = AaPropertyAnnotator.ALLOWED_NAMES.collect {
+                                              new AaPropertyAnnotator(it)
                                           }
 
     @Test

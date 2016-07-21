@@ -33,10 +33,10 @@ import com.antigenomics.vdjtools.profile.PositionalWeighting
 import com.antigenomics.vdjtools.profile.PositionalWeightingProvider
 import com.antigenomics.vdjtools.sample.Clonotype
 
-class WeightedAaPropertyClonotypeAnnotator extends AaPropertyClonotypeAnnotator {
+class WeightedAaPropertyAnnotator extends AaPropertyAnnotator {
     final PositionalWeighting positionalWeighting
 
-    WeightedAaPropertyClonotypeAnnotator(String name, boolean weightByContactFrequency) {
+    WeightedAaPropertyAnnotator(String name, boolean weightByContactFrequency) {
         super(name)
 
         this.positionalWeighting = PositionalWeightingProvider.fromResource(weightByContactFrequency)

@@ -38,7 +38,7 @@ class PositionalWeightingProvider {
         def factor = data[0].substring(1).trim().toInteger(),
             offset = data[1].substring(1).trim().toInteger()
 
-        def weights = data[2..-1].collect {
+        def weights = data[3..-1].collect {
             it.split("\t")[weightByContactFrequency ? 2 : 1].toDouble()
         }
 

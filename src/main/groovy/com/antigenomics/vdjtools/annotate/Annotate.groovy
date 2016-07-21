@@ -44,13 +44,13 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
 cli.b(longOpt: "base", argName: "param1,param2,...", args: 1,
         "Comma-separated list of basic clonotype features to calculate and append to " +
                 "resulting clonotype tables. " +
-                "Allowed values: ${BaseClonotypeAnnotator.ALLOWED_NAMES} (case-sensitive!). " +
+                "Allowed values: ${BaseAnnotator.ALLOWED_NAMES} (case-sensitive!). " +
                 "[default=$DEFAULT_BASE_ANNOTS]")
 cli.a(longOpt: "aaprop", argName: "param1,param2,...", args: 1,
         "Comma-separated list of amino acid properties. Amino acid property value sum will be " +
                 "calculated for CDR3 sequence of each coding clonotype and appended to " +
                 "resulting clonotype tables (for non-coding clonotypes corresponding fields will be left blank). " +
-                "Allowed values: ${AaPropertyClonotypeAnnotator.ALLOWED_NAMES}. " +
+                "Allowed values: ${AaPropertyAnnotator.ALLOWED_NAMES}. " +
                 "[default=$DEFAULT_AAPROP_ANNOTS]")
 cli._(longOpt: "positional-weighting", argName: "0/1", args: 1,
         "Will apply positional weighting when computing scores. In general, " +
@@ -93,8 +93,8 @@ def outputFilePrefix = opt.arguments()[-1],
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
-def badBaseField = baseAnnot.findAll { !BaseClonotypeAnnotator.ALLOWED_NAMES.contains(it) }
-badBaseField.addAll(aapropAnnot.findAll { !AaPropertyClonotypeAnnotator.ALLOWED_NAMES.contains(it) })
+def badBaseField = baseAnnot.findAll { !BaseAnnotator.ALLOWED_NAMES.contains(it) }
+badBaseField.addAll(aapropAnnot.findAll { !AaPropertyAnnotator.ALLOWED_NAMES.contains(it) })
 
 if (!badBaseField.empty) {
     println "The following annotation properties are specified incorrectly: $badBaseField"
@@ -119,15 +119,15 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples prepared
 
 def getAaPropertyAnnotator = { String name ->
     if (positionalWeighting == null){
-        return new AaPropertyClonotypeAnnotator(name)
+        return new AaPropertyAnnotator(name)
     } else if (positionalWeighting == "0") {
-        return new WeightedAaPropertyClonotypeAnnotator(name, false)
+        return new WeightedAaPropertyAnnotator(name, false)
     } else {
-        return new WeightedAaPropertyClonotypeAnnotator(name, true)
+        return new WeightedAaPropertyAnnotator(name, true)
     }
 }
 
-def baseAnnotators = baseAnnot.collect { new BaseClonotypeAnnotator(it) },
+def baseAnnotators = baseAnnot.collect { new BaseAnnotator(it) },
     aapropAnnotators = aapropAnnot.collect { getAaPropertyAnnotator(it) }
 
 def sampleAnnotator = new SampleAnnotator([baseAnnotators, aapropAnnotators].flatten())
