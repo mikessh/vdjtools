@@ -198,8 +198,14 @@ class SampleCollection implements Iterable<Sample> {
 
             def line, splitLine
             while ((line = reader.readLine()) != null) {
-                if (!line.startsWith("#")) {
+                if (!line.startsWith("#") && line.trim().length() != 0) {
                     splitLine = line.split("\t")
+
+                    if (splitLine.length != metadataColumns.length) {
+                        throw new RuntimeException("Error parsing metadata. Number of columns in line $splitLine " +
+                                "is different from that of header $metadataColumns")
+                    }
+
                     String fileName = splitLine[0], sampleId = splitLine[1]
 
                     fileName = ExecUtil.absoluteSamplePath(sampleMetadataFileName, fileName)
