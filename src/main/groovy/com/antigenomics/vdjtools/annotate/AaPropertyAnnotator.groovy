@@ -29,22 +29,24 @@
 
 package com.antigenomics.vdjtools.annotate
 
-import com.antigenomics.vdjtools.profile.AminoAcidProperty
-import com.antigenomics.vdjtools.profile.BasicAminoAcidProperties
+import com.antigenomics.vdjtools.annotate.partitioning.FullCdr3
 import com.antigenomics.vdjtools.sample.Clonotype
 
-class AaPropertyAnnotator implements ClonotypeAnnotator {
-    static final List<String> ALLOWED_NAMES = BasicAminoAcidProperties.INSTANCE.getPropertyNames()
+class AAPropertyAnnotator implements ClonotypeAnnotator {
+    static final String NORMALIZED_SUFFIX = ".avg"
 
-    final String name
-    final AminoAcidProperty property
+    private final name
+    private final AaPropertySummaryEvaluator propertyCalculator
 
-    AaPropertyAnnotator(String name) {
-        this.name = name
+    AAPropertyAnnotator(String name, boolean normalized) {
+        this.propertyCalculator = new AaPropertySummaryEvaluator(KnownAminoAcidProperties.INSTANCE.getByName(name),
+                new FullCdr3(), normalized, false)
+        this.name = normalized ? (name + NORMALIZED_SUFFIX) : name
+    }
 
-        this.property = BasicAminoAcidProperties.INSTANCE.getProperty(name)
-
-        assert property
+    @Override
+    String getName() {
+        name
     }
 
     @Override
@@ -54,7 +56,6 @@ class AaPropertyAnnotator implements ClonotypeAnnotator {
 
     @Override
     String annotate(Clonotype clonotype) {
-        clonotype.coding ?
-                ((float) property.computeSum(clonotype.cdr3aaBinary)) : ""
+        clonotype.coding ? (propertyCalculator.compute(clonotype)) : ""
     }
 }

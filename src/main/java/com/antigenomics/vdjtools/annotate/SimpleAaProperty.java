@@ -27,19 +27,34 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.profile;
+package com.antigenomics.vdjtools.annotate;
 
-import com.antigenomics.vdjtools.sample.Clonotype;
-import com.milaboratory.core.Range;
+import com.milaboratory.core.sequence.AminoAcidSequence;
 
-public class JGermline extends Cdr3Region {
-    @Override
-    protected Range innerGetRange(Clonotype clonotype) {
-        return new Range(clonotype.getJStart(), clonotype.getCdr3Length());
+public class SimpleAaProperty implements AaProperty {
+    private final String name;
+    private final float[] values;
+
+    public SimpleAaProperty(String name, float[] values) {
+        this.name = name;
+        this.values = values;
+
+        if (values.length != AminoAcidSequence.ALPHABET.size()) {
+            throw new IllegalArgumentException("Value array size should be equal to AminoAcidSequence.ALPHABET size.");
+        }
     }
 
     @Override
     public String getName() {
-        return "J-germ";
+        return name;
+    }
+
+    public float[] getValues() {
+        return values;
+    }
+
+    @Override
+    public float compute(AminoAcidSequence sequence, int pos) {
+        return values[sequence.codeAt(pos)];
     }
 }

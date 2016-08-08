@@ -30,20 +30,32 @@
 package com.antigenomics.vdjtools.annotate
 
 import com.antigenomics.vdjtools.TestUtil
+import com.antigenomics.vdjtools.misc.CommonUtil
 import com.antigenomics.vdjtools.sample.Sample
+import com.milaboratory.core.sequence.AminoAcidSequence
 import org.junit.Test
 
 class AnnotateTest {
-    static final List<ClonotypeAnnotator> BASE = BaseAnnotator.ALLOWED_NAMES.collect {
-        new BaseAnnotator(it)
-    },
-                                          AAPROP = AaPropertyAnnotator.ALLOWED_NAMES.collect {
-                                              new AaPropertyAnnotator(it)
-                                          }
+    @Test
+    void aaPropertyTest() {
+        // Simple consistency test sum of values <> result of annotation of AA sequence that contains them all
+
+        def seq1 = new AminoAcidSequence(CommonUtil.AAS.collect().join(""))
+        def n = CommonUtil.AAS.size()
+
+        KnownAminoAcidProperties.INSTANCE.getAll().
+                findAll { it instanceof SimpleAaProperty }.each { SimpleAaProperty prop ->
+
+            assert prop.values.collect().sum() == (0..<n).sum { prop.compute(seq1, it) }
+        }
+    }
 
     @Test
     void annotatorTest() {
-        def annotator = new SampleAnnotator([BASE, AAPROP].flatten())
+        // Try all possible annotators
+
+        def annotator = new SampleAnnotator(KnownAnnotators.INSTANCE.getAll())
+
         [TestUtil.DEFAULT_SAMPLE_COLLECTION, TestUtil.SINGLE_EMPTY_SAMPLE].each { samples ->
             samples.each { sample1 ->
                 def sample = new Sample(sample1) // clone

@@ -27,41 +27,39 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.profile
+package com.antigenomics.vdjtools.annotate
 
+import com.antigenomics.vdjtools.TestUtil
+import com.antigenomics.vdjtools.annotate.partitioning.FullCdr3
 import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.misc.CommonUtil
-import com.milaboratory.core.sequence.AminoAcidSequence
 import org.junit.Test
 
-class AAProfileTest {
+class CdrAaStatsTest {
     @Test
-    void test1() {
-        def seq1 = CommonUtil.AAS.collect().join("")
+    void summaryTest() {
+        // Test statistics
 
-        def aminoAcidProperties = BasicAminoAcidProperties.INSTANCE.getProperties()
+        def propertySummary = new AaPropertySummaryEvaluator(
+                KnownAminoAcidProperties.INSTANCE.getByName("count"),
+                new FullCdr3(),
+                false,
+                true
+        )
 
-        def profileBuilder = new AminoAcidProfile(seq1.length(), aminoAcidProperties)
+        [TestUtil.DEFAULT_SAMPLE_COLLECTION, TestUtil.SINGLE_EMPTY_SAMPLE].each { samples ->
+            samples.each { sample ->
+                def summary = propertySummary.compute(sample)
 
-        profileBuilder.getBins().each { bin ->
-            // check all properties added
-            aminoAcidProperties.each {
-                assert bin.getValue(it.name) == 0
+                ["mean", "q25", "median", "q75"].each {
+                    println "$it=${summary."$it"}"
+                }
             }
-        }
-
-        profileBuilder.update(new AminoAcidSequence(seq1))
-
-        def someProp = aminoAcidProperties[0]
-
-        profileBuilder.getBins().each { bin ->
-            assert bin.total == 1
-            assert bin.getValue(someProp.name) == someProp.getAt(seq1.charAt(bin.index))
         }
     }
 
     @Test
-    void test2() {
+    void regionTest() {
         def clonotypes = [
                 new Clonotype(null, 1, 1.0d,
                         [2, -1, -1, -10] as int[], "TRAV5", CommonUtil.PLACEHOLDER, "TRAJ48",
@@ -73,8 +71,8 @@ class AAProfileTest {
                         "CLVGDSYTGRRALTF", true, true, true)]
 
         clonotypes.each { clonotype ->
-            KnownCdr3Regions.INSTANCE.each { region ->
-                println region.name + "\t" + region.extractAminoAcid(clonotype, true)
+            KnownCdr3Regions.INSTANCE.getAll().each { region ->
+                println region.name + "\t" + region.extractAminoAcid(clonotype)
                 println region.name + "\t" + region.extractNucleotide(clonotype)
             }
         }

@@ -27,19 +27,20 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.profile;
+package com.antigenomics.vdjtools.annotate.partitioning;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
 import com.milaboratory.core.Range;
 
-public class VDJunction extends Cdr3Region {
+public class DGermline extends Cdr3Region {
     @Override
-    protected Range innerGetRange(Clonotype clonotype) {
-        return new Range(clonotype.getVEnd() + 1, clonotype.getDStart()); // upper limit exclusive
+    protected Range getRange(Clonotype clonotype) {
+        return new Range(clonotype.getDStart(), clonotype.getDEnd() + 1);
     }
 
     @Override
     public String getName() {
-        return "VD-junc";
+        return "D-germ";
     }
 }
+

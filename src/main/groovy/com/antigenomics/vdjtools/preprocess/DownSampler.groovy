@@ -35,7 +35,9 @@ import com.antigenomics.vdjtools.misc.MathUtil
 
 /**
  * A class that implements down-sampling procedure, i.e.
- * selecting {@code n < N} reads from a given sample with {@code N} reads 
+ * selecting {@code n < N} reads from a given sample with {@code N} reads
+ *
+ * TODO: rewrite method in plain Java. Known issue: this will not work for samples with getCount() > Integer.MAX_VALUE
  */
 public class DownSampler implements Sampler{
     private final Clonotype[] flattenedClonotypes
@@ -79,7 +81,7 @@ public class DownSampler implements Sampler{
     /**
      * Gets a specified number of reads from a given sample
      * @param count number of reads (weighted) or clonotypes (unweighted) to take
-     * @return a newly create down-sampled sample, or the underlying sample if the number of reads is greated or equal to the sample size
+     * @return a newly create down-sampled sample, or the underlying sample if the number of reads is greater or equal to the sample size
      */
     public Sample reSample(int count) {
         if (unweighted ? count >= sample.diversity : count >= sample.count) {

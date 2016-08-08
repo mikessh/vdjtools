@@ -27,19 +27,31 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.profile;
+package com.antigenomics.vdjtools.annotate.partitioning;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
 import com.milaboratory.core.Range;
+import com.milaboratory.core.sequence.AminoAcidSequence;
+import com.milaboratory.core.sequence.NucleotideSequence;
 
-public class VJJunction extends Cdr3Region {
+public class FullCdr3 extends Cdr3Region {
     @Override
-    protected Range innerGetRange(Clonotype clonotype) {
-        return new Range(clonotype.getVEnd() + 1, clonotype.getJStart());
+    public String getName() {
+        return "CDR3-full";
     }
 
     @Override
-    public String getName() {
-        return "VJ-junc";
+    protected Range getRange(Clonotype clonotype) {
+        return new Range(0, clonotype.getCdr3nt().length());
+    }
+
+    @Override
+    public AminoAcidSequence extractAminoAcid(Clonotype clonotype) {
+        return clonotype.getCdr3aaBinary();
+    }
+
+    @Override
+    public NucleotideSequence extractNucleotide(Clonotype clonotype) {
+        return clonotype.getCdr3ntBinary();
     }
 }

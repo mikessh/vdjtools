@@ -27,20 +27,52 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.group;
+package com.antigenomics.vdjtools.annotate;
 
-import com.antigenomics.vdjtools.sample.Clonotype;
+import com.milaboratory.core.sequence.AminoAcidSequence;
 
-public abstract class GroupSignature {
-    protected final Clonotype parent;
-    
-    protected GroupSignature(Clonotype parent) {
-        this.parent = parent;
+public class Cdr3ContactEstimate implements AaProperty {
+    private final float[][] values;
+    private final float defaultValue;
+    private final int offset;
+
+    public Cdr3ContactEstimate(float[][] values, float defaultValue) {
+        this.values = values;
+        this.defaultValue = defaultValue;
+
+        if (values.length != AminoAcidSequence.ALPHABET.size()) {
+            throw new IllegalArgumentException("Number of rows in value matrix should " +
+                    "be equal to AminoAcidSequence.ALPHABET size.");
+        }
+
+        int m = values[0].length;
+
+        for (int i = 1; i < values.length; i++) {
+            if (values[i].length != m) {
+                throw new IllegalArgumentException("Value matrix should have rows of the same length " +
+                        "(by definition of a matrix, isn't it).");
+            }
+        }
+
+        this.offset = m / 2;
+
+        if (m <= 0 || m % 2 == 0) {
+            throw new IllegalArgumentException("Number of columns in value matrix should be odd and greater than 0.");
+        }
     }
 
     @Override
-    public abstract int hashCode();
-    
+    public String getName() {
+        return "cdr3contact";
+    }
+
     @Override
-    public abstract boolean equals(Object o);
+    public float compute(AminoAcidSequence sequence, int pos) {
+        int len = sequence.size();
+        int bin = offset + (pos - len / 2);
+        if (bin < 0 || bin >= values[0].length) {
+            return defaultValue;
+        }
+        return values[sequence.codeAt(pos)][bin];
+    }
 }

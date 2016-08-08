@@ -27,30 +27,19 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.group;
+package com.antigenomics.vdjtools.annotate.partitioning;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
-import com.antigenomics.vdjtools.sample.ClonotypeFilter;
+import com.milaboratory.core.Range;
 
-public class EnrichmentFilter extends ClonotypeFilter {
-    private final GroupedSample control;
-
-    public EnrichmentFilter(boolean negative, GroupedSample control) {
-        super(negative);
-        this.control = control;
+public class VJJunction extends Cdr3Region {
+    @Override
+    protected Range getRange(Clonotype clonotype) {
+        return new Range(clonotype.getVEnd() + 1, clonotype.getJStart());
     }
 
     @Override
-    protected boolean checkPass(Clonotype clonotype) {
-        Group group = control.getGroup(clonotype);
-        if (group == null || group.size() < 3) {
-            return clonotype.getCount() > 3;
-        } else {
-            return control.isRare(group) && group.isEnriched(clonotype);
-        }
-    }
-
-    public GroupedSample getControl() {
-        return control;
+    public String getName() {
+        return "VJ-junc";
     }
 }

@@ -27,44 +27,19 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.profile
+package com.antigenomics.vdjtools.annotate.partitioning;
 
-import com.antigenomics.vdjtools.sample.Clonotype
+import com.antigenomics.vdjtools.sample.Clonotype;
+import com.milaboratory.core.Range;
 
-class Cdr3AAProfileBuilder {
-    private final Map<Cdr3Region, Integer> binning
-    private final boolean weighted, excludeCysPhe
-    private final List<String> groups
-
-    Cdr3AAProfileBuilder(Map<Cdr3Region, Integer> binning, boolean weighted,
-                         boolean excludeCysPhe,
-                         String... groups) {
-        this.binning = binning
-        this.weighted = weighted
-        this.excludeCysPhe = excludeCysPhe
-        this.groups = groups
+public class JGermline extends Cdr3Region {
+    @Override
+    protected Range getRange(Clonotype clonotype) {
+        return new Range(clonotype.getJStart(), clonotype.getCdr3Length());
     }
 
-    Map<Cdr3Region, AminoAcidProfile> create(Iterable<Clonotype> clonotypes) {
-        def profiles = new HashMap<Cdr3Region, AminoAcidProfile>()
-
-        binning.each {
-            profiles.put(it.key, new AminoAcidProfile(it.value,
-                    BasicAminoAcidProperties.INSTANCE.getProperties(groups)))
-        }
-
-        clonotypes.each { clonotype ->
-            if (clonotype.isCoding()) {
-                profiles.each {
-                    def aaSeq = it.key.extractAminoAcid(clonotype, excludeCysPhe)
-                    if (aaSeq.size() > 0) {
-                        it.value.update(aaSeq, weighted ?
-                                clonotype.freq : (1.0d / (double) clonotype.parent.diversity))
-                    }
-                }
-            }
-        }
-
-        profiles
+    @Override
+    public String getName() {
+        return "J-germ";
     }
 }

@@ -27,10 +27,16 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.group;
+package com.antigenomics.vdjtools.annotate.partitioning;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
+import com.milaboratory.core.sequence.AminoAcidSequence;
+import com.milaboratory.core.sequence.NucleotideSequence;
 
-public interface GroupingScheme<SignatureType extends GroupSignature> {
-    public SignatureType getSignature(Clonotype parent);
+public interface SequenceRegion {
+    String getName();
+
+    AminoAcidSequence extractAminoAcid(Clonotype clonotype);
+
+    NucleotideSequence extractNucleotide(Clonotype clonotype);
 }

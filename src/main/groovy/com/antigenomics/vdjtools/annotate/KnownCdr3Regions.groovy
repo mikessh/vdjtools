@@ -29,22 +29,42 @@
 
 package com.antigenomics.vdjtools.annotate
 
-import com.antigenomics.vdjtools.profile.PositionalWeighting
-import com.antigenomics.vdjtools.profile.PositionalWeightingProvider
-import com.antigenomics.vdjtools.sample.Clonotype
+import com.antigenomics.vdjtools.annotate.partitioning.Cdr3Center
+import com.antigenomics.vdjtools.annotate.partitioning.Cdr3Region
+import com.antigenomics.vdjtools.annotate.partitioning.DGermline
+import com.antigenomics.vdjtools.annotate.partitioning.DJJunction
+import com.antigenomics.vdjtools.annotate.partitioning.FullCdr3
+import com.antigenomics.vdjtools.annotate.partitioning.JGermline
+import com.antigenomics.vdjtools.annotate.partitioning.VDJunction
+import com.antigenomics.vdjtools.annotate.partitioning.VGermline
+import com.antigenomics.vdjtools.annotate.partitioning.VJJunction
 
-class WeightedAaPropertyAnnotator extends AaPropertyAnnotator {
-    final PositionalWeighting positionalWeighting
+class KnownCdr3Regions {
+    private final Map<String, Cdr3Region> regionsByName
 
-    WeightedAaPropertyAnnotator(String name, boolean weightByContactFrequency) {
-        super(name)
+    static final KnownCdr3Regions INSTANCE = new KnownCdr3Regions()
 
-        this.positionalWeighting = PositionalWeightingProvider.fromResource(weightByContactFrequency)
+    private KnownCdr3Regions() {
+        this.regionsByName = [new VGermline(), new DGermline(), new JGermline(),
+                              new VDJunction(), new DJJunction(),
+                              new VJJunction(), new FullCdr3(),
+                              new Cdr3Center()].collectEntries {
+            [(it.name.toLowerCase()): it]
+        }
     }
 
-    @Override
-    String annotate(Clonotype clonotype) {
-        clonotype.coding ?
-                ((float) property.computeSum(clonotype.cdr3aaBinary, positionalWeighting)) : ""
+    Cdr3Region getByName(String name) {
+        name = name.toLowerCase()
+        if (!regionsByName.containsKey(name))
+            throw new IllegalArgumentException("Bad CDR3 region name '$name', allowed values: ${allowedNames}")
+        regionsByName[name]
+    }
+
+    List<String> getAllowedNames() {
+        regionsByName.keySet().collect()
+    }
+
+    List<Cdr3Region> getAll() {
+        regionsByName.values().collect()
     }
 }

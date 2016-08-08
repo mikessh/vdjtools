@@ -27,16 +27,20 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.profile;
+package com.antigenomics.vdjtools.annotate.partitioning;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
-import com.milaboratory.core.sequence.AminoAcidSequence;
-import com.milaboratory.core.sequence.NucleotideSequence;
+import com.milaboratory.core.Range;
 
-public interface SequenceRegion {
-    public String getName();
+public class VGermline extends Cdr3Region {
+    @Override
+    protected Range getRange(Clonotype clonotype) {
+        return new Range(0, clonotype.getVEnd() + 1); // range is exclusive, V end is the position of last V base
+    }
 
-    public AminoAcidSequence extractAminoAcid(Clonotype clonotype);
-
-    public NucleotideSequence extractNucleotide(Clonotype clonotype);
+    @Override
+    public String getName() {
+        return "V-germ";
+    }
 }
+

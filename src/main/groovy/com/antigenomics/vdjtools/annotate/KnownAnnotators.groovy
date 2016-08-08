@@ -27,25 +27,39 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.profile;
+package com.antigenomics.vdjtools.annotate
 
-public class PositionalWeighting {
-    private final int factor;
-    private final int offset;
-    private final double[] positionWeights;
+class KnownAnnotators {
+    private final Map<String, ClonotypeAnnotator> annotatorsByName = new HashMap<>()
 
-    public PositionalWeighting(int factor, int offset, double[] positionWeights) {
-        this.factor = factor;
-        this.offset = offset;
-        this.positionWeights = positionWeights;
+    public static final KnownAnnotators INSTANCE = new KnownAnnotators()
+
+    private KnownAnnotators() {
+        ["cdr3Length", "NDNSize", "insertSize", "VDIns", "DJIns"].each {
+            annotatorsByName.put(it.toLowerCase(), new BaseAnnotator(it))
+        }
+
+        KnownAminoAcidProperties.INSTANCE.allowedNames.each {
+            def annotator = new AAPropertyAnnotator(it, true)
+            annotatorsByName.put(annotator.name.toLowerCase(), annotator)
+            annotator = new AAPropertyAnnotator(it, false)
+            annotatorsByName.put(annotator.name.toLowerCase(), annotator)
+        }
     }
 
-    public double getPositionWeight(int pos, int cdr3Length) {
-        double center = cdr3Length / 2.0;
-        double newPos = pos - center;
 
-        int bin = (int) ((newPos + offset) * factor);
+    ClonotypeAnnotator getByName(String name) {
+        name = name.toLowerCase()
+        if (!annotatorsByName.containsKey(name))
+            throw new IllegalArgumentException("Bad annotator name '$name', allowed values: ${allowedNames}")
+        annotatorsByName[name]
+    }
 
-        return bin < 0 || bin >= positionWeights.length ? 0 : positionWeights[bin];
+    List<String> getAllowedNames() {
+        annotatorsByName.keySet().collect()
+    }
+
+    List<ClonotypeAnnotator> getAll() {
+        annotatorsByName.values().collect()
     }
 }

@@ -27,42 +27,40 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.profile
+package com.antigenomics.vdjtools.annotate
 
 import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.sample.SampleCollection
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
-import com.antigenomics.vdjtools.misc.RUtil
 
 import static com.antigenomics.vdjtools.misc.ExecUtil.formOutputPath
-import static com.antigenomics.vdjtools.misc.ExecUtil.toPlotPath
 
+def DEFAULT_AA_PROPERTIES = ["hydropathy", "charge", "polarity", "strength", "cdr3contact", "count"].join(","),
+    ALLOWED_AA_PROPERTIES = KnownAminoAcidProperties.INSTANCE.allowedNames.join(","),
+    DEFAULT_REGIONS = ["CDR3-full", "VJ-junc", "V-germ", "J-germ"].join(","),
+    ALLOWED_REGIONS = KnownCdr3Regions.INSTANCE.allowedNames.join(",")
 
-def DEFAULT_AA_PROPERTIES = BasicAminoAcidProperties.INSTANCE.getPropertyNames().join(","),
-    DEFAULT_AA_PROPERTY = DEFAULT_AA_PROPERTIES,
-    DEFAULT_BINNING = "CDR3-full:1,VJ-junc:1,CDR3-center:1"
-
-def cli = new CliBuilder(usage: "CalcCdrAAProfile [options] " +
+def cli = new CliBuilder(usage: "CalcCdrAaStats [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
-cli.u(longOpt: "unweighted", "Will count each clonotype only once. " +
-        "[default = clonotype frequency is used for weighting].")
-cli.o(longOpt: "property-list", argName: "group1,...", args: 1,
-        "Comma-separated list of amino-acid properties to analyze. " +
-                "Allowed values: $DEFAULT_AA_PROPERTIES. " +
-                "[default = all]")
-cli.r(longOpt: "region-list", argName: "segment1:nbins1,...", args: 1,
-        "List of segments to analyze and corresponding bin counts. " +
-                "Allowed segments: ${KnownCdr3Regions.INSTANCE.regionNames.join(",")}. " +
-                "[default = $DEFAULT_BINNING]")
-cli.p(longOpt: "plot", "Plot amino acid property distributions for a specified list of segments.")
+cli.w(longOpt: "weighted", "Weight all statistics by clonotype frequency.")
+cli.n(longOpt: "normalize", "Normalize property value by dividing them by corresponding CDR3 region length.")
+cli.a(longOpt: "aa-properties", argName: "property1,...", args: 1,
+        "Comma-separated list of amino-acid properties to summarize. " +
+                "Allowed values: $ALLOWED_AA_PROPERTIES. " +
+                "[default = $DEFAULT_AA_PROPERTIES]")
+cli.r(longOpt: "region-list", argName: "region1,...", args: 1,
+        "List of CDR3 regions to analyze. " +
+                "Allowed segments: $ALLOWED_REGIONS. " +
+                "[default = $DEFAULT_REGIONS]")
+/*cli.p(longOpt: "plot", "Plot amino acid property distributions for a specified list of segments.")
 cli.f(longOpt: "factor", argName: "string", args: 1, "Metadata entry used to group samples in plot.")
 cli._(longOpt: "plot-normalized", "Will normalize regions by the total number of AAs in them.")
 cli._(longOpt: "plot-type", argName: "pdf|png", args: 1, "Plot output format [default=pdf]")
-cli._(longOpt: "include-cfw", "Consider first and last AAs of CDR3, which are normally conserved C and F/W")
+cli._(longOpt: "include-cfw", "Consider first and last AAs of CDR3, which are normally conserved C and F/W")*/
 
 
 def opt = cli.parse(args)
@@ -91,17 +89,23 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 // Remaining arguments
 
 def outputFilePrefix = opt.arguments()[-1],
-    unweighted = (boolean) opt.u,
-    binning = (opt.r ?: DEFAULT_BINNING).split(",").collectEntries {
-        def split2 = it.split(":")
-        [(KnownCdr3Regions.INSTANCE.getByName(split2[0])): split2[1].toInteger()]
-    },
-    properties = (opt.o ?: DEFAULT_AA_PROPERTY).split(","),
-    plot = (boolean) opt.p,
-    plotType = (opt.'plot-type' ?: "pdf").toString(),
-    includeCFW = (boolean) opt.'include-cfw'
+    normalize = (boolean) opt.n, weighted = (boolean) opt.w,
+    regionNames = (opt.r ?: DEFAULT_REGIONS).split(",").collect { it.toLowerCase() },
+    propertyNames = (opt.a ?: DEFAULT_AA_PROPERTIES).split(",").collect { it.toLowerCase() }
 
-def badProperties = properties.findAll { !BasicAminoAcidProperties.INSTANCE.getPropertyNames().contains(it) }
+/*plot = (boolean) opt.p,
+    plotType = (opt.'plot-type' ?: "pdf").toString(),
+    includeCFW = (boolean) opt.'include-cfw'*/
+
+def badRegionNames = regionNames.findAll { !KnownCdr3Regions.INSTANCE.allowedNames.contains(it) }
+
+if (badRegionNames.size() > 0) {
+    println "[ERROR] Unknown amino acid properties: ${badRegionNames.join(",")}. " +
+            "Allowed values are $ALLOWED_REGIONS"
+    System.exit(2)
+}
+
+def badProperties = propertyNames.findAll { !KnownAminoAcidProperties.INSTANCE.allowedNames.contains(it) }
 
 if (badProperties.size() > 0) {
     println "[ERROR] Unknown amino acid properties: ${badProperties.join(",")}. " +
@@ -124,39 +128,59 @@ def sampleCollection = metadataFileName ?
 println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) prepared"
 
 //
-// Compute and output diversity measures, spectratype, etc
+// Prepare summary calculators
 //
 
-def profileBuilder = new Cdr3AAProfileBuilder(binning, !unweighted, !includeCFW, properties)
+def summarizerMap = new HashMap<String, AaPropertySummaryEvaluator>()
 
-def outputFileName = formOutputPath(outputFilePrefix, "cdr3aa", "profile", (unweighted ? "unwt" : "wt"))
+regionNames.each { regionName ->
+    propertyNames.each { propertyName ->
+        try {
+            summarizerMap.put(regionName + "\t" + propertyName,
+                    new AaPropertySummaryEvaluator(KnownAminoAcidProperties.INSTANCE.getByName(propertyName),
+                            KnownCdr3Regions.INSTANCE.getByName(regionName),
+                            normalize, weighted))
+        } catch (IllegalArgumentException e) {
+            // do nothing - incompatible region <> property pair
+        }
+    }
+}
+
+//
+// Compute and write summary for each region<>property pair and each sample
+//
+
+def outputFileName = formOutputPath(outputFilePrefix, "cdr3aa", "stat",
+        (weighted ? "wt" : "unwt"),
+        (normalize ? "norm" : "unnorm"))
 
 new File(outputFileName).withPrintWriter { pw ->
     def header = "$MetadataTable.SAMPLE_ID_COLUMN\t" +
             sampleCollection.metadataTable.columnHeader + "\t" +
-            "cdr3_segment\tbin\tproperty\tvalue\ttotal\tstd"
+            "region\tproperty\tmean\tq25\tmedian\tq75"
 
     pw.println(header)
 
     def sampleCounter = 0
 
     sampleCollection.each { Sample sample ->
-        def profiles = profileBuilder.create(sample)
+        println "[${new Date()} $scriptName] Running $sample.sampleMetadata.sampleId"
+
+        summarizerMap.each {
+            println "[${new Date()} $scriptName] Summarizing for $it.key"
+
+            def summary = it.value.compute(sample)
+
+            pw.println([sample.sampleMetadata.sampleId, sample.sampleMetadata,
+                        it.key,
+                        summary.mean, summary.q25, summary.median, summary.q75].join("\t"))
+        }
 
         println "[${new Date()} $scriptName] ${++sampleCounter} sample(s) processed"
-
-        profiles.each { profileEntry ->
-            def segmentName = profileEntry.key.name
-            profileEntry.value.bins.each { bin ->
-                bin.summary.each {
-                    pw.println([sample.sampleMetadata.sampleId, sample.sampleMetadata,
-                                segmentName, bin.index, it.key,
-                                it.value[0], bin.total, it.value[1]].join("\t"))
-                }
-            }
-        }
     }
 }
+
+/*
 if (plot) {
     RUtil.execute("cdr3aa_profile.r",
             outputFileName,
@@ -165,5 +189,6 @@ if (plot) {
             RUtil.logical(opt.'plot-normalized')
     )
 }
+*/
 
 println "[${new Date()} $scriptName] Finished"

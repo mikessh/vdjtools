@@ -27,13 +27,23 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.group;
+package com.antigenomics.vdjtools.annotate.partitioning;
 
 import com.antigenomics.vdjtools.sample.Clonotype;
+import com.milaboratory.core.Range;
 
-public class VJLenScheme implements GroupingScheme<VJLenSignature> {
+public class Cdr3Center extends Cdr3Region{
+    public static final int SPAN = 2; // extracts -2,-1,0,+1,+2 amino acids
+
     @Override
-    public VJLenSignature getSignature(Clonotype parent) {
-        return new VJLenSignature(parent);
+    protected Range getRange(Clonotype clonotype) {
+        int cdr3CenterAA = clonotype.getCdr3Length() / 6;
+        return new Range(Math.max(0, 3 * (cdr3CenterAA - SPAN)),
+                Math.min(clonotype.getCdr3Length(), 3 * (cdr3CenterAA + SPAN + 1)));
+    }
+
+    @Override
+    public String getName() {
+        return "CDR3-center";
     }
 }

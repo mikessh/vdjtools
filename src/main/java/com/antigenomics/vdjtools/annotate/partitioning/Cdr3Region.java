@@ -27,33 +27,47 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.profile
+package com.antigenomics.vdjtools.annotate.partitioning;
 
-import com.antigenomics.vdjtools.misc.CommonUtil
+import com.antigenomics.vdjtools.sample.Clonotype;
+import com.milaboratory.core.Range;
+import com.milaboratory.core.sequence.AminoAcidSequence;
+import com.milaboratory.core.sequence.NucleotideSequence;
+import com.milaboratory.util.Bit2Array;
 
-class BasicAminoAcidProperties {
-    static final BasicAminoAcidProperties INSTANCE = new BasicAminoAcidProperties()
+public abstract class Cdr3Region implements SequenceRegion {
+    private static final Range EMPTY = new Range(0, 0);
 
-    private final AminoAcidProperty[] aminoAcidProperties
+    protected abstract Range getRange(Clonotype clonotype);
 
-    private BasicAminoAcidProperties() {
-        aminoAcidProperties = AminoAcidProperty.fromInput(CommonUtil.resourceStream("profile/aa_property_table.txt"))
+    private Range safeGetRange(Clonotype clonotype) {
+        Range range = getRange(clonotype);
+        return (range.getFrom() >= range.getTo() || range.getFrom() < 0 || range.getTo() < 0) ? EMPTY : range;
     }
 
-    List<String> getPropertyNames() {
-        aminoAcidProperties.collect { it.name }
+    @Override
+    public AminoAcidSequence extractAminoAcid(Clonotype clonotype) {
+        Range range = safeGetRange(clonotype);
+
+        // convert to amino acids,
+        // full codon belongs to a given region if at least one base of it belongs to it
+        int from = range.getFrom() / 3, to = range.getTo() / 3;
+
+        if (from >= to) {
+            return new AminoAcidSequence(new byte[0]);
+        }
+
+        return clonotype.getCdr3aaBinary().getRange(new Range(from, to));
     }
 
-    AminoAcidProperty[] getProperties(List<String> propertyNames = []) {
-        if (propertyNames.isEmpty())
-            return aminoAcidProperties
+    @Override
+    public NucleotideSequence extractNucleotide(Clonotype clonotype) {
+        Range range = safeGetRange(clonotype);
 
-        propertyNames = propertyNames.collect { it.toLowerCase() }
-        aminoAcidProperties.findAll { propertyNames.contains(it.name) } as AminoAcidProperty[]
-    }
+        if (range == EMPTY) {
+            return new NucleotideSequence(new Bit2Array(0));
+        }
 
-    AminoAcidProperty getProperty(String name) {
-        name = name.toLowerCase()
-        aminoAcidProperties.find { name.contains(it.name) }
+        return clonotype.getCdr3ntBinary().getRange(range);
     }
 }

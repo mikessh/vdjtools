@@ -160,7 +160,7 @@ public class MathUtil {
         int n = pArr.length;
 
         if (n != qArr.length)
-            throw new Exception("Input histograms must be of same length");
+            throw new RuntimeException("Input histograms must be of same length");
 
         double pSum = 0, qSum = 0;
 

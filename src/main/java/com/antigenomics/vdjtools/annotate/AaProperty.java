@@ -27,35 +27,12 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.profile
+package com.antigenomics.vdjtools.annotate;
 
-class KnownCdr3Regions implements Iterable<Cdr3Region> {
-    private final Map<String, Cdr3Region> regions
+import com.milaboratory.core.sequence.AminoAcidSequence;
 
-    public static final KnownCdr3Regions INSTANCE = new KnownCdr3Regions()
+public interface AaProperty {
+    String getName();
 
-    private KnownCdr3Regions() {
-        this.regions = [new VGermline(), new DGermline(), new JGermline(),
-                        new VDJunction(), new DJJunction(),
-                        new VJJunction(), new FullCdr3(),
-                        new Cdr3Center()].collectEntries {
-            [(it.name): it]
-        }
-    }
-
-    public Cdr3Region getByName(String name) {
-        if (!regions.containsKey(name)) {
-            throw new IllegalArgumentException("[ERROR] Unknown region $name, allowed values are: ${regions.keySet()}")
-        }
-        regions[name]
-    }
-
-    public List<String> getRegionNames() {
-        regions.keySet() as List
-    }
-
-    @Override
-    Iterator<Cdr3Region> iterator() {
-        regions.values().iterator()
-    }
+    float compute(AminoAcidSequence sequence, int pos);
 }

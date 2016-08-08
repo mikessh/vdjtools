@@ -27,21 +27,20 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.profile
+package com.antigenomics.vdjtools.annotate.partitioning;
 
-import com.antigenomics.vdjtools.misc.CommonUtil
+import com.antigenomics.vdjtools.sample.Clonotype;
+import com.milaboratory.core.Range;
 
-class PositionalWeightingProvider {
-    static PositionalWeighting fromResource(boolean weightByContactFrequency) {
-        def data = CommonUtil.resourceStream("profile/pos_weights.txt").readLines()
+public class DJJunction extends Cdr3Region {
+    @Override
+    protected Range getRange(Clonotype clonotype) {
+        return new Range(clonotype.getDEnd() + 1, clonotype.getJStart()); // upper limit exclusive
 
-        def factor = data[0].substring(1).trim().toInteger(),
-            offset = data[1].substring(1).trim().toInteger()
+    }
 
-        def weights = data[3..-1].collect {
-            it.split("\t")[weightByContactFrequency ? 2 : 1].toDouble()
-        }
-
-        new PositionalWeighting(factor, offset, weights as double[])
+    @Override
+    public String getName() {
+        return "DJ-junc";
     }
 }

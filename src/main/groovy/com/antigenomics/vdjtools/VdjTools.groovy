@@ -31,6 +31,7 @@
 package com.antigenomics.vdjtools
 
 import com.antigenomics.vdjtools.annotate.Annotate
+import com.antigenomics.vdjtools.annotate.CalcCdrAaStats
 import com.antigenomics.vdjtools.basic.*
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.PlotQuantileStats
@@ -39,7 +40,6 @@ import com.antigenomics.vdjtools.operate.JoinSamples
 import com.antigenomics.vdjtools.operate.PoolSamples
 import com.antigenomics.vdjtools.overlap.*
 import com.antigenomics.vdjtools.preprocess.*
-import com.antigenomics.vdjtools.profile.CalcCdrAAProfile
 import com.antigenomics.vdjtools.misc.*
 
 import java.util.jar.JarFile
@@ -87,7 +87,7 @@ def printHelp = {
     println ""
     println "[Annotation]"
     println "(ScanDatabase) -> moved to VDJdb since 1.0.5"
-    println "CalcCdrAAProfile"
+    println "CalcCdrAaStats"
     println "Annotate"
     println ""
     println "[Util]"
@@ -156,8 +156,8 @@ def getScript = { String scriptName ->
             System.exit(0)
             break
 
-        case "CALCCDRAAPROFILE":
-            return new CalcCdrAAProfile()
+        case "CALCDRAASTATS":
+            return new CalcCdrAaStats()
         case "ANNOTATE":
             return new Annotate()
         case "SCANDATABASE":

@@ -27,20 +27,31 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.profile;
+package com.antigenomics.vdjtools.annotate;
 
-import com.antigenomics.vdjtools.sample.Clonotype;
-import com.milaboratory.core.Range;
+public class AaPropertySummary {
+    private final float mean, median, q25, q75;
 
-public class DGermline extends Cdr3Region {
-    @Override
-    protected Range innerGetRange(Clonotype clonotype) {
-        return new Range(clonotype.getDStart(), clonotype.getDEnd() + 1);
+    public AaPropertySummary(float mean, float median, float q25, float q75) {
+        this.mean = mean;
+        this.median = median;
+        this.q25 = q25;
+        this.q75 = q75;
     }
 
-    @Override
-    public String getName() {
-        return "D-germ";
+    public float getMean() {
+        return mean;
+    }
+
+    public float getMedian() {
+        return median;
+    }
+
+    public float getQ25() {
+        return q25;
+    }
+
+    public float getQ75() {
+        return q75;
     }
 }
-

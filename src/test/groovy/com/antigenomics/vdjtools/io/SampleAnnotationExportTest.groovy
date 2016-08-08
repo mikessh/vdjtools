@@ -27,20 +27,30 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.profile;
+package com.antigenomics.vdjtools.io
 
-import com.antigenomics.vdjtools.sample.Clonotype;
-import com.milaboratory.core.Range;
+import org.junit.Test
 
-public class VGermline extends Cdr3Region {
-    @Override
-    protected Range innerGetRange(Clonotype clonotype) {
-        return new Range(0, clonotype.getVEnd() + 1); // range is exclusive, V end is the position of last V base
-    }
+import static com.antigenomics.vdjtools.TestUtil.getResource
+import static com.antigenomics.vdjtools.io.SampleStreamConnection.load
 
-    @Override
-    public String getName() {
-        return "V-germ";
+class SampleAnnotationExportTest {
+    @Test
+    void vdjdbTest() {
+        def resStream = getResource("samples/vdjdb.txt.gz")
+        def sample = load(resStream)
+
+        sample.each {
+            assert it.annotation != null && it.annotation.size() > 0
+        }
+
+        new SampleWriter().write(sample, "vdjdb.test.txt")
+
+        def lines1 = getResource("samples/vdjdb.txt.gz").create().readLines(),
+            lines2 = new File("vdjdb.test.txt").readLines()
+
+        lines1.eachWithIndex { it, ind ->
+            assert it == lines2[ind]
+        }
     }
 }
-

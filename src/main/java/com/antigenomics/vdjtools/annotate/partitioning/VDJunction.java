@@ -27,45 +27,19 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.profile
+package com.antigenomics.vdjtools.annotate.partitioning;
 
-import com.antigenomics.vdjtools.sample.Clonotype
+import com.antigenomics.vdjtools.sample.Clonotype;
+import com.milaboratory.core.Range;
 
-import java.util.regex.Pattern
-
-
-class CdrPattern {
-    private final int length
-    private final String pattern
-    private final Pattern _pattern
-    private final double freq
-    private final int count
-
-    CdrPattern(String pattern, double freq, int count) {
-        this.length = pattern.length()
-        this.pattern = pattern
-        this._pattern = Pattern.compile(pattern.replaceAll("X", "."))
-        this.freq = freq
-        this.count = count
+public class VDJunction extends Cdr3Region {
+    @Override
+    protected Range getRange(Clonotype clonotype) {
+        return new Range(clonotype.getVEnd() + 1, clonotype.getDStart()); // upper limit exclusive
     }
 
-    int getLength() {
-        length
-    }
-
-    String getPattern() {
-        pattern
-    }
-
-    double getFreq() {
-        return freq
-    }
-
-    int getCount() {
-        return count
-    }
-
-    boolean matches(Clonotype clonotype) {
-        _pattern.matcher(clonotype.cdr3aa).matches()
+    @Override
+    public String getName() {
+        return "VD-junc";
     }
 }
