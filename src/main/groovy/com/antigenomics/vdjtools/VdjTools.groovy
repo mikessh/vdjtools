@@ -156,7 +156,7 @@ def getScript = { String scriptName ->
             System.exit(0)
             break
 
-        case "CALCDRAASTATS":
+        case "CALCCDRAASTATS":
             return new CalcCdrAaStats()
         case "ANNOTATE":
             return new Annotate()
