@@ -59,6 +59,13 @@ public class Cdr3ContactEstimate implements AaProperty {
         if (m <= 0 || m % 2 == 0) {
             throw new IllegalArgumentException("Number of columns in value matrix should be odd and greater than 0.");
         }
+
+        for (int i = 0; i < values.length; i++) {
+            float[] vv = values[i];
+            for (int j = 0; j < vv.length; j++) {
+                values[i][j] = -(float) Math.log(1.0 - values[i][j]);
+            }
+        }
     }
 
     @Override
