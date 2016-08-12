@@ -117,8 +117,8 @@ public class AaPropertySummaryEvaluator {
         percentile.setData(values, 0, k);
 
         return new AaPropertySummary(sum / k,
-                (float) percentile.evaluate(25),
                 (float) percentile.evaluate(50),
+                (float) percentile.evaluate(25),
                 (float) percentile.evaluate(75));
     }
 }

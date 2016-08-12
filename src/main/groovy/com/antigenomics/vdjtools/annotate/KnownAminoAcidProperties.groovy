@@ -71,28 +71,31 @@ class KnownAminoAcidProperties {
         }
 
         // load contact model
-        int span = 21, mid = span / 2i
-
         lines = CommonUtil.resourceStream("profile/contact_model.txt").readLines().findAll {
             !it.startsWith("#")
         }
 
         header = lines[0]
 
-        if (header != "aa_tcr\tpos_norm\tprob") {
-            throw new RuntimeException("Contact model should have the following header: 'aa_tcr\tpos_norm\tprob'.")
+        if (header != "aa\tvalue\ttype") {
+            throw new RuntimeException("Contact model should have the following header: 'aa\tvalue\ttype'.")
         }
 
-        propertyValues = new float[AminoAcidSequence.ALPHABET.size()][span]
+        def valuesA = new float[AminoAcidSequence.ALPHABET.size()],
+            valuesB = new float[AminoAcidSequence.ALPHABET.size()]
 
         lines[1..-1].each { line ->
             def splitLine = line.split("\t")
             byte aa = AminoAcidSequence.ALPHABET.codeFromSymbol(splitLine[0].charAt(0))
-            int posNorm = splitLine[1].toInteger()
-            propertyValues[aa][posNorm + mid] = splitLine[2].toFloat()
+            float value = splitLine[1].toFloat()
+            if (splitLine[2].toUpperCase() == "A"){
+                valuesA[aa] = value
+            } else {
+                valuesB[aa] = value
+            }
         }
 
-        def contactEstimateProperty = new Cdr3ContactEstimate(propertyValues, 0)
+        def contactEstimateProperty = new Cdr3ContactEstimate(valuesA, valuesB)
 
         aminoAcidPropertiesByName.put(contactEstimateProperty.name.toLowerCase(), contactEstimateProperty)
     }

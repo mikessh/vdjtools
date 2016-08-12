@@ -32,39 +32,20 @@ package com.antigenomics.vdjtools.annotate;
 import com.milaboratory.core.sequence.AminoAcidSequence;
 
 public class Cdr3ContactEstimate implements AaProperty {
-    private final float[][] values;
-    private final float defaultValue;
-    private final int offset;
+    private final float[] valuesA, valuesB;
 
-    public Cdr3ContactEstimate(float[][] values, float defaultValue) {
-        this.values = values;
-        this.defaultValue = defaultValue;
+    public Cdr3ContactEstimate(float[] valuesA, float[] valuesB) {
+        this.valuesA = valuesA;
+        this.valuesB = valuesB;
 
-        if (values.length != AminoAcidSequence.ALPHABET.size()) {
-            throw new IllegalArgumentException("Number of rows in value matrix should " +
+        if (valuesA.length != AminoAcidSequence.ALPHABET.size()) {
+            throw new IllegalArgumentException("Length of valuesA " +
                     "be equal to AminoAcidSequence.ALPHABET size.");
         }
 
-        int m = values[0].length;
-
-        for (int i = 1; i < values.length; i++) {
-            if (values[i].length != m) {
-                throw new IllegalArgumentException("Value matrix should have rows of the same length " +
-                        "(by definition of a matrix, isn't it).");
-            }
-        }
-
-        this.offset = m / 2;
-
-        if (m <= 0 || m % 2 == 0) {
-            throw new IllegalArgumentException("Number of columns in value matrix should be odd and greater than 0.");
-        }
-
-        for (int i = 0; i < values.length; i++) {
-            float[] vv = values[i];
-            for (int j = 0; j < vv.length; j++) {
-                values[i][j] = -(float) Math.log(1.0 - values[i][j]);
-            }
+        if (valuesB.length != AminoAcidSequence.ALPHABET.size()) {
+            throw new IllegalArgumentException("Length of valuesB " +
+                    "be equal to AminoAcidSequence.ALPHABET size.");
         }
     }
 
@@ -75,11 +56,13 @@ public class Cdr3ContactEstimate implements AaProperty {
 
     @Override
     public float compute(AminoAcidSequence sequence, int pos) {
-        int len = sequence.size();
-        int bin = offset + (pos - len / 2);
-        if (bin < 0 || bin >= values[0].length) {
-            return defaultValue;
-        }
-        return values[sequence.codeAt(pos)][bin];
+        byte aa = sequence.codeAt(pos);
+
+        float posDelta = 2.0f * ((float) pos - sequence.size() / 2.0f) / (float) sequence.size();
+        posDelta *= posDelta;
+
+        float A = valuesA[aa], B = valuesB[aa];
+
+        return (float) Math.exp(A + B * posDelta);
     }
 }
