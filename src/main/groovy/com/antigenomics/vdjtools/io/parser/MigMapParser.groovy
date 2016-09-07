@@ -119,8 +119,10 @@ public class MigMapParser extends ClonotypeStreamParser {
 
         def freq = splitString[freqColumn].toDouble()
         def count = splitString[countColumn].toInteger()
-        def cdr3nt = splitString[cdr3ntColumn] == "." ? "" : splitString[cdr3ntColumn],
-            cdr3aa = splitString[cdr3aaColumn] == "." ? "" : toUnifiedCdr3Aa(splitString[cdr3aaColumn])
+        def cdr3nt = splitString[cdr3ntColumn] == "." || splitString[cdr3ntColumn].contains("N") ?
+                "" : splitString[cdr3ntColumn],
+            cdr3aa = splitString[cdr3aaColumn] == "." || splitString[cdr3aaColumn].contains("X") ?
+                    "" : toUnifiedCdr3Aa(splitString[cdr3aaColumn])
 
         String v, d, j
         (v, d, j) = CommonUtil.extractVDJ(splitString[[vColumn, dColumn, jColumn]])
@@ -128,6 +130,10 @@ public class MigMapParser extends ClonotypeStreamParser {
         boolean inFrame, noStop, isComplete
         (inFrame, noStop, isComplete) = splitString[[inFrameColumn, noStopColumn, isCompleteColumn]].collect {
             it.toBoolean()
+        }
+
+        if (cdr3nt == "") {
+            isComplete = false // handling Ns in CDR3
         }
 
         def segmPoints = splitString[[vEndColumn, dStartColumn, dEndColumn, jStartColumn]].collect {
