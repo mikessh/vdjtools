@@ -55,6 +55,12 @@ enum Software {
                                            _, "j", 5.times { _ },
                                            6.times { _ },
                                            _, "VEnd", "DStart", "DEnd", "JStart"].flatten()),
+    ImmunoSeqV3("\t", null, 1, true, false, ["cdr3nt", "cdr3aa", "count", "freq", "cdr3Length",
+                                           _, "v", 5.times { _ },
+                                           _, "d", 5.times { _ },
+                                           _, "j", 5.times { _ },
+                                           6.times { _ },
+                                           _, "VEnd", "DStart", "DEnd", "JStart"].flatten()),
     ImgtHighVQuest("\t", null, 1, true, true, [3.times { _ }, "v", "j", "d",
                                                9.times { _ }, "cdr3nt", 47.times { _ }, // comprehensive output
                                                "VEnd", 12.times { _ }, "DStart", "DEnd", 28.times {

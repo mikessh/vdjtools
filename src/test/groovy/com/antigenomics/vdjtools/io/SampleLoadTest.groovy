@@ -75,6 +75,11 @@ class SampleLoadTest {
     }
 
     @Test
+    public void immunoseqV3Test() {
+        loadTest(ImmunoSeqV3, 381041, 184)
+    }
+
+    @Test
     public void imgtTest() {
         loadTest(ImgtHighVQuest, 9681, 7199)
     }
