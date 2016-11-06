@@ -385,6 +385,11 @@ public class CommonUtil {
 
     final static String OOF_SYMBOLS_POSSIBLE = /([atgc#~_\?])+/, OOF_CHAR = "_", STOP_CHAR = "*"
 
+    /**
+     * Translates CDR3 sequence in V><J directions simultaneously, supports non-coding sequences
+     * @param seq sequence to translate
+     * @return amino acid sequence, as String object
+     */
     static String translate(String seq) {
         if (seq.length() == 0)
             return ""
