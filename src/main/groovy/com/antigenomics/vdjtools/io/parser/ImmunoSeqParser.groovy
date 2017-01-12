@@ -30,6 +30,7 @@
 
 package com.antigenomics.vdjtools.io.parser
 
+import com.antigenomics.vdjtools.misc.CommonUtil
 import com.antigenomics.vdjtools.misc.Software
 import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.sample.Sample
@@ -40,8 +41,19 @@ import static com.antigenomics.vdjtools.misc.CommonUtil.*
  * A clonotype parser implementation that handles Adaptive Biotechnologies (tm) immunoSEQ (tm) assay
  * output format, see
  * {@url http://www.adaptivebiotech.com/content/immunoseq-0}
+ *
+ * This parser is intended for samples obtained using "Export sample" option from ImmunoSEQ analyzer,
+ * not "Export sample V2"
  */
 class ImmunoSeqParser extends ClonotypeStreamParser {
+    protected boolean initialized = false
+    protected int countColumn, freqColumn, cdr3StartColumn,
+                  cdr3ntColumn, cdr3aaColumn, cdr3LenColumn,
+                  jStartColumn, inFrameColumn,
+                  vColumn, dColumn, jColumn,
+                  vColumn2, dColumn2, jColumn2,
+                  vEndColumn, dStartColumn, dEndColumn
+
     /**
      * {@inheritDoc}
      */
@@ -52,59 +64,94 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
     /**
      * {@inheritDoc}
      */
+    protected ImmunoSeqParser(Iterator<String> innerIter, Software software, Sample sample) {
+        super(innerIter, software, sample)
+    }
+
+    /**
+     * Performs parser initialization based on the header string.
+     *
+     * @throws RuntimeException if header line doesn't contain required columns
+     */
+    protected synchronized void ensureInitialized() {
+        if (initialized)
+            return
+
+        // Parsing header line to determine positions of certain columns with clones properties
+
+        String headerLine = this.header[0];
+        String[] splitHeaderLine = headerLine.split(software.delimiter)
+
+        countColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("reads") }
+        freqColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("frequency") }
+        cdr3StartColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("v_index") }
+        cdr3LenColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("cdr3_length") }
+        cdr3ntColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("rearrangement") }
+        inFrameColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("frame_type") }
+        cdr3aaColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("amino_acid") }
+        vColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("v_family") }
+        dColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("d_family") }
+        jColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("j_family") }
+        vColumn2 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("v_gene") }
+        dColumn2 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("d_gene") }
+        jColumn2 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("j_gene") }
+        vEndColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("n1_index") }
+        dStartColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("d_index") }
+        dEndColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("n2_index") }
+        jStartColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("j_index") }
+
+        if ([countColumn, freqColumn,
+             cdr3StartColumn, cdr3LenColumn,
+             cdr3ntColumn, cdr3aaColumn,
+             vColumn, dColumn, jColumn,
+             vColumn2, dColumn2, jColumn2,
+             vEndColumn, dStartColumn, dEndColumn, jStartColumn,
+             inFrameColumn].any { it < 0 })
+            throw new RuntimeException("Some mandatory columns are absent in the input file.")
+
+        // Initialized
+        initialized = true
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected Clonotype innerParse(String clonotypeString) {
-        /*
-             $id   | content                    | description
-            -------|----------------------------|------------------------------------------------------------------------
-             00    | sequencing read            | this is raw sequence of a read. It could contain esither full or partial (5') CDR3 sequence
-             01    | CDR3 amino acid sequence   | standard AA sequence or blank, in case read was too short to cover CDR3
-             02    | Count                      | default
-             03    | Fraction                   | fraction that also accounts for incomplete reads
-             04-05 | unused                     |
-             06    | V segments                 | V "family", non-conventional naming
-             07-12 | unused                     |
-             13    | D segments                 | D "family", non-conventional naming
-             14-19 | unused                     |
-             20    | J segments                 | J "family", non-conventional naming
-             21-31 | unused                     |
-             32    | CDR3 start                 | used to extract CDR3 nucleotide sequence from $00
-             33    | V end                      |
-             34    | D start                    |
-             35    | D end                      |
-             36    | J start                    |
-             37    | unused                     |
-             38+   | unused                     |
-             
-             - note that there is no "J end" (perhaps due to J segment identification issues), so
-              here we use $32 + length($01) * 3
-          */
+        ensureInitialized()
 
         def splitString = clonotypeString.split("\t")
 
-        def count = splitString[2].toInteger()
-        def freq = splitString[3].toDouble()
+        // As-is data
+        def count = splitString[countColumn].toInteger()
+        def freq = splitString[freqColumn].toDouble()
 
-        // This field is used to extract CDR3 region, as the data contains unprocessed sequences in $00 field.
-        // For data that was already processed by VDJtools, an extracted CDR3 sequence is stored to $00 field
-        // and $32 is set to "." to indicate that no additional CDR3 nucleotide sequence extraction is needed.
-        def cdr3start = splitString[32].isInteger() ?
-                splitString[32].toInteger() :
-                -1
+        int cdr3start = splitString[cdr3StartColumn].toInteger(),
+            cdr3Len = splitString[cdr3LenColumn].toInteger()
 
-        def cdr3nt = splitString[0]
-        def cdr3aa = splitString[1]
+        def inFrame = splitString[inFrameColumn].equalsIgnoreCase("in")
 
-        def jStart = splitString[36].toInteger()
+        def cdr3nt = splitString[cdr3ntColumn][cdr3start..<(cdr3start + cdr3Len)]
+        def cdr3aa = toUnifiedCdr3Aa(inFrame ? splitString[cdr3aaColumn] : translate(cdr3nt))
 
-        boolean isComplete
+        String v, d, j
+        (v, d, j) = extractVDJImmunoSeq(splitString[[vColumn, dColumn, jColumn]],
+                splitString[[vColumn2, dColumn2, jColumn2]])
 
-        if (cdr3start >= 0) {
+        // Fixing mess with CDR3s that are failed to be extracted
+
+        def jStart = splitString[jStartColumn].toInteger()
+
+        boolean isComplete = true
+        if (cdr3start >= 0 &&
+                (cdr3aa.length() == 0 || cdr3nt.length() != 3 * cdr3aa.length())) {
+            cdr3nt = splitString[cdr3ntColumn]
             if (cdr3aa.length() > 0) {
-                int to = cdr3start + cdr3aa.length() * 3
                 // see https://github.com/mikessh/vdjtools/issues/30 for the reason for workaround
+                int to = cdr3start + cdr3aa.length() * 3
                 isComplete = to <= cdr3nt.length()
-                cdr3nt = isComplete ? cdr3nt.substring(cdr3start, to) : cdr3nt.substring(cdr3start)// in-frame
+                cdr3nt = isComplete ? cdr3nt.substring(cdr3start, to) : cdr3nt.substring(cdr3start) // in-frame
+                cdr3aa = toUnifiedCdr3Aa(inFrame ? splitString[cdr3aaColumn] : translate(cdr3nt))
             } else {
                 // it seems to be hard to get conventional out-of-frame translation here
                 // but we'll try to reconstruct it
@@ -117,24 +164,19 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
                 }
                 isComplete = cdr3aa.length() > 0
             }
-        } else {
-            isComplete = false
         }
 
-        String v, d, j
-        (v, d, j) = extractVDJ(splitString[[7, 14, 21]])
-
-        boolean inFrame = cdr3aa.length() > 0 && inFrame(cdr3aa),
-                noStop = noStop(cdr3aa)
+        inFrame = inFrame && cdr3aa.length() > 0 && CommonUtil.inFrame(cdr3aa)
+        boolean noStop = noStop(cdr3aa)
 
         // Correctly record segment points
         cdr3start = cdr3start < 0 ? 0 : cdr3start
 
         def segmPoints = [
-                splitString[33].toInteger() - 1 - cdr3start,
-                splitString[34].toInteger() - cdr3start,
-                splitString[35].toInteger() - 1 - cdr3start,
-                jStart - cdr3start].collect { it < 0 ? -1 : it } as int[]
+                splitString[vEndColumn].toInteger() - 1 - cdr3start,
+                splitString[dStartColumn].toInteger() - cdr3start,
+                splitString[dEndColumn].toInteger() - 1 - cdr3start,
+                splitString[jStartColumn].toInteger() - cdr3start].collect { it < 0 ? -1 : it } as int[]
 
         new Clonotype(sample, count, freq,
                 segmPoints, v, d, j,

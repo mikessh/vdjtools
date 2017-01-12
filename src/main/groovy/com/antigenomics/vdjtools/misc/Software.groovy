@@ -55,7 +55,7 @@ enum Software {
                                            _, "j", 5.times { _ },
                                            6.times { _ },
                                            _, "VEnd", "DStart", "DEnd", "JStart"].flatten()),
-    ImmunoSeqV3("\t", null, 1, true, true, ["cdr3nt", "cdr3aa", "count", "freq", "cdr3Length",
+    ImmunoSeqV2("\t", null, 1, true, true, ["cdr3nt", "cdr3aa", "count", "freq", "cdr3Length",
                                            _, "v", 5.times { _ },
                                            _, "d", 5.times { _ },
                                            _, "j", 5.times { _ },

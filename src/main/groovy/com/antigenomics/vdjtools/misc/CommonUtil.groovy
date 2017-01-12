@@ -366,6 +366,28 @@ public class CommonUtil {
         }
     }
 
+    public static List<String> extractVDJImmunoSeq(List<String> vdj) {
+        extractVDJ(vdj).collect {
+            // Immunoseq uses TCRBV instead of TRBV
+            def res = it.replaceAll("TCR", "TR")
+            // TCRBV12-03 -> TRBV12-3
+            (1..9).each { int i ->
+                res = res.replaceAll("0$i".toString(), "$i".toString())
+            }
+            res
+        }
+    }
+
+    public static List<String> extractVDJImmunoSeq(List<String> vdj, List<String> vdjGenes) {
+        vdj = extractVDJImmunoSeq(vdj)
+        vdjGenes = extractVDJImmunoSeq(vdjGenes)
+        def res = []
+        vdjGenes.eachWithIndex { String gene, int i ->
+            res.add(gene.equalsIgnoreCase("unresolved") ? vdj[i] : gene)
+        }
+        res
+    }
+
     /*
      * CDR3 mapping & translation
      */

@@ -94,8 +94,8 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
             case Software.ImmunoSeq:
                 parser = new ImmunoSeqParser(innerIter, sample)
                 break
-            case Software.ImmunoSeqV3:
-                parser = new ImmunoSeqV3Parser(innerIter, sample)
+            case Software.ImmunoSeqV2:
+                parser = new ImmunoSeqV2Parser(innerIter, sample)
                 break
             case Software.ImgtHighVQuest:
                 parser = new ImgtHighVQuestParser(innerIter, sample)

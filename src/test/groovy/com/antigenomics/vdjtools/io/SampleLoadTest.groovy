@@ -45,8 +45,11 @@ class SampleLoadTest {
         assert sample.diversity == diversity
         if (software.perReadOutput) {
             // check if frequency is recalculated
-            assert Math.abs(sample.freqAsInInput - 1.0) < 1e-5
+            assert Math.abs(sample.freqAsInInput - 1.0f) < 1e-5f
+            assert Math.abs(sample.freq - 1.0f) < 1e-5f
         }
+
+        assert sample.any { it.freq <= 1.0f }
     }
 
     @Test
@@ -71,12 +74,12 @@ class SampleLoadTest {
 
     @Test
     public void immunoseqTest() {
-        loadTest(ImmunoSeq, 2345835, 13052)
+        loadTest(ImmunoSeq, 1106647, 42797)
     }
 
     @Test
-    public void immunoseqV3Test() {
-        loadTest(ImmunoSeqV3, 381041, 184)
+    public void immunoseqV2Test() {
+        loadTest(ImmunoSeqV2, 1106647, 42797)
     }
 
     @Test
