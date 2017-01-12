@@ -1,0 +1,220 @@
+.. _modules:
+
+Analysis modules
+----------------
+
+Table of VDJtools modules
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+VDJtools software package contains a comprehensive set of immune
+repertoire post-analysis routines, which are subdivided into several
+analysis modules. Each module's section provides command line usage
+syntax and parameter descriptions for each of the routines, as well as
+output example and description.
+
+:ref:`basic`
+~~~~~~~~~~~~
+
+Summary statistics, spectratyping, etc
+
+-  :ref:`CalcBasicStats`
+   Computes summary statistics for samples: read counts, mean clonotype
+   sizes, number of non-functional clonotypes, etc
+-  :ref:`CalcSegmentUsage`
+   Computes Variable (V) and Joining (J) segment usage profiles
+-  :ref:`CalcSpectratype`
+   Computes spectratype, the distribution of clonotype abundance by CDR3
+   sequence length
+-  :ref:`PlotFancySpectratype`
+   Plots spectratype explicitly showing top N clonotypes
+-  :ref:`PlotFancyVJUsage`
+   Plots the frequency of different V-J pairings
+-  :ref:`PlotSpectratypeV`
+   Plots distribution of V segment abundance by resulting CDR3 sequence
+   length
+
+:ref:`diversity`
+~~~~~~~~~~~~~~~~
+
+Repertoire richness and diversity
+
+-  :ref:`PlotQuantileStats`
+   Visualizes repertoire clonality
+-  :ref:`RarefactionPlot`
+   Performs rarefaction analysis
+-  :ref:`CalcDiversityStats`
+   Computes repertoire diversity estimates
+
+:ref:`overlap`
+~~~~~~~~~~~~~~
+
+Clonotype sharing between samples
+
+-  :ref:`OverlapPair`
+   Computes intersection between a pair of samples
+-  :ref:`CalcPairwiseDistances`
+   Computes pairwise intersections for a list of samples
+-  :ref:`ClusterSamples`
+   Performs sample clusterization according to the results of batch intersection
+-  :ref:`TrackClonotypes`
+   Time-course analysis for a sequence of samples
+
+:ref:`preprocess`
+~~~~~~~~~~~~~~~~~
+
+Filtering and resampling
+
+-  :ref:`Correct`
+   Performs a frequency-based erroneous clonotype correction
+-  :ref:`Decontaminate`
+   Filters possible cross-sample contaminations in a set of samples
+-  :ref:`DownSample`
+   Performs down-sampling, i.e. takes a subset of random reads from sample(s)
+-  :ref:`FilterNonFunctional`
+   Filters non-functional clonotypes
+-  :ref:`SelectTop`
+   Selects a fixed number of top (most abundant) clonotypes from sample(s)
+-  :ref:`FilterByFrequency`
+   Filters clonotypes based on a specified frequency threshold.
+-  :ref:`ApplySampleAsFilter`
+   Filters clonotypes that are present in a specified sample from sample(s)
+-  :ref:`FilterBySegment`
+   Filters clonotypes according to their V/D/J segment
+
+:ref:`operate`
+~~~~~~~~~~~~~~
+
+Clonotype table operations
+
+-  :ref:`PoolSamples`
+   Pools clonotypes from several samples together
+-  :ref:`JoinSamples`
+   Joins a set of samples and generates clonotype abundance profiles
+   
+:ref:`annotate`
+~~~~~~~~~~~~~~~
+
+Functional annotation of clonotype tables (antigen specificity, amino acid properties, etc)
+
+-  :ref:`CalcCdrAAProfile`
+   Builds a profile of CDR3 regions (V germline, V-D junction, ...) using a set of amino-acid physical properties
+-  :ref:`Annotate2`
+   Computes a set of basic (insert size, ...) and amino acid physical properties (GRAVY, ...) for clonotypes
+-  :ref:`ScanDatabase`
+   Queries a database containing clonotypes of known antigen specificity. 
+   
+:ref:`util`
+~~~~~~~~~~~
+
+Some useful utilities
+
+-  :ref:`FilterMetadata`
+   Filters metadata file by values in specified column
+-  :ref:`SplitMetadata`
+   Splits metadata file by specified columns
+-  :ref:`Convert`
+   Converts from one software format to another
+-  :ref:`Rinstall`
+   Installs necessary R dependencies
+
+Output
+~~~~~~
+   
+Each routine generates a comprehensive tabular output and some 
+produce optional graphical output. In case of graphical output, 
+the corresponding R script with specified arguments (at the beginning of 
+the script, commented) will be stored to the analysis folder. Thus, user can 
+uncomment the script arguments, modify the script and re-run it. This behavior 
+be disabled by running VDJtools with ``discard_scripts`` argument prior 
+to routine name.
+
+By default, all graphical output is generated in PDF format, to generate 
+PNG images use ````--plot-type png`` option.
+
+When running routines that output clonotype tables consider the following:
+
+- Joint and pooled samples are stored in VDJtools fomat
+- Samples produced using :ref:`ScanDatabase` or :ref:`Annotate` routine are in VDJtools format and include additional annotation columns. Annotation columns are retained when running most of VDJtools routines
+- When loading a joint/pooled sample into VDJtools, clonotype abundance vectors, incidence counts, etc will be treated as clonotype level annotations
+- Annotation columns will not be preserved when joining/pooling annotated samples, a workaround 
+here will be to use :ref:`ApplySampleAsFilter` routine
+
+.. attention::
+
+    When exporting a table generated by one of VDJtools routines 
+    into R use the following command to parse the input correctly:
+    
+    .. code:: r
+        
+        read.table("some_table.txt", header=T, quote="", sep = "\t")
+
+.. _common_params:
+
+Common parameters
+^^^^^^^^^^^^^^^^^
+
+There are several parameters that are commonly used among analysis
+routines:
+
++-------------+------------------------+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Shorthand   |      Long name         | Argument   | Description                                                                                                                                                                                                                                                                 |
++=============+========================+============+=============================================================================================================================================================================================================================================================================+
+| ``-h``      | ``--help``             |            | Brings up the help message for selected routine                                                                                                                                                                                                                             |
++-------------+------------------------+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``-m``      | ``--metadata``         | path       | Path to metadata file. Should point to a tab-delimited file with the first two columns containing sample path and sample id respectively, and the remaining columns containing user-specified data. See :ref:`metadata` section                                             |
++-------------+------------------------+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``-u``      | ``--unweighted``       |            | If present as an option and not set, all statistics will be weighted by clonotype frequency                                                                                                                                                                                 |
++-------------+------------------------+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``-i``      | ``--intersect-type``   | string     | :ref:`overlap_type`, that specifies which clonotype features (CDR3 sequence, V/J segments, hypermutations) will be compared when checking if two clonotypes match. Allowed values: ``strict``,\ ``nt``,\ ``ntV``,\ ``ntVJ``,\ ``aa``,\ ``aaV``,\ ``aaVJ`` and ``aa!nt``.    |
++-------------+------------------------+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``-p``      | ``--plot``             |            | [*plotting*] Enable plotting for routines that supports it.                                                                                                                                                                                                                 |
++-------------+------------------------+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|             | ``--plot-type``        | <pdf|png>  | [*plotting*] Specifies whether to generate a PDF or PNG file. While latter could be easily embedded, PDF plots have superior quality.                                                                                                                                       |
++-------------+------------------------+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``-f``      | ``--factor``           | string     | [*plotting*] Name of the sample metadata column that should be treated as factor. If the name contains spaces, the argument should be surrounded with double quotes, e.g. ``-f "Treatment type"``                                                                           |
++-------------+------------------------+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``-n``      | ``--factor-numeric``   |            | [*plotting*] Treat the factor as numeric?                                                                                                                                                                                                                                   |
++-------------+------------------------+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``-l``      | ``--label``            | string     | [*plotting*] Name of the sample metadata column that should be treated as label. If the name contains spaces, the argument should be surrounded with double quotes, e.g. ``-l "Patient id"``                                                                                |
++-------------+------------------------+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``-c``      | ``--compress``         | path       | Compress resulting clonotype tables using GZIP.                                                                                                                                                                                                                             |
++-------------+------------------------+------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+.. _overlap_type:
+
+Overlap type
+~~~~~~~~~~~~
+
+Some of VDJtools routines require to define clonotype matching strategy 
+when computing clonotype sharing between samples. This parameter is also
+used when collapsing clonotype tables, e.g. a common situation is when 
+one is interested in estimating the extent of convergent recombination, 
+which is the number of distinct nucleotide CDR3 sequences per one CDR3 
+amino acid sequence. This requires to collapse clonotype table by identical
+CDR3aa field.
+
+The list of strategies is defined below.
+
++-------------+---------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------+
+| Shorthand   | Rule                                              | Note                                                                                                                                  |
++=============+===================================================+=======================================================================================================================================+
+| strict      | **CDR3nt** (AND) **V** (AND) **J** (AND) **SHMs** | Require full match for receptor nucleotide sequence                                                                                   |
++-------------+---------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------+
+| nt          | **CDR3nt**                                        |                                                                                                                                       |
++-------------+---------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------+
+| ntV         | **CDR3nt** (AND) **V**                            |                                                                                                                                       |
++-------------+---------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------+
+| ntVJ        | **CDR3nt** (AND) **V** (AND) **J**                |                                                                                                                                       |
++-------------+---------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------+
+| aa          | **CDR3aa**                                        |                                                                                                                                       |
++-------------+---------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------+
+| aaV         | **CDR3aa** (AND) **V**                            |                                                                                                                                       |
++-------------+---------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------+
+| aaVJ        | **CDR3aa** (AND) **V** (AND) **J**                |                                                                                                                                       |
++-------------+---------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------+
+| aa!nt       | **CDR3aa** (AND)((NOT) **CDR3nt** )               | Removes nearly all contamination bias from overlap results. Should not be used for samples from the same donor/tracking experiments   |
++-------------+---------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------+
+
+As somatic hypermutations (SHMs) are currently not supported by VDJtools, 
+``strict`` and ``ntVJ`` options are identical. See VDJtools :ref:`clonotype_spec` 
+specification for details.
