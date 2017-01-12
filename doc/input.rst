@@ -161,9 +161,13 @@ assay. We have implemented a parser for clonotype tables as provided by
    for details.
    
 Run :ref:`convert` routine with ``-S immunoseq`` argument to prepare datasets 
-in this format for VDJtools analysis. This option should be used in case you have selected 
-``Export samples`` option in the ImmunoSEQ analyzer. In case you have used the ``Export samples v2`` 
-option you should pass the ``-S immunoseqv2`` argument to VDJtools Convert routine.
+in this format for VDJtools analysis. Note that there are currently two possible ImmunoSEQ 
+output formats that have different column naming:
+
+-  This option should be used in case you have selected 
+  ``Export samples`` option in the ImmunoSEQ analyzer. 
+-  In case you have used the ``Export samples v2`` 
+   option you should pass the ``-S immunoseqv2`` argument to VDJtools Convert routine.
    
 IMGT/HighV-QUEST 
 ~~~~~~~~~~~~~~~~
