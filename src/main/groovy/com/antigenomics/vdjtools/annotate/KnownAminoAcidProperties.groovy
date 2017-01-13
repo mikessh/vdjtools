@@ -30,6 +30,7 @@
 package com.antigenomics.vdjtools.annotate
 
 import com.antigenomics.vdjtools.misc.CommonUtil
+import com.milaboratory.core.sequence.AminoAcidAlphabet
 import com.milaboratory.core.sequence.AminoAcidSequence
 
 class KnownAminoAcidProperties {
@@ -71,31 +72,37 @@ class KnownAminoAcidProperties {
         }
 
         // load contact model
-        lines = CommonUtil.resourceStream("profile/contact_model.txt").readLines().findAll {
-            !it.startsWith("#")
-        }
+        loadContactProbs()
+    }
 
-        header = lines[0]
+    private void loadContactProbs() {
+        def lines = CommonUtil.resourceStream("profile/cdr3contact.txt").readLines().collect { it.split("[ \t]") }
+        def header = lines[0]
 
-        if (header != "aa\tvalue\ttype") {
-            throw new RuntimeException("Contact model should have the following header: 'aa\tvalue\ttype'.")
-        }
+        def tcrChainColumn = header.findIndexOf { it == "tcr_chain" },
+            posRelTcrColumn = header.findIndexOf { it == "pos_rel_tcr" },
+            aaTcrColumn = header.findIndexOf { it == "aa_tcr" },
+            pColumn = header.findIndexOf { it == "P" },
+            posMaxColumn = header.findIndexOf { it == "pos_max" }
 
-        def valuesA = new float[AminoAcidSequence.ALPHABET.size()],
-            valuesB = new float[AminoAcidSequence.ALPHABET.size()]
+        int r = AminoAcidSequence.ALPHABET.size(), c = lines[1][posMaxColumn].toInteger()
 
-        lines[1..-1].each { line ->
-            def splitLine = line.split("\t")
-            byte aa = AminoAcidSequence.ALPHABET.codeFromSymbol(splitLine[0].charAt(0))
-            float value = splitLine[1].toFloat()
-            if (splitLine[2].toUpperCase() == "A"){
-                valuesA[aa] = value
-            } else {
-                valuesB[aa] = value
+        float[][] tcrAContactProbs = new float[r][c],
+                  tcrBContactProbs = new float[r][c]
+
+        lines[1..<lines.size()].each {
+            int pos = it[posRelTcrColumn].toInteger(),
+                aa = AminoAcidSequence.ALPHABET.codeFromSymbol(it[aaTcrColumn].charAt(0))
+            float prob = (float) it[pColumn].toDouble()
+
+            if (it[tcrChainColumn].equalsIgnoreCase("TRA")) {
+                tcrAContactProbs[aa][pos] = prob
+            } else if (it[tcrChainColumn].equalsIgnoreCase("TRB")) {
+                tcrBContactProbs[aa][pos] = prob
             }
         }
 
-        def contactEstimateProperty = new Cdr3ContactEstimate(valuesA, valuesB)
+        def contactEstimateProperty = new Cdr3ContactEstimate(tcrAContactProbs, tcrBContactProbs)
 
         aminoAcidPropertiesByName.put(contactEstimateProperty.name.toLowerCase(), contactEstimateProperty)
     }

@@ -29,23 +29,41 @@
 
 package com.antigenomics.vdjtools.annotate;
 
+import com.antigenomics.vdjtools.sample.Clonotype;
 import com.milaboratory.core.sequence.AminoAcidSequence;
 
-public class Cdr3ContactEstimate implements AaProperty {
-    private final float[] valuesA, valuesB;
+public class Cdr3ContactEstimate extends AaProperty {
+    private final float[][] contactProbsTRA, contactProbsTRB;
+    private final int l;
 
-    public Cdr3ContactEstimate(float[] valuesA, float[] valuesB) {
-        this.valuesA = valuesA;
-        this.valuesB = valuesB;
+    public Cdr3ContactEstimate(float[][] contactProbsTRA, float[][] contactProbsTRB) {
+        this.contactProbsTRA = contactProbsTRA;
+        this.contactProbsTRB = contactProbsTRB;
 
-        if (valuesA.length != AminoAcidSequence.ALPHABET.size()) {
-            throw new IllegalArgumentException("Length of valuesA " +
+        if (contactProbsTRA.length != AminoAcidSequence.ALPHABET.size()) {
+            throw new IllegalArgumentException("Number of rows of contactProbs TRA " +
                     "be equal to AminoAcidSequence.ALPHABET size.");
         }
 
-        if (valuesB.length != AminoAcidSequence.ALPHABET.size()) {
-            throw new IllegalArgumentException("Length of valuesB " +
+        if (contactProbsTRB.length != AminoAcidSequence.ALPHABET.size()) {
+            throw new IllegalArgumentException("Number of rows of contactProbs TRB " +
                     "be equal to AminoAcidSequence.ALPHABET size.");
+        }
+
+        l = contactProbsTRA[0].length;
+
+        for (int i = 1; i < contactProbsTRA.length; i++) {
+            if (contactProbsTRA[i].length != l) {
+                throw new IllegalArgumentException("Number of columns of " +
+                        "contactProbs TRA should be the same for all amino acids");
+            }
+        }
+
+        for (int i = 0; i < contactProbsTRB.length; i++) {
+            if (contactProbsTRB[i].length != l) {
+                throw new IllegalArgumentException("Number of columns of " +
+                        "contactProbs TRB should be the same for all amino acids");
+            }
         }
     }
 
@@ -56,13 +74,23 @@ public class Cdr3ContactEstimate implements AaProperty {
 
     @Override
     public float compute(AminoAcidSequence sequence, int pos) {
+        return Float.NaN;
+    }
+
+    @Override
+    public float compute(Clonotype clonotype, int pos) {
+        AminoAcidSequence sequence = clonotype.getCdr3aaBinary();
         byte aa = sequence.codeAt(pos);
 
-        float posDelta = 2.0f * ((float) pos - sequence.size() / 2.0f) / (float) sequence.size();
-        posDelta *= posDelta;
+        int posBin = (int) ((l - 1) * (pos / (float) (sequence.size() - 1)));
 
-        float A = valuesA[aa], B = valuesB[aa];
+        switch (clonotype.getVBinary().getChain()) {
+            case TRA:
+                return contactProbsTRA[aa][posBin];
+            case TRB:
+                return contactProbsTRB[aa][posBin];
+        }
 
-        return (float) Math.exp(A + B * posDelta);
+        return compute(sequence, pos);
     }
 }

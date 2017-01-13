@@ -68,7 +68,7 @@ public class AaPropertySummaryEvaluator {
         float value = 0;
 
         for (int i = 0; i < aaSeq.size(); i++) {
-            value += aaProperty.compute(aaSeq, i);
+            value += aaProperty.compute(clonotype, i);
         }
 
         if (averageByLength) {

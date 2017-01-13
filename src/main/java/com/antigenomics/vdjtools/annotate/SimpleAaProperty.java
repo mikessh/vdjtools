@@ -31,7 +31,7 @@ package com.antigenomics.vdjtools.annotate;
 
 import com.milaboratory.core.sequence.AminoAcidSequence;
 
-public class SimpleAaProperty implements AaProperty {
+public class SimpleAaProperty extends AaProperty {
     private final String name;
     private final float[] values;
 

@@ -29,10 +29,15 @@
 
 package com.antigenomics.vdjtools.annotate;
 
+import com.antigenomics.vdjtools.sample.Clonotype;
 import com.milaboratory.core.sequence.AminoAcidSequence;
 
-public interface AaProperty {
-    String getName();
+public abstract class AaProperty {
+    public abstract String getName();
 
-    float compute(AminoAcidSequence sequence, int pos);
+    public abstract float compute(AminoAcidSequence sequence, int pos);
+
+    public float compute(Clonotype clonotype, int pos) {
+        return compute(clonotype.getCdr3aaBinary(), pos);
+    }
 }
