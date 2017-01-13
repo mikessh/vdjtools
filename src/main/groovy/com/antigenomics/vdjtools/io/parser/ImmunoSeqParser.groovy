@@ -50,7 +50,8 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
     protected int countColumn, freqColumn, cdr3StartColumn,
                   cdr3ntColumn, cdr3aaColumn, cdr3LenColumn,
                   jStartColumn, inFrameColumn,
-                  vColumn, dColumn, jColumn,
+            vColumn0, dColumn0, jColumn0,
+            vColumn1, dColumn1, jColumn1,
                   vColumn2, dColumn2, jColumn2,
                   vEndColumn, dStartColumn, dEndColumn
 
@@ -89,9 +90,12 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
         cdr3ntColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("rearrangement") }
         inFrameColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("frame_type") }
         cdr3aaColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("amino_acid") }
-        vColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("v_family") }
-        dColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("d_family") }
-        jColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("j_family") }
+        vColumn0 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("v_family_ties") }
+        dColumn0 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("d_family_ties") }
+        jColumn0 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("j_family_ties") }
+        vColumn1 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("v_family") }
+        dColumn1 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("d_family") }
+        jColumn1 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("j_family") }
         vColumn2 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("v_gene") }
         dColumn2 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("d_gene") }
         jColumn2 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("j_gene") }
@@ -103,7 +107,8 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
         if ([countColumn, freqColumn,
              cdr3StartColumn, cdr3LenColumn,
              cdr3ntColumn, cdr3aaColumn,
-             vColumn, dColumn, jColumn,
+             vColumn0, dColumn0, jColumn0,
+             vColumn1, dColumn1, jColumn1,
              vColumn2, dColumn2, jColumn2,
              vEndColumn, dStartColumn, dEndColumn, jStartColumn,
              inFrameColumn].any { it < 0 })
@@ -135,7 +140,9 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
         def cdr3aa = toUnifiedCdr3Aa(inFrame ? splitString[cdr3aaColumn] : translate(cdr3nt))
 
         String v, d, j
-        (v, d, j) = extractVDJImmunoSeq(splitString[[vColumn, dColumn, jColumn]],
+        (v, d, j) = extractVDJImmunoSeq(
+                splitString[[vColumn0, dColumn0, jColumn0]],
+                splitString[[vColumn1, dColumn1, jColumn1]],
                 splitString[[vColumn2, dColumn2, jColumn2]])
 
         // Fixing mess with CDR3s that are failed to be extracted

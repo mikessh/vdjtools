@@ -358,32 +358,39 @@ public class CommonUtil {
      */
     public static List<String> extractVDJ(List<String> vdj) {
         vdj.collect {
-            def major = it.split(",")[0]
+            def major = it.split(",")[0] // Taking only first variant in case of ties
             major = major.split("\\*")[0] // trim allele if present
-            major = major.replaceAll("\"", "").trim()
-            // zap characters introduced by file editing in external software (Excel,etc)
+            major = major.replaceAll("\"", "").trim() // zap characters introduced by file editing in external software (Excel,etc)
             major.length() > 0 ? major : PLACEHOLDER
         }
     }
 
     public static List<String> extractVDJImmunoSeq(List<String> vdj) {
         extractVDJ(vdj).collect {
-            // Immunoseq uses TCRBV instead of TRBV
-            def res = it.replaceAll("TCR", "TR")
-            // TCRBV12-03 -> TRBV12-3
-            (1..9).each { int i ->
-                res = res.replaceAll("0$i".toString(), "$i".toString())
+            if (it.equalsIgnoreCase("unresolved")) {
+                return PLACEHOLDER
+            } else {
+                // Immunoseq uses TCRBV instead of TRBV
+                def res = it.replaceAll("TCR", "TR")
+                // TCRBV12-03 -> TRBV12-3
+                (1..9).each { int i ->
+                    res = res.replaceAll("0$i".toString(), "$i".toString())
+                }
+                return res
             }
-            res
         }
     }
 
-    public static List<String> extractVDJImmunoSeq(List<String> vdj, List<String> vdjGenes) {
-        vdj = extractVDJImmunoSeq(vdj)
+    public static List<String> extractVDJImmunoSeq(List<String> vdjFamilyTies,
+                                                   List<String> vdjFamilies,
+                                                   List<String> vdjGenes) {
+        vdjFamilyTies = extractVDJImmunoSeq(vdjFamilyTies)
+        vdjFamilies = extractVDJImmunoSeq(vdjFamilies)
         vdjGenes = extractVDJImmunoSeq(vdjGenes)
         def res = []
         vdjGenes.eachWithIndex { String gene, int i ->
-            res.add(gene.equalsIgnoreCase("unresolved") ? vdj[i] : gene)
+            res << (gene == PLACEHOLDER ?
+                    (vdjFamilies[i] == PLACEHOLDER ? vdjFamilyTies[i] : vdjFamilies[i]) : gene)
         }
         res
     }

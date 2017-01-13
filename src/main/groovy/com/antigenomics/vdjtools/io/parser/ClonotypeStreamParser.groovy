@@ -49,6 +49,14 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
     private int skippedLineCount = 0, commentLineCount
     private boolean printedWarning = false
     private final boolean hasComment
+    protected int totalLines = 0
+    protected final Map<String, Integer> badClonotypeStats = ["NO_CDR3NT" : 0,
+                                                              "NO_CDR3AA" : 0,
+                                                              "NO_V"      : 0,
+                                                              "NO_J"      : 0,
+                                                              "ZERO_COUNT": 0,
+                                                              "ZERO_FREQ" : 0,
+                                                              "BAD_LINE"  : 0];
 
     /**
      * Creates a new instance of clonotype parser. 
@@ -141,6 +149,8 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
                 return null
             }
 
+            totalLines++
+
             def clonotype = innerParse(clonotypeString)
 
             def badFieldMap = clonotype ? ["NO_CDR3NT" : missingEntry(clonotype.cdr3ntBinary),
@@ -152,6 +162,11 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
                     ["BAD_LINE": true]
 
             if (badFieldMap.any { it.value }) {
+                badFieldMap.each {
+                    if (it.value) {
+                        badClonotypeStats[it.key]++
+                    }
+                }
                 if (!printedWarning) {
                     printedWarning = true
                     println "[WARNING] Some of the essential fields are bad/missing " +
@@ -199,8 +214,9 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
      * As for now, just reports summary statistics to {@code stdout}
      */
     public void finish() {
-        println "[${new Date()} ClonotypeStreamParser] Finished parsing. " +
-                "$commentLineCount header and $skippedLineCount bad line(s) were skipped."
+        println "[${new Date()} ClonotypeStreamParser] Finished parsing $totalLines lines. " +
+                "$commentLineCount header and $skippedLineCount bad line(s) were skipped. " +
+                "Bad line statistics: ${badClonotypeStats.collect { it.key + "=" + it.value }.join(", ")}"
     }
 
     /**

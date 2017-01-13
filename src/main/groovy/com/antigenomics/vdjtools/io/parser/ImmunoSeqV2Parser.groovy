@@ -73,9 +73,12 @@ class ImmunoSeqV2Parser extends ImmunoSeqParser {
         cdr3ntColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("nucleotide") }
         inFrameColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("sequenceStatus") }
         cdr3aaColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("aminoAcid") }
-        vColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("vFamilyName") }
-        dColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("dFamilyName") }
-        jColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("jFamilyName") }
+        vColumn0 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("vFamilyTies") }
+        dColumn0 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("dFamilyTies") }
+        jColumn0 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("jFamilyTies") }
+        vColumn1 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("vFamilyName") }
+        dColumn1 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("dFamilyName") }
+        jColumn1 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("jFamilyName") }
         vColumn2 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("vGeneName") }
         dColumn2 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("dGeneName") }
         jColumn2 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("jGeneName") }
@@ -87,7 +90,8 @@ class ImmunoSeqV2Parser extends ImmunoSeqParser {
         if ([countColumn, freqColumn,
              cdr3StartColumn,  cdr3LenColumn,
              cdr3ntColumn, cdr3aaColumn,
-             vColumn, dColumn, jColumn,
+             vColumn0, dColumn0, jColumn0,
+             vColumn1, dColumn1, jColumn1,
              vColumn2, dColumn2, jColumn2,
              vEndColumn, dStartColumn, dEndColumn, jStartColumn,
              inFrameColumn].any { it < 0 })
