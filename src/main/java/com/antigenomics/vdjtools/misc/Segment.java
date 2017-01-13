@@ -29,6 +29,8 @@
 
 package com.antigenomics.vdjtools.misc;
 
+import com.antigenomics.vdjtools.sample.Chain;
+
 /**
  * An immune receptor segment.
  */
@@ -53,6 +55,31 @@ public class Segment {
     @Override
     public String toString() {
         return name;
+    }
+
+    public Chain getChain() {
+        if (name.length() < 3) {
+            return Chain.NA;
+        }
+
+        switch (name.substring(0, 3).toUpperCase()) {
+            case "TRA":
+                return Chain.TRA;
+            case "TRB":
+                return Chain.TRB;
+            case "IGH":
+                return Chain.IGH;
+            case "IGL":
+                return Chain.IGL;
+            case "IGK":
+                return Chain.IGK;
+            case "TRG":
+                return Chain.TRG;
+            case "TRD":
+                return Chain.TRD;
+        }
+
+        return Chain.NA;
     }
 
     @Override
