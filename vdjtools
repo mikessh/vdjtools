@@ -116,7 +116,7 @@ jar=""
 
 if [[ -z "$otherJar" ]];
 then
-    for j in "$dir/../jar/vdjtools.jar" "$dir/vdjtools.jar" $(ls -d -1 $dir/target/* 2> /dev/null | grep distribution.jar)
+    for j in "$dir/../jar/vdjtools-1.1.3.jar" "$dir/vdjtools-1.1.3.jar" $(ls -d -1 $dir/target/* 2> /dev/null | grep distribution.jar)
     do
         if [[ -e "$j" ]];
         then
