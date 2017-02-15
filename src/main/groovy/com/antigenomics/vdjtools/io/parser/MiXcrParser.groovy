@@ -42,9 +42,9 @@ import static com.antigenomics.vdjtools.misc.CommonUtil.*
 public class MiXcrParser extends ClonotypeStreamParser {
     private boolean initialized = false
     private int countColumn, freqColumn, cdr3ntColumn, cdr3aaColumn,
-        vHitsColumn, dHitsColumn, jHitsColumn,
-        vAlignmentsColumn, dAlignmentsColumn, jAlignmentsColumn,
-        numberOfColumns
+                vHitsColumn, dHitsColumn, jHitsColumn,
+                vAlignmentsColumn, dAlignmentsColumn, jAlignmentsColumn,
+                numberOfColumns
 
     /**
      * {@inheritDoc}
@@ -67,16 +67,24 @@ public class MiXcrParser extends ClonotypeStreamParser {
         String headerLine = this.header[0];
         String[] splitHeaderLine = headerLine.split(software.delimiter)
 
-        countColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("Clone count") }
-        freqColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("Clone fraction") }
-        cdr3ntColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("N. Seq. CDR3") }
-        cdr3aaColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("AA. Seq. CDR3") }
-        vAlignmentsColumn = splitHeaderLine.findIndexOf { it =~ /(?i)V alignment/ }
-        dAlignmentsColumn = splitHeaderLine.findIndexOf { it =~ /(?i)D alignment/ }
-        jAlignmentsColumn = splitHeaderLine.findIndexOf { it =~ /(?i)J alignment/ }
-        vHitsColumn = splitHeaderLine.findIndexOf { it =~ /(?i)V hits/ }
-        dHitsColumn = splitHeaderLine.findIndexOf { it =~ /(?i)D hits/ }
-        jHitsColumn = splitHeaderLine.findIndexOf { it =~ /(?i)J hits/ }
+        countColumn = splitHeaderLine.findIndexOf {
+            it.equalsIgnoreCase("Clone count") || it.equalsIgnoreCase("cloneCount")
+        }
+        freqColumn = splitHeaderLine.findIndexOf {
+            it.equalsIgnoreCase("Clone fraction") || it.equalsIgnoreCase("cloneFraction")
+        }
+        cdr3ntColumn = splitHeaderLine.findIndexOf {
+            it.equalsIgnoreCase("N. Seq. CDR3") || it.equalsIgnoreCase("nSeqCDR3")
+        }
+        cdr3aaColumn = splitHeaderLine.findIndexOf {
+            it.equalsIgnoreCase("AA. Seq. CDR3") || it.equalsIgnoreCase("aaSeqCDR3")
+        }
+        vAlignmentsColumn = splitHeaderLine.findIndexOf { it =~ /(?i)V alignment/ || it =~ /(?i)VAlignment/ }
+        dAlignmentsColumn = splitHeaderLine.findIndexOf { it =~ /(?i)D alignment/ || it =~ /(?i)DAlignment/ }
+        jAlignmentsColumn = splitHeaderLine.findIndexOf { it =~ /(?i)J alignment/ || it =~ /(?i)JAlignment/ }
+        vHitsColumn = splitHeaderLine.findIndexOf { it =~ /(?i)V hits/ || it =~ /(?i)VHits/ }
+        dHitsColumn = splitHeaderLine.findIndexOf { it =~ /(?i)D hits/ || it =~ /(?i)DHits/ }
+        jHitsColumn = splitHeaderLine.findIndexOf { it =~ /(?i)J hits/ || it =~ /(?i)JHits/ }
         if (countColumn == -1 || freqColumn == -1 || cdr3ntColumn == -1 || cdr3aaColumn == -1 ||
                 vAlignmentsColumn == -1 || dAlignmentsColumn == -1 || jAlignmentsColumn == -1)
             throw new RuntimeException("Some mandatory columns are absent in the input file.")
