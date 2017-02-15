@@ -30,8 +30,8 @@
 package com.antigenomics.vdjtools.diversity
 
 import com.antigenomics.vdjtools.ClonotypeWrapperContainer
-import com.google.common.util.concurrent.AtomicDouble
-import com.google.common.util.concurrent.AtomicDoubleArray
+import com.antigenomics.vdjtools.misc.AtomicDouble
+import com.antigenomics.vdjtools.misc.AtomicDoubleArray
 
 /**
  * A class that computes summary statistics of repertoire clonality divided into several levels:

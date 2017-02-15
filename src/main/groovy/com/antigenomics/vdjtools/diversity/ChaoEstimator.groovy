@@ -29,9 +29,9 @@
 
 package com.antigenomics.vdjtools.diversity
 
+import com.antigenomics.vdjtools.misc.AtomicDouble
 import com.antigenomics.vdjtools.misc.ExecUtil
 import com.antigenomics.vdjtools.misc.MathUtil
-import com.google.common.util.concurrent.AtomicDouble
 import groovyx.gpars.GParsPool
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 

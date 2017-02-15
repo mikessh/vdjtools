@@ -44,10 +44,14 @@ import com.antigenomics.vdjtools.misc.*
 
 import java.util.jar.JarFile
 
-def version = (getClass().classLoader.findResource(JarFile.MANIFEST_NAME).text =~
-        /Implementation-Version: (.+)/)[0][1]
+def getVersion = {
+    (getClass().classLoader.findResource(JarFile.MANIFEST_NAME).text =~
+            /Implementation-Version: (.+)/)[0][1]
+}
 
 def printHelp = {
+    def version = getVersion()
+
     println "VDJtools V$version"
     println ""
     println "Run as \$java -jar vdjtools-${version}.jar ROUTINE_NAME arguments"
@@ -183,6 +187,10 @@ def getScript = { String scriptName ->
             System.exit(0)
             break
 
+        case "DUMMY":
+            System.exit(0)
+            break
+
         default:
             printHelp()
             println ""
@@ -206,6 +214,7 @@ if (args.length == 0) {
     try {
         ExecUtil.run(script, args.size() > 1 ? args[1..-1] : [""])
     } catch (Exception e) {
+        def version = getVersion()
         println "[ERROR] ${e.toString()}, see _vdjtools_error.log for details"
         new File("_vdjtools_error.log").withWriterAppend { writer ->
             writer.println("[${new Date()} BEGIN]")

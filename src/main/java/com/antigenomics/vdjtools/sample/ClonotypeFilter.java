@@ -29,7 +29,7 @@
 
 package com.antigenomics.vdjtools.sample;
 
-import com.google.common.util.concurrent.AtomicDouble;
+import com.antigenomics.vdjtools.misc.AtomicDouble;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
