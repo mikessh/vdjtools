@@ -241,19 +241,10 @@ in this format for VDJtools analysis.
 Metadata
 ^^^^^^^^
 
-Most VDJtools routines will accept multiple sample files as command
-line arguments for batch processing. This should be always preferred over
-multiple calls to VDJTools with a single sample due to the
-initialisation time of VDJTools.
-
-An alternative way to specify a sample batch is to pass the sample metadata 
-file with ``-m`` option. The file should contain sample file paths, 
-sample names. It can be also supplemented with optional metadata columns
-that will be appended to analysis results and can be used for plottings.
-
-Additionally, for each step that involves modification of samples (e.g. 
-converting or filtering non-functional rearrangements) a new metadata 
-file will be created in the folder containing the processed sample batch.
+Most VDJtools routines could be run with a sample batch. In this case
+paths to input files could be provided via command line (space separated), 
+but a more elegant solution is to specify a metadata file via ``-m`` option.
+The primary purpose of a metadata file is to organize and annotate datasets.
 
 .. note::
    -  VDJtools will append metadata fields to its output tables to
@@ -271,9 +262,6 @@ file will be created in the folder containing the processed sample batch.
       that were applied. For example the :ref:`downsample` routine run with
       ``-n 50000`` will append ``ds:50000`` to the ``..filter..`` column.
       Note that this column name is reserved and should not be modified.
-
-   -  Some routines for working with metadata files can be found in 
-      :ref:`util` section.
 
 Below are the basic guidelines for creating a metadata file.
 

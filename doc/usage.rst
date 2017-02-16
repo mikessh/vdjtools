@@ -43,12 +43,6 @@ The ``-h`` argument will bring up help message for specified routine.
     If insufficient amount memory is allocated, the Java Virtual Machine
     could drop with a *Java Heap Space Out of Memory* error.
 
-.. warning:: 
-
-    Due to JAR loading overhead, running VDJtools for a batch of samples should be
-    preferred to running VDJtools separately for each sample if possible. 
-    See :ref:`metadata` section for more details.
-
 .. tip::
 
     Some routines could be memory demanding, especially when running sample 
