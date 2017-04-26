@@ -36,6 +36,7 @@ import com.antigenomics.vdjtools.sample.Sample
 import com.antigenomics.vdjtools.misc.ExecUtil
 import com.antigenomics.vdjtools.misc.MathUtil
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
+import org.apache.commons.math3.stat.correlation.SpearmansCorrelation
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 import static com.antigenomics.vdjtools.overlap.OverlapMetric.*
@@ -115,6 +116,7 @@ class OverlapEvaluator {
                 }
                 return F2
 
+            case CorrelationS:
             case Correlation:
                 double R = 0
 
@@ -132,7 +134,12 @@ class OverlapEvaluator {
                         k++
                     }
 
-                    R = new PearsonsCorrelation().correlation(x, y)
+                    R = metric == CorrelationS ? new SpearmansCorrelation().correlation(x, y) :
+                            new PearsonsCorrelation().correlation(x, y)
+                }
+
+                if (Double.isNaN(R)) {
+                    R = 0
                 }
 
                 return R

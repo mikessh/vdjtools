@@ -41,6 +41,10 @@ public enum OverlapMetric {
      */
     /*   */ Correlation("R", R),
     /**
+     * Spearman Correlation between sample frequencies of _overlapping_ clonotypes
+     */
+    /*   */ CorrelationS("Rs", R),
+    /**
      * Ratio of observed to expected numbers of unique overlapping clonotypes, {@code div12 / div1 / div2}
      */
             Diversity("D", NegLog),

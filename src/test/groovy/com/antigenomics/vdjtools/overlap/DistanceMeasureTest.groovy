@@ -41,6 +41,7 @@ import static com.antigenomics.vdjtools.overlap.OverlapMetric.*
 class DistanceMeasureTest {
     static void checkMetricValue(OverlapMetric intersectMetric, double val) {
         switch (intersectMetric) {
+            case CorrelationS:
             case Correlation:
                 assert val >= -1 && val <= 1
                 break
@@ -131,7 +132,7 @@ class DistanceMeasureTest {
             // For RepSeq data, the other possible normalization (overlap size / sqrt(sample1 size * sample2 size))
             // will actually bias towards larger samples, due to higher probability of grabbing similar variants
             // It was empirically estimated that pow(sample1 size * sample2 size, 0.8) is the optimal choice
-            if (it.key != Diversity)
+            if (it.key != Diversity & it.key != CorrelationS)
                 assert failureFreq <= 0.01
         }
 
