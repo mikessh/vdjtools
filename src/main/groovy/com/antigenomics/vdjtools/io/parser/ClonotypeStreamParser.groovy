@@ -94,6 +94,7 @@ public abstract class ClonotypeStreamParser implements Iterable<Clonotype> {
                 parser = new MigMapParser(innerIter, sample)
                 break
             case Software.VDJtools:
+            case Software.VDJtoolsRenorm:
                 parser = new BaseParser(innerIter, sample)
                 break
             case Software.MiGec:

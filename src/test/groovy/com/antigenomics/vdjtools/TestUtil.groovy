@@ -56,6 +56,7 @@ class TestUtil {
         [
                 create: {
                     def is = TestUtil.class.classLoader.getResourceAsStream(resourceName)
+                    //print(resourceName)
                     resourceName.endsWith(".gz") ? new GZIPInputStream(is) : is
                 },
                 getId : { resourceName.split("/")[-1] }
