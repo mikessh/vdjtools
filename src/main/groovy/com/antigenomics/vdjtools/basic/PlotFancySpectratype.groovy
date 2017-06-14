@@ -94,6 +94,7 @@ for (int i = 0; i < spectratype.span; i++) {
 topClonotypes.eachWithIndex { it, ind ->
     def bin = spectratype.bin(it)
     spectraMatrix[bin][top - ind] = it.freq
+    spectraMatrix[bin][0] = spectraMatrix[bin][0] - it.freq
 }
 
 def table = "Len\tOther\t" + topClonotypes.reverse().collect { it.cdr3aa }.join("\t")
