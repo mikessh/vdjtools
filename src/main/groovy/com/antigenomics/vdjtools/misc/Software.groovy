@@ -77,6 +77,10 @@ enum Software {
     VDJtools("\t", null, 1, false, false, ["count", "freq",
                                            "cdr3nt", "cdr3aa",
                                            "v", "d", "j",
+                                           "VEnd", "DStart", "DEnd", "JStart"]),
+    VDJtoolsRenorm("\t", null, 1, true, true, ["count", "freq",
+                                           "cdr3nt", "cdr3aa",
+                                           "v", "d", "j",
                                            "VEnd", "DStart", "DEnd", "JStart"])
 
     static final String _ = "blank"

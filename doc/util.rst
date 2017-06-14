@@ -77,7 +77,9 @@ Filtered metadata table with corresponding suffix will be created in the specifi
 Convert
 ^^^^^^^
 
-Converts datasets from an arbitrary supported format to :ref:`vdjtools_format`.
+Converts datasets from an arbitrary supported format to :ref:`vdjtools_format`. You can also re-normalize your data - collapse clonotypes by 
+V, D, J and CDR3 nucleotide sequence and re-compute clonotype frequencies - by using ``-S VDJtoolsRenorm`` option. This is useful if you want 
+to groom manually converted data, or somewhy your clonotype frequencies do not sum to 1.
 
 Command line usage
 ~~~~~~~~~~~~~~~~~~
