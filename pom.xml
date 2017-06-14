@@ -94,7 +94,7 @@
         <dependency>
             <groupId>com.milaboratory</groupId>
             <artifactId>milib</artifactId>
-            <version>1.0</version>
+            <version>1.8</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.gpars</groupId>

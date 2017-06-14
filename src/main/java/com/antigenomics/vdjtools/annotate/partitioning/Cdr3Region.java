@@ -65,7 +65,7 @@ public abstract class Cdr3Region implements SequenceRegion {
         Range range = safeGetRange(clonotype);
 
         if (range == EMPTY) {
-            return new NucleotideSequence(new Bit2Array(0));
+            return new NucleotideSequence("");
         }
 
         return clonotype.getCdr3ntBinary().getRange(range);
