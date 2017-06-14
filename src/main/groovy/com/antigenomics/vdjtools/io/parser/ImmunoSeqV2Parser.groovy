@@ -67,6 +67,7 @@ class ImmunoSeqV2Parser extends ImmunoSeqParser {
         String[] splitHeaderLine = headerLine.split(software.delimiter)
 
         countColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("count (templates/reads)") }
+        countColumn2 = -1
         freqColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("frequencyCount (%)") }
         cdr3StartColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("vIndex") }
         cdr3LenColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("cdr3Length") }

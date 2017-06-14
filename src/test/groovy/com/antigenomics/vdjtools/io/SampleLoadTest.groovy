@@ -78,6 +78,11 @@ class SampleLoadTest {
     }
 
     @Test
+    public void immunoseqTemplateTest() {
+        loadTest(ImmunoSeq, 1108335, 42876, "_1")
+    }
+
+    @Test
     public void immunoseqV2Test() {
         loadTest(ImmunoSeqV2, 1108335, 42876)
     }

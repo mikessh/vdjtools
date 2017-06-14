@@ -47,7 +47,7 @@ import static com.antigenomics.vdjtools.misc.CommonUtil.*
  */
 class ImmunoSeqParser extends ClonotypeStreamParser {
     protected boolean initialized = false
-    protected int countColumn, freqColumn, cdr3StartColumn,
+    protected int countColumn, countColumn2, freqColumn, cdr3StartColumn,
                   cdr3ntColumn, cdr3aaColumn, cdr3LenColumn,
                   jStartColumn, inFrameColumn,
             vColumn0, dColumn0, jColumn0,
@@ -84,6 +84,7 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
         String[] splitHeaderLine = headerLine.split(software.delimiter)
 
         countColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("reads") }
+        countColumn2 = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("templates") }
         freqColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("frequency") }
         cdr3StartColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("v_index") }
         cdr3LenColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("cdr3_length") }
@@ -104,7 +105,7 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
         dEndColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("n2_index") }
         jStartColumn = splitHeaderLine.findIndexOf { it.equalsIgnoreCase("j_index") }
 
-        if ([countColumn, freqColumn,
+        if ([countColumn, countColumn2, freqColumn,
              cdr3StartColumn, cdr3LenColumn,
              cdr3ntColumn, cdr3aaColumn,
              vColumn0, dColumn0, jColumn0,
@@ -128,7 +129,13 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
         def splitString = clonotypeString.split("\t")
 
         // As-is data
-        def count = splitString[countColumn].toInteger()
+        def count = splitString[countColumn].isInteger() ? splitString[countColumn].toInteger() : null
+
+        if (count == null) {
+            // try to rescue count from "templates" column
+            count = splitString[countColumn2].toInteger()
+        }
+
         def freq = splitString[freqColumn].toDouble()
 
         int cdr3start = splitString[cdr3StartColumn].toInteger(),
@@ -136,7 +143,17 @@ class ImmunoSeqParser extends ClonotypeStreamParser {
 
         def inFrame = splitString[inFrameColumn].equalsIgnoreCase("in")
 
-        def cdr3nt = splitString[cdr3ntColumn][cdr3start..<(cdr3start + cdr3Len)]
+        def cdr3End = cdr3start + cdr3Len,
+            readLen = splitString[cdr3ntColumn].length(),
+            padding = 0
+
+        if (cdr3End > readLen) {
+            // handling short reads
+            padding = cdr3End - readLen
+            cdr3End = readLen
+        }
+
+        def cdr3nt = splitString[cdr3ntColumn][cdr3start..<cdr3End] + ("N" * padding)
         def cdr3aa = toUnifiedCdr3Aa(inFrame ? splitString[cdr3aaColumn] : translate(cdr3nt))
 
         String v, d, j
