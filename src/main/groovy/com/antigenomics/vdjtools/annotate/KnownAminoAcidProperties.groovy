@@ -58,7 +58,7 @@ class KnownAminoAcidProperties {
 
         lines[1..-1].each { line ->
             def splitLine = line.split("[\t ]+")
-            byte aa = AminoAcidSequence.ALPHABET.codeFromSymbol(splitLine[0].charAt(0))
+            byte aa = AminoAcidSequence.ALPHABET.symbolToCode(splitLine[0].charAt(0))
 
             splitLine[1..-1].eachWithIndex { String it, int ind ->
                 propertyValues[ind][aa] = it.toFloat()
@@ -92,7 +92,7 @@ class KnownAminoAcidProperties {
 
         lines[1..<lines.size()].each {
             int pos = it[posRelTcrColumn].toInteger(),
-                aa = AminoAcidSequence.ALPHABET.codeFromSymbol(it[aaTcrColumn].charAt(0))
+                aa = AminoAcidSequence.ALPHABET.symbolToCode(it[aaTcrColumn].charAt(0))
             float prob = (float) it[pColumn].toDouble()
 
             if (it[tcrChainColumn].equalsIgnoreCase("TRA")) {
