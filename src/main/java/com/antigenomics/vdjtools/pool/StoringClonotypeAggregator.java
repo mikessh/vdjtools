@@ -43,7 +43,7 @@ import java.util.Set;
  */
 public class StoringClonotypeAggregator extends MaxClonotypeAggregator implements ClonotypeWrapper {
     private Clonotype clonotype;
-    private int convergence;
+    private int convergence, occurrences;
     private PooledSample parent;
     private final Set<ClonotypeKey> variants = new HashSet<>();
     private final ClonotypeKeyGen clonotypeKeyGen = new ClonotypeKeyGen();
@@ -52,6 +52,7 @@ public class StoringClonotypeAggregator extends MaxClonotypeAggregator implement
         super(clonotype, sampleId);
         this.clonotype = clonotype;
         this.convergence = 1;
+        this.occurrences = 1;
         this.variants.add(clonotypeKeyGen.generateKey(clonotype));
     }
 
@@ -63,6 +64,7 @@ public class StoringClonotypeAggregator extends MaxClonotypeAggregator implement
             convergence++;
             variants.add(clonotypeKey);
         }
+        occurrences++;
 
         if (super.tryReplace(clonotype, sampleId)) {
             this.clonotype = clonotype;
@@ -92,13 +94,25 @@ public class StoringClonotypeAggregator extends MaxClonotypeAggregator implement
     }
 
     /**
-     * Gets the total number of convergent variants for this pooled clonotype.
+     * Gets the total number of convergent variants for this pooled clonotype, i.e.
+     * the total number of unique nucleotide variants in all samples.
      *
      * @return number of convergent variants.
      */
     @Override
     public int getDiversity() {
         return convergence;
+    }
+
+    /**
+     * Gets the total number of clonotype occurrences - counting the total number of
+     * nucleotide variants in all samples. Differs from diversity/convergence as the
+     * same nucleotide variant found in two samples will be counted twice.
+     *
+     * @return number of occurrences
+     */
+    public int getOccurrences() {
+        return occurrences;
     }
 
     /**

@@ -297,7 +297,7 @@ public class SampleWriter {
     public void write(PooledSample pooledSample, String fileName) {
         def printWriter = getWriter(fileName)
 
-        printWriter.println(header + "\tincidence\tconvergence")
+        printWriter.println(header + "\tincidence\tconvergence\toccurrences")
 
         pooledSample.each { pooledClonotype ->
             printWriter.println(
@@ -310,7 +310,8 @@ public class SampleWriter {
                             pooledClonotype.clonotype."$it"
                     },
                      pooledClonotype.incidenceCount,
-                     pooledClonotype.diversity
+                     pooledClonotype.diversity,
+                     pooledClonotype.occurrences
                     ].flatten().join("\t"))
         }
 
