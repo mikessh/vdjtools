@@ -117,6 +117,23 @@ class ExactEstimator extends DiversityEstimator {
      * {@inheritDoc}
      */
     @Override
+    DiversityIndex getNormalizedShannonWienerIndex() {
+        def mean = 0
+        def totalDiversity = 0
+
+        frequencyTable.bins.each { FrequencyTable.FrequencyTableBin bin ->
+            def h = bin.diversity * bin.freq * Math.log(bin.freq)
+            mean -= h
+            totalDiversity += bin.diversity
+        }
+
+        new DiversityIndex(Math.exp(mean / Math.log(totalDiversity)), 0, frequencyTable.count)
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     DiversityIndex getInverseSimpsonIndex() {
         // todo: std computaiton ?
         def mean = 0
