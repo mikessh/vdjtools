@@ -77,29 +77,13 @@ top = Math.min(top, sample.diversity)
 
 // Calculate spectratype
 
-def spectratype = new Spectratype(false, false)
+def fancySpectratype = new FancySpectratype(sample, top)
 
-def topClonotypes = spectratype.addAllFancy(sample, top)
-
-def spectratypeHist = spectratype.histogram
-
-// Prepare output table
-
-def spectraMatrix = new double[spectratype.span][top + 1]
-
-for (int i = 0; i < spectratype.span; i++) {
-    spectraMatrix[i][0] = spectratypeHist[i]
-}
-
-topClonotypes.eachWithIndex { it, ind ->
-    def bin = spectratype.bin(it)
-    spectraMatrix[bin][top - ind] = it.freq
-    spectraMatrix[bin][0] = spectraMatrix[bin][0] - it.freq
-}
-
-def table = "Len\tOther\t" + topClonotypes.reverse().collect { it.cdr3aa }.join("\t")
-for (int i = 0; i < spectratype.span; i++) {
-    table += "\n" + spectratype.lengths[i] + "\t" + spectraMatrix[i].collect().join("\t")
+def table = "Len\tOther\t" +
+        fancySpectratype.topClonotypes.reverse().collect { it.cdr3aa }.join("\t")
+for (int i = 0; i < fancySpectratype.spectratype.span; i++) {
+    table += "\n" + fancySpectratype.spectratype.lengths[i] + "\t" +
+            fancySpectratype.spectraMatrix[i].collect().join("\t")
 }
 
 // Output

@@ -87,8 +87,8 @@ public class Spectratype extends Histogram {
      * Update spectratype with a set of clonotypes, but omits several top clonotypes.
      * Internal, used for fancy (detalized) spectratype.
      * @param sample sample to add
-     * @param top top clonotypes which will be omitted, but rather returned as list
-     * @return
+     * @param top top clonotypes which will be excluded from histogram, and returned as list
+     * @return list of top clonotypes
      */
     public List<Clonotype> addAllFancy(Iterable<Clonotype> sample, int top) {
         def topClonotypes = new LinkedList<Clonotype>();
