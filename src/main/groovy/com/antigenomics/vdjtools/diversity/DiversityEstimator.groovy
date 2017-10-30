@@ -152,7 +152,10 @@ abstract class DiversityEstimator {
     static final String[] ESTIMATE_NAMES = ["observedDiversity",
                                             "chaoE",
                                             "efronThisted", "chao1",
-                                            "d50Index", "shannonWienerIndex", "inverseSimpsonIndex"]
+                                            "d50Index",
+                                            "shannonWienerIndex",
+                                            "normalizedShannonWienerIndex",
+                                            "inverseSimpsonIndex"]
 
     /**
      * Computes all the diversity estimates.
