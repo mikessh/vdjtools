@@ -30,6 +30,7 @@
 package com.antigenomics.vdjtools.annotate
 
 import com.antigenomics.vdjtools.TestUtil
+import com.antigenomics.vdjtools.annotate.partitioning.Cdr3Center
 import com.antigenomics.vdjtools.annotate.partitioning.FullCdr3
 import com.antigenomics.vdjtools.sample.Clonotype
 import com.antigenomics.vdjtools.misc.CommonUtil
@@ -58,23 +59,44 @@ class CdrAaStatsTest {
         }
     }
 
+    def clonotypes = [
+            new Clonotype(null, 1, 1.0d,
+                    [2, -1, -1, -10] as int[], "TRAV5", CommonUtil.PLACEHOLDER, "TRAJ48",
+                    "TGTCATGAGAAATTAACCTTT",
+                    "CHEKLTF", true, true, true),
+            new Clonotype(null, 1, 1.0d,
+                    [14, -1, -1, 19] as int[], "TRAV5", CommonUtil.PLACEHOLDER, "TRAJ48",
+                    "TGCCTCGTGGGTGACTCGTACACGGGCAGGAGAGCACTTACTTTT",
+                    "CLVGDSYTGRRALTF", true, true, true),
+            new Clonotype(null, 1, 1.0d,
+                    [-1, -1, -1, -1] as int[], "TRAV5", CommonUtil.PLACEHOLDER, "TRAJ48",
+                    "A" * 45,
+                    "A" * 6 + "F" * 3 + "A" * 6, true, true, true),
+            new Clonotype(null, 1, 1.0d,
+                    [-1, -1, -1, -1] as int[], "TRAV5", CommonUtil.PLACEHOLDER, "TRAJ48",
+                    "A" * 45,
+                    "F" * 6 + "A" * 3 + "F" * 6, true, true, true)]
+
     @Test
     void regionTest() {
-        def clonotypes = [
-                new Clonotype(null, 1, 1.0d,
-                        [2, -1, -1, -10] as int[], "TRAV5", CommonUtil.PLACEHOLDER, "TRAJ48",
-                        "TGTCATGAGAAATTAACCTTT",
-                        "CHEKLTF", true, true, true),
-                new Clonotype(null, 1, 1.0d,
-                        [14, -1, -1, 19] as int[], "TRAV5", CommonUtil.PLACEHOLDER, "TRAJ48",
-                        "TGCCTCGTGGGTGACTCGTACACGGGCAGGAGAGCACTTACTTTT",
-                        "CLVGDSYTGRRALTF", true, true, true)]
-
         clonotypes.each { clonotype ->
             KnownCdr3Regions.INSTANCE.getAll().each { region ->
                 println region.name + "\t" + region.extractAminoAcid(clonotype)
                 println region.name + "\t" + region.extractNucleotide(clonotype)
             }
         }
+    }
+
+    @Test
+    void  propertyTest() {
+        def propertySummary = new AaPropertySummaryEvaluator(
+                KnownAminoAcidProperties.INSTANCE.getByName("strength"),
+                new Cdr3Center(),
+                false,
+                false
+        )
+
+        assert propertySummary.compute(clonotypes[2]) == 3
+        assert propertySummary.compute(clonotypes[3]) == 2
     }
 }
