@@ -178,8 +178,8 @@ Computes a set of diversity statistics, including
 
 -  Diversity indices
 
-   -  `Shannon-Wiener index <http://www.esajournals.org/doi/abs/10.2307/1934352>`__
-   -  Normalized Shannon-Wiener index. Same as above, but with normalized entropy (divided by ``log[number of clonotypes]``)
+   -  `Shannon-Wiener index <http://www.esajournals.org/doi/abs/10.2307/1934352>`__. The exponent of clonotype frequency distribution entropy is returned.
+   -  Normalized Shannon-Wiener index. Normalized (divided by ``log[number of clonotypes]``) entropy of clonotype frequency distribution. Note that plain entropy is returned, not its exponent.
    -  `Inverse Simpson index <http://www.esajournals.org/doi/abs/10.2307/1934352>`__
 
 -  `Extrapolated Chao diversity estimate 

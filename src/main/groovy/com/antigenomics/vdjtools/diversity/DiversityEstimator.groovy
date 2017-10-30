@@ -52,13 +52,13 @@ abstract class DiversityEstimator {
      */
 
     /**
-     * Computes the Shannon-Weiner diversity index.
+     * Computes the Shannon-Wiener diversity index.
      * @return {@link com.antigenomics.vdjtools.diversity.DiversityEstimate} object handling the result.
      */
     abstract DiversityIndex getShannonWienerIndex()
 
     /**
-     * Computes the normalized Shannon-Weiner diversity index.
+     * Computes the normalized Shannon-Wiener diversity index.
      * @return {@link com.antigenomics.vdjtools.diversity.DiversityEstimate} object handling the result.
      */
     abstract DiversityIndex getNormalizedShannonWienerIndex()

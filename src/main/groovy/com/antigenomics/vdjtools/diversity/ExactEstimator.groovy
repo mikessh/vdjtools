@@ -127,7 +127,7 @@ class ExactEstimator extends DiversityEstimator {
             totalDiversity += bin.diversity
         }
 
-        new DiversityIndex(Math.exp(mean / Math.log(totalDiversity)), 0, frequencyTable.count)
+        new DiversityIndex(mean / Math.log(totalDiversity), 0, frequencyTable.count)
     }
 
     /**
