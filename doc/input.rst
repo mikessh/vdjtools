@@ -25,7 +25,7 @@ VDJtools **clonotype** specification includes the following fields:
 
 -  Complementarity determining region 3 nucleotide sequence (*CDR3nt*).
    CDR3 starts with Variable region reference point (conserved Cys residue) 
-   and ends with Joining segment reference point (conserved Phe\Try).
+   and ends with Joining segment reference point (conserved Phe\Trp).
 
 -  Translated CDR3 sequence (*CDR3aa*).
 
