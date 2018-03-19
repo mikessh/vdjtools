@@ -9,6 +9,11 @@ addons:
       - oracle-java9-installer
 
 install:
+  - jdk_switcher use oraclejdk8
+  - git clone https://github.com/milaboratory/milib.git
+  - cd milib/
+  - git checkout stm-greedy
+  - mvn clean install -q -Dmaven.test.skip=true
   - curl -OL https://raw.githubusercontent.com/metacran/r-builder/master/pkg-build.sh
   - chmod 755 pkg-build.sh
   - ./pkg-build.sh bootstrap
