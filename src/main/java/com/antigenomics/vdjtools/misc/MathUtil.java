@@ -37,7 +37,10 @@ import java.util.Random;
 /**
  * Fast Java implementation for mathematical routines used in VDJtools
  */
-public class MathUtil {
+public final class MathUtil {
+    private MathUtil() {
+    }
+
     /**
      * Upper limit on current precision of RepSeq
      */
@@ -45,13 +48,13 @@ public class MathUtil {
 
     private static final double HALF_LOG_2_PI = 0.5 * FastMath.log(2.0 * FastMath.PI);
     private static final long[] FACTORIALS = new long[]{
-            1l, 1l, 2l,
-            6l, 24l, 120l,
-            720l, 5040l, 40320l,
-            362880l, 3628800l, 39916800l,
-            479001600l, 6227020800l, 87178291200l,
-            1307674368000l, 20922789888000l, 355687428096000l,
-            6402373705728000l, 121645100408832000l, 2432902008176640000l};
+            1L, 1L, 2L,
+            6L, 24L, 120L,
+            720L, 5040L, 40320L,
+            362880L, 3628800L, 39916800L,
+            479001600L, 6227020800L, 87178291200L,
+            1307674368000L, 20922789888000L, 355687428096000L,
+            6402373705728000L, 121645100408832000L, 2432902008176640000L};
 
     /**
      * Computes the logarithm of n!/(n-k)!. Implemented based on apache math 3
