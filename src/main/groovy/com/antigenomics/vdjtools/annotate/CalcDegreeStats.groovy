@@ -50,15 +50,15 @@ cli.h("display help message")
 cli.m(longOpt: "metadata", argName: "filename", args: 1,
         "Metadata file. First and second columns should contain file name and sample id. " +
                 "Header is mandatory and will be used to assign column names for metadata.")
+cli.b(longOpt: "background", argName: "filename", args: 1,
+        "Background (control) sample file to compute random graph statistics. In case not provided," +
+                "will pool input samples and use them as control.")
 cli.o(longOpt: "search-scope", argName: "s,id,t", args: 1,
         "Search scope: number of substitutions (s), indels (id) and total number of mismatches (t) allowed. " +
                 "Default is $DEFAULT_SEARCH_SCOPE")
 cli.g(longOpt: "grouping", argName: "type", args: 1,
         "Grouping type: 'dummy', 'vj', 'vjl'. By default will select 'vjl' if no indels are allowed and " +
                 "'vj' otherwise.")
-cli.b(longOpt: "background", argName: "filename", args: 1,
-        "Background (control) sample file to compute random graph statistics. In case not provided," +
-                "will pool input samples and use them as control.")
 cli.c(longOpt: "compress", "Compress output sample files.")
 
 
@@ -89,14 +89,15 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 def outputFilePrefix = opt.arguments()[-1],
     backgroundSample = (String) opt.b,
     compress = (boolean) opt.c,
-    optSearchScope = (opt.o ?: DEFAULT_SEARCH_SCOPE).split(","),
-    grouping = opt.g ?: (searchScope[1] == 0 ? "vjl" : "vj")
+    optSearchScope = (opt.o ?: DEFAULT_SEARCH_SCOPE).split(",")
 
 if (optSearchScope.length != 3 || optSearchScope.any { !it.isInteger() || it.toInteger() >= 0 }) {
     println "[ERROR] Bad search scope $optSearchScope"
 }
 def searchScope = optSearchScope.collect { it.toInteger() } as int[]
 
+def grouping = opt.g ?: (searchScope[1] == 0 ? "vjl" : "vj")
+grouping = grouping.toLowerCase()
 def groupingFactory = grouping == "vjl" ? new VJLClonotypeGroupingFactory() :
         (grouping == "vj" ? new VJClonotypeGroupingFactory() : new DummyClonotypeGroupingFactory())
 
@@ -118,10 +119,12 @@ def bgDegreeStatCalc = new DegreeStatisticsCalculator(searchScope[0],
         searchScope[1], searchScope[2], groupingFactory)
 
 if (backgroundSample) {
+    // Load control sample
     println "[${new Date()} $scriptName] Loading control sample"
     bgDegreeStatCalc.inititalize(SampleFileConnection.load(backgroundSample))
 } else {
-    println "[${new Date()} $scriptName] Creating pooled sample to be used as control"
+    // Create control by aggregating all samples on the fly
+    println "[${new Date()} $scriptName] No control sample provided. Creating pooled sample to be used as control"
     def sampleAggr = new SampleAggregator(sampleCollection,
             new StoringClonotypeAggregatorFactory(),
             OverlapType.Strict)
