@@ -99,7 +99,7 @@
         <dependency>
             <groupId>com.milaboratory</groupId>
             <artifactId>milib</artifactId>
-            <version>1.8.3-SNAPSHOT</version>
+            <version>1.8.3</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
