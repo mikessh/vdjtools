@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/mikessh/vdjtools.svg?branch=master)](https://travis-ci.org/mikessh/vdjtools)
+[![JitPack](https://jitpack.io/v/mikessh/vdjtools.svg)](https://jitpack.io/#mikessh/vdjtools)
 
 ## VDJtools
 
@@ -32,7 +33,7 @@ Shugay M et al. VDJtools: Unifying Post-analysis of T Cell Receptor Repertoires.
 ### Some recent publications where VDJtools was used:
 
 - Feng Y et al. A mechanism for expansion of regulatory T-cell repertoire and its role in self-tolerance. [Nature 2015; doi:10.1038/nature16141](http://www.nature.com/nature/journal/vaop/ncurrent/full/nature16141.html)
-- Britanova OV et al. Dynamics of Individual T Cell Repertoires: From Cord Blood to Centenarians. [J Immunol 2016; doi:10.4049/​jimmunol.1600005](http://www.jimmunol.org/content/196/12/5005.short)
+- Britanova OV et al. Dynamics of Individual T Cell Repertoires: From Cord Blood to Centenarians. [J Immunol 2016; doi:10.4049/jimmunol.1600005](http://www.jimmunol.org/content/196/12/5005.short)
 - Joachims ML et al. Single-cell analysis of glandular T cell receptors in Sjögren’s syndrome. [JCI Insight 2016; doi:10.1172/jci.insight.85609](https://insight.jci.org/articles/view/85609)
 - Plitas G et al. Regulatory T cells exhibit distinct features in human breast cancer. [Immunity 2017; doi.org:10.1016/j.immuni.2016.10.032](http://www.sciencedirect.com/science/article/pii/S1074761316304435)
 - Izraelson M et al. Comparative Analysis of Murine T Cell Receptor Repertoires. [Immunology 2017; doi.org:10.1111/imm.12857](http://onlinelibrary.wiley.com/doi/10.1111/imm.12857/full)
