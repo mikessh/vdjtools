@@ -11,7 +11,7 @@ import groovyx.gpars.GParsPool
 class DegreeStatisticsAnnotator {
     final DegreeStatisticsCalculator sampleStatistics, controlStatistics
 
-    static final String HEADER = "count.sample\ttotal.sample\tcount.control\ttotal.control"
+    static final String HEADER = "count.sample\ttotal.sample\tcount.control\ttotal.control\tp.value"
 
     DegreeStatisticsAnnotator(DegreeStatisticsCalculator sampleStatistics, DegreeStatisticsCalculator controlStatistics) {
         this.sampleStatistics = sampleStatistics
@@ -42,9 +42,12 @@ class DegreeStatisticsAnnotator {
         }
     }
 
-    static computePValue(DegreeStatistics sample, DegreeStatistics background) {
+    static double computePValue(DegreeStatistics sample, DegreeStatistics background) {
+        if (sample == DegreeStatistics.UNDEF || background == DegreeStatistics.UNDEF)
+            return 1.0
+
         // todo: int conversion (?)
         StatUtil.binomialPValue(sample.degree, (int) sample.groupCount,
-                (background.degree + 1.0) / (background.groupCount + 1.0))
+                ((double) background.degree + 1.0d) / ((double) background.groupCount + 1.0d))
     }
 }

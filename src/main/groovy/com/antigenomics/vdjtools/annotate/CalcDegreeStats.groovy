@@ -87,12 +87,13 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 }
 
 def outputFilePrefix = opt.arguments()[-1],
-    backgroundSample = (String) opt.b,
+    backgroundSample = opt.b,
     compress = (boolean) opt.c,
     optSearchScope = (opt.o ?: DEFAULT_SEARCH_SCOPE).split(",")
 
-if (optSearchScope.length != 3 || optSearchScope.any { !it.isInteger() || it.toInteger() >= 0 }) {
+if (optSearchScope.length != 3 || optSearchScope.any { !it.isInteger() || it.toInteger() < 0 }) {
     println "[ERROR] Bad search scope $optSearchScope"
+    System.exit(2)
 }
 def searchScope = optSearchScope.collect { it.toInteger() } as int[]
 
@@ -108,7 +109,7 @@ def scriptName = getClass().canonicalName.split("\\.")[-1]
 println "[${new Date()} $scriptName] Reading samples"
 
 def sampleCollection = metadataFileName ?
-        new SampleCollection((String) metadataFileName) :
+        new SampleCollection((String) metadataFileName) : // todo: if no control, perhaps store samples?
         new SampleCollection(opt.arguments()[0..-2])
 
 println "[${new Date()} $scriptName] ${sampleCollection.size()} samples prepared"
@@ -121,7 +122,7 @@ def bgDegreeStatCalc = new DegreeStatisticsCalculator(searchScope[0],
 if (backgroundSample) {
     // Load control sample
     println "[${new Date()} $scriptName] Loading control sample"
-    bgDegreeStatCalc.inititalize(SampleFileConnection.load(backgroundSample))
+    bgDegreeStatCalc.inititalize(SampleFileConnection.load((String) backgroundSample))
 } else {
     // Create control by aggregating all samples on the fly
     println "[${new Date()} $scriptName] No control sample provided. Creating pooled sample to be used as control"

@@ -37,6 +37,7 @@ import com.antigenomics.vdjtools.misc.SegmentFactory;
 import com.milaboratory.core.sequence.AminoAcidSequence;
 import com.milaboratory.core.sequence.NucleotideSequence;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -499,5 +500,24 @@ public class Clonotype implements Comparable<Clonotype>, Countable, ClonotypeWra
     @Override
     public Clonotype getClonotype() {
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "Clonotype{" +
+                "parent=" + parent +
+                ", count=" + count +
+                ", freq=" + freq +
+                ", annotation='" + annotation + '\'' +
+                ", segmPoints=" + Arrays.toString(segmPoints) +
+                ", v=" + v +
+                ", d=" + d +
+                ", j=" + j +
+                ", cdr3nt=" + cdr3nt +
+                ", cdr3aa=" + cdr3aa +
+                ", inFrame=" + inFrame +
+                ", isComplete=" + isComplete +
+                ", noStop=" + noStop +
+                '}';
     }
 }

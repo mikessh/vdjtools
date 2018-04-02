@@ -31,7 +31,6 @@ package com.antigenomics.vdjtools.preprocess
 
 import com.antigenomics.vdjtools.misc.Software
 import com.antigenomics.vdjtools.io.SampleWriter
-import com.antigenomics.vdjtools.pool.CountFilter
 import com.antigenomics.vdjtools.pool.RatioFilter
 import com.antigenomics.vdjtools.sample.ClonotypeFilter
 import com.antigenomics.vdjtools.sample.Sample
@@ -109,7 +108,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples prepared
 
 println "[${new Date()} $scriptName] Creating sample pool for filtering"
 
-def ratioFilter = readBased ? new CountFilter(sampleCollection, ratio) :
+def ratioFilter = readBased ? new RatioFilter(sampleCollection, ratio) :
         new RatioFilter(sampleCollection, ratio)
 
 //

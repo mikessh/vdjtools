@@ -30,12 +30,16 @@
 package com.antigenomics.vdjtools.preprocess
 
 import com.antigenomics.vdjtools.io.SampleWriter
+import com.antigenomics.vdjtools.sample.CountFilter
 import com.antigenomics.vdjtools.sample.*
 import com.antigenomics.vdjtools.sample.metadata.MetadataTable
 
 import static com.antigenomics.vdjtools.misc.ExecUtil.formOutputPath
 
-def DEFAULT_FREQ_THRESHOLD = "0.01", DEFAULT_QUANTILE_THRESHOLD = "0.25"
+def DEFAULT_FREQ_THRESHOLD = "0",
+    DEFAULT_QUANTILE_THRESHOLD = "1",
+    DEFAULT_COUNT_THRESHOLD = "0"
+
 def cli = new CliBuilder(usage: "FilterByFrequency [options] " +
         "[sample1 sample2 sample3 ... if -m is not specified] output_prefix")
 cli.h("display help message")
@@ -45,9 +49,12 @@ cli.m(longOpt: "metadata", argName: "filename", args: 1,
 cli.f(longOpt: "freq-threshold", argName: "double", args: 1,
         "Clonotype frequency threshold. Set it to 0 to disable. " +
                 "[default = $DEFAULT_FREQ_THRESHOLD]")
+cli.x(longOpt: "count-threshold", argName: "int", args: 1,
+        "Clonotype count (number of reads) threshold. Set it to 0 to disable. [default = $DEFAULT_COUNT_THRESHOLD]")
 cli.q(longOpt: "quantile-threshold", argName: "double", args: 1,
         "Quantile threshold. Will retain a set of top N clonotypes " +
-                "so that their total frequency is equal or less to the specified threshold. " +
+                "so that their total frequency is equal or less to the specified threshold, " +
+                "e.g. '0.25' will select top 25% clonotypes by frequency. " +
                 "Set it to 1 to disable." +
                 "[default = $DEFAULT_QUANTILE_THRESHOLD]")
 cli._(longOpt: "save-freqs", "Preserve clonotype frequencies as in original sample. " +
@@ -81,6 +88,7 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
 
 def outputFilePrefix = opt.arguments()[-1],
     freqThreshold = (opt.f ?: DEFAULT_FREQ_THRESHOLD).toDouble(),
+    countThreshold = (opt.x ?: DEFAULT_COUNT_THRESHOLD).toInteger(),
     quantileThreshold = (opt.q ?: DEFAULT_QUANTILE_THRESHOLD).toDouble(),
     saveFreqs = (boolean) opt.'save-freqs',
     compress = (boolean) opt.c
@@ -106,6 +114,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} sample(s) loaded
 def writer = new SampleWriter(compress, !saveFreqs)
 
 def filter = new CompositeClonotypeFilter(
+        new CountFilter(countThreshold),
         new FrequencyFilter(freqThreshold),
         new QuantileFilter(quantileThreshold)
 )
@@ -133,6 +142,6 @@ new File(formOutputPath(outputFilePrefix, "freqfilter", "summary")).withPrintWri
 }
 
 sampleCollection.metadataTable.storeWithOutput(outputFilePrefix, compress,
-        "freqfilter:$freqThreshold:$quantileThreshold")
+        "freqfilter:$freqThreshold:$quantileThreshold:$countThreshold")
 
 println "[${new Date()} $scriptName] Finished"

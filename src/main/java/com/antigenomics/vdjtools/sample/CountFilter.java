@@ -27,42 +27,21 @@
  * PATENT, TRADEMARK OR OTHER RIGHTS.
  */
 
-package com.antigenomics.vdjtools.pool;
+package com.antigenomics.vdjtools.sample;
 
-import com.antigenomics.vdjtools.sample.Clonotype;
-import com.antigenomics.vdjtools.sample.ClonotypeFilter;
-import com.antigenomics.vdjtools.sample.Sample;
-
-/**
- * A clonotype filter that filters out all clonotypes that do not pass a certain ratio threshold
- * when compared to the matching most abundant clonotype in another sample.
- * Used in {@link com.antigenomics.vdjtools.preprocess.Decontaminate}.
- */
 public class CountFilter extends ClonotypeFilter {
-    private final SampleAggregator<MaxClonotypeAggregator> sampleAggregator;
-    private final double thresholdRatio;
+    private final int countThreshold;
 
-    public CountFilter(Iterable<Sample> samples, double thresholdRatio, boolean negative) {
-        super(negative);
-        this.sampleAggregator = new SampleAggregator<>(samples, new MaxClonotypeAggregatorFactory());
-        this.thresholdRatio = thresholdRatio;
+    public CountFilter() {
+        this(1);
     }
 
-    public CountFilter(Iterable<Sample> samples, double thresholdRatio) {
-        this(samples, thresholdRatio, false);
+    public CountFilter(int countThreshold) {
+        this.countThreshold = countThreshold;
     }
 
-    public CountFilter(Iterable<Sample> samples) {
-        this(samples, 20.0);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected boolean checkPass(Clonotype clonotype) {
-        MaxClonotypeAggregator aggregator = sampleAggregator.getAt(clonotype);
-        return aggregator == null ||
-                aggregator.getCount() < clonotype.getCount() * thresholdRatio;
+        return clonotype.getCount() >= countThreshold;
     }
 }

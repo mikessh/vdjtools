@@ -32,6 +32,7 @@ package com.antigenomics.vdjtools
 
 import com.antigenomics.vdjtools.annotate.Annotate
 import com.antigenomics.vdjtools.annotate.CalcCdrAaStats
+import com.antigenomics.vdjtools.annotate.CalcDegreeStats
 import com.antigenomics.vdjtools.basic.*
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.PlotQuantileStats
@@ -79,6 +80,7 @@ def printHelp = {
     println "[Preprocessing]"
     println "ApplySampleAsFilter"
     println "FilterNonFunctional"
+    println "FilterByFrequency"
     println "DownSample"
     println "Decontaminate"
     println "FilterBySegment"
@@ -90,8 +92,9 @@ def printHelp = {
     println "(Enrichment) -> Deprecated"
     println ""
     println "[Annotation]"
-    println "(ScanDatabase) -> moved to VDJdb since 1.0.5"
+    println "(ScanDatabase) -> moved to VDJdb since 1.0.5, please visit vdjdb.cdr3.net"
     println "CalcCdrAaStats"
+    println "CalcDegreeStats"
     println "Annotate"
     println ""
     println "[Util]"
@@ -142,6 +145,8 @@ def getScript = { String scriptName ->
             return new Decontaminate()
         case "FILTERBYSEGMENT":
             return new FilterBySegment()
+        case "FILTERBYFREQUENCY":
+            return new FilterByFrequency()
         case "FILTERNONFUNCTIONAL":
             return new FilterNonFunctional()
         case "DOWNSAMPLE":
@@ -162,10 +167,12 @@ def getScript = { String scriptName ->
 
         case "CALCCDRAASTATS":
             return new CalcCdrAaStats()
+        case "CALCDEGREESTATS":
+            return new CalcDegreeStats()
         case "ANNOTATE":
             return new Annotate()
         case "SCANDATABASE":
-            println "Moved to VDJdb since 1.0.5, see docs"
+            println "Moved to VDJdb since 1.0.5, please visit vdjdb.cdr3.net"
             System.exit(0)
             break
 

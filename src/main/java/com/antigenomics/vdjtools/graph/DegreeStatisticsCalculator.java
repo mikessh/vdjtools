@@ -10,13 +10,15 @@ import com.milaboratory.core.tree.NeighborhoodIterator;
 import com.milaboratory.core.tree.SequenceTreeMap;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
 public class DegreeStatisticsCalculator {
     private final ClonotypeGroupingFactory clonotypeGroupingFactory;
     private final GroupingSummary groupingSummary = new GroupingSummary();
-    private final SequenceTreeMap<AminoAcidSequence, List<Clonotype>> stm = new SequenceTreeMap<>(AminoAcidSequence.ALPHABET);
+    private final SequenceTreeMap<AminoAcidSequence, Queue<Clonotype>> stm = new SequenceTreeMap<>(AminoAcidSequence.ALPHABET);
     private final int substitutionThreshold, indelThreshold, totalMismatchThreshold;
     private final static ClonotypeKeyGen ckg = new ClonotypeKeyGen(OverlapType.Strict);
 
@@ -31,7 +33,7 @@ public class DegreeStatisticsCalculator {
     }
 
     public <T extends ClonotypeWrapper> void inititalize(ClonotypeWrapperContainer<T> clonotypes) {
-        final Map<AminoAcidSequence, List<Clonotype>> clonotypeMap = new HashMap<>();
+        final Map<AminoAcidSequence, Queue<Clonotype>> clonotypeMap = new ConcurrentHashMap<>();
 
         Spliterator<T> spliterator = Spliterators.spliterator(clonotypes.iterator(),
                 clonotypes.getDiversity(),
@@ -42,12 +44,13 @@ public class DegreeStatisticsCalculator {
                 .forEach(cw -> {
                     Clonotype clonotype = cw.getClonotype();
                     if (clonotype.isCoding()) {
-                        clonotypeMap.computeIfAbsent(clonotype.getCdr3aaBinary(), k -> new ArrayList<>()).add(clonotype);
+                        clonotypeMap.computeIfAbsent(clonotype.getCdr3aaBinary(),
+                                k -> new ConcurrentLinkedQueue<>()).add(clonotype);
                         groupingSummary.update(clonotypeGroupingFactory.getGroup(clonotype)); // thread safe
                     }
                 });
 
-        for (Map.Entry<AminoAcidSequence, List<Clonotype>> entry : clonotypeMap.entrySet()) {
+        for (Map.Entry<AminoAcidSequence, Queue<Clonotype>> entry : clonotypeMap.entrySet()) {
             stm.put(entry.getKey(), entry.getValue());
         }
     }
@@ -60,15 +63,18 @@ public class DegreeStatisticsCalculator {
         Set<Clonotype> clonotypeSet = new HashSet<>();
         ClonotypeGroup clonotypeGroup = clonotypeGroupingFactory.getGroup(clonotype);
 
-        NeighborhoodIterator<AminoAcidSequence, List<Clonotype>> ni = stm.getNeighborhoodIterator(clonotype.getCdr3aaBinary(),
+        NeighborhoodIterator<AminoAcidSequence, Queue<Clonotype>> ni = stm.getNeighborhoodIterator(clonotype.getCdr3aaBinary(),
                 substitutionThreshold, indelThreshold, indelThreshold, totalMismatchThreshold);
-        List<Clonotype> matchList;
+        Queue<Clonotype> matchList;
 
         while ((matchList = ni.next()) != null) {
-            for (Clonotype match : matchList) {
-                if (!ckg.generateKey(clonotype).equals(ckg.generateKey(match)) && // no match to itself
-                        clonotypeGroup.equals(clonotypeGroupingFactory.getGroup(match))) { // same group, e.g. VJ length
-                    clonotypeSet.add(match);
+            // explicit check for indel sum threshold as insertions and deletions are counted separately
+            if (ni.getCurrentMutations().countOfIndels() <= indelThreshold) {
+                for (Clonotype match : matchList) {
+                    if (!ckg.generateKey(clonotype).equals(ckg.generateKey(match)) && // no match to itself
+                            clonotypeGroup.equals(clonotypeGroupingFactory.getGroup(match))) { // same group, e.g. VJ length
+                        clonotypeSet.add(match);
+                    }
                 }
             }
         }
