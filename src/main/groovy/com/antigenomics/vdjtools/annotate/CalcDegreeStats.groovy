@@ -57,7 +57,15 @@ cli.o(longOpt: "search-scope", argName: "s,id,t", args: 1,
         "Search scope: number of substitutions (s), indels (id) and total number of mismatches (t) allowed. " +
                 "Default is $DEFAULT_SEARCH_SCOPE")
 cli.g(longOpt: "grouping", argName: "type", args: 1,
-        "Grouping type: 'dummy', 'vj', 'vjl'. By default will select 'vjl' if no indels are allowed and " +
+        "Primary grouping type, limits the scope of possible clonotype comparisons when computing clonotype degree. " +
+                "Group counts are used in primary statistical test (p.value in output)." +
+                "Allowed values: 'dummy' (no grouping, default), " +
+                "'vj' (same V and J) and 'vjl' (same V, J and CDR3 length).")
+cli.g2(longOpt: "grouping2", argName: "type", args: 1,
+        "Secondary grouping type, doesn't limit possible clonotype comparisons. " +
+                "Group counts are used in secondary statistical test (p.value.2 in output). " +
+                "Allowed values: 'dummy', 'vj' and 'vjl'. " +
+                "By default will select 'vjl' if no indels are allowed and " +
                 "'vj' otherwise.")
 cli.c(longOpt: "compress", "Compress output sample files.")
 
@@ -86,10 +94,14 @@ if (metadataFileName ? opt.arguments().size() != 1 : opt.arguments().size() < 2)
     System.exit(2)
 }
 
+// General options
+
 def outputFilePrefix = opt.arguments()[-1],
     backgroundSample = opt.b,
     compress = (boolean) opt.c,
     optSearchScope = (opt.o ?: DEFAULT_SEARCH_SCOPE).split(",")
+
+// Search scope
 
 if (optSearchScope.length != 3 || optSearchScope.any { !it.isInteger() || it.toInteger() < 0 }) {
     println "[ERROR] Bad search scope $optSearchScope"
@@ -97,10 +109,24 @@ if (optSearchScope.length != 3 || optSearchScope.any { !it.isInteger() || it.toI
 }
 def searchScope = optSearchScope.collect { it.toInteger() } as int[]
 
-def grouping = opt.g ?: (searchScope[1] == 0 ? "vjl" : "vj")
-grouping = grouping.toLowerCase()
-def groupingFactory = grouping == "vjl" ? new VJLClonotypeGroupingFactory() :
-        (grouping == "vj" ? new VJClonotypeGroupingFactory() : new DummyClonotypeGroupingFactory())
+// Grouping
+
+def grouping = (opt.g ?: "dummy").toLowerCase(),
+    grouping2 = (opt.g2 ?: (searchScope[1] == 0 ? "vjl" : "vj")).toLowerCase()
+
+def getGroupingFactory = { name ->
+    switch (name) {
+        case "vjl":
+            return new VJLClonotypeGroupingFactory()
+        case "vj":
+            return new VJClonotypeGroupingFactory()
+        default:
+            return DummyClonotypeGroupingFactory.INSTANCE
+    }
+}
+
+def groupingFactory = getGroupingFactory(grouping),
+    groupingFactory2 = getGroupingFactory(grouping2)
 
 def scriptName = getClass().canonicalName.split("\\.")[-1]
 
@@ -117,7 +143,7 @@ println "[${new Date()} $scriptName] ${sampleCollection.size()} samples prepared
 // Compute control degree statistics
 
 def bgDegreeStatCalc = new DegreeStatisticsCalculator(searchScope[0],
-        searchScope[1], searchScope[2], groupingFactory)
+        searchScope[1], searchScope[2], groupingFactory, groupingFactory2)
 
 if (backgroundSample) {
     // Load control sample
@@ -142,7 +168,7 @@ sampleCollection.eachWithIndex { sample, ind ->
 
     // Initialize sample degree statistics
     def sampleDegreeStatCalc = new DegreeStatisticsCalculator(searchScope[0],
-            searchScope[1], searchScope[2], groupingFactory)
+            searchScope[1], searchScope[2], groupingFactory, groupingFactory2)
     sampleDegreeStatCalc.inititalize(sample)
 
     // Create annotator and annotate sample with both background and observed degree statistics

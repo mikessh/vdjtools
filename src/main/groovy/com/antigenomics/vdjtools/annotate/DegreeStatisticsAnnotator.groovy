@@ -11,9 +11,12 @@ import groovyx.gpars.GParsPool
 class DegreeStatisticsAnnotator {
     final DegreeStatisticsCalculator sampleStatistics, controlStatistics
 
-    static final String HEADER = "count.sample\ttotal.sample\tcount.control\ttotal.control\tp.value"
+    static final String HEADER = "degree.s\tgroup.count.s\tgroup2.count.s\t" +
+            "degree.c\tgroup.count.c\tgroup2.count.c\t" +
+            "p.value.g\tp.value.g2"
 
-    DegreeStatisticsAnnotator(DegreeStatisticsCalculator sampleStatistics, DegreeStatisticsCalculator controlStatistics) {
+    DegreeStatisticsAnnotator(DegreeStatisticsCalculator sampleStatistics,
+                              DegreeStatisticsCalculator controlStatistics) {
         this.sampleStatistics = sampleStatistics
         this.controlStatistics = controlStatistics
     }
@@ -26,7 +29,8 @@ class DegreeStatisticsAnnotator {
                 sample.eachParallel { Clonotype clonotype ->
                     def s = sampleStatistics.compute(clonotype),
                         b = controlStatistics.compute(clonotype)
-                    clonotype.annotation += "\t" + s + "\t" + b + "\t" + computePValue(s, b)
+                    clonotype.annotation += "\t" + s + "\t" + b + "\t" +
+                            computePValue(s, b) + "\t" + computePValue2(s, b)
 
                 }
             }
@@ -36,7 +40,8 @@ class DegreeStatisticsAnnotator {
                 sample.eachParallel { Clonotype clonotype ->
                     def s = sampleStatistics.compute(clonotype),
                         b = controlStatistics.compute(clonotype)
-                    clonotype.annotation = s.toString() + "\t" + b + "\t" + computePValue(s, b)
+                    clonotype.annotation = s.toString() + "\t" + b + "\t" +
+                            computePValue(s, b) + "\t" + computePValue2(s, b)
                 }
             }
         }
@@ -47,7 +52,17 @@ class DegreeStatisticsAnnotator {
             return 1.0
 
         // todo: int conversion (?)
-        StatUtil.binomialPValue(sample.degree, (int) sample.groupCount,
-                ((double) background.degree + 1.0d) / ((double) background.groupCount + 1.0d))
+        StatUtil.binomialPValue(sample.degree, (int) sample.primaryGroupCount,
+                ((double) background.degree + 1.0d) / ((double) background.primaryGroupCount + 1.0d))
+    }
+
+    static double computePValue2(DegreeStatistics sample, DegreeStatistics background) {
+        if (sample == DegreeStatistics.UNDEF || background == DegreeStatistics.UNDEF)
+            return 1.0
+
+        StatUtil.poissonPValue(sample.degree,
+                (sample.secondaryGroupCount + 1.0d) *
+                        (background.degree + 1.0d) /
+                        (background.secondaryGroupCount + 1.0d))
     }
 }

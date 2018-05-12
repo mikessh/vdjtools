@@ -2,8 +2,6 @@ package com.antigenomics.vdjtools.graph;
 
 import com.antigenomics.vdjtools.ClonotypeWrapper;
 import com.antigenomics.vdjtools.ClonotypeWrapperContainer;
-import com.antigenomics.vdjtools.join.ClonotypeKeyGen;
-import com.antigenomics.vdjtools.overlap.OverlapType;
 import com.antigenomics.vdjtools.sample.Clonotype;
 import com.milaboratory.core.sequence.AminoAcidSequence;
 import com.milaboratory.core.tree.NeighborhoodIterator;
@@ -12,24 +10,34 @@ import com.milaboratory.core.tree.SequenceTreeMap;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
 public class DegreeStatisticsCalculator {
-    private final ClonotypeGroupingFactory clonotypeGroupingFactory;
-    private final GroupingSummary groupingSummary = new GroupingSummary();
+    private final ClonotypeGroupingFactory primaryClonotypeGroupingFactory,
+            secondaryClonotypeGroupingFactory;
+    private final GroupingSummary primaryGroupingSummary = new GroupingSummary(),
+            secondaryGroupingSummary = new GroupingSummary();
     private final SequenceTreeMap<AminoAcidSequence, Queue<Clonotype>> stm = new SequenceTreeMap<>(AminoAcidSequence.ALPHABET);
     private final int substitutionThreshold, indelThreshold, totalMismatchThreshold;
-    private final static ClonotypeKeyGen ckg = new ClonotypeKeyGen(OverlapType.Strict);
 
     public DegreeStatisticsCalculator(int substitutionThreshold,
                                       int indelThreshold,
                                       int totalMismatchThreshold,
-                                      ClonotypeGroupingFactory clonotypeGroupingFactory) {
+                                      ClonotypeGroupingFactory primaryClonotypeGroupingFactory) {
+        this(substitutionThreshold, indelThreshold, totalMismatchThreshold,
+                primaryClonotypeGroupingFactory, DummyClonotypeGroupingFactory.INSTANCE);
+    }
+
+    public DegreeStatisticsCalculator(int substitutionThreshold,
+                                      int indelThreshold,
+                                      int totalMismatchThreshold,
+                                      ClonotypeGroupingFactory primaryClonotypeGroupingFactory,
+                                      ClonotypeGroupingFactory secondaryClonotypeGroupingFactory) {
         this.substitutionThreshold = substitutionThreshold;
         this.indelThreshold = indelThreshold;
         this.totalMismatchThreshold = totalMismatchThreshold;
-        this.clonotypeGroupingFactory = clonotypeGroupingFactory;
+        this.primaryClonotypeGroupingFactory = primaryClonotypeGroupingFactory;
+        this.secondaryClonotypeGroupingFactory = secondaryClonotypeGroupingFactory;
     }
 
     public <T extends ClonotypeWrapper> void inititalize(ClonotypeWrapperContainer<T> clonotypes) {
@@ -46,7 +54,8 @@ public class DegreeStatisticsCalculator {
                     if (clonotype.isCoding()) {
                         clonotypeMap.computeIfAbsent(clonotype.getCdr3aaBinary(),
                                 k -> new ConcurrentLinkedQueue<>()).add(clonotype);
-                        groupingSummary.update(clonotypeGroupingFactory.getGroup(clonotype)); // thread safe
+                        primaryGroupingSummary.update(primaryClonotypeGroupingFactory.getGroup(clonotype)); // thread safe
+                        secondaryGroupingSummary.update(secondaryClonotypeGroupingFactory.getGroup(clonotype));
                     }
                 });
 
@@ -61,7 +70,8 @@ public class DegreeStatisticsCalculator {
         }
 
         Set<Clonotype> clonotypeSet = new HashSet<>();
-        ClonotypeGroup clonotypeGroup = clonotypeGroupingFactory.getGroup(clonotype);
+        ClonotypeGroup primaryClonotypeGroup = primaryClonotypeGroupingFactory.getGroup(clonotype),
+                secondaryClonotypeGroup = secondaryClonotypeGroupingFactory.getGroup(clonotype);
 
         NeighborhoodIterator<AminoAcidSequence, Queue<Clonotype>> ni = stm.getNeighborhoodIterator(clonotype.getCdr3aaBinary(),
                 substitutionThreshold, indelThreshold, indelThreshold, totalMismatchThreshold);
@@ -71,8 +81,7 @@ public class DegreeStatisticsCalculator {
             // explicit check for indel sum threshold as insertions and deletions are counted separately
             if (ni.getCurrentMutations().countOfIndels() <= indelThreshold) {
                 for (Clonotype match : matchList) {
-                    if (!ckg.generateKey(clonotype).equals(ckg.generateKey(match)) && // no match to itself
-                            clonotypeGroup.equals(clonotypeGroupingFactory.getGroup(match))) { // same group, e.g. VJ length
+                    if (primaryClonotypeGroup.equals(primaryClonotypeGroupingFactory.getGroup(match))) { // same group, e.g. VJ length
                         clonotypeSet.add(match);
                     }
                 }
@@ -80,6 +89,7 @@ public class DegreeStatisticsCalculator {
         }
 
         return new DegreeStatistics(clonotypeSet.size(),
-                groupingSummary.getCount(clonotypeGroup));
+                primaryGroupingSummary.getCount(primaryClonotypeGroup),
+                secondaryGroupingSummary.getCount(secondaryClonotypeGroup));
     }
 }
