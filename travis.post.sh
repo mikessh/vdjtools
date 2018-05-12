@@ -29,6 +29,7 @@ $VDJTOOLS PoolSamples -m metadata.small.txt out/13
 # annotation
 $VDJTOOLS CalcCdrAaStats -m metadata.txt out/14
 $VDJTOOLS Annotate -m metadata.txt out/annot/
+$VDJTOOLS CalcDegreeStats -m metadata.txt out/degstat/
 
 # check all output files are generated
 
@@ -74,6 +75,7 @@ flist=(
         'ds/metadata.txt'
         'nf/metadata.txt'
         'annot/metadata.txt'
+        'degstat/metadata.txt'
     )
 
 for f in "${flist[@]}"
