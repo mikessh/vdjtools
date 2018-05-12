@@ -3,6 +3,110 @@
 Annotation
 ----------
 
+.. _CalcDegreeStats:
+
+CalcDegreeStats
+^^^^^^^^^^^^^^^
+
+Performs a TCR neighborhood enrichment test (TCRNET), testing each sample for clonotypes 
+that have more neighbours (higher **degree** in a graph), i.e. clonotypes with similar CDR3 amino acid sequences, than would be expected 
+by chance according to some control dataset. User can specify the actual **search scope** (i.e. 
+number of allowed CDR3 mismatches), whether to only compare clonotypes with same V/J, and the 
+control sample. If control sample is not provided, a pooling (see :ref:`PoolSamples`) of all provided samples is used. 
+Note that this test, if supplied with real samples and a control pooled using ``-i strict`` option 
+will account for the number of neighbours with the same CDR3 amino acid sequence, but distinct nucleotide 
+sequences. If this is not desired, all input samples and control should be pre-pooled with ``-i aa`` or 
+``-i aaVJ`` to collapse variants coding for the amino acid CDR3 sequence.
+
+.. note:: 
+    
+    Running this routine will not return the actual clonotype graph for you, just annotate input samples. 
+    To build the graph, one should refer to `VDJmatch <https://github.com/antigenomics/vdjmatch>`__ software 
+    and its ``Cluster`` routine. Make sure the search scope option is the same as ``-o`` used for ``CalcDegreeStats`` 
+    and that all scoring/filtering is turned off. Next, one should retain only the edges that connect pairs of 
+    enriched clonotypes and enriched clonotypes with their neighbours.
+
+
+Command line usage
+~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    $VDJTOOLS CalcDegreeStats \
+    [options] [sample1.txt sample2.txt ... if -m is not specified] output_prefix
+
+Parameters:
+
++-------------+-----------------------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Shorthand   |      Long name        | Argument           | Description                                                                                                                                                |
++=============+=======================+====================+============================================================================================================================================================+
+| ``-m``      | ``--metadata``        | path               | Path to metadata file. See :ref:`common_params`                                                                                                            |
++-------------+-----------------------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``-b``      | ``--background``      | path               | Path to the background (control) sample, used to compute expected statistics/P-values. If not provided, will pool input samples and uses them as control.  |
++-------------+-----------------------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``-o``      | ``--search-scope``    | s,i,d              | Search scope: number of substitutions (s), indels (id) and total number of mismatches (t) allowed. Default is ``1,0,1``                                    |
++-------------+-----------------------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``-g``      | ``--grouping``        | string             | Primary grouping type, limits set of clonotype comparisons: 'dummy' (no grouping, default), 'vj' (same V and J) or 'vjl' (same V, J and CDR3 length).      |
++-------------+-----------------------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``-g2``     | ``--grouping2``       | string             | Secondary grouping, used for computing statistics, accepts same values as ``-g``. By default will select 'vjl' if no indels allowed and 'vj' otherwise.    |
++-------------+-----------------------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ``-h``      | ``--help``            |                    | Display help message                                                                                                                                       |
++-------------+-----------------------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+.. note:: 
+    
+    There are two possible schemes for running the algorithm. Firstly, one can select, 
+    say a search scope of ``1,0,1`` allowing no indels, and ``-g vjl`` to only allow comparisons
+    between clonotypes that match in V, J and CDR3 length. Then, one should 
+    only consider ``p.value.g`` in the output and disregard all columns with ``g2/group2``.
+    On the other hand, if one wants to allow comparison of clonotypes with different V/J, 
+    and/or comparisons with indels, the option ``-g dummy`` should be used. If one thinks there 
+    might be certain biases in V/J frequencies between control/background sample and input samples, 
+    and one wants to control for them, he should select ``-g2 vj``, then observed degree values 
+    will be provided as is (i.e. not limiting clonotype comparisons to a fixed V/J), 
+    but the expected degree will be corrected to account for V/J usage difference 
+    between input sample and control. One should only consider ``p.value.g2`` 
+    in this case. See below for more explaination on output columns.
+
+Tabular output
+~~~~~~~~~~~~~~
+
+Processed samples will have additional annotation columns appended to VDJtools clonotype 
+table columns. These columns are the following:
+
++-----------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Column          | Description                                                                                                                                                                                           |
++=================+=======================================================================================================================================================================================================+
+| degree.s        | Degree (number of neighbours) of a given clonotype in sample. The degree is the number of unique clonotypes (incl. nucleotide variants) that match a given clonotype under specified search scope.    |
++-----------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| group.count.s   | Number of unique clonotypes that match the group, defined by primary grouping (``-g``), of a given clonotype in sample, say have the same V and J.                                                    |
++-----------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| group2.count.s  | Same as above, but the group is defined by secondary grouping ``-g2``.                                                                                                                                |
++-----------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| degree.c        | Degree (number of neighbours) of a given clonotype in the control sample.                                                                                                                             |
++-----------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| group.count.c   | Number of unique clonotypes in the control sample that match the group of given clonotype as defined by primary grouping (``-g``).                                                                    |
++-----------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| group2.count.c  | Same as above, but the group is defined by secondary grouping ``-g2``.                                                                                                                                |
++-----------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| p.value.g       | P-value for the neighbour (degree) enrichment of a given clonotype according to primary grouping. The P-value is computed as ``Pbinom(n=degree.s|p=degree.c/group.count.c, N=group.count.s)``.        |
++-----------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| p.value.g2      | P-value for the neighbour (degree) enrichment of a given clonotype according to secondary grouping. The P-value is computed as ``Ppoisson(n=degree.s|lambda=group.count.s*degree.c/group.count.c)``.  |
++-----------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+A metadata file will be created for resulting samples with ``degstat`` 
+appended to the ``..filter..`` metadata column.
+
+
+Graphical output
+~~~~~~~~~~~~~~~~
+
+none
+
+
+--------------
+
+
 .. _CalcCdrAAProfile:
 
 CalcCdrAAProfile
@@ -35,19 +139,13 @@ Parameters:
 +=============+=======================+====================+============================================================================================================================================================+
 | ``-m``      | ``--metadata``        | path               | Path to metadata file. See :ref:`common_params`                                                                                                            |
 +-------------+-----------------------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``-u``      | ``--unweighted``      |                    | If set, will not weight amino acid physical property averages by clonotype frequency. Weighing is performed by default.                                    |
+| ``-w``      | ``--weighted``        |                    | If set, will weight amino acid property values by clonotype frequency.                                                                                     |
 +-------------+-----------------------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``-p``      | ``--plot``            |                    | Turns on plotting. See :ref:`common_params`                                                                                                                |
+| ``-n``      | ``--normalize``       |                    | If set, will normalize amino acid property values by dividing them by corresponding CDR3 sub-region size.                                                  |
 +-------------+-----------------------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
-|             | ``--plot-normalized`` |                    | Will normalize amino acid statistic values by dividing them by the total number of amino acids in a given bin when generating the figure                   |
+| ``-r``      | ``--region-list``     | region1,...        | List of CDR3 sub-regions to count statistics for, default is ``"CDR3-full,VJ-junc,V-germ,J-germ``                                                          |
 +-------------+-----------------------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``-f``      | ``--factor``          | string             | Specifies plotting factor. See :ref:`common_params`                                                                                                        |
-+-------------+-----------------------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``-r``      | ``--region-list``     | region1:nbins1,... | Comma-separated list of ``region:bin`` pairs: CDR3 sub-region (see below) and the number of length bins. Default: ``CDR3-full:1,VJ-junc:1,CDR3-center:1``  |
-+-------------+-----------------------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| ``-o``      | ``--property-list``   | property1,...      | List of amino acid physical properties to use, see below for allowed value. Uses all amino acid properties from list below by default.                     |
-+-------------+-----------------------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
-|             | ``--include-cfw``     |                    | Consider first and last AAs of CDR3, which are normally conserved C and F/W. By default those are discarded.                                               |
+| ``-o``      | ``--property-list``   | property1,...      | List of amino acid physicochemical properties to use, see below for allowed value. Uses all amino acid properties from list below by default.              |
 +-------------+-----------------------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | ``-h``      | ``--help``            |                    | Display help message                                                                                                                                       |
 +-------------+-----------------------+--------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
@@ -59,7 +157,7 @@ Supported CDR3 sub-regions:
 +=================+==========================================================================+
 | ``CDR3-full``   | Complete CDR3 region                                                     |
 +-----------------+--------------------------------------------------------------------------+
-| ``CDR3-center`` | Central 3 amino acids of CDR3                                            |
+| ``CDR3-center`` | Central 5 amino acids of CDR3                                            |
 +-----------------+--------------------------------------------------------------------------+
 | ``V-germ``      | Germline part of CDR3 region corresponding to Variable segment           |
 +-----------------+--------------------------------------------------------------------------+
@@ -105,22 +203,10 @@ Supported amino acid physical properties (see `full table <https://github.com/mi
 +-------------------+-----------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
 | ``strength``      | Strongly-interacting amino acids / amino acids depleted by purifying selection in thymus                        | `PMID:18946038 <http://www.ncbi.nlm.nih.gov/pubmed/18946038>`__ |
 +-------------------+-----------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
-| ``high_contact``  | Amino acids that show high antigen contact frequencies as inferred from TCR:pMHC structural data                | unpublished                                                     |
+| ``mjenergy``      | Mean value of MJ statistical potential for each amino acid, used to derive 'strength'                           | `PMID:8604144 <https://www.ncbi.nlm.nih.gov/pubmed/8604144>`__  |
 +-------------------+-----------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
-| ``contacts_raw``  | Number of antigen contacts for given CDR3 amino acid as inferred from TCR:pMHC structural data                  | unpublished                                                     |
+| ``kf1``..``kf10`` | Values of 10 Kidera factors summarizing physicochemical properties of amino acids                               | unpublished                                                     |
 +-------------------+-----------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
-| ``contacts_norm`` | Normalized number of antigen contacts for given CDR3 amino acid as inferred from TCR:pMHC structural data       | unpublished                                                     |
-+-------------------+-----------------------------------------------------------------------------------------------------------------+-----------------------------------------------------------------+
-
-.. note:: 
-    
-    Consider an example binning scheme, ``-r V-germ:3,VJ-junc:1,J-germ:3``.
-    It means that the amino acid sequence of Variable segment part of CDR3 is split into 
-    3 equally-sized bins and so on.    
-    This can be changed to ``-r V-germ:3,VD-junc:1,D-germ:1,DJ-junc:1,J-germ:3`` for 
-    analysis of chains that have Diversity segment (TRB, TRD, IGH).
-    In case of very small average insert size (short V-J junction), one should consider 
-    using a single bin for this sub-region, ``VJ-junc:1``.
     
 Tabular output
 ~~~~~~~~~~~~~~
@@ -136,33 +222,18 @@ the following columns:
 +---------------+---------------------------------------------------------------------------------------------------------------+
 | ...           | Sample metadata columns. See `Metadata <https://github.com/mikessh/vdjtools/wiki/Input#metadata>`__ section   |
 +---------------+---------------------------------------------------------------------------------------------------------------+
-| cdr3.segment  | Current CDR3 sub-region, see above                                                                            |
-+---------------+---------------------------------------------------------------------------------------------------------------+
-| bin           | Length bin within `cdr3.segment`                                                                              |
+| region        | Current CDR3 sub-region, see above                                                                            |
 +---------------+---------------------------------------------------------------------------------------------------------------+
 | property      | Amino acid physical property name, see above                                                                  |
 +---------------+---------------------------------------------------------------------------------------------------------------+
-| value         | Sum of amino acid property values in the bin, either weighted by clonotype frequency or not depending on `-u` |
-+---------------+---------------------------------------------------------------------------------------------------------------+
-| total         | Sum of amino acid counts in the bin, either weighted by clonotype frequency or not depending on `-u`          |
-+---------------+---------------------------------------------------------------------------------------------------------------+
-| sd            | Standard deviation of the value                                                                               |
+| mean          | Mean property value                                                                                           |
 +---------------+---------------------------------------------------------------------------------------------------------------+
 
 Graphical output
 ~~~~~~~~~~~~~~~~
 
-A plot file with ``cdr3aa.profile.[wt or unwt based on -u].pdf`` suffix is generated. 
-Rows and columns correspond to amino acid properties and CDR3 sub-regions respectively. 
-Normalized values (``value``/``total`` from output table) are grouped by specified factor (``-f``).
+none
 
-.. figure:: _static/images/modules/annotate-aaprofile.png
-    :align: center
-    :scale: 50 %
-    
-**Amino acid hydrophathy and strength profiles**. Germline CDR3 parts corresponding 
-to V, D and J segments are used (4, 4 and 2 length bins respectively), 
-as well as V-D and D-J junctions (1 length bin respectively). 
 
 --------------
 
@@ -238,12 +309,12 @@ none
 
 .. _ScanDatabase:
 
-ScanDatabase (Available only up to v1.0.5, use `VDJdb <https://github.com/mikessh/vdjdb>`__)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ScanDatabase (DEPRECATED since v1.0.5, use `VDJmatch <https://github.com/antigenomics/vdjmatch>`__)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Annotates a set of samples using immune receptor database based on
 V-(D)-J junction matching. By default uses
-`VDJdb <https://github.com/mikessh/vdjdb>`__, which contains CDR3
+`VDJdb <https://github.com/antigenomics/vdjdb-db>`__, which contains CDR3
 sequences, Variable and Joining segments of known specificity obtained
 using literature mining. This routine supports user-provided databases
 and allows flexible filtering of results based on database fields. The
