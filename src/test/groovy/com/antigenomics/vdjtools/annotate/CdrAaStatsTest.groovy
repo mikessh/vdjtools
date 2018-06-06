@@ -91,7 +91,7 @@ class CdrAaStatsTest {
     void  propertyTest() {
         def propertySummary = new AaPropertySummaryEvaluator(
                 KnownAminoAcidProperties.INSTANCE.getByName("strength"),
-                new Cdr3Center(),
+                Cdr3Center.CDR3_CENTER_5,
                 false,
                 false
         )
