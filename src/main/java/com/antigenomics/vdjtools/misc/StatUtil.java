@@ -47,8 +47,13 @@ public final class StatUtil {
                 10000000);
     }
 
-    // P'(X>=k|lambda), P' means special treatment of the X=k case (0.5 factor)
+    // P(X>=k|lambda)
     public static double poissonPValue(int k, double lambda) {
+        return 1.0 - poissonCdf(k - 1, lambda);
+    }
+
+    // P'(X>=k|lambda), P' means special treatment of the X=k case (0.5 factor)
+    public static double poissonPValueSymm(int k, double lambda) {
         return 1.0 - poissonCdf(k, lambda) + 0.5 * poissonPdf(k, lambda);
     }
 
@@ -71,8 +76,21 @@ public final class StatUtil {
         return regularizedBeta(1.0 - p, n - k, k + 1);
     }
 
-    // P'(X>=k|n,p), P' means special treatment of the X=k case (0.5 factor)
+    public static double binomialCdf(int k, double n, double p) {
+        return regularizedBeta(1.0 - p, n - k, k + 1);
+    }
+
+    // P(X>=k|n,p)
     public static double binomialPValue(int k, int n, double p) {
+        return 1.0 - binomialCdf(k - 1, n, p);
+    }
+
+    public static double binomialPValue(int k, double n, double p) {
+        return 1.0 - binomialCdf(k - 1, n, p);
+    }
+
+    // P'(X>=k|n,p), P' means special treatment of the X=k case (0.5 factor)
+    public static double binomialPValueSymm(int k, int n, double p) {
         return 1.0 - binomialCdf(k, n, p) + 0.5 * binomialPdf(k, n, p);
     }
 

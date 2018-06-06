@@ -37,7 +37,7 @@ import static com.antigenomics.vdjtools.misc.ExecUtil.formOutputPath
 
 def DEFAULT_AA_PROPERTIES = ["hydropathy", "charge", "polarity", "strength", "mjenergy", "count"].join(","),
     ALLOWED_AA_PROPERTIES = KnownAminoAcidProperties.INSTANCE.allowedNames.join(","),
-    DEFAULT_REGIONS = ["CDR3-full", "VJ-junc", "V-germ", "J-germ"].join(","),
+    DEFAULT_REGIONS = ["CDR3-full", "VJ-junc", "V-germ", "J-germ", "CDR3-center-5"].join(","),
     ALLOWED_REGIONS = KnownCdr3Regions.INSTANCE.allowedNames.join(",")
 
 def cli = new CliBuilder(usage: "CalcCdrAaStats [options] " +

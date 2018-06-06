@@ -32,18 +32,29 @@ package com.antigenomics.vdjtools.annotate.partitioning;
 import com.antigenomics.vdjtools.sample.Clonotype;
 import com.milaboratory.core.Range;
 
-public class Cdr3Center extends Cdr3Region{
-    public static final int SPAN = 2; // extracts -2,-1,0,+1,+2 amino acids
+public class Cdr3Center extends Cdr3Region {
+    private final int span;
+
+    public static final Cdr3Center CDR3_CENTER_5 = new Cdr3Center(2),  // extracts -2,-1,0,+1,+2 amino acids
+            CDR3_CENTER_3 = new Cdr3Center(1);  // extracts -1,0,+1 amino acids
+
+    public Cdr3Center(int span) {
+        this.span = span;
+    }
 
     @Override
     protected Range getRange(Clonotype clonotype) {
         int cdr3CenterAA = clonotype.getCdr3Length() / 6;
-        return new Range(Math.max(0, 3 * (cdr3CenterAA - SPAN)),
-                Math.min(clonotype.getCdr3Length(), 3 * (cdr3CenterAA + SPAN + 1)));
+        return new Range(Math.max(0, 3 * (cdr3CenterAA - span)),
+                Math.min(clonotype.getCdr3Length(), 3 * (cdr3CenterAA + span + 1)));
+    }
+
+    public int getSpan() {
+        return span;
     }
 
     @Override
     public String getName() {
-        return "CDR3-center";
+        return "CDR3-center-" + (span * 2 + 1);
     }
 }

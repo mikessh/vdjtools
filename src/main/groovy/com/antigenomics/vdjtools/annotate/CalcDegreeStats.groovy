@@ -31,6 +31,7 @@ package com.antigenomics.vdjtools.annotate
 
 import com.antigenomics.vdjtools.graph.DegreeStatisticsCalculator
 import com.antigenomics.vdjtools.graph.DummyClonotypeGroupingFactory
+import com.antigenomics.vdjtools.graph.VClonotypeGroupingFactory
 import com.antigenomics.vdjtools.graph.VJClonotypeGroupingFactory
 import com.antigenomics.vdjtools.graph.VJLClonotypeGroupingFactory
 import com.antigenomics.vdjtools.io.SampleFileConnection
@@ -60,11 +61,11 @@ cli.g(longOpt: "grouping", argName: "type", args: 1,
         "Primary grouping type, limits the scope of possible clonotype comparisons when computing clonotype degree. " +
                 "Group counts are used in primary statistical test (p.value in output)." +
                 "Allowed values: 'dummy' (no grouping, default), " +
-                "'vj' (same V and J) and 'vjl' (same V, J and CDR3 length).")
+                "'v' (same V), 'vj' (same V and J) and 'vjl' (same V, J and CDR3 length).")
 cli.g2(longOpt: "grouping2", argName: "type", args: 1,
         "Secondary grouping type, doesn't limit possible clonotype comparisons. " +
                 "Group counts are used in secondary statistical test (p.value.2 in output). " +
-                "Allowed values: 'dummy', 'vj' and 'vjl'. " +
+                "Allowed values: 'dummy', 'v', 'vj' and 'vjl'. " +
                 "By default will select 'vjl' if no indels are allowed and " +
                 "'vj' otherwise.")
 cli.c(longOpt: "compress", "Compress output sample files.")
@@ -120,6 +121,8 @@ def getGroupingFactory = { name ->
             return new VJLClonotypeGroupingFactory()
         case "vj":
             return new VJClonotypeGroupingFactory()
+        case "v":
+            return new VClonotypeGroupingFactory()
         default:
             return DummyClonotypeGroupingFactory.INSTANCE
     }

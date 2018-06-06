@@ -48,7 +48,8 @@ class KnownCdr3Regions {
         this.regionsByName = [new VGermline(), new DGermline(), new JGermline(),
                               new VDJunction(), new DJJunction(),
                               new VJJunction(), new FullCdr3(),
-                              new Cdr3Center()].collectEntries {
+                              Cdr3Center.CDR3_CENTER_5,
+                              Cdr3Center.CDR3_CENTER_3].collectEntries {
             [(it.name.toLowerCase()): it]
         }
     }

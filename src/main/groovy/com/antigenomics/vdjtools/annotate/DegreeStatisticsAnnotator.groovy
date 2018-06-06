@@ -51,18 +51,22 @@ class DegreeStatisticsAnnotator {
         if (sample == DegreeStatistics.UNDEF || background == DegreeStatistics.UNDEF)
             return 1.0
 
-        // todo: int conversion (?)
-        StatUtil.binomialPValue(sample.degree, (int) sample.primaryGroupCount,
-                ((double) background.degree + 1.0d) / ((double) background.primaryGroupCount + 1.0d))
+        double p = (background.degree + 1.0d) /
+                (background.primaryGroupCount + 1.0d)
+
+        StatUtil.binomialPValue(sample.degree, (double) sample.primaryGroupCount, p) /
+                (1.0 - Math.pow(1.0 - p, sample.primaryGroupCount)) // Normalize for conditioning on observing a variant
     }
 
     static double computePValue2(DegreeStatistics sample, DegreeStatistics background) {
         if (sample == DegreeStatistics.UNDEF || background == DegreeStatistics.UNDEF)
             return 1.0
 
-        StatUtil.poissonPValue(sample.degree,
-                (sample.secondaryGroupCount + 1.0d) *
-                        (background.degree + 1.0d) /
-                        (background.secondaryGroupCount + 1.0d))
+        double lambda = (sample.secondaryGroupCount + 1.0d) *
+                (background.degree + 1.0d) /
+                (background.secondaryGroupCount + 1.0d)
+
+        StatUtil.poissonPValue(sample.degree, lambda) /
+                (1.0 - Math.exp(-lambda)) // Normalize for conditioning on observing a variant
     }
 }
