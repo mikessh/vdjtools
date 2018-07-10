@@ -22,7 +22,7 @@ vdjtools CalcBasicStats ...
 ```
 See [homebrew-repseq](https://github.com/mikessh/homebrew-repseq) for other RepSeq analysis software Homebrew installers.
 
-List of features and detailed documentation can be found at [ReadTheDocs](http://vdjtools-doc.readthedocs.org/en/latest/).
+List of features and detailed documentation can be found at [ReadTheDocs](http://vdjtools-doc.readthedocs.io).
 
 Example datasets and shell scripts are provided in a separate [repository](https://github.com/mikessh/vdjtools-examples).
 
