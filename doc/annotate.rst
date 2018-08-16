@@ -3,6 +3,55 @@
 Annotation
 ----------
 
+.. _SegmentsToFamilies:
+
+SegmentsToFamilies
+^^^^^^^^^^^^^^^^^^
+
+Will replace V and J segment IDs in samples with segment 'family' IDs. Here, 'families' are defined as clusters of V/J 
+sequences built using hierarchial clustering of pairwise amino acid sequence alignment distances. Thus, two segments are 
+assigned to the same family if they have homologous sequence. The actual table of segment <> family conversions can 
+be accessed `here <https://github.com/mikessh/vdjtools/blob/master/src/main/resources/vj_families.txt>`__.
+
+Command line usage
+~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+    $VDJTOOLS SegmentsToFamilies \
+    [options] [sample1.txt sample2.txt ... if -m is not specified] output_prefix
+
+Parameters:
+
++-------------+-----------------------+--------------------+----------------------------------------------------+
+| Shorthand   |      Long name        | Argument           | Description                                        |
++=============+=======================+====================+====================================================+
+| ``-m``      | ``--metadata``        | path               | Path to metadata file. See :ref:`common_params`    |
++-------------+-----------------------+--------------------+----------------------------------------------------+
+| ``-s``      | ``--species``         | name               | [Required] Species name: ``human`` or ``mouse``.   |
++-------------+-----------------------+--------------------+----------------------------------------------------+
+| ``-h``      | ``--help``            |                    | Display help message                               |
++-------------+-----------------------+--------------------+----------------------------------------------------+
+| ``-c``      |                       |                    | Compressed output.                                 |
++-------------+-----------------------+--------------------+----------------------------------------------------+
+
+Tabular output
+~~~~~~~~~~~~~~
+
+Samples are returned as is, with the content of ``v`` and ``j`` columns replaced by families.
+
+A metadata file will be created for resulting samples with ``segm2fam`` 
+appended to the ``..filter..`` metadata column.
+
+
+Graphical output
+~~~~~~~~~~~~~~~~
+
+none
+
+
+--------------
+
 .. _CalcDegreeStats:
 
 CalcDegreeStats
