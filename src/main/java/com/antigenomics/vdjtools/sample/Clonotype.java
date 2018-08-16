@@ -497,6 +497,15 @@ public class Clonotype implements Comparable<Clonotype>, Countable, ClonotypeWra
         return result;
     }
 
+    Clonotype withSegments(Segment v, Segment j) {
+        return new Clonotype(parent, count, freq,
+                segmPoints, v, d, j,
+                cdr3nt, cdr3aa,
+                inFrame, noStop, isComplete,
+                annotation
+        );
+    }
+
     @Override
     public Clonotype getClonotype() {
         return this;

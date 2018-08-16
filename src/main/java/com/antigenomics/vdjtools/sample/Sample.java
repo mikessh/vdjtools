@@ -88,6 +88,15 @@ public class Sample implements ClonotypeWrapperContainer<Clonotype> {
         Collections.sort(clonotypes);
     }
 
+    public Sample(Sample other, ClonotypeConverter clonotypeConverter) {
+        this.sampleMetadata = other.sampleMetadata;
+        this.annotationHeader = other.annotationHeader;
+
+        for (Clonotype clonotype : other.clonotypes) {
+            this.addClonotype(clonotypeConverter.convert(clonotype));
+        }
+    }
+
     /**
      * Creates a new sample by filtering and selecting top N clonotypes from the specified sample.
      *

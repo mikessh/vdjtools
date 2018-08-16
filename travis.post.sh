@@ -29,6 +29,7 @@ $VDJTOOLS PoolSamples -m metadata.small.txt out/13
 # annotation
 $VDJTOOLS CalcCdrAaStats -m metadata.txt out/14
 $VDJTOOLS Annotate -m metadata.txt out/annot/
+$VDJTOOLS SegmentsToFamilies -s human -m metadata.txt out/s2f/
 $VDJTOOLS CalcDegreeStats -m metadata.txt out/degstat/
 
 # check all output files are generated
@@ -75,6 +76,7 @@ flist=(
         'ds/metadata.txt'
         'nf/metadata.txt'
         'annot/metadata.txt'
+        's2f/metadata.txt'
         'degstat/metadata.txt'
     )
 

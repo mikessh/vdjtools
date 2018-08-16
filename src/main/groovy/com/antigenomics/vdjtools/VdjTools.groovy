@@ -33,6 +33,7 @@ package com.antigenomics.vdjtools
 import com.antigenomics.vdjtools.annotate.Annotate
 import com.antigenomics.vdjtools.annotate.CalcCdrAaStats
 import com.antigenomics.vdjtools.annotate.CalcDegreeStats
+import com.antigenomics.vdjtools.annotate.SegmentsToFamilies
 import com.antigenomics.vdjtools.basic.*
 import com.antigenomics.vdjtools.diversity.CalcDiversityStats
 import com.antigenomics.vdjtools.diversity.PlotQuantileStats
@@ -171,6 +172,8 @@ def getScript = { String scriptName ->
             return new CalcDegreeStats()
         case "ANNOTATE":
             return new Annotate()
+        case "SEGMENTSTOFAMILIES":
+            return new SegmentsToFamilies()
         case "SCANDATABASE":
             println "Moved to VDJdb since 1.0.5, please visit vdjdb.cdr3.net"
             System.exit(0)
