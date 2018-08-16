@@ -97,6 +97,7 @@ def printHelp = {
     println "CalcCdrAaStats"
     println "CalcDegreeStats"
     println "Annotate"
+    println "SegmentsToFamilies"
     println ""
     println "[Util]"
     println "FilterMetadata"
