@@ -33,7 +33,6 @@ import com.antigenomics.vdjtools.misc.AtomicDouble
 import com.antigenomics.vdjtools.misc.ExecUtil
 import com.antigenomics.vdjtools.misc.MathUtil
 import groovyx.gpars.GParsPool
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 import static com.antigenomics.vdjtools.diversity.RichnessEstimateType.*
 
@@ -113,7 +112,7 @@ class ChaoEstimator {
      */
     SpeciesRichness chaoI(long interpolateTo) {
         if (n > Integer.MAX_VALUE)
-            throw new NotImplementedException()
+            throw new UnsupportedOperationException()
 
         if (interpolateTo < 0 || interpolateTo > n)
             throw new IllegalArgumentException("Should interpolate within the size of sample")

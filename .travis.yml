@@ -1,24 +1,16 @@
 language: java
 sudo: required
 
-jdk: oraclejdk9
-
-addons:
-  apt:
-    packages:
-      - oracle-java9-installer
+jdk: openjdk10
 
 install:
-  - jdk_switcher use oraclejdk8
   - curl -OL https://raw.githubusercontent.com/metacran/r-builder/master/pkg-build.sh
   - chmod 755 pkg-build.sh
   - ./pkg-build.sh bootstrap
   - export PATH="$PATH:`./pkg-build.sh r_path`"
 
 script:
-  - jdk_switcher use oraclejdk8
   - mvn clean install -Dmaven.javadoc.skip=true -q
-  - jdk_switcher use oraclejdk9
   - java -jar target/vdjtools-*.jar RInstall
   - wget https://github.com/mikessh/vdjtools-examples/releases/download/1.1/aging_lite.zip
   - unzip aging_lite.zip

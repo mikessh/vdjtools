@@ -74,20 +74,34 @@ public class MiXcrParser extends ClonotypeStreamParser {
             it.equalsIgnoreCase("Clone fraction") || it.equalsIgnoreCase("cloneFraction")
         }
         cdr3ntColumn = splitHeaderLine.findIndexOf {
-            it.equalsIgnoreCase("N. Seq. CDR3") || it.equalsIgnoreCase("nSeqCDR3")
+            it.equalsIgnoreCase("N. Seq. CDR3") || it.equalsIgnoreCase("nSeqCDR3") || it.equalsIgnoreCase("nSeqImputedCDR3")
         }
         cdr3aaColumn = splitHeaderLine.findIndexOf {
-            it.equalsIgnoreCase("AA. Seq. CDR3") || it.equalsIgnoreCase("aaSeqCDR3")
+            it.equalsIgnoreCase("AA. Seq. CDR3") || it.equalsIgnoreCase("aaSeqCDR3") || it.equalsIgnoreCase("aaSeqImputedCDR3")
         }
-        vAlignmentsColumn = splitHeaderLine.findIndexOf { it =~ /(?i)V alignment/ || it =~ /(?i)VAlignment/ }
-        dAlignmentsColumn = splitHeaderLine.findIndexOf { it =~ /(?i)D alignment/ || it =~ /(?i)DAlignment/ }
-        jAlignmentsColumn = splitHeaderLine.findIndexOf { it =~ /(?i)J alignment/ || it =~ /(?i)JAlignment/ }
-        vHitsColumn = splitHeaderLine.findIndexOf { it =~ /(?i)V hits/ || it =~ /(?i)VHits/ }
-        dHitsColumn = splitHeaderLine.findIndexOf { it =~ /(?i)D hits/ || it =~ /(?i)DHits/ }
-        jHitsColumn = splitHeaderLine.findIndexOf { it =~ /(?i)J hits/ || it =~ /(?i)JHits/ }
+        vAlignmentsColumn = splitHeaderLine.findIndexOf {
+            it =~ /(?i)V alignment/ || it =~ /(?i)VAlignment/ || it =~ /(?i)allVAlignments/
+        }
+        dAlignmentsColumn = splitHeaderLine.findIndexOf {
+            it =~ /(?i)D alignment/ || it =~ /(?i)DAlignment/ || it =~ /(?i)allDAlignments/
+        }
+        jAlignmentsColumn = splitHeaderLine.findIndexOf {
+            it =~ /(?i)J alignment/ || it =~ /(?i)JAlignment/ || it =~ /(?i)allJAlignments/
+        }
+        vHitsColumn = splitHeaderLine.findIndexOf {
+            it =~ /(?i)V hits/ || it =~ /(?i)VHits/ || it =~ /(?i)allVHitsWithScore/
+        }
+        dHitsColumn = splitHeaderLine.findIndexOf {
+            it =~ /(?i)D hits/ || it =~ /(?i)DHits/ || it =~ /(?i)allDHitsWithScore/
+        }
+        jHitsColumn = splitHeaderLine.findIndexOf {
+            it =~ /(?i)J hits/ || it =~ /(?i)JHits/ || it =~ /(?i)allJHitsWithScore/
+        }
         if (countColumn == -1 || freqColumn == -1 || cdr3ntColumn == -1 || cdr3aaColumn == -1 ||
                 vAlignmentsColumn == -1 || dAlignmentsColumn == -1 || jAlignmentsColumn == -1)
             throw new RuntimeException("Some mandatory columns are absent in the input file.")
+
+        //println([countColumn, freqColumn,cdr3ntColumn,cdr3aaColumn,vAlignmentsColumn,dAlignmentsColumn,jAlignmentsColumn])
 
         numberOfColumns = splitHeaderLine.size()
 
@@ -104,7 +118,7 @@ public class MiXcrParser extends ClonotypeStreamParser {
 
         def splitString = clonotypeString.split(software.delimiter, numberOfColumns)
 
-        def count = splitString[countColumn].toInteger()
+        def count = (int) (splitString[countColumn].toDouble())
         def freq = splitString[freqColumn].toDouble()
 
         def cdr3nt = splitString[cdr3ntColumn]

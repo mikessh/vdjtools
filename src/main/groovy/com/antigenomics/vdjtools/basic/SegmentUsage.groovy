@@ -199,7 +199,7 @@ public class SegmentUsage {
      * @return
      */
     public double[][] vjUsageMatrix(int sampleIndex) {
-        double sampleTotal = (double) jSegmentUsage.values().collect { it[sampleIndex] }.sum() ?: 0.0
+        double sampleTotal = (double) (jSegmentUsage.values().collect { it[sampleIndex] }.sum() ?: 0.0)
 
         def matrix = new double[jSegmentUsage.size()][vSegmentUsage.size()]
 

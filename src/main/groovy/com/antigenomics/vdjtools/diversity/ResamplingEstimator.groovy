@@ -33,7 +33,6 @@ import com.antigenomics.vdjtools.overlap.OverlapType
 import com.antigenomics.vdjtools.preprocess.DownSampler
 import com.antigenomics.vdjtools.sample.Sample
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 /**
  * Class that computes richness estimates and diversity indices. 
@@ -148,7 +147,7 @@ class ResamplingEstimator extends DiversityEstimator {
      */
     @Override
     DiversityIndex getDxxIndex(double fraction) {
-        throw new NotImplementedException()
+        throw new UnsupportedOperationException()
     }
 
     /**
@@ -196,7 +195,7 @@ class ResamplingEstimator extends DiversityEstimator {
      */
     @Override
     SpeciesRichness getEfronThisted(int maxDepth, double cvThreshold) {
-        throw new NotImplementedException()
+        throw new UnsupportedOperationException()
     }
 
     /**
@@ -225,6 +224,6 @@ class ResamplingEstimator extends DiversityEstimator {
 
     @Override
     FrequencyTable getFrequencyTable() {
-        throw new NotImplementedException()
+        throw new UnsupportedOperationException()
     }
 }

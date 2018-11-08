@@ -1,0 +1,49 @@
+apply plugin: 'groovy'
+apply plugin: 'application'
+
+sourceCompatibility = 10
+targetCompatibility = 10
+
+group = 'com.antigenomics'
+version = '1.2.0'
+
+mainClassName = 'com.antigenomics.vdjtools.VdjTools'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+jar {
+    baseName = 'vdjtools'
+    version = "$version"
+
+    manifest {
+        attributes("Main-Class": "$mainClassName", "Implementation-Version": version)
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+sourceSets {
+    main {
+        java { srcDirs = [] }    // no source dirs for the java compiler
+        groovy { srcDirs = ["src/main/java", "src/main/groovy"] }  // compile   everything in src/ with groovy
+    }
+    test {
+        java { srcDirs = [] }    // no source dirs for the java compiler
+        groovy { srcDirs = ["src/test/java", "src/test/groovy"] }  // compile   everything in src/ with groovy
+    }
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.5.2'
+    compile 'org.codehaus.gpars:gpars:1.2.1'
+    compile 'junit:junit:4.12'
+    compile 'com.milaboratory:milib:1.8.3'
+    compile 'commons-io:commons-io:1.2'
+    compile 'commons-cli:commons-cli:1.3.1'
+    compile 'org.apache.commons:commons-lang3:3.4'
+}

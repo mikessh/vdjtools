@@ -37,7 +37,6 @@ import com.antigenomics.vdjtools.misc.ExecUtil
 import com.antigenomics.vdjtools.misc.MathUtil
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 import static com.antigenomics.vdjtools.overlap.OverlapMetric.*
 
@@ -228,7 +227,7 @@ class OverlapEvaluator {
                         getSpectratype(j).histogram)
 
             default:
-                throw new NotImplementedException()
+                throw new UnsupportedOperationException()
         }
     }
 

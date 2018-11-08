@@ -34,7 +34,6 @@ import com.antigenomics.vdjtools.ClonotypeWrapperContainer;
 import com.antigenomics.vdjtools.join.key.*;
 import com.antigenomics.vdjtools.overlap.OverlapType;
 import com.antigenomics.vdjtools.sample.Clonotype;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -118,7 +117,7 @@ public class ClonotypeKeyGen {
                 return new StrictKey(clonotype);
 
             default:
-                throw new NotImplementedException();
+                throw new UnsupportedOperationException();
         }
     }
 

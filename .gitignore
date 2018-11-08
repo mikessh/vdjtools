@@ -7,3 +7,7 @@ dependency-reduced-pom.xml
 .RData
 
 .Rproj.user
+
+.gradle/
+build/
+out/

@@ -113,6 +113,11 @@ class SampleLoadTest {
     }
 
     @Test
+    public void mixcr3Test() {
+        loadTest(MiXcr, 4509, 96, ".3")
+    }
+
+    @Test
     public void imseqTest() {
         loadTest(ImSeq, 647, 86)
     }
