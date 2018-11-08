@@ -11,7 +11,7 @@ install:
 
 script:
   - gradle clean build -x test
-  - java -jar target/vdjtools-*.jar RInstall
+  - java -jar build/libs/vdjtools-*.jar RInstall
   - wget https://github.com/mikessh/vdjtools-examples/releases/download/1.1/aging_lite.zip
   - unzip aging_lite.zip
   - chmod +x travis.post.sh

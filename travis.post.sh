@@ -1,4 +1,4 @@
-VDJTOOLS="java -Xmx4G -jar ../target/vdjtools-*.jar"
+VDJTOOLS="java -Xmx4G -jar ../build/libs/vdjtools-*.jar"
 cd aging_lite/
 
 # basic analysis
