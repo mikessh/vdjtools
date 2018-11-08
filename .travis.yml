@@ -10,7 +10,7 @@ install:
   - export PATH="$PATH:`./pkg-build.sh r_path`"
 
 script:
-  - mvn clean install -Dmaven.javadoc.skip=true -q
+  - gradle clean build -x test
   - java -jar target/vdjtools-*.jar RInstall
   - wget https://github.com/mikessh/vdjtools-examples/releases/download/1.1/aging_lite.zip
   - unzip aging_lite.zip
