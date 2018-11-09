@@ -9,7 +9,7 @@ install:
   - export PATH="$PATH:`./pkg-build.sh r_path`"
 
 script:
-  - ./gradlew build -x test
+  - ./gradlew build
   - java -jar build/libs/vdjtools-*.jar RInstall
   - wget https://github.com/mikessh/vdjtools-examples/releases/download/1.1/aging_lite.zip
   - unzip aging_lite.zip
