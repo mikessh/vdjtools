@@ -204,3 +204,10 @@ Below is an example of :ref:`RarefactionPlot` graphical output.
 **Rarefaction analysis of MS and healthy donor repertoires.** Note that 
 rarefaction curves for MS patients are generally lower than those for healthy 
 donors, indicating the presence of clonal expansion in former.
+    
+--------------
+
+Repertoire annotation tutorial
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You may be also interested in the VDJtools/VDJmatch/R tutorial on T-cell receptor motif discovery deposited `here <https://github.com/antigenomics/scair-tutorial-2018>`__.
