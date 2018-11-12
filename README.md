@@ -11,7 +11,7 @@ java -jar vdjtools.jar ...
 
 Make sure that you've specified the full/correct path to jar file. In case of Java Heap Space exception, you can increase the JVM memory limit by adding ``-Xmx20G`` (for extra 20G) after the ``-jar`` argument.
 
-The software is cross-platform and requires Java v10+ to run and R to perform plotting.
+The software is cross-platform and requires Java v1.8+ to run and R to perform plotting.
 
 Easy installation on **MacOS/Linux** via [Homebrew](http://brew.sh/) or [Linuxbrew](http://linuxbrew.sh/):
 ```bash
