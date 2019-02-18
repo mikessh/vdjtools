@@ -12,6 +12,7 @@ mainClassName = 'com.antigenomics.vdjtools.VdjTools'
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
+    flatDir { dirs '/usr/share/java' }
 }
 
 jar {
