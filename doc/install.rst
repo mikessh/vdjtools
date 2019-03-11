@@ -89,8 +89,8 @@ circlize
 FField
 ggplot2       r-cran-ggplot2
 gplots        r-cran-gplots
-grid
-gridExtra
+grid          r-cran-gridbase
+gridExtra     r-cran-gridextra
 MASS          r-cran-mass
 plotrix       r-cran-plotrix
 RColorBrewer  r-cran-rcolorbrewer
@@ -108,13 +108,13 @@ Debian and Debian based distributions such as Ubuntu and Mint:
 
     apt-get install r-cran-ape r-cran-ggplot2 r-cran-gplots r-cran-mass \
       r-cran-plotrix r-cran-rcolorbrewer r-cran-reshape r-cran-reshape2 \
-      r-cran-scales
+      r-cran-scales r-cran-gridbase r-cran-gridextra
 
 while the other packages will have to be installed via R itself:
 
 .. code:: r
 
-    install.packages(c("circlize", "grid", "gridExtra", "VennDiagram"))
+    install.packages(c("circlize", "FField", "VennDiagram"))
 
 Alternatively, VDJtools has a ref:`Rinstall` routine:
 
