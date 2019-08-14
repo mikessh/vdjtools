@@ -46,4 +46,5 @@ dependencies {
     compile 'com.milaboratory:milib:1.8.3'
     compile 'commons-io:commons-io:1.2'
     compile 'org.apache.commons:commons-lang3:3.4'
+    compile 'org.apache.commons:commons-math3:3.6.1'
 }
