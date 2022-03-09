@@ -1,3 +1,5 @@
+> VDJtools is free for academic use. For commercial use and support refer to [MiLaboratories](https://milaboratories.com/)
+
 [![Build Status](https://travis-ci.org/mikessh/vdjtools.svg?branch=master)](https://travis-ci.org/mikessh/vdjtools)
 [![JitPack](https://jitpack.io/v/mikessh/vdjtools.svg)](https://jitpack.io/#mikessh/vdjtools)
 
