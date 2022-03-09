@@ -35,9 +35,8 @@ In this License:
 "Non-Profit Organization" means an organization that does not, and is not intended to, earn profits
  for its owners or shareholders and which operates in order to provide a public service.
 
-"Software" means MiXCR, the Licensor's proprietary software for comprehensive, adaptive immunity
- profiling for immunoglobulin (IG) and T-cell receptor extraction of T- and B- cell receptor
- repertoires from any type of sequencing data. All title and copyrights for and to the Software,
+"Software" means VDJtools, the Licensor's proprietary software implementing a comprehensive post-analysis 
+ framework for T-cell and B-cell repertoire sequencing data. All title and copyrights for and to the Software,
  including but not limited to any copywritten images, demos, source code, and intermediate files
  incorporated into the Software, the accompanying materials, and any copies of the Software are the
  intellectual property of and are owned by the Licensor.
